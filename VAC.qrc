@@ -1,0 +1,36 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/cancel_normal.png</file>
+        <file>images/cancel_hover.png</file>
+        <file>images/check_selected.png</file>
+        <file>images/check_skipped_selected.png</file>
+        <file>images/check_skipped_unselected.png</file>
+        <file>images/check_unselected.png</file>
+        <file>images/close_icon.png</file>
+        <file>images/handle_left.png</file>
+        <file>images/handle_right.png</file>
+        <file>images/icon.png</file>
+        <file>images/lineedit.png</file>
+        <file>images/login.png</file>
+        <file>images/login_hover.png</file>
+        <file>images/login_normal.png</file>
+        <file>images/main_background.png</file>
+        <file>images/minize_hover.png</file>
+        <file>images/minize_normal.png</file>
+        <file>images/next_page_click.png</file>
+        <file>images/next_page_normal.png</file>
+        <file>images/setup_hover.png</file>
+        <file>images/setup_normal.png</file>
+        <file>images/shutdown_hover.png</file>
+        <file>images/shutdown_normal.png</file>
+        <file>images/main_background_linux.png</file>
+        <file>images/next_page_click_linux.png</file>
+        <file>images/next_page_normal_linux.png</file>
+        <file>images/setup_hover_linux.png</file>
+        <file>images/setup_normal_linux.png</file>
+        <file>images/shutdown_hover_linux.png</file>
+        <file>images/shutdown_normal_linux.png</file>
+        <file>images/handle_left_linux.png</file>
+        <file>images/handle_right_linux.png</file>
+    </qresource>
+</RCC>

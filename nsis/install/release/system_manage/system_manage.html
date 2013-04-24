@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<link rel="stylesheet" type="text/css" href="css/reset-min.css">
+<script src="js/jquery.js" type="text/javascript"></script>
+<script src="js/jquery.dragsort-0.5.1.js"></script>
+<style>
+html{height:100%;}
+body{font-size:12px; font-family: "Microsoft YaHei",微软雅黑,arial,helvetica,sans-serif; color:#fff; background-color:#fff; height:100%; background-image:url(images/shadow.png); background-repeat:no-repeat;}
+.clearfix:after{visibility:hidden; display:block; font-size:0; content:" "; clear:both; height:0;}
+#list_all li{float:left; padding-bottom:100px;}
+.list_nav li{clear:left; float:left; margin:0px 0px 0px 5px; background-image:url(images/app_icon.png); background-repeat:no-repeat; background-position:0px 5px; padding-left:20px;}
+.list_nav li a{height:20px; line-height:20px; border-color:transparent; padding:0px;}
+ul li{margin:5px 5px 5px 0px;}
+span a,ul a{padding:0px 8px; height:30px; line-height:30px; border:1px solid transparent; cursor:pointer; text-decoration:none; color:#fff;}
+span a:hover,ul a:hover{border:1px solid #0088cc; background-color:#0088cc; color:#fff;}
+.placeHolder a{background-color:transparent !important; border:dashed 1px gray !important; display:block; height:100%;}
+.placeHolder{float:left;}
+p{cursor:pointer; position:relative;}
+s{border-style:solid;border-width:4px;font-size:0;height:0;line-height:0;width:0;border-color:transparent transparent transparent #666;_border-color:#f7f7f7 #f7f7f7 #f7f7f7 #f7f7f7 #666;-webkit-transition:-webkit-transform .2s ease-in;-webkit-backface-visibility:hidden;-moz-transition:-moz-transform .2s ease-in;-o-transition:-o-transform .2s ease-in;transition:transform .2s ease-in; display:block; position:absolute; left:-10px; top:4px;}
+.nav_title_show{-moz-transform:rotate(180deg);-moz-transform-origin:50% 30%;-webkit-transform:rotate(180deg);-webkit-transform-origin:50% 30%;-o-transform:rotate(180deg);-o-transform-origin:50% 30%;transform:rotate(180deg);transform-origin:50% 30%;filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=2);}
+.app_content{width:70%; padding:0px 50px; float:left; display:none;}
+
+#app_box div{float:left; padding:10px; border:1px solid #fff; margin:10px;}
+#app_box li{margin:5px 0px 5px 5px; float:left;}
+#app_box li:first-child{margin-left:0px;}
+#app_box p{text-align:center; font-size:16px; line-height:30px; font-weight:bold;}
+#app_box span, .list_nav span{display:inline-block; margin:0px 6px; display:none; color:#fff;}
+.app_setup{background-color:#0088cc; color:#fff; font-size:12px; padding:0px 4px; height:18px; line-height:18px; font-weight:normal; display:block; position:absolute; right:12px; top:12px; cursor:pointer;}
+#big_list div{margin-bottom:10px;}
+.setup_add_box{display:none; margin-bottom:20px;}
+.setup_add_box input{width:120px; height:20px; line-height:20px; border:1px solid #e1e1e1; padding:0px 2px;}
+.setup_done{text-align:center; padding-top:20px; display:none;}
+button{border:none; color:#fff; background-color:#0088cc; height:22px; line-height:22px; padding:0px 4px; cursor:pointer;}
+</style>
+</head>
+<body>
+<div style="width:100%; height:100%;" class="clearfix">
+	<div style="width:12%; padding:0px 10px 0px 10px; float:left; border-right:2px solid #000; min-width:180px; height:100%;">
+    	<div style="font-size:24px; font-weight:bold; height:30px; line-height:30px; margin:20px 0px; position:relative;">系统管理</div>
+        <div id="big_list" style="padding-left:20px;">
+        	<div>
+            	<p class="nav_title"><span class="can_click">基础数据管理</span><s></s></p>
+            </div>
+            <div>
+            	<p class="nav_title"> <a name="surl" class="can_click"  href="http://192.168.49.243:8080/CloudManage">服务平台</a><s></s></p>
+            </div>
+            <div>
+            	<p class="nav_title"><a name="vurl" class="can_click"  href="http://192.168.49.252">应用虚拟化平台</a><s></s></p>
+            </div>
+        </div>
+    </div>
+    <iframe class="app_result" style="position:absolute; width:86%; height:98%; right:0px; top:0px;" frameborder="0" marginheight="0" marginwidth="0" src=""></iframe>
+</div>
+<script>
+$(window).resize(function(e) {
+        var iframe_width=($(window).width())*0.86;
+				var iframe_height=$(window).height()*0.98;
+				$('.app_result').css({'width':iframe_width+'px','height':iframe_height});
+            });
+       $('span.can_click').click(function(){
+       	$('.app_result').attr('src',$(this).attr('href'));
+       	})
+</script>
+</body>
+</html>
+
+

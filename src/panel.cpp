@@ -1,0 +1,275 @@
+#include <QWidget>
+#include <QEvent>
+#include <QPainter>
+#include <QDebug>
+#include <QPropertyAnimation>
+#include <QHBoxLayout>
+#include <QFileDialog>
+#include <QUrl>
+#include <QLibrary>
+
+#include <windows.h>
+#include <shellapi.h>
+
+#include "config.h"
+#include "panel.h"
+#include "dynamicbutton.h"
+#include "settingDialog.h"
+
+#include "client/appcenterwdg.h"
+#include "client/appdatareadexe.h"
+#include "appmessagebox.h"
+
+Panel::Panel(QWidget *parent)
+    : QWidget(parent, Qt::FramelessWindowHint | Qt::Tool), \
+      autoHide(false), visible(false), animation(NULL), _center(NULL), _settingDialog(NULL)
+{
+    setAttribute(Qt::WA_TranslucentBackground, true);
+    setAutoFillBackground(true);
+    QPalette pal = palette();
+    pal.setColor(QPalette::Background, QColor(0x00,0x00,0x00,0xdd));
+    setPalette(pal);
+
+    animation = new QPropertyAnimation(this, "pos");
+    animation->setDuration(300);
+
+    QHBoxLayout *layout = new QHBoxLayout(this);
+
+    QPixmap desktopPix(":images/appbutton_localapp.png");
+    QPixmap desktopPixHover(":images/appbutton_localapp_hover.png");
+    DynamicButton *desktopButton = new DynamicButton(desktopPix, desktopPixHover, this);
+    //desktopButton->setGeometry(8, 0, 58, 58);
+    desktopButton->setFixedSize(99, 36);
+    layout->addWidget(desktopButton);
+    layout->setContentsMargins(10, 0, 10, 0);
+    layout->setSpacing(10);
+
+    QPixmap bsPix(":images/appbutton_bs.png");
+    QPixmap bsPixHover(":images/appbutton_bs_hover.png");
+    DynamicButton *bsButton = new DynamicButton(bsPix, bsPixHover, this);
+    //appButton->setGeometry(76, 0, 58, 58);
+    bsButton->setFixedSize(99, 36);
+    layout->addWidget(bsButton);
+
+//    QPixmap managePix(":images/appbutton_manage.png");
+//    QPixmap managePixHover(":images/appbutton_manage_hover.png");
+//    DynamicButton *manageButton = new DynamicButton(managePix, managePixHover, this);
+//    //appButton->setGeometry(76, 0, 58, 58);
+//    manageButton->setFixedSize(58, 58);
+//    layout->addWidget(manageButton);
+/*
+    QPixmap vappPix(":images/appbutton_vapp.png");
+    QPixmap vappPixHover(":images/appbutton_vapp_hover.png");
+    DynamicButton *vappButton = new DynamicButton(vappPix, vappPixHover, this);
+    //appButton->setGeometry(76, 0, 58, 58);
+    vappButton->setFixedSize(58, 58);
+    layout->addWidget(vappButton);
+	
+    QPixmap toolPix(":images/appbutton_toolbox.png");
+    QPixmap toolPixHover(":images/appbutton_toolbox_hover.png");
+    DynamicButton *toolButton = new DynamicButton(toolPix, toolPixHover, this);
+    //appButton->setGeometry(76, 0, 58, 58);
+    toolButton->setFixedSize(58, 58);
+    layout->addWidget(toolButton);
+
+    QPixmap storePix(":images/appbutton_store.png");
+    QPixmap storePixHover(":images/appbutton_store_hover.png");
+    DynamicButton *storeButton = new DynamicButton(storePix, storePixHover, this);
+    //appButton->setGeometry(76, 0, 58, 58);
+    storeButton->setFixedSize(58, 58);
+    layout->addWidget(storeButton);
+*/
+    /*
+    QPixmap addPix(":images/appbutton_add.png");
+    QPixmap addPixHover(":images/appbutton_add_hover.png");
+    DynamicButton *addButton = new DynamicButton(addPix, addPixHover, this);
+    //addButton->setGeometry(146, 0, 58, 58);
+    addButton->setFixedSize(58, 58);
+    layout->addWidget(addButton);
+    */
+    
+    //layout->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    QPixmap configPix(":images/appbutton_config.png");
+    QPixmap configPixHover(":images/appbutton_config_hover.png");
+    DynamicButton *configButton = new DynamicButton(configPix, configPixHover, this);
+    //configButton->setGeometry(214, 0, 58, 58);
+    configButton->setFixedSize(109, 36);
+    layout->addWidget(configButton);
+
+    QPixmap quitPix(":images/appbutton_quit.png");
+    QPixmap quitPixHover(":images/appbutton_quit_hover.png");
+    DynamicButton *quitButton = new DynamicButton(quitPix, quitPixHover, this);
+    //quitButton->setGeometry(282, 0, 58, 58);
+    quitButton->setFixedSize(69, 36);
+    layout->addWidget(quitButton);
+
+    connect(desktopButton, SIGNAL(clicked()), this, SLOT(showDesktop()));
+    //connect(vappButton, SIGNAL(clicked()), this, SLOT(showVappDesktop()));
+    connect(bsButton, SIGNAL(clicked()), this, SLOT(showBsDesktop()));
+    //connect(toolButton, SIGNAL(clicked()), this, SLOT(showToolDesktop()));
+    //connect(addButton, SIGNAL(clicked()), this, SLOT(addApp()));
+    //connect(storeButton, SIGNAL(clicked()), this, SLOT(runCenter()));
+    //connect(manageButton, SIGNAL(clicked()), this, SLOT(showManageDesktop()));
+    connect(configButton, SIGNAL(clicked()), this, SLOT(settings()));
+    connect(quitButton, SIGNAL(clicked()), this, SIGNAL(quit()));
+}
+
+void Panel::settings()
+{
+    emit iconDialog();
+    /*
+    if (_settingDialog == NULL)
+        _settingDialog = new IconArrangeDlg(this);
+    if (!_settingDialog->exec())
+        return;
+
+    if (_settingDialog->equal)
+        emit setEqual(_settingDialog->pCount);
+    else
+        emit setMini();
+    */
+}
+
+void Panel::runCenter()
+{
+    if (_center == NULL) {
+        _center = new AppCenterWdg();
+      //  _center->setTitle("软件中心");
+        _center->resize(753,550);
+      //  _center->move(10, 50);
+    } else {
+        _center->refresh();
+    }
+
+/*    if (_center == NULL) {
+         _center = new TestWidget();
+     //    _center->setTitle("软件中心");
+         _center->resize(950,630);
+         _center->move(100, 50);
+     }// else {
+     //    _center->refresh();
+    // }*/
+    _center->centerWidget();
+    _center->show();
+
+    //emit showStore();
+}
+
+void Panel::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    painter.drawPixmap(0, 0, 7, 41, QPixmap(":images/topNav_left.png"));
+    painter.drawPixmap(width() - 7, 0, 7, 41, QPixmap(":images/topNav_right.png"));
+    painter.drawPixmap(7, 0, QPixmap(":images/topNav_bg_center.png").scaled(width() - 14, 41));
+}
+
+void Panel::enterEvent(QEvent *event)
+{
+    if (!visible)
+        animationShow();
+}
+
+void Panel::leaveEvent(QEvent *event)
+{
+    if (autoHide)
+        animationHide();
+}
+
+void Panel::animationShow()
+{
+    if (animation->state() == QAbstractAnimation::Running) {
+        animation->stop();
+    }
+    QPoint end(x(), 0);
+    animation->setStartValue(pos());
+    animation->setEndValue(end);
+    animation->start();
+    visible = true;
+}
+
+void Panel::animationHide()
+{
+    if (animation->state() == QAbstractAnimation::Running) {
+        animation->stop();
+    }
+    QPoint end(x(), -(height() - 2));
+    animation->setStartValue(pos());
+    animation->setEndValue(end);
+    animation->start();
+    visible = false;
+}
+
+void Panel::mousePressEvent(QMouseEvent *event)
+{
+}
+
+void Panel::mouseReleaseEvent(QMouseEvent *event)
+{
+}
+
+#if 0
+void Panel::addApp()
+{
+    QString path = QFileDialog::getOpenFileName(this, tr("选择一个应用程序或快捷方式"),
+                                             Config::get("CommonProgramDir"),
+                                             tr("app (*.lnk *.exe)"));
+
+    if (path.isEmpty())
+        return;
+
+    path.replace('/','\\');
+    AppDataReadExe::Instance()->addLocalApp(path);
+}
+#endif
+
+void Panel::showDesktop()
+{
+    typedef void (*tempFuc)(void);
+    QLibrary myLib;
+
+    #ifdef DEBUG
+        myLib.setFileName("IconGetD.dll");
+    #else
+        myLib.setFileName("IconGet.dll");
+    #endif
+
+	/*
+    tempFuc myFunction = (tempFuc) myLib.resolve("ToggleDesktop");
+    if (myFunction) {
+        myFunction();
+        emit desktop();
+    }
+    */
+	/*手动卸载dll */
+	/*除非unload()函数被显示调用，否则库会保留在内存中直到程序终止。*/
+    if(myLib.isLoaded ())
+    {
+        myLib.unload();
+    }
+    
+	emit pageChanged(0);
+	
+}
+/*
+void Panel::showVappDesktop()
+{
+    emit pageChanged(2);
+}
+*/
+void Panel::showBsDesktop()
+{
+
+    emit pageChanged(1);
+}
+/*
+void Panel::showToolDesktop()
+{
+    emit pageChanged(3);
+}
+*/
+void Panel::showManageDesktop()
+{
+    emit pageChanged(2);
+}
+
