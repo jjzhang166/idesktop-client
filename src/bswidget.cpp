@@ -21,10 +21,10 @@ MyWebView::MyWebView(QWidget *parent)
 
 }
 
-void MyWebView::setNewUrl(const QUrl &url)
+void MyWebView::setNewUrl(QString url)
 {
-    emit hideMenu();
-    emit linkClicked(url);
+    QUrl u(url);
+    emit linkClicked(u);
 }
 
 void MyWebView::assembling()
@@ -43,10 +43,12 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
     , _height(height)
 {
     _leftWebKit = new LeftWebKit(this);
-    _leftWebKit->setGeometry(0, 0, _width * 0.14 + 11, _height);
+    //_leftWebKit->setGeometry(0, 20, _width * 0.14 + 10, _height);
+    _leftWebKit->setGeometry(0, 20, _width, _height);
 
     _rightAxWidget = new RightAxWidget(this);
-    _rightAxWidget->setGeometry(_width * 0.14 + 11, 20, _width - _width * 0.14 - 11, _height);\
+    //_rightAxWidget->setGeometry(_width * 0.14 + 11, 20, _width - _width * 0.14 - 10, _height);
+    _rightAxWidget->setGeometry(_width * 0.14 + 28, 20, _width - _width * 0.14 - 28, _height);
     _rightAxWidget->setVisible(true);
 
     connect(_leftWebKit, SIGNAL(startAssembly()), this, SLOT(startAssembly()));
@@ -61,13 +63,14 @@ BsWidget::~BsWidget()
 
 void BsWidget::startAssembly()
 {
-    _leftWebKit->setGeometry(0, 0, _width, _height);
+    _leftWebKit->setGeometry(0, 20, _width, _height);
     _rightAxWidget->setVisible(false);
 }
 
 void BsWidget::stopAssembly()
 {
-    _leftWebKit->setGeometry(0, 0, _width * 0.14 + 10, _height);
+    //_leftWebKit->setGeometry(0, 20, _width * 0.14 + 10, _height);
+    _leftWebKit->setGeometry(0, 20, _width, _height);
     _rightAxWidget->setVisible(true);
 }
 
@@ -81,15 +84,15 @@ LeftWebKit::LeftWebKit(QWidget *parent) :
 
     //_webview = new QWebView(this);
     _webview = new MyWebView(this);
-    //_webview->setGeometry(0, 0, width(), height());
+    _webview->setGeometry(0, 0, width(), height());
     _webpage = new WebPage();
     _webview->setPage(_webpage);
 
-    _toolsMenu = addToolBar(tr("&Tools"));
-    _toolsMenu->addAction(_webview->pageAction(QWebPage::Back));
-    _toolsMenu->addAction(_webview->pageAction(QWebPage::Forward));
-    _toolsMenu->addAction(_webview->pageAction(QWebPage::Reload));
-    _toolsMenu->addAction(_webview->pageAction(QWebPage::Stop));
+//    _toolsMenu = addToolBar(tr("&Tools"));
+//    _toolsMenu->addAction(_webview->pageAction(QWebPage::Back));
+//    _toolsMenu->addAction(_webview->pageAction(QWebPage::Forward));
+//    _toolsMenu->addAction(_webview->pageAction(QWebPage::Reload));
+//    _toolsMenu->addAction(_webview->pageAction(QWebPage::Stop));
 
     QWebSettings *websetting= QWebSettings::globalSettings();
     websetting->setAttribute(QWebSettings::JavascriptEnabled,true);    
@@ -98,11 +101,11 @@ LeftWebKit::LeftWebKit(QWidget *parent) :
     websetting->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls,true);
     websetting->setObjectCacheCapacities(0, 0, 0);
 
-    //_webview->load(QUrl("http://"+serverip+"/point.html"));
+    _webview->load(QUrl("http://"+serverip+"/point.html"));
 
-    _webview->load(QUrl("http://www.hao123.com"));
-    //_webview->load(QUrl(Config::get("SystemManage")));
-    _webview->page()->mainFrame()->addToJavaScriptWindowObject(QString("mywebkit"),_webview);
+    //_webview->load(QUrl("./system_manage/revamp/demo.html"));
+    //_webview->load(QUrl("http://192.168.30.68/point.html"));
+    _webview->page()->mainFrame()->addToJavaScriptWindowObject("mywebkit",_webview);
 
     setCentralWidget(_webview);
 
@@ -126,6 +129,10 @@ void LeftWebKit::resizeEvent(QResizeEvent *event)
 RightAxWidget::RightAxWidget(QWidget *parent)
     : QTabWidget(parent)
 {
+    _pal = this->palette();
+     _pal.setBrush(QPalette::Window, QBrush(QPixmap(":/images/bs_shadow.png")));
+    setPalette(_pal);
+
 //    setWindowFlags(Qt::FramelessWindowHint \
 //                   | Qt::WindowMinimizeButtonHint \
 //                   | Qt::WindowSystemMenuHint);
@@ -149,6 +156,9 @@ void RightAxWidget::setUrl(const QUrl &url)
 */
 void RightAxWidget::createTab(const QUrl &url)
 {
+    _pal.setBrush(QPalette::Window, QBrush(QPixmap("")));
+    setPalette(_pal);
+
     _axWidget = new AxWidget(_axWs.count(), this);
     addTab(_axWidget, "");
     _axWidget->resize(width(), height());
@@ -170,7 +180,7 @@ void RightAxWidget::createTab(const QUrl &url)
 
 void RightAxWidget::titleChange(int index, QString title)
 {
-    qDebug() << index;
+    //qDebug() << index;
     setTabText(index, title);
 }
 
@@ -178,7 +188,7 @@ void RightAxWidget::removeTabWidget(int i)
 {
 
     int index = i;
-    qDebug() << index;
+    //qDebug() << index;
     if (index < 0 || index > _axWs.count())
         return;
 
@@ -237,13 +247,13 @@ void AxWidget::setUrl(const QUrl &url)
 void AxWidget::newWindow(QString URL, int Flags, QString TargetFrameName, \
                                         QVariant& PostData, QString Headers, bool& Processed)
 {
-    qDebug() << "New";
-    qDebug() << URL;
-    qDebug() << Flags;
-    qDebug() << TargetFrameName;
-    qDebug() << PostData;
-    qDebug() << Headers;
-    qDebug() << Processed;
+//    qDebug() << "New";
+//    qDebug() << URL;
+//    qDebug() << Flags;
+//    qDebug() << TargetFrameName;
+//    qDebug() << PostData;
+//    qDebug() << Headers;
+//    qDebug() << Processed;
     QUrl u(URL);
 
     emit createTab(u);

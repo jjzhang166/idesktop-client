@@ -78,14 +78,17 @@ IconItem::IconItem(const QString &text, const VirtualDesktop::iconStyle &iSt, QW
 
     _icontype = APPICON;
 
-    _openAction = new QAction(tr("运行"), this);
-    _delAction = new QAction(tr("删除"), this);
-
     _hoverIconItem = new HoverIconItem(this->width(), this->height(), this);
     _hoverIconItem->setVisible(false);
 
+    _openAction = new QAction(tr("运行"), this);
     connect(_openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
-    connect(_delAction, SIGNAL(triggered()), this, SLOT(delClicked()));
+
+    if (_style == VirtualDesktop::localIcon)
+    {
+        _delAction = new QAction(tr("删除"), this);
+        connect(_delAction, SIGNAL(triggered()), this, SLOT(delClicked()));
+    }
 
     connect(_timeline, SIGNAL(valueChanged(qreal)), this, SLOT(doTremble(qreal)));
     if (parent) {
@@ -250,7 +253,12 @@ void IconItem::contextMenuEvent(QContextMenuEvent *event)
     //QAction * openAction = new QAction(tr("open"), this);
     //QAction * delAction = new QAction(tr("delete"), this);
     iconItemcontextMenu->addAction(_openAction);
-    iconItemcontextMenu->addAction(_delAction);
+
+    if (_style == VirtualDesktop::localIcon)
+    {
+        iconItemcontextMenu->addAction(_delAction);
+    }
+
     iconItemcontextMenu->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     iconItemcontextMenu->exec(cur.pos());
@@ -1961,6 +1969,8 @@ void VirtualDesktop::runServerApp()
     {
         if(g_myVappList.at(i).name == appText)
         {
+            qDebug() << g_myVappList.at(i).name;
+
             _appid = g_myVappList.at(i).id;
             Commui._type = g_myVappList.at(i).type;
         }

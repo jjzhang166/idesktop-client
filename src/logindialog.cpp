@@ -72,8 +72,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry(75, 105, 208, 35);
     passEdit->setGeometry(75, 165, 208, 35);
 
-    userEdit->setText(QString("admin"));
-    passEdit->setText(QString("abc123"));
+    //userEdit->setText(QString("admin"));
+    //passEdit->setText(QString("abc123"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -289,7 +289,49 @@ void LoginDialog::auth()
 
 	//vac
 	//login ivapp sm
-    _commui->login("192.168.31.196:80", "demo", "123456","Win7");
+
+//QString DlgLogin::GetSystemInfo()
+//{
+    QString sysInfo;
+#ifdef Q_WS_WIN
+    switch(QSysInfo::windowsVersion())
+    {
+        case QSysInfo::WV_2000:
+            qDebug()<<"System info:windows 2000 \n";
+            sysInfo="windows 2000";
+            break;
+        case QSysInfo::WV_2003:
+            qDebug()<<"System info:windows 2003 \n";
+            sysInfo="windows 2003";
+            break;
+        case QSysInfo::WV_XP:
+            qDebug()<<"System info:windows xp \n";
+            sysInfo="windows xp";
+            break;
+        case QSysInfo::WV_VISTA:
+            qDebug()<<"System info:windows vista \n";
+            sysInfo="windows vista";
+            break;
+        case QSysInfo::WV_WINDOWS7:
+            qDebug()<<"System info:windows 7 \n";
+            sysInfo="windows 7";
+            break;
+        default:
+            qDebug()<<"System info:windows 7 \n";
+            sysInfo="windows 7";
+            break;
+
+    }
+#endif
+#ifdef Q_WS_X11
+    sysInfo = "linux";
+#endif
+//    return sysInfo;
+//}
+
+    //_commui->login("192.168.31.196:80", "demo", "123456",QString("%1").arg(sysInfo));
+    _commui->login("192.168.49.253:80", "test", "1357.com",QString("%1").arg(sysInfo));
+    //_commui->login("192.168.30.63:80", "test", "1357.com",QString("%1").arg(sysInfo));
 
     // heart beat.5s timer
     heartbeat_timer=new QTimer(this);

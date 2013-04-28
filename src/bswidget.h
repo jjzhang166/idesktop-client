@@ -59,7 +59,8 @@ signals:
     void stopAssembly();
 
 public slots:
-    void setNewUrl(const QUrl &url);
+    //void setNewUrl(const QUrl &url);
+    void setNewUrl(QString url);
     void assembling();
     void assembled();
 };
@@ -99,14 +100,20 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 signals:
+    void hideMenu();
     void link(const QUrl &url);
     void startAssembly();
     void stopAssembly();
 
+public slots:
+    void loadStart();
+    void urlChange();
+
+
 private:
     //QWebView *_webview;
     MyWebView *_webview;
-    QToolBar *_toolsMenu;
+    //QToolBar *_toolsMenu;
     WebPage *_webpage;
 
 
@@ -117,11 +124,7 @@ class RightAxWidget : public QTabWidget
     Q_OBJECT
 public:
     RightAxWidget(QWidget *parent = 0);
-    ~RightAxWidget()
-    {
-        qDeleteAll(_axWs);
-        _axWs.clear();
-    }
+    ~RightAxWidget() {}
 
 public slots:
     void createTab(const QUrl &url);
@@ -133,6 +136,7 @@ protected:
     //void resizeEvent(QResizeEvent *event);
 
 private:
+    QPalette _pal;
     AxWidget *_axWidget;
     QList<AxWidget*> _axWs;
 };

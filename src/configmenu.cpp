@@ -20,7 +20,7 @@ ConfigMenu::ConfigMenu(QWidget *parent)
     : QLabel(parent)
     , _enter(false)
 {
-    setFixedSize(143, 117);
+    setFixedSize(143, 83);
 
     this->setAutoFillBackground(true);
 
@@ -32,19 +32,19 @@ ConfigMenu::ConfigMenu(QWidget *parent)
                            QPushButton:hover:pressed{border-image:url(:/images/menu_top.png);border-style:flat;color:white;}\
                            QPushButton:hover:!pressed{border-image:url(:/images/menu_top_hover.png);border-style:flat;color:white;}");
     _bsStyleAc = new QPushButton(tr("B/S应用样式"), this);
-    _bsStyleAc->setGeometry(0, 42, 143, 34);
-    _bsStyleAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_center.png);border-style:flat;color:white;}\
-                              QPushButton:hover:pressed{border-image:url(:/images/menu_center.png);border-style:flat;color:white;}\
-                              QPushButton:hover:!pressed{border-image:url(:/images/menu_center_hover.png);border-style:flat;color:white;}");
-    _serverAc = new QPushButton(tr("服务器设置"), this);
-    _serverAc->setGeometry(0, 76, 143, 41);
-    _serverAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
-                             QPushButton:hover:pressed{border-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
-                             QPushButton:hover:!pressed{border-image:url(:/images/menu_bottom_hover.png);border-style:flat;color:white;}");
+    _bsStyleAc->setGeometry(0, 42, 143, 41);
+    _bsStyleAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
+                              QPushButton:hover:pressed{border-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
+                              QPushButton:hover:!pressed{border-image:url(:/images/menu_bottom_hover.png);border-style:flat;color:white;}");
+//    _serverAc = new QPushButton(tr("服务器设置"), this);
+//    _serverAc->setGeometry(0, 76, 143, 41);
+//    _serverAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
+//                             QPushButton:hover:pressed{border-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
+//                             QPushButton:hover:!pressed{border-image:url(:/images/menu_bottom_hover.png);border-style:flat;color:white;}");
 
     connect(_skinAc, SIGNAL(clicked()), this, SLOT(setSkin()));
     connect(_bsStyleAc, SIGNAL(clicked()), this, SLOT(setBsStyle()));
-    connect(_serverAc, SIGNAL(clicked()), this, SLOT(setServer()));
+//    connect(_serverAc, SIGNAL(clicked()), this, SLOT(setServer()));
 
 }
 
