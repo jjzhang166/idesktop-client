@@ -1,6 +1,14 @@
 ; 该脚本使用 HM VNISEdit 脚本编辑器向导产生
 
 ; 安装程序初始定义常量
+!include LogicLib.nsh
+!include WinVer.nsh
+!include WinMessages.nsh
+; old header
+!include old\EnvVarUpdate.nsh
+!include old\WindowsVersion.nsh
+!include old\String.nsh
+
 !define PRODUCT_NAME "iDesktop-client"
 !define EXE_NAME "idesktop-client"
 ;!define INSTALLDIR "$PROGRAMFILES\${PRODUCT_NAME}"
@@ -99,14 +107,41 @@ Section "MainSection" SEC01
   File "..\release\libgcc_s_dw2-1.dll"
   File "..\release\IconGet.dll"
   File "..\release\ChildWaitDlg.dll"
-  File "..\release\ClientEngineChild.exe"
+  #File "..\release\ClientEngineChild.exe"
   File "..\release\connet.exe"
   File "..\release\DllClientEngineMain.dll"
   File "..\release\L4CMain.dll"
   File "..\release\pluginIme.dll"
   File "..\release\PluginSeam.dll"
   File "..\release\PlugLink.dll"
+  File "..\release\QtXml4.dll"
+  ${If} ${IsWinXP}
+  ${AndIf} ${AtLeastServicePack} 3
+    File "..\files\higher\ClientEngineChildHigher.exe"
+    Rename "ClientEngineChildHigher.exe" "ClientEngineChild.exe"
+    File "..\files\lower\WindowsXP-KB969084-x86-chs.exe"
+    nsExec::exec "$INSTDIR\WindowsXP-KB969084-x86-chs.exe /passive"
+  ${EndIf}
+  ${If} ${IsWinVista}
+    File "..\files\higher\ClientEngineChildHigher.exe"
+    Rename "ClientEngineChildHigher.exe" "ClientEngineChild.exe"
+    File "..\files\higher\Windows6.0-KB969084-x86.msu"
+    nsExec::exec "$INSTDIR\Windows6.0-KB969084-x86.msu"
+  ${EndIf}
+  ${If} ${IsWin7}
+  ${OrIf} ${IsWin2008}
+  ${OrIf} ${IsWin2008R2}
+    File "..\files\higher\ClientEngineChildHigher.exe"
+    Rename "ClientEngineChildHigher.exe" "ClientEngineChild.exe"
+  ${EndIf}
 
+  ${If} ${IsWinXP}
+  ${AndIf} ${AtMostServicePack} 2
+  ${OrIf} ${IsWin2003}
+    File "..\files\lower\ClientEngineChildEarly.exe"
+    Rename "ClientEngineChildEarly.exe" "ClientEngineChild.exe"
+  ${EndIf}
+  
 SectionEnd
 
 Section -AdditionalIcons
@@ -163,6 +198,7 @@ Section Uninstall
   Delete "$INSTDIR\pluginIme.dll"
   Delete "$INSTDIR\PluginSeam.dll"
   Delete "$INSTDIR\PlugLink.dll"
+  Delete "$INSTDIR\QtXml4.dll"
   RMDir /r "$INSTDIR\codecs"
   RMDir /r "$INSTDIR\imageformats"
   RMDir /r "$INSTDIR\sqldrivers"
@@ -188,6 +224,7 @@ SectionEnd
 #-- 根据 NSIS 脚本编辑规则，所有 Function 区段必须放置在 Section 区段之后编写，以避免安装程序出现未可预知的问题。--#
 
 Function un.onInit
+/*
 	FindProcDLL::FindProc "ClientEngineChild.exe"
 	Pop $R0
 	${If} $R0 != 0
@@ -197,13 +234,18 @@ Function un.onInit
 	FindProcDLL::FindProc "${EXE_NAME}.exe"
 	Pop $R0
 	${If} $R0 != 0
-	;KillProcDLL::KillProc "${EXE_NAME}.exe"
+	KillProcDLL::KillProc "${EXE_NAME}.exe"
 	  MessageBox MB_ICONSTOP "$(^Name)正在运行，请先关闭程序!"
 	  Quit
 	${EndIf}
+*/
 
   MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "您确实要完全移除 $(^Name) ，及其所有的组件？" IDYES +2
   Abort
+  
+  nsExec::ExecToLog 'taskkill /f /im ClientEngineChild.exe'
+  nsExec::ExecToLog 'taskkill /f /im ${EXE_NAME}.exe'
+
 FunctionEnd
 
 Function un.onUninstSuccess
