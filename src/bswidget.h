@@ -104,19 +104,17 @@ signals:
     void link(const QUrl &url);
     void startAssembly();
     void stopAssembly();
+    void webviewIconChanged();
 
 public slots:
-    void loadStart();
-    void urlChange();
-
+    //void loadStart();
+    //void urlChange()
 
 private:
     //QWebView *_webview;
     MyWebView *_webview;
     //QToolBar *_toolsMenu;
     WebPage *_webpage;
-
-
 };
 
 class RightAxWidget : public QTabWidget
@@ -129,8 +127,10 @@ public:
 public slots:
     void createTab(const QUrl &url);
     //void setUrl(const QUrl &url);
-    void titleChange(int index, QString title) ;
+    void titleChange(int index, QString title);
     void removeTabWidget(int i);
+
+    void iconChange(int index, QIcon icon);
 
 protected:
     //void resizeEvent(QResizeEvent *event);
@@ -139,6 +139,7 @@ private:
     QPalette _pal;
     AxWidget *_axWidget;
     QList<AxWidget*> _axWs;
+    QUrl _url;
 };
 
 class AxWidget : public QWidget
@@ -155,10 +156,14 @@ public:
 signals:
     void createTab(const QUrl &url);
     void titleChange(int index, QString title);
+    void iconChange(int index, QIcon icon);
 
 public slots:
-    void newWindow(QString URL, int Flags, QString TargetFrameName, \
-                  QVariant& PostData, QString Headers, bool& Processed);
+//    void newWindow(QString URL, int Flags, QString TargetFrameName, \
+//                  QVariant& PostData, QString Headers, bool& Processed);
+    void newWindow2 (IDispatch** ppDisp, bool& Cancel);
+    void newWindow3(IDispatch** ppDisp, bool& Cancel, \
+                    uint dwFlags, QString bstrUrlContext, QString bstrUrl);
     void titleChange(QString title);
 
 protected:

@@ -11,6 +11,7 @@
 #include <ActiveQt/QAxWidget>
 #include <QtDebug>
 #include <QPushButton>
+#include <QLabel>
 #include "config.h"
 
 extern QString serverip;
@@ -88,12 +89,6 @@ LeftWebKit::LeftWebKit(QWidget *parent) :
     _webpage = new WebPage();
     _webview->setPage(_webpage);
 
-//    _toolsMenu = addToolBar(tr("&Tools"));
-//    _toolsMenu->addAction(_webview->pageAction(QWebPage::Back));
-//    _toolsMenu->addAction(_webview->pageAction(QWebPage::Forward));
-//    _toolsMenu->addAction(_webview->pageAction(QWebPage::Reload));
-//    _toolsMenu->addAction(_webview->pageAction(QWebPage::Stop));
-
     QWebSettings *websetting= QWebSettings::globalSettings();
     websetting->setAttribute(QWebSettings::JavascriptEnabled,true);    
     // Plug-ins must be set to be enabled to use plug-ins.
@@ -156,13 +151,14 @@ void RightAxWidget::setUrl(const QUrl &url)
 */
 void RightAxWidget::createTab(const QUrl &url)
 {
+    _url = url;
     _pal.setBrush(QPalette::Window, QBrush(QPixmap("")));
     setPalette(_pal);
 
     _axWidget = new AxWidget(_axWs.count(), this);
     addTab(_axWidget, "");
     _axWidget->resize(width(), height());
-    _axWidget->setUrl(url);
+    _axWidget->setUrl(_url);
 
     _axWs.append(_axWidget);
 
@@ -175,6 +171,8 @@ void RightAxWidget::createTab(const QUrl &url)
             this, SLOT(createTab(const QUrl&)));
     connect(_axWs.last(), SIGNAL(titleChange(int, QString)),\
             this, SLOT(titleChange(int, QString)));
+    connect(_axWs.last(), SIGNAL(iconChange(int, QIcon)),\
+            this, SLOT(iconChange(int, QIcon)));
 
 }
 
@@ -182,6 +180,11 @@ void RightAxWidget::titleChange(int index, QString title)
 {
     //qDebug() << index;
     setTabText(index, title);
+}
+
+void RightAxWidget::iconChange(int index, QIcon icon)
+{
+    setTabIcon(index, icon.pixmap(16, 16));
 }
 
 void RightAxWidget::removeTabWidget(int i)
@@ -226,11 +229,15 @@ AxWidget::AxWidget(int id, QWidget *parent)
     _ax->setObjectName(QString::fromUtf8("_ax"));
 
     //ÐÂµ¯³öÒ³
-    connect(_ax, SIGNAL(NewWindow(QString, int, QString, QVariant&, QString, bool&)), \
-            this, SLOT(newWindow(QString, int, QString, QVariant&, QString, bool&)));
+//    connect(_ax, SIGNAL(NewWindow(QString, int, QString, QVariant&, QString, bool&)), \
+//            this, SLOT(newWindow(QString, int, QString, QVariant&, QString, bool&)));
     connect(_ax, SIGNAL(TitleChange(QString)), this, SLOT(titleChange(QString)));
     //connect(_ax, SIGNAL(WindowActivate()), receiver, SLOT(windowActivate()));
 
+    connect(_ax, SIGNAL(NewWindow2(IDispatch**, bool&)), \
+            this, SLOT(newWindow2(IDispatch**, bool&)));
+    connect(_ax, SIGNAL(NewWindow3(IDispatch**, bool&, uint, QString,QString)),\
+            this, SLOT(newWindow3(IDispatch**,bool&,uint,QString,QString)));
 }
 
 void AxWidget::resizeEvent(QResizeEvent *event)
@@ -241,24 +248,29 @@ void AxWidget::resizeEvent(QResizeEvent *event)
 void AxWidget::setUrl(const QUrl &url)
 {
     _ax->dynamicCall("Navigate(const QString&)", url);
-   //_ax->dynamicCall( "get_Document(QString &)",url );
 }
 
+void AxWidget::newWindow3 (IDispatch** ppDisp, bool& Cancel, uint dwFlags,
+                           QString bstrUrlContext, QString bstrUrl)
+{
+    qDebug() << bstrUrl;
+    QUrl u(bstrUrl);
+    emit createTab(u);
+}
+
+void AxWidget::newWindow2 (IDispatch** ppDisp, bool& Cancel)
+{
+    Cancel = true;
+}
+/*
 void AxWidget::newWindow(QString URL, int Flags, QString TargetFrameName, \
                                         QVariant& PostData, QString Headers, bool& Processed)
 {
-//    qDebug() << "New";
-//    qDebug() << URL;
-//    qDebug() << Flags;
-//    qDebug() << TargetFrameName;
-//    qDebug() << PostData;
-//    qDebug() << Headers;
-//    qDebug() << Processed;
     QUrl u(URL);
 
     emit createTab(u);
 }
-
+*/
 void AxWidget::titleChange(QString title)
 {
     emit titleChange(_id, title);
