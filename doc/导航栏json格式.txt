@@ -1,0 +1,9 @@
+﻿[{"serviceId":1,"name":"车辆管理","version":"1.0.0","fullName":"car_1.0.0","type":"0","description":"my first test service","urls":[{"url":"http://car.tongtech.com"}],
+                "subFunction":[{"name":"新增车辆", ”id“：2， "url":"page/stuAdd.jsp","subFunction":[]},
+                               {"name":"车辆查询", ”id“：3， "url":"servlet/Student?type=getListCar","subFunction":[]},
+                               {"name":"车辆管理", ”id“：4， "url":"","subFunction":[]}
+                               
+                              ]
+                              
+ }                               
+]
