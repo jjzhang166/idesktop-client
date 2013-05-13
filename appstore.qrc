@@ -151,5 +151,22 @@
         <file>images/appbutton_config.png</file>
         <file>images/appbutton_localapp.png</file>
         <file>images/appbutton_quit.png</file>
+        <file>images/bs_back_hover.png</file>
+        <file>images/bs_back_normal.png</file>
+        <file>images/bs_forward_hover.png</file>
+        <file>images/bs_forward_normal.png</file>
+        <file>images/bs_refresh_hover.png</file>
+        <file>images/bs_refresh_normal.png</file>
+        <file>images/bs_rightbg_bottom.png</file>
+        <file>images/bs_rightbg_center.png</file>
+        <file>images/bs_rightbg_top.png</file>
+        <file>images/bs_tab_close_hover.png</file>
+        <file>images/bs_tab_close_normal.png</file>
+        <file>images/bs_tab_normal.png</file>
+        <file>images/bs_tab_selected.png</file>
+        <file>images/win_hover.png</file>
+        <file>images/win_normal.png</file>
+        <file>images/isoft_hover.png</file>
+        <file>images/isoft_normal.png</file>
     </qresource>
 </RCC>

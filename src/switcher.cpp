@@ -12,21 +12,52 @@ Switcher::Switcher(QWidget *parent)
     QPalette pal = palette();
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
-    QImage normalRight = QImage(":images/Arrow.png");
-    QImage transRight = QImage(normalRight.width(), normalRight.height(), QImage::Format_ARGB32);
+//    QImage normalRight = QImage(":images/Arrow.png");
+//    QImage transRight = QImage(normalRight.width(), normalRight.height(), QImage::Format_ARGB32);
+//    QImage darkRight =  QImage(normalRight.width(), normalRight.height(), QImage::Format_ARGB32);
+//    QImage normalLeft = QImage(":images/Arrow2.png");
+//    QImage darkLeft = QImage(normalRight.width(), normalRight.height(), QImage::Format_ARGB32);
+//    QImage transLeft = QImage(normalRight.width(), normalRight.height(), QImage::Format_ARGB32);
+//    for (int i = 0; i < normalRight.width(); i++) {
+//        for (int j = 0; j < normalRight.height(); j++) {
+//            QRgb pixel = normalRight.pixel(i,j);
+//            int a = qAlpha(pixel);
+//            QRgb transPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//                                    qBlue(pixel), a/2);
+//            QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8, \
+//                                    qBlue(pixel)*0.8, a);
+//            transRight.setPixel(i, j, transPixel);
+//            darkRight.setPixel(i, j, darkPixel);
+//        }
+//    }
+//    for (int i = 0; i < normalLeft.width(); i++) {
+//        for (int j = 0; j < normalLeft.height(); j++) {
+//            QRgb pixel = normalLeft.pixel(i,j);
+//            int a = qAlpha(pixel);
+//            QRgb transPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//                                    qBlue(pixel), a/2);
+//            QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8, \
+//                                    qBlue(pixel)*0.8, a);
+//            transLeft.setPixel(i, j, transPixel);
+//            darkLeft.setPixel(i, j, darkPixel);
+//        }
+//    }
+
+    QImage normalRight = QImage(":images/win_hover.png");
+    QImage transRight = QImage(":images/win_normal.png");
     QImage darkRight =  QImage(normalRight.width(), normalRight.height(), QImage::Format_ARGB32);
-    QImage normalLeft = QImage(":images/Arrow2.png");
+
+    QImage normalLeft = QImage(":images/isoft_hover.png");
+    QImage transLeft = QImage(":images/isoft_normal.png");
     QImage darkLeft = QImage(normalRight.width(), normalRight.height(), QImage::Format_ARGB32);
-    QImage transLeft = QImage(normalRight.width(), normalRight.height(), QImage::Format_ARGB32);
+
+
     for (int i = 0; i < normalRight.width(); i++) {
         for (int j = 0; j < normalRight.height(); j++) {
             QRgb pixel = normalRight.pixel(i,j);
             int a = qAlpha(pixel);
-            QRgb transPixel = qRgba(qRed(pixel), qGreen(pixel), \
-                                    qBlue(pixel), a/2);
             QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8, \
                                     qBlue(pixel)*0.8, a);
-            transRight.setPixel(i, j, transPixel);
             darkRight.setPixel(i, j, darkPixel);
         }
     }
@@ -34,14 +65,12 @@ Switcher::Switcher(QWidget *parent)
         for (int j = 0; j < normalLeft.height(); j++) {
             QRgb pixel = normalLeft.pixel(i,j);
             int a = qAlpha(pixel);
-            QRgb transPixel = qRgba(qRed(pixel), qGreen(pixel), \
-                                    qBlue(pixel), a/2);
             QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8, \
                                     qBlue(pixel)*0.8, a);
-            transLeft.setPixel(i, j, transPixel);
             darkLeft.setPixel(i, j, darkPixel);
         }
     }
+
     _normalRight = QPixmap::fromImage(normalRight);
     _normalLeft = QPixmap::fromImage(normalLeft);
     _transRight = QPixmap::fromImage(transRight);
@@ -71,6 +100,7 @@ void Switcher::mousePressEvent(QMouseEvent *event)
         _pixmap = _darkLeft;
     else
         _pixmap = _darkRight;
+
     repaint();
 }
 

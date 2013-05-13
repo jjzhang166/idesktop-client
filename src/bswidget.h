@@ -11,14 +11,17 @@
 #include <QUrl>
 #include "windows.h"
 #include <QList>
+#include <QPushButton>
 
 class AxWidget;
 class LeftWebKit;
-class RightAxWidget;
+class TabWidget;
+class RightWidget;
 
 class WebPage : public QWebPage
 {
     virtual QString userAgentForUrl(const QUrl& url) const {
+        Q_UNUSED(url);
         return "Chrome/1.0";
     }
 };
@@ -82,7 +85,7 @@ public slots:
 
 private:
     LeftWebKit *_leftWebKit;
-    RightAxWidget *_rightAxWidget;
+    RightWidget *_rightWidget;
 
     int _width;
     int _height;
@@ -116,13 +119,36 @@ private:
     //QToolBar *_toolsMenu;
     WebPage *_webpage;
 };
-
-class RightAxWidget : public QTabWidget
+class RightWidget : public QWidget
 {
     Q_OBJECT
 public:
-    RightAxWidget(QWidget *parent = 0);
-    ~RightAxWidget() {}
+    RightWidget(QWidget *parent = 0);
+    ~RightWidget() { delete _tabWidget;}
+
+public slots:
+    void createTab(const QUrl &url);
+
+protected:
+    void paintEvent(QPaintEvent *event);
+    void resizeEvent(QResizeEvent *event);
+
+private:
+    TabWidget *_tabWidget;
+    QPixmap _rightTopPix;
+    QPixmap _rightCenterPix;
+    QPixmap _rightBottomPix;
+
+    int _width;
+    int _height;
+};
+
+class TabWidget : public QTabWidget
+{
+    Q_OBJECT
+public:
+    TabWidget(QWidget *parent = 0);
+    ~TabWidget() {}
 
 public slots:
     void createTab(const QUrl &url);
@@ -130,7 +156,14 @@ public slots:
     void titleChange(int index, QString title);
     void removeTabWidget(int i);
 
-    void iconChange(int index, QIcon icon);
+    void iconChanged(int index, QIcon icon);
+
+    void curChanged(int index);
+    void goBack();
+    void goForward();
+    void refresh();
+    void comStateChange (int command, bool enable);
+    void setCommandState(bool backState, bool forwardState, bool refresh);
 
 protected:
     //void resizeEvent(QResizeEvent *event);
@@ -140,31 +173,58 @@ private:
     AxWidget *_axWidget;
     QList<AxWidget*> _axWs;
     QUrl _url;
+    QPushButton *_goBack;
+    QPushButton *_goForward;
+    QPushButton *_refresh;
 };
 
 class AxWidget : public QWidget
 {
     Q_OBJECT
 public:
+
+    enum tagREADYSTATE
+    {
+        READYSTATE_UNINITIALIZED = 0,
+        READYSTATE_LOADING = 1,
+        READYSTATE_LOADED = 2,
+        READYSTATE_INTERACTIVE = 3,
+        READYSTATE_COMPLETE = 4
+    };
+
     AxWidget(int id = 0, QWidget *parent = 0);
     ~AxWidget() {}
 
     void setUrl(const QUrl &url);
     void setId(int id);
     int getId();
+    QIcon icon(const QUrl &url);
 
+    void getCommandState();
+    void goBack();
+    void goForward();
+    void refresh();
 signals:
     void createTab(const QUrl &url);
     void titleChange(int index, QString title);
-    void iconChange(int index, QIcon icon);
+    void iconChanged(int index, QIcon icon);
+    void comStateChange (int command, bool enable);
+    void commandState(bool backState, bool forwardState, bool refresh);
+
+    //void setWidth(int w);
 
 public slots:
-//    void newWindow(QString URL, int Flags, QString TargetFrameName, \
-//                  QVariant& PostData, QString Headers, bool& Processed);
+
     void newWindow2 (IDispatch** ppDisp, bool& Cancel);
-    void newWindow3(IDispatch** ppDisp, bool& Cancel, \
+    void newWindow3(IDispatch** ppDisp, bool& Cancel,
                     uint dwFlags, QString bstrUrlContext, QString bstrUrl);
+//    void newWindow(QString URL, int Flags, QString TargetFrameName,
+//                  QVariant& PostData, QString Headers, bool& Processed);
     void titleChange(QString title);
+    void readyStateChanged(tagREADYSTATE ReadyState);
+    void postLaunch();
+    void downloadComplete();
+	void commandStateChange (int command, bool enable);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -173,6 +233,9 @@ private:
     QAxWidget *_ax;
     //WebAxWidget *_ax;
     int _id;
+    bool _backState;
+    bool _forwardState;
+    bool _refreshState;
 };
 
 #endif // BSWIDGET_H

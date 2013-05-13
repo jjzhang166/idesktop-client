@@ -72,8 +72,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry(75, 105, 208, 35);
     passEdit->setGeometry(75, 165, 208, 35);
 
-    //userEdit->setText(QString("admin"));
-    //passEdit->setText(QString("abc123"));
+    userEdit->setText(QString("admin"));
+    passEdit->setText(QString("abc123"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -330,8 +330,8 @@ void LoginDialog::auth()
 //}
 
     //_commui->login("192.168.31.196:80", "demo", "123456",QString("%1").arg(sysInfo));
-    _commui->login("192.168.49.253:80", "test", "1357.com",QString("%1").arg(sysInfo));
-    //_commui->login("192.168.30.63:80", "test", "1357.com",QString("%1").arg(sysInfo));
+    //_commui->login("192.168.49.253:80", "test", "1357.com",QString("%1").arg(sysInfo));
+    _commui->login("192.168.30.63:80", "test", "1357.com",QString("%1").arg(sysInfo));
 
     // heart beat.5s timer
     heartbeat_timer=new QTimer(this);
@@ -418,6 +418,9 @@ void LoginDialog::auth()
          QPixmap pix = QPixmap::fromImage(normal);
          pix.save(newApp, "ICO", -1);
     }
+//    _updateVappTimer = new QTimer(this);
+//    connect(_updateVappTimer, SIGNAL(timeout()), this, SLOT(updateVappIcon()));
+//    _updateVappTimer->start(1000 * 6);
 }
 
 void LoginDialog::onDone()
@@ -465,6 +468,82 @@ void LoginDialog::heartbeat()
         qApp->quit();
     }
 }
+
+//void LoginDialog::updateVappIcon()
+//{
+
+//    //get vapp list
+//    _commui->getAppList();
+//    while (!_vacfinished)
+//        QApplication::processEvents();
+//    _vacfinished = false;
+
+//    g_myVappList = _commui->getList();
+//    qDebug()<<"g_myList.count()="<<g_myVappList.count();
+
+//    #ifdef Q_WS_WIN
+//    QString iconDirPath = WIN_VAPP_IconPath ;
+//    #else
+//    QString iconDirPath =  xmlPath + "/App Center/Vicons/";
+//    #endif
+
+//    //qDebug()<<"############## WIN_IconPath"<<WIN_IconPath;
+//    //qDebug()<<"############## iconDirPath"<<iconDirPath;
+
+//    QDir iconDir(iconDirPath);
+//    if(!iconDir.exists())
+//    {
+//        iconDir.mkdir(iconDirPath);
+//    }
+//    //store ico file locally
+//    for(int i = 0; i < g_myVappList.count(); i++)
+//    {
+//        QString iconPath = QString("%1%2.ico")
+//                .arg(iconDirPath)
+//                .arg(g_myVappList[i].id);
+//        //qDebug()<<"iconPath="<<iconPath;
+//        //check if ico file is existed, or dont donwload
+//        QFile chkFile(iconPath);
+//        if(chkFile.exists())
+//        {
+//            chkFile.close();
+//            continue;
+//        }
+//        chkFile.close();
+
+//        //qDebug()<<"iconPath"<<iconPath;
+//        _commui->downloadIcon(QUrl(g_myVappList[i].icon), iconPath);
+//        while (!_vacfinished)
+//            QApplication::processEvents();
+//        _vacfinished = false;
+
+//        //ico 95 * 95
+//         QString newApp = iconPath;
+
+//         if (newApp.isEmpty())
+//             return;
+
+//         QImage image = QImage(newApp).scaled(48, 48);
+//         QImage normal = QImage(":images/app_bg.png");
+
+//         for (int i = 0; i < normal.width(); i++) {
+//             for (int j = 0; j < normal.height(); j++) {
+//                 QRgb pixel = normal.pixel(i,j);
+//                 int a = qAlpha(pixel);
+//                 QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//                                         qBlue(pixel), a * 0 / 255);
+//                 normal.setPixel(i, j, lightPixel);
+//             }
+//         }
+
+//         QPainter pt1(&normal);
+//         pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
+//         pt1.drawImage(17, 8, image);
+//         pt1.end();
+//         QPixmap pix = QPixmap::fromImage(normal);
+//         pix.save(newApp, "ICO", -1);
+//    }
+//}
 
 void LoginDialog::mousePressEvent(QMouseEvent *event)
 {

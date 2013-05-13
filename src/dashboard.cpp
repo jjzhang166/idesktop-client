@@ -73,20 +73,23 @@ Dashboard::Dashboard(QWidget *parent)
     indicator = new Indicator(vdesktop, this);
     indicator->move((_width - indicator->width())/2, _height - indicator->height() - 20);
     //indicator->setGeometry((_width - indicator->width())/2, _height - indicator->height() - 28 , 20, 80);
-    indicator->show();
+//    indicator->show();
+    indicator->hide();
+
     switcher = new Switcher(this);
     switcher->setGeometry(_width - switcher->width(), (_height - switcher->height())/2, 20, 80);
     switcher->show();
 
     panel = new Panel(this);
-    //panel->setFixedSize(_width * 0.50, 63);
-    panel->setFixedSize(_width / 3, 40);
-    panel->move((_width - panel->width()) / 2, 0);
+    panel->setFixedSize(442, 63);
+    //panel->setFixedSize(_width / 3, 40);
+    panel->move((_width - panel->width()) / 2, _height - panel->height() - 20);
     panel->show();
     panel->animationHide();
     panel->animationShow();
 
-    vdesktop->setGeometry(QRect(0, 20, _width * vdesktop->count(), _height - indicator->height() - panel->height()));
+    //vdesktop->setGeometry(QRect(0, 20, _width * vdesktop->count(), _height - indicator->height() - panel->height()));
+    vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height - 80));
     quitAction = new QAction("ÍË³ö", this);
     showAction = new QAction("ÏÔÊ¾", this);
     hideAction = new QAction("Òþ²Ø", this);
@@ -130,7 +133,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(vdesktop, SIGNAL(toOrigin()), switcher, SLOT(changed()));
     connect(panel, SIGNAL(setEqual(int)), vdesktop, SLOT(arrangeEqually(int)));
     connect(panel, SIGNAL(setMini()), vdesktop, SLOT(arrangeMinimum()));
-    connect(indicator, SIGNAL(iNeedMove()), this, SLOT(moveIndicator()));
+//    connect(indicator, SIGNAL(iNeedMove()), this, SLOT(moveIndicator()));
     //connect(panel, SIGNAL(showDesktop()), this, SLOT(onShowDesktop()));
     //setGeoProper();
 
@@ -168,7 +171,7 @@ void Dashboard::onIconDialog()
 
 void Dashboard::moveIndicator()
 {
-    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 20);
+//    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 20);
 }
 
 void Dashboard::getIn()
@@ -186,7 +189,7 @@ void Dashboard::getIn()
     panel->show();
     panel->setAutoHide(false);
     panel->animationShow();
-    indicator->show();
+//    indicator->show();
     _animation->setStartValue(start);
     _animation->setEndValue(end);
     _outOfScreen = !_outOfScreen;
@@ -208,7 +211,7 @@ void Dashboard::getOut()
     panel->show();
     panel->setAutoHide(true);
     panel->animationHide();
-    indicator->hide();
+//    indicator->hide();
     _animation->setStartValue(start);
     _animation->setEndValue(end);
     _outOfScreen = !_outOfScreen;

@@ -173,6 +173,8 @@ public slots:
 
     void runServerApp();
 
+    //void updateIconTimeOut();
+
 signals:
     void pageChanged(int i);
     void pageIncreased();
@@ -227,6 +229,8 @@ private:
     QString appText;
     QString _appid;
 
+    //int _vappCount;
+
 public:
     int _current;
     int _count;
@@ -251,6 +255,8 @@ public:
     Dll_CloseClass m_dllCloseClass;
     Dll_CloseAppAll m_dllCloseAppAll;
     Dll_StartAppEx m_dllStartAppEx;
+
+    //QTimer *_updateIconTimer;
 
 };
 

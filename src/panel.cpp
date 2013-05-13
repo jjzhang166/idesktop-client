@@ -33,23 +33,22 @@ Panel::Panel(QWidget *parent)
     animation = new QPropertyAnimation(this, "pos");
     animation->setDuration(300);
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
-
+    //QHBoxLayout *layout = new QHBoxLayout(this);
     QPixmap desktopPix(":images/appbutton_localapp.png");
     QPixmap desktopPixHover(":images/appbutton_localapp_hover.png");
     DynamicButton *desktopButton = new DynamicButton(desktopPix, desktopPixHover, this);
-    //desktopButton->setGeometry(8, 0, 58, 58);
-    desktopButton->setFixedSize(99, 36);
-    layout->addWidget(desktopButton);
-    layout->setContentsMargins(10, 0, 10, 0);
-    layout->setSpacing(10);
+    desktopButton->setGeometry(0, 0, 99, 39);
+    //desktopButton->setFixedSize(99, 36);
+//    layout->addWidget(desktopButton);
+//    layout->setContentsMargins(10, 0, 10, 0);
+//    layout->setSpacing(0);
 
     QPixmap bsPix(":images/appbutton_bs.png");
     QPixmap bsPixHover(":images/appbutton_bs_hover.png");
     DynamicButton *bsButton = new DynamicButton(bsPix, bsPixHover, this);
-    //appButton->setGeometry(76, 0, 58, 58);
-    bsButton->setFixedSize(99, 36);
-    layout->addWidget(bsButton);
+    bsButton->setGeometry(99, 0, 108, 39);
+//    bsButton->setFixedSize(99, 36);
+//    layout->addWidget(bsButton);
 
 //    QPixmap managePix(":images/appbutton_manage.png");
 //    QPixmap managePixHover(":images/appbutton_manage_hover.png");
@@ -93,16 +92,16 @@ Panel::Panel(QWidget *parent)
     QPixmap configPix(":images/appbutton_config.png");
     QPixmap configPixHover(":images/appbutton_config_hover.png");
     DynamicButton *configButton = new DynamicButton(configPix, configPixHover, this);
-    //configButton->setGeometry(214, 0, 58, 58);
-    configButton->setFixedSize(109, 36);
-    layout->addWidget(configButton);
+    configButton->setGeometry(207, 0, 117, 39);
+//    configButton->setFixedSize(109, 36);
+//    layout->addWidget(configButton);
 
     QPixmap quitPix(":images/appbutton_quit.png");
     QPixmap quitPixHover(":images/appbutton_quit_hover.png");
     DynamicButton *quitButton = new DynamicButton(quitPix, quitPixHover, this);
-    //quitButton->setGeometry(282, 0, 58, 58);
-    quitButton->setFixedSize(69, 36);
-    layout->addWidget(quitButton);
+    quitButton->setGeometry(324, 0, 117, 39);
+//    quitButton->setFixedSize(69, 36);
+//    layout->addWidget(quitButton);
 
     connect(desktopButton, SIGNAL(clicked()), this, SLOT(showDesktop()));
     //connect(vappButton, SIGNAL(clicked()), this, SLOT(showVappDesktop()));
@@ -156,13 +155,13 @@ void Panel::runCenter()
     //emit showStore();
 }
 
-void Panel::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-    painter.drawPixmap(0, 0, 7, 41, QPixmap(":images/topNav_left.png"));
-    painter.drawPixmap(width() - 7, 0, 7, 41, QPixmap(":images/topNav_right.png"));
-    painter.drawPixmap(7, 0, QPixmap(":images/topNav_bg_center.png").scaled(width() - 14, 41));
-}
+//void Panel::paintEvent(QPaintEvent *event)
+//{
+//    QPainter painter(this);
+//    painter.drawPixmap(0, 0, 7, 41, QPixmap(":images/topNav_left.png"));
+//    painter.drawPixmap(width() - 7, 0, 7, 41, QPixmap(":images/topNav_right.png"));
+//    painter.drawPixmap(7, 0, QPixmap(":images/topNav_bg_center.png").scaled(width() - 14, 41));
+//}
 
 void Panel::enterEvent(QEvent *event)
 {
@@ -181,7 +180,11 @@ void Panel::animationShow()
     if (animation->state() == QAbstractAnimation::Running) {
         animation->stop();
     }
-    QPoint end(x(), 0);
+
+    QDesktopWidget *desktop = QApplication::desktop();
+    QRect rect = desktop->availableGeometry();
+
+    QPoint end(x(), rect.height() - 80);
     animation->setStartValue(pos());
     animation->setEndValue(end);
     animation->start();
@@ -193,7 +196,10 @@ void Panel::animationHide()
     if (animation->state() == QAbstractAnimation::Running) {
         animation->stop();
     }
-    QPoint end(x(), -(height() - 2));
+    QDesktopWidget *desktop = QApplication::desktop();
+    QRect rect = desktop->availableGeometry();
+    //QPoint end(x(), -(height() - 2));
+    QPoint end(x(), rect.height() + height());
     animation->setStartValue(pos());
     animation->setEndValue(end);
     animation->start();

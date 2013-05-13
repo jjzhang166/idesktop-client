@@ -35,6 +35,8 @@ public slots:
 	//vac
     void heartbeat();
     void onDone();
+
+    //void updateVappIcon();
 private:
     void userError(QString text);
     void passError(QString text);
@@ -65,4 +67,6 @@ private:
     QTimer *heartbeat_timer;  //heart beat.
     bool  Isheartbeat;    // check if send the heart beat packet
     bool _vacfinished;
+
+    //QTimer *_updateVappTimer;
 };

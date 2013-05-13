@@ -15,7 +15,7 @@ class Panel : public QWidget
 public:
     Panel(QWidget *parent = NULL);
     ~Panel() {}
-    void paintEvent(QPaintEvent *event);
+//    void paintEvent(QPaintEvent *event);
     void enterEvent(QEvent *event);
     void leaveEvent(QEvent *event);
     void mousePressEvent(QMouseEvent *event);

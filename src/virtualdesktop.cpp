@@ -744,8 +744,14 @@ void Indicator::setCurrent(int index)
  * definition of VirtualDesktop methods
  */
 VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
-    : QWidget(parent), _movingDialog(NULL), _vertical(true), \
-      _itemClicked(false), _itemHeld(false), _trembling(false)
+    : QWidget(parent)
+    , _movingDialog(NULL)
+    , _vertical(true)
+    , _itemClicked(false)
+    , _itemHeld(false)
+    , _trembling(false)
+//    , _vappCount(0)
+
 {
 
     int gridWidth;
@@ -837,8 +843,8 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     setPalette(pal);
 
     //添加虚拟应用开始
-    int vappCount = g_myVappList.count();
-    qDebug()<<"virtualdesktop vappCount="<<vappCount;
+    //_vappCount = g_myVappList.count();
+    //qDebug()<<"virtualdesktop vappCount="<<_vappCount;
     for(int j=0; j<g_myVappList.count(); j++){
         //qDebug()<<"j="<<g_myVappList.at(j).name<<","<<WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
         QString path =  WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
@@ -870,6 +876,10 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
 
     }
 
+    //
+//    _updateIconTimer = new QTimer(this);
+//    connect(_updateIconTimer, SIGNAL(timeout()), this, SLOT(updateIconTimeOut()));
+//    _updateIconTimer->start(1000 * 10);
 
     /*addicon add the last*/
     showAddIcon(tr("Add App"), ":images/appbutton_add.png", \
@@ -888,8 +898,8 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     dragRightTimer->setInterval(500);
     dragRightTimer->setSingleShot(true);
 
-    _bsWidget = new BsWidget(_width, _height, this);
-    _bsWidget->setGeometry(1 *_width, 0, _width, _height);
+    _bsWidget = new BsWidget(_width - 40, _height - 80, this);
+    _bsWidget->setGeometry(1 *_width, 0, _width - 40, _height - 80);
 
     _manageWidget = new ManageWidget(this);
     _manageWidget->setGeometry(2 *_width, 40, _width, _height);
@@ -2270,6 +2280,50 @@ void VirtualDesktop::upLoad()
 {
     _manageWidget->upLoad();
 }
+
+//void VirtualDesktop::updateIconTimeOut()
+//{
+//    if (_trembling)
+//        return;
+
+//    for (int i = 0; i< _vappCount; i++)
+//    {
+//        delIcon(g_myVappList.at(i).name);
+//    }
+
+//    for (int i = 0; i<_local->count(); i++)
+//    {
+//        delIcon(_local->at(i)->name());
+//    }
+
+//    //添加虚拟应用开始
+//    _vappCount = g_myVappList.count();
+//    qDebug()<<"virtualdesktop vappCount="<<_vappCount;
+//    for(int j=0; j<_vappCount; j++){
+//        //qDebug()<<"j="<<g_myVappList.at(j).name<<","<<WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
+//        QString path =  WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
+//        path.replace('/','\\');
+//        qDebug() << path;
+//        addIcon(g_myVappList.at(j).name, path, vappIcon);
+//    }
+
+//    //添加虚拟应用结束
+
+//    for (int i = 0; i < _local->count(); i++) {
+//        if (_local->at(i)->hidden())
+//            continue;
+//        int ip = _local->at(i)->page();
+//        int ix = _local->at(i)->index();
+//        if (ip >= _count) {
+//            ip = -1;
+//            ix = -1;
+//        }
+//        addIcon(_local->at(i)->name(), _local->at(i)->icon(), \
+//                _local->at(i)->page(), _vappCount + i,\
+//                localIcon);
+
+//    }
+//}
 
 HoverIconItem::HoverIconItem(int width, int height, QWidget *parent)
     : QWidget(parent)
