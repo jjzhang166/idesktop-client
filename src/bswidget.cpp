@@ -49,10 +49,10 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
 {
     _leftWebKit = new LeftWebKit(this);
     //_leftWebKit->setGeometry(0, 20, _width * 0.14 + 10, _height);
-    _leftWebKit->setGeometry(0, 20, _width, _height - 80);
+    _leftWebKit->setGeometry(0, 20, _width, _height - 40);
 
     _rightWidget = new RightWidget(this);
-    _rightWidget->setGeometry(_width * 0.14 + 28, 20, _width - _width * 0.14 - 28, _height - 80);
+    _rightWidget->setGeometry(_width * 0.14 + 28, 20, _width - _width * 0.14 - 28, _height - 40);
     _rightWidget->setVisible(true);
 
 
@@ -83,9 +83,7 @@ LeftWebKit::LeftWebKit(QWidget *parent) :
     QMainWindow(parent)
 {
     //resize(QApplication::desktop()->width(),QApplication::desktop()->height());
-    setWindowFlags(Qt::FramelessWindowHint \
-                   | Qt::WindowMinimizeButtonHint \
-                   | Qt::WindowSystemMenuHint);
+    setWindowFlags(Qt::FramelessWindowHint);
 
     //_webview = new QWebView(this);
     _webview = new MyWebView(this);
@@ -138,6 +136,10 @@ RightWidget::RightWidget(QWidget *parent)
     _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
 
 }
+RightWidget::~RightWidget()
+{
+    delete _tabWidget;
+}
 
 void RightWidget::paintEvent(QPaintEvent *event)
 {
@@ -169,25 +171,19 @@ void RightWidget::createTab(const QUrl &url)
 TabWidget::TabWidget(QWidget *parent)
     : QTabWidget(parent)
 {
-//    _pal = this->palette();
-//    QPixmap pix;
-//    pix.load(":/images/bs_shadow.png");
-//     _pal.setBrush(QPalette::Window, QBrush(pix));
-//    setPalette(_pal);
     setDocumentMode(true);
 
     setStyleSheet("QTabWidget{border: 0px solid gray;background:rgba(255,255,255,0);}\
                   QTabWidget::tab-bar{left: 110px;}\
                   QTabBar::tab{border:1px solid #bdbcbd; \
                                border-top-left-radius:5px; border-top-right-radius:5px; \
-                               min-width:185px; min-height:35px; \
-                               max-width:185px; color:#FFFFFF}\
+                               min-width:185px; min-height:35px;max-width:185px; color:#FFFFFF}\
                   QTabBar::tab:selected,QTabBar::tab:hover{border-bottom-color: #f5fbfe; \
-                                          border-image:url(:/images/bs_tab_selected.png);}\
+                               border-image:url(:/images/bs_tab_selected.png);}\
                   QTabBar::tab:!selected{border-bottom-color: #bdbcbd;\
-                                          border-image:url(:/images/bs_tab_normal.png);} \
+                               border-image:url(:/images/bs_tab_normal.png);} \
                   QTabBar::close-button{border-image:url(:/images/bs_tab_close_normal.png);\
-                                          subcontrol-position:right;}\
+                               subcontrol-position:right;}\
                   QTabBar::close-button:hover{border-image:url(:/images/bs_tab_close_hover.png);}");
 
     _goBack = new QPushButton(this);
@@ -250,7 +246,6 @@ void TabWidget::createTab(const QUrl &url)
     _axWidget = new AxWidget(_axWs.count(), this);
     addTab(_axWidget, "");
     _axWidget->resize(width(), height());
-//    _axWidget->move(-3, -3);
     _axWidget->setUrl(_url);
 
     _axWs.append(_axWidget);
@@ -348,8 +343,6 @@ void TabWidget::refresh()
 
 void TabWidget::comStateChange (int command, bool enable)
 {
-    //qDebug() << command;
-    //qDebug() << enable;
     if (command == -1)
     {
         _refresh->setEnabled(true);
@@ -395,11 +388,11 @@ AxWidget::AxWidget(int id, QWidget *parent)
     _ax = new QAxWidget(this);
 
     //_ax = new WebAxWidget(this);
-    //_ax->setStyleSheet("QAxWidget{border: 0px solid gray;background:rgba(255,255,255,0);}");
     _ax->setControl(QString::fromUtf8("{8856F961-340A-11D0-A96B-00C04FD705A2}"));
-    _ax->setObjectName(QString::fromUtf8("_ax"));
-    //QVariantList params("");
-    //_ax->dynamicCall("SetFullScreen(bool)", true);
+    _ax->setObjectName(QString::fromUtf8("WebBrowser"));
+    _ax->setStyleSheet("QAxWidget{margin : 0px; border:0px solid red; padding:0px;}");
+
+    _ax->dynamicCall("SetFullScreen(bool)", false);
 
 #ifndef AUTOTESTS
     QTimer::singleShot(0, this, SLOT(postLaunch()));
@@ -461,14 +454,18 @@ void AxWidget::commandStateChange (int command, bool enable)
 
 void AxWidget::resizeEvent(QResizeEvent *event)
 {
-    _ax->setGeometry(-3, -3, width() + 21, height() + 6);
+    Q_UNUSED(event);
+
+    _ax->setGeometry(-3, -3, width() + 21, height() + 21);
+    //_ax->setGeometry(0, 0, width(), height());
     //emit setWidth(width());
-    //QWidget::resizeEvent(event);
 }
 
 void AxWidget::setUrl(const QUrl &url)
 {
+    _ax->dynamicCall("SetFullScreen(bool)", false);
     _ax->dynamicCall("Navigate(const QString&)", url);
+    _ax->dynamicCall("SetFullScreen(bool)", false);
 }
 
 void AxWidget::newWindow3 (IDispatch** ppDisp, bool& Cancel, uint dwFlags,
@@ -517,8 +514,8 @@ void AxWidget::readyStateChanged (tagREADYSTATE ReadyState)
 //    if (_ax->dynamicCall("ReadyState()").toInt() == READYSTATE_COMPLETE)
 //    {
     Q_UNUSED(ReadyState);
-        qDebug() << "fffffffffffffffffffffffffffffffffffffffffff";
-        emit iconChanged(_id, icon(_ax->property("LocationURL").toString()));
+
+    emit iconChanged(_id, icon(_ax->property("LocationURL").toString()));
 //    }
 }
 

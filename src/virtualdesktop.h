@@ -418,7 +418,7 @@ private:
     QPixmap _darkPixmap;
     QPixmap _originPixmap;
 
-    HoverIconItem *_hoverAddItem;
+    //HoverIconItem *_hoverAddItem;
 };
 
 /* ##############################################

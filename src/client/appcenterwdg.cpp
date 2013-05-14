@@ -85,6 +85,8 @@ void AppCenterWdg::closeEvent ( QCloseEvent * event )
 
 void AppCenterWdg::moveEvent ( QMoveEvent * event )
 {
+    Q_UNUSED(event);
+
     _searchLineEdit->gMove();
 }
 

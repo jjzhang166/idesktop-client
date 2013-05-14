@@ -83,13 +83,13 @@ Dashboard::Dashboard(QWidget *parent)
     panel = new Panel(this);
     panel->setFixedSize(442, 63);
     //panel->setFixedSize(_width / 3, 40);
-    panel->move((_width - panel->width()) / 2, _height - panel->height() - 20);
+    panel->move((_width - panel->width()) / 2, _height - panel->height() - 10);
     panel->show();
     panel->animationHide();
     panel->animationShow();
 
     //vdesktop->setGeometry(QRect(0, 20, _width * vdesktop->count(), _height - indicator->height() - panel->height()));
-    vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height - 80));
+    vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height - 40));
     quitAction = new QAction("ÍË³ö", this);
     showAction = new QAction("ÏÔÊ¾", this);
     hideAction = new QAction("Òþ²Ø", this);

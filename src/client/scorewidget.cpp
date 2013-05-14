@@ -23,6 +23,7 @@ ScoreWidget::ScoreWidget(QWidget *parent) :
 
 void ScoreWidget::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
 
     QPainter painter(this);
 
@@ -86,6 +87,8 @@ void ScoreWidget::mouseMoveEvent(QMouseEvent *event)
 
 void ScoreWidget::leaveEvent ( QEvent * event )
 {
+    Q_UNUSED(event);
+
     _toMark = _score;
     repaint();
 }

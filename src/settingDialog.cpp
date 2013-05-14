@@ -94,6 +94,8 @@ void SettingDialog::updateUI(bool checked)
         pCountSpin->setEnabled(false);
         lb3->setEnabled(true);
     }
+
+    Q_UNUSED(checked);
 }
 
 void SettingDialog::paintEvent(QPaintEvent *event)
@@ -119,6 +121,8 @@ void SettingDialog::mousePressEvent(QMouseEvent *event)
 void SettingDialog::mouseReleaseEvent(QMouseEvent *event)
 {
     _titlePressed = false;
+
+    Q_UNUSED(event);
 }
 
 void SettingDialog::mouseMoveEvent(QMouseEvent *event)

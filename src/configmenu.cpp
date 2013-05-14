@@ -38,8 +38,8 @@ ConfigMenu::ConfigMenu(QWidget *parent)
                               QPushButton:hover:!pressed{border-image:url(:/images/menu_bottom_hover.png);border-style:flat;color:white;}");
 //    _serverAc = new QPushButton(tr("·þÎñÆ÷ÉèÖÃ"), this);
 //    _serverAc->setGeometry(0, 76, 143, 41);
-//    _serverAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
-//                             QPushButton:hover:pressed{border-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
+//    _serverAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}
+//                             QPushButton:hover:pressed{border-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}
 //                             QPushButton:hover:!pressed{border-image:url(:/images/menu_bottom_hover.png);border-style:flat;color:white;}");
 
     connect(_skinAc, SIGNAL(clicked()), this, SLOT(setSkin()));
@@ -172,7 +172,7 @@ void ConfigMenu::setConfigure()
 
 
 ////    this->setAutoFillBackground(true);
-////    setStyleSheet("\
+////    setStyleSheet("
 ////                  QMenu::item {border-image: url(:/images/menu_center.png);\
 ////                               position:absolute; top:0px; right:100px;\
 ////                  padding: 6px 40px 6px 200px; border: 0px solid transparent;color:white}\
@@ -359,6 +359,8 @@ void SkinWidget::scrollBarValueChanged(int val)
 
 void SkinWidget::resizeEvent(QResizeEvent *event)
 {
+    Q_UNUSED(event);
+
     int w = 15;
     int x = width() - w;
     x = x < 0 ? 0: x;

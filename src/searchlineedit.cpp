@@ -88,6 +88,8 @@ SearchLineEdit::SearchLineEdit(search_style style /* = button_available*/,
 
 void SearchLineEdit::resizeEvent( QResizeEvent * event)
 {
+    Q_UNUSED(event);
+
     QSize size(sizeHint().height()-3, sizeHint().height()-3);
     if (_searchBtn) {
          _searchBtn->setMinimumSize(size);
@@ -193,6 +195,8 @@ void SearchLineEdit::ButtonClicked()
 void SearchLineEdit::moveEvent ( QMoveEvent * event )
 {
     gMove();
+
+    Q_UNUSED(event);
 }
 
 void SearchLineEdit::gMove()

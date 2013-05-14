@@ -530,7 +530,7 @@ void LoginDialog::heartbeat()
 //             for (int j = 0; j < normal.height(); j++) {
 //                 QRgb pixel = normal.pixel(i,j);
 //                 int a = qAlpha(pixel);
-//                 QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//                 QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel),
 //                                         qBlue(pixel), a * 0 / 255);
 //                 normal.setPixel(i, j, lightPixel);
 //             }

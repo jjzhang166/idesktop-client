@@ -204,6 +204,8 @@ void PackageWidgets::clearWidget()
 
 void PackageWidgets::OnUpdateScore(QString appName, int score)
 {
+    Q_UNUSED(appName);
+    Q_UNUSED(score);
 //    for (int i = 0;i < _AppWidgets.size();i++)
 //        _AppWidgets.at(i)->UpdateScore(appName, score);
 }

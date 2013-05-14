@@ -19,6 +19,8 @@ TabLabel::TabLabel(QWidget *parent) :
 
 void TabLabel::paintEvent(QPaintEvent* event)
 {
+    Q_UNUSED(event);
+
     QPainter painter(this);
 
     if (_isCurrent) {
@@ -57,6 +59,8 @@ void TabLabel::paintEvent(QPaintEvent* event)
 
 void TabLabel::enterEvent ( QEvent * event )
 {
+    Q_UNUSED(event);
+
     if (isEnabled()) {
       _isMouseIn = true;
       repaint();
@@ -65,12 +69,16 @@ void TabLabel::enterEvent ( QEvent * event )
 
 void TabLabel::leaveEvent ( QEvent * event )
 {
+    Q_UNUSED(event);
+
     _isMouseIn = false;
     repaint();
 }
 
 void TabLabel::mousePressEvent ( QMouseEvent * event )
 {
+    Q_UNUSED(event);
+
     emit Chosen(this);
 }
 

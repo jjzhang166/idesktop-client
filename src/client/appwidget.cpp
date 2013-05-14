@@ -151,6 +151,8 @@ AppWidget::AppWidget(QWidget *parent) :
 
 void AppWidget::enterEvent ( QEvent * event )
 {
+    Q_UNUSED(event);
+
     _bEnter = true;
     repaint();
 //    _scoreWdg->show();
@@ -158,12 +160,16 @@ void AppWidget::enterEvent ( QEvent * event )
 
 void AppWidget::leaveEvent ( QEvent * event )
 {
+    Q_UNUSED(event);
+
     _bEnter = false;
     repaint();
 //    _scoreWdg->hide();
 }
 void AppWidget::resizeEvent ( QResizeEvent * event )
 {
+    Q_UNUSED(event);
+
     _briefLabel->setGeometry(_rIcon.left(), _rIcon.bottom() + 10, width() - 2* _rIcon.left(), _TitleTextHeight + 3);
 
 //    _scoreWdg->move(width() - Score_Width - 10, height() - Score_Height - 5);
@@ -171,6 +177,8 @@ void AppWidget::resizeEvent ( QResizeEvent * event )
 
 void AppWidget::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
+
     QPainter painter(this);
 
     //如果鼠标进入窗口，切换图片
@@ -297,6 +305,8 @@ void AppWidget::appScored(int score)
 
 void AppWidget::UpdateScore(QString appName, int score)
 {
+    Q_UNUSED(appName);
+    Q_UNUSED(score);
 //    if (_appData && _appData->_name == appName)
 //        _scoreWdg->setScore(score, _appData->_added);
 }

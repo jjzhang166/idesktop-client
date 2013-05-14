@@ -75,7 +75,7 @@ public:
 
 protected:
 
-    virtual void maxWnd(const bool &bMax){}
+    virtual void maxWnd(const bool &bMax){Q_UNUSED(bMax);}
 
 public:
     void mousePressEvent ( QMouseEvent * event);

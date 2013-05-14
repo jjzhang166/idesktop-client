@@ -183,6 +183,8 @@ void IconArrangeDlg::mousePressEvent(QMouseEvent *event)
 
 void IconArrangeDlg::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
+
     _titlePressed = false;
 }
 

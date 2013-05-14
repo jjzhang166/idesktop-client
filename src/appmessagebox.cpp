@@ -48,6 +48,8 @@ void AppMessageBox::setText(const QString &text)
 
 void AppMessageBox::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
+
     QPainter pt(this);
     pt.drawPixmap(21, 21, QPixmap(":images/message/bg.png").scaled(WIDTH - 21 * 2, HEIGHT - 21 * 2));
     pt.drawPixmap(0, 0, QPixmap(":images/message/top_left_bg.png"));

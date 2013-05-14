@@ -92,17 +92,27 @@ IconItem::IconItem(const QString &text, const VirtualDesktop::iconStyle &iSt, QW
 
     connect(_timeline, SIGNAL(valueChanged(qreal)), this, SLOT(doTremble(qreal)));
     if (parent) {
-        connect(static_cast<VirtualDesktop*>(parent), \
-                SIGNAL(trembleStarted()), \
-                this, SLOT(startTremble()));
-        connect(static_cast<VirtualDesktop*>(parent), \
-                SIGNAL(trembleStoped()), \
-                this, SLOT(stopTremble()));
+        if (_style == VirtualDesktop::localIcon)
+        {
+            connect(static_cast<VirtualDesktop*>(parent), \
+                    SIGNAL(trembleStarted()), \
+                    this, SLOT(startTremble()));
+            connect(static_cast<VirtualDesktop*>(parent), \
+                    SIGNAL(trembleStoped()), \
+                    this, SLOT(stopTremble()));
+        }
     }
 }
 
 IconItem::~IconItem()
 {
+    if (_style == VirtualDesktop::localIcon)
+        delete _delAction;
+
+    delete _openAction;
+    delete _hoverIconItem;
+
+    delete _timeline;
     delete _animation;
 }
 
@@ -130,6 +140,8 @@ void IconItem::animationMove(const QRect &start, const QRect &end)
 
 void IconItem::doTremble(qreal value)
 {
+    Q_UNUSED(value);
+
 #define LEFT -1
 #define RIGHT 1
     static int direction = LEFT;
@@ -226,6 +238,8 @@ void IconItem::mouseMoveEvent(QMouseEvent *event)
 
 void IconItem::contextMenuEvent(QContextMenuEvent *event)
 {
+    Q_UNUSED(event);
+
     qDebug() << "contextMenuEvent";
     /*
     QAction * openAction = new QAction("´ò¿ª", this);
@@ -272,6 +286,8 @@ void IconItem::enterEvent(QEvent *event)
     //_pixmap = darkPixmap();
     _hoverIconItem->setVisible(true);
     repaint();
+
+    Q_UNUSED(event);
 }
 
 void IconItem::leaveEvent(QEvent *event)
@@ -284,6 +300,8 @@ void IconItem::leaveEvent(QEvent *event)
 */
     _hoverIconItem->setVisible(false);
     repaint();
+
+    Q_UNUSED(event);
 }
 
 const QPixmap& IconItem::originPixmap()
@@ -311,13 +329,13 @@ void IconItem::setPixmap(const QString &icon)
     begin = (ICONWIDTH - _textWidth) / 2 + CLOSEWIDTH/2 - 3;
     if (begin < CLOSEWIDTH/2)
         begin = CLOSEWIDTH/2;
-    // pt1.drawText( QRect(begin, ICONHEIGHT + CLOSEHEIGHT/2 - 10 , \
+    // pt1.drawText( QRect(begin, ICONHEIGHT + CLOSEHEIGHT/2 - 10 ,
     //width(), _textHeight), Qt::TextSingleLine, text);
 
     QTextEdit *tEdit = new QTextEdit(this);
-    tEdit->setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); \
-                         margin-left:0px; color:#FFFFFF");
-                                                 tEdit->setText(text);
+    tEdit->setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0);\
+                         margin-left:0px; color:#FFFFFF");\
+                         tEdit->setText(text);\
     tEdit->setAlignment(Qt::AlignCenter);
     tEdit->setFixedWidth(width());
     tEdit->setLineWrapColumnOrWidth(width());
@@ -442,10 +460,11 @@ IconAddItem::IconAddItem(const QString &text, QWidget *parent)
 
     _icontype = ADDICON;
 
-    _hoverAddItem = new HoverIconItem(this->width(), this->height(), this);
-    _hoverAddItem->setVisible(false);
+    //_hoverAddItem = new HoverIconItem(this->width(), this->height(), this);
+    //_hoverAddItem->setVisible(false);
 
     //connect(this, SIGNAL(clicked()), this, SLOT(addApp()));
+    _pixmap.load(":/images/icon_add_normal.png");
 }
 
 IconAddItem::~IconAddItem()
@@ -490,7 +509,7 @@ void IconAddItem::animationMove(const QRect &start, const QRect &end)
 
 void IconAddItem::doTremble(qreal value)
 {
-
+    Q_UNUSED(value);
 }
 
 void IconAddItem::startTremble()
@@ -550,6 +569,8 @@ void IconAddItem::contextMenuEvent(QContextMenuEvent *event)
     qDebug() << "contextMenuEvent";
     //event->ignore();
 
+    Q_UNUSED(event);
+
     return;
 }
 
@@ -557,14 +578,21 @@ void IconAddItem::contextMenuEvent(QContextMenuEvent *event)
 void IconAddItem::enterEvent(QEvent *event)
 {
     //_pixmap = darkPixmap();
-    _hoverAddItem->setVisible(true);
-    repaint();
+
+    _pixmap.load(":/images/icon_add_hover.png");
+
+    update();
+
+    Q_UNUSED(event);
 }
 
 void IconAddItem::leaveEvent(QEvent *event)
-{
-    _hoverAddItem->setVisible(false);
-    repaint();
+{   
+    Q_UNUSED(event);
+
+    _pixmap.load(":/images/icon_add_normal.png");
+
+    update();
 #if 0
     _pixmap = _normalPixmap;
     repaint();
@@ -595,7 +623,7 @@ void IconAddItem::setPixmap(const QString &icon)
     begin = (ICONWIDTH - _textWidth) / 2 + CLOSEWIDTH/2 - 3;
     if (begin < CLOSEWIDTH/2)
         begin = CLOSEWIDTH/2;
-    //pt1.drawText( QRect(begin, ICONHEIGHT + CLOSEHEIGHT/2 , \
+    //pt1.drawText( QRect(begin, ICONHEIGHT + CLOSEHEIGHT/2 ,
     //width(), _textHeight), Qt::TextSingleLine, text);
     pt1.drawText(QRect((width() - _textWidth) / 2, ICONHEIGHT - 10, \
                        width(), _textHeight), Qt::TextSingleLine, text);
@@ -772,7 +800,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
 
     /*for local desktop add addbutton*/
     //g_addIcon = new IconAddItem(tr("Add App"),this);
-    g_addIcon = new IconAddItem(tr("Ìí¼Ó"),this);
+    g_addIcon = new IconAddItem(tr(""),this);
 
     /*
     int maxPage = 0;
@@ -864,7 +892,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
             ip = -1;
             ix = -1;
         }
-        //addIcon(_local->at(i)->name(), _local->at(i)->icon(), \
+        //addIcon(_local->at(i)->name(), _local->at(i)->icon(),
                 //_local->at(i)->page(), _local->at(i)->index());
         addIcon(_local->at(i)->name(), _local->at(i)->icon(), \
                 _local->at(i)->page(), g_myVappList.count() + i,\
@@ -882,7 +910,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
 //    _updateIconTimer->start(1000 * 10);
 
     /*addicon add the last*/
-    showAddIcon(tr("Add App"), ":images/appbutton_add.png", \
+    showAddIcon(tr("Add App"), ":images/icon_add_normal.png", \
                 0, -1);
     
     g_addIcon->setGeometry(_gridTable[0][_nextIdx[0]].translated(SPACING, SPACING));
@@ -960,6 +988,9 @@ void VirtualDesktop::atExit()
 
 void VirtualDesktop::onProcessFinished(int exitCode, QProcess::ExitStatus status)
 {
+    Q_UNUSED(exitCode);
+    Q_UNUSED(status);
+
     _inProgress = false;
 }
 
@@ -1622,6 +1653,8 @@ void VirtualDesktop::dragLeaveEvent(QDragLeaveEvent *event)
     //drag->setPixmap(QPixmap(""));
     //icon->show();
     //event->accept();
+
+    Q_UNUSED(event);
 }
 
 void VirtualDesktop::dropEvent(QDropEvent *event)
@@ -1815,7 +1848,7 @@ int VirtualDesktop::addIcon(const QString &text, \
 
 
     /*addicon add the last*/
-    showAddIcon(tr("Add App"), ":images/appbutton_add.png", \
+    showAddIcon(tr("Add App"), ":images/icon_add_normal.png", \
                 0, -1);
     return page;
     //LocalAppList::getList()->save();
@@ -1831,6 +1864,8 @@ int VirtualDesktop::showAddIcon(const QString &text, \
                                 int page, \
                                 int index)
 {
+
+    Q_UNUSED(text);
     //addIcon->setAcceptDrops(false);
     
     //icon->setText(text);
@@ -1860,7 +1895,7 @@ int VirtualDesktop::showAddIcon(const QString &text, \
         }
     }
 
-    g_addIcon->setPixmap(iconPath);
+    //g_addIcon->setPixmap(iconPath);
     g_addIcon->setGeometry(_gridTable[page][index].translated(SPACING, SPACING));
     g_addIcon->setPage(page);
     g_addIcon->setIndex(index);
@@ -1896,7 +1931,7 @@ void VirtualDesktop::delIcon(const QString &text)
     _nextIdx[p]--;
 
     /*move addicon add the last*/
-    showAddIcon(tr("Add App"), ":images/appbutton_add.png", \
+    showAddIcon(tr("Add App"), ":images/icon_add_normal.png", \
                 0, -1);
     /*
 
@@ -1908,6 +1943,9 @@ void VirtualDesktop::delIcon(const QString &text)
     }
     */
     //LocalAppList::getList()->save();
+    if (_local->count() == 0) {
+        appCancel();
+    }
 }
 
 void VirtualDesktop::runApp(const QString &text)
@@ -2224,6 +2262,8 @@ void VirtualDesktop::printDesktop()
 
 void VirtualDesktop::contextMenuEvent(QContextMenuEvent *event)
 {
+    Q_UNUSED(event);
+
     QCursor cur = this->cursor();
     _menu = new QMenu(this);
     /*
@@ -2235,9 +2275,9 @@ void VirtualDesktop::contextMenuEvent(QContextMenuEvent *event)
                           QMenu::item:select{color:#FFFFFF;}");
 */
     _menu->addAction(_addAction);
-    //if (_local->count() == 0) {
+    if (_local->count() == 0) {
 
-    //} else {
+    } else {
         if (!_trembling)
         {
             _menu->addAction(_deleteAction);
@@ -2245,7 +2285,8 @@ void VirtualDesktop::contextMenuEvent(QContextMenuEvent *event)
         else {
             _menu->addAction(_cancelAction);
         }
-    //}
+    }
+
     _menu->exec(cur.pos());
 
 
@@ -2318,8 +2359,8 @@ void VirtualDesktop::upLoad()
 //            ip = -1;
 //            ix = -1;
 //        }
-//        addIcon(_local->at(i)->name(), _local->at(i)->icon(), \
-//                _local->at(i)->page(), _vappCount + i,\
+//        addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+//                _local->at(i)->page(), _vappCount + i,
 //                localIcon);
 
 //    }
@@ -2339,4 +2380,6 @@ void HoverIconItem::paintEvent(QPaintEvent *event)
     painter.setPen(QPen(Qt::white, 1));
     painter.setBrush(QBrush(QColor(255, 255, 255, 25)));
     painter.drawRoundRect(QRect(0, 0, _width - 1, _height - 1), 5, 5);
+
+    Q_UNUSED(event);
 }

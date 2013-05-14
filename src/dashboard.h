@@ -12,7 +12,7 @@
 #include <QPushButton>
 #include <QAction>
 #include <QMenu>
-#include "commuinication.h"
+#include "../commuinication.h"
 #include "iconarrangedlg.h"
 #include "configmenu.h"
 

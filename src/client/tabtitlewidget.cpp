@@ -21,6 +21,8 @@ void TabTitleWidget::paintEvent(QPaintEvent* event)
     painter.setFont(_TitleFont);
 
     painter.drawText(QRect(10,15, 500,30), _text);
+
+    Q_UNUSED(event);
 }
 
 void TabTitleWidget::OnRefresh()

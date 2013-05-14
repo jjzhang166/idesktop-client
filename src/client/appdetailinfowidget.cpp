@@ -202,6 +202,8 @@ void AppDetailInfoWidget::showApp(AppData* data)
 
 void AppDetailInfoWidget::closeEvent ( QCloseEvent * event )
 {
+    Q_UNUSED(event);
+
     _pCloseBtn->close();
     _bPressTitle = false;
 
@@ -216,6 +218,8 @@ void AppDetailInfoWidget::closeEvent ( QCloseEvent * event )
 void DrawImg(QPainter* pPainter, const QString &strImgPath, const QRect &rect);
 void AppDetailInfoWidget::paintEvent( QPaintEvent *event )
 {
+    Q_UNUSED(event);
+
     QPainter painter(this);
     DrawImg(&painter, ":images/bg_dialog.png", rect());
 
@@ -262,6 +266,8 @@ void AppDetailInfoWidget::paintEvent( QPaintEvent *event )
 
 void AppDetailInfoWidget::resizeEvent( QResizeEvent* event)
 {
+    Q_UNUSED(event);
+
     _UpdateBtn->move(width() - 106 - Shadow_Edge_Width, _rIcon.bottom() - 24);
 
     _InstallBtn->move(width() - 106 - Shadow_Edge_Width, _rIcon.bottom() - 24);
@@ -480,6 +486,8 @@ void AppDetailInfoWidget::installCanceled()
 
 QString AppDetailInfoWidget::convertByte(qint64 total)
 {
+    Q_UNUSED(total);
+
     return "";
 }
 

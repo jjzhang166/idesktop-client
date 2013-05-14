@@ -79,11 +79,15 @@ void ScrollSubWidget::refreshState()
 }
 void ScrollSubWidget::resizeEvent( QResizeEvent * event)
 {
+    Q_UNUSED(event);
+
     refreshState();
 }
 
 bool ScrollSubWidget::eventFilter( QObject * watched, QEvent * event )
 {
+    Q_UNUSED(watched);
+
     if (event->type() == QEvent::Resize) {
         refreshState();
     }

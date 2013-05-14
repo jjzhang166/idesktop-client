@@ -124,7 +124,7 @@ class RightWidget : public QWidget
     Q_OBJECT
 public:
     RightWidget(QWidget *parent = 0);
-    ~RightWidget() { delete _tabWidget;}
+    ~RightWidget();
 
 public slots:
     void createTab(const QUrl &url);

@@ -437,6 +437,8 @@ void CustomWndBase::setLineColor(const int &nRed, const int &nGreen, const int &
 
 void CustomWndBase::resizeEvent( QResizeEvent * event)
 {
+    Q_UNUSED(event);
+
     calRect();
     if (!_pCloseBtn->isHidden()) {
         _pCloseBtn->setFixedSize(_closeRt.width(), _closeRt.height());

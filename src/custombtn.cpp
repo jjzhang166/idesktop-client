@@ -68,12 +68,16 @@ void CustomBtn::SetOffImg(const QString &strOff)
 
 void CustomBtn::enterEvent ( QEvent * event )
 {
+    Q_UNUSED(event);
+
     _bOn = true;
     repaint();
 }
 
 void CustomBtn::leaveEvent ( QEvent * event )
 {
+    Q_UNUSED(event);
+
     _bOn = false;
     repaint();
 }

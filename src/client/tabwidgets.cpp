@@ -75,4 +75,6 @@ void TabWidgets::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     DrawImg(&painter, ":/images/bg_subWindow.png", rect());
+
+    Q_UNUSED(event);
 }

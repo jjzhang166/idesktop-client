@@ -22,7 +22,7 @@ void SearchListView::resizeEvent( QResizeEvent * event)
 
     _listView->setGeometry(rect());
 
-
+    Q_UNUSED(event);
 }
 
 void SearchListView::setCurrentIndex(const QModelIndex &index)

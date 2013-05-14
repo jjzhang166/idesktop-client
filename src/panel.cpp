@@ -167,12 +167,16 @@ void Panel::enterEvent(QEvent *event)
 {
     if (!visible)
         animationShow();
+
+    Q_UNUSED(event);
 }
 
 void Panel::leaveEvent(QEvent *event)
 {
     if (autoHide)
         animationHide();
+
+    Q_UNUSED(event);
 }
 
 void Panel::animationShow()
@@ -184,7 +188,7 @@ void Panel::animationShow()
     QDesktopWidget *desktop = QApplication::desktop();
     QRect rect = desktop->availableGeometry();
 
-    QPoint end(x(), rect.height() - 80);
+    QPoint end(x(), rect.height() - height() - 10);
     animation->setStartValue(pos());
     animation->setEndValue(end);
     animation->start();
@@ -208,10 +212,12 @@ void Panel::animationHide()
 
 void Panel::mousePressEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
 }
 
 void Panel::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
 }
 
 #if 0

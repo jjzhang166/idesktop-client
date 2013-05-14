@@ -11,6 +11,8 @@ ScrollUpwardButton::ScrollUpwardButton(QString image, QWidget *parent) :
 
 void ScrollUpwardButton::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
+
     QImage image(_image);
 
     QPainter painter(this);
@@ -31,12 +33,16 @@ void ScrollUpwardButton::paintEvent(QPaintEvent *event)
 
 void ScrollUpwardButton::leaveEvent(QEvent *event)
 {
+    Q_UNUSED(event);
+
     _bEnter = false;
     repaint();
 }
 
 void ScrollUpwardButton::enterEvent ( QEvent * event )
 {
+    Q_UNUSED(event);
+
     _bEnter = true;
     repaint();
 }

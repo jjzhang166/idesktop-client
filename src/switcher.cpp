@@ -102,6 +102,8 @@ void Switcher::mousePressEvent(QMouseEvent *event)
         _pixmap = _darkRight;
 
     repaint();
+
+    Q_UNUSED(event);
 }
 
 void Switcher::mouseReleaseEvent(QMouseEvent *event)
@@ -115,6 +117,8 @@ void Switcher::mouseReleaseEvent(QMouseEvent *event)
     }
     repaint();
     emit activated();
+
+    Q_UNUSED(event);
 }
 
 void Switcher::enterEvent(QEvent *event)
@@ -124,6 +128,8 @@ void Switcher::enterEvent(QEvent *event)
     else
         _pixmap = _normalRight;
     repaint();
+
+    Q_UNUSED(event);
 }
 
 void Switcher::leaveEvent(QEvent *event)
@@ -133,6 +139,8 @@ void Switcher::leaveEvent(QEvent *event)
     else
         _pixmap = _transRight;
     repaint();
+
+    Q_UNUSED(event);
 }
 
 void Switcher::paintEvent(QPaintEvent *event)
