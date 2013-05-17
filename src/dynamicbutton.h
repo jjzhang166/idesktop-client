@@ -17,6 +17,14 @@ public:
     {
         _value = value;
     }
+
+    void setcurrentPixmap(QPixmap normal)
+    {
+        _normal = normal;
+        setPixmap(_normal);
+        repaint();
+    }
+
 signals:
     void clicked();
     void valueClicked(int);

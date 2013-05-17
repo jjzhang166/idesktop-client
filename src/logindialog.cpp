@@ -73,7 +73,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     passEdit->setGeometry(75, 165, 208, 35);
 
     userEdit->setText(QString("admin"));
-    passEdit->setText(QString("abc123"));
+    //passEdit->setText(QString("password"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -330,8 +330,8 @@ void LoginDialog::auth()
 //}
 
     //_commui->login("192.168.31.196:80", "demo", "123456",QString("%1").arg(sysInfo));
-    //_commui->login("192.168.49.253:80", "test", "1357.com",QString("%1").arg(sysInfo));
-    _commui->login("192.168.31.151:80", "test", "abc_123",QString("%1").arg(sysInfo));
+    _commui->login("192.168.49.253:80", "test", "1357.com",QString("%1").arg(sysInfo));
+    //_commui->login("192.168.31.151:80", "test", "abc_123",QString("%1").arg(sysInfo));
 
     // heart beat.5s timer
     heartbeat_timer=new QTimer(this);
@@ -355,7 +355,7 @@ void LoginDialog::auth()
 
     g_myVappList = _commui->getList();
     qDebug()<<"g_myList.count()="<<g_myVappList.count();
-    qDebug()<<"g_myList:"<<g_myVappList[0].name;
+    //qDebug()<<"g_myList:"<<g_myVappList[0].name;
 
     #ifdef Q_WS_WIN
     QString iconDirPath = WIN_VAPP_IconPath ;

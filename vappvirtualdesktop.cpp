@@ -179,6 +179,7 @@ void VappIconItem::setIndex(int index)
 void VappIconItem::setHidden(bool hide)
 {
     //_app->setHidden(hide);
+    Q_UNUSED(hide);
 }
 
 void VappIconItem::animationMove(const QRect &start, const QRect &end)
@@ -195,6 +196,8 @@ void VappIconItem::setToolTip(const QString &toolTip)
 
 void VappIconItem::doTremble(qreal value)
 {
+    Q_UNUSED(value);
+
     #define LEFT -1
     #define RIGHT 1
     static int direction = LEFT;
@@ -292,6 +295,7 @@ void VappIconItem::enterEvent(QEvent *event)
 
 void VappIconItem::leaveEvent(QEvent *event)
 {
+    Q_UNUSED(event);
 
     if (_timeline->state() == QTimeLine::Running)
         _pixmap = _closePixmap;
@@ -335,7 +339,7 @@ void VappIconItem::setPixmap(const QString &icon)
 //    begin = (ICONWIDTH - _textWidth) / 2 + CLOSEWIDTH/2 - 3;
 //    if (begin < CLOSEWIDTH/2)
 //        begin = CLOSEWIDTH/2;
-//    pt1.drawText( QRect(begin, ICONHEIGHT + CLOSEHEIGHT/2 , \
+//    pt1.drawText( QRect(begin, ICONHEIGHT + CLOSEHEIGHT/2 ,
 //                        width() - begin, _textHeight), Qt::TextSingleLine, text);
     _textWidth = fm.width(_texticon_firstrow);
     QString text = _texticon_firstrow;
@@ -510,6 +514,8 @@ void VappIndicator::enterEvent(QEvent *event)
 {
     setCursor(Qt::PointingHandCursor);
 
+    Q_UNUSED(event);
+
 }
 void VappIndicator::decrease()
 {
@@ -639,9 +645,9 @@ VappVirtualDesktop::VappVirtualDesktop(QSize pageSize,  QWidget *parent)
     {
         if (g_myList.at(i).hidden)
             continue;
-//        addIcon(g_myList.at(i).name, g_myList.at(i).icon, \
+//        addIcon(g_myList.at(i).name, g_myList.at(i).icon,
 //                g_myList.at(i).page, g_myList.at(i).index);
-        //addIcon(g_myList.at(i).name, ICON_PATH + g_myList.at(i).id + ".ico", \
+        //addIcon(g_myList.at(i).name, ICON_PATH + g_myList.at(i).id + ".ico",
        //           g_myList.at(i).page, g_myList.at(i).index);
         #ifdef Q_WS_WIN
         addIcon(g_myList.at(i).name, WIN_IconPath + g_myList.at(i).id + ".ico", \
@@ -848,6 +854,9 @@ void VappVirtualDesktop::atExit()
 void VappVirtualDesktop::onProcessFinished(int exitCode, QProcess::ExitStatus status)
 {
     _inProgress = false;
+
+    Q_UNUSED(exitCode);
+    Q_UNUSED(status);
 }
 
 void VappVirtualDesktop::uninstall(const QString &name)

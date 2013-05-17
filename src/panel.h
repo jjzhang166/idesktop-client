@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "iconarrangedlg.h"
+#include "dynamicbutton.h"
 
 class QPropertyAnimation;
 class AppCenter;
@@ -53,6 +54,11 @@ private:
     AppCenterWdg *_center;
 //    TestWidget* _center;
     IconArrangeDlg *_settingDialog;
+
+    DynamicButton *desktopButton;
+    DynamicButton *bsButton;
+    DynamicButton *personButton;
+    DynamicButton *quitButton;
 };
 
 #endif
