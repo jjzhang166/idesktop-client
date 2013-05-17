@@ -98,7 +98,8 @@ HEADERS += src/config.h \
     commuinication.h \
     common.h \
     applist.h \
-    vappvirtualdesktop.h
+    vappvirtualdesktop.h \
+    src/personalizationwidget.h
 
 
 win32 {
@@ -174,7 +175,8 @@ SOURCES += src/config.cpp \
     src/managewidget.cpp \
     commuinication.cpp \
     applist.cpp \
-    vappvirtualdesktop.cpp
+    vappvirtualdesktop.cpp \
+    src/personalizationwidget.cpp
 
 
 FORMS +=\

@@ -9,9 +9,10 @@
 #include <QWidget>
 #include <QTabWidget>
 #include <QUrl>
-#include "windows.h"
+#include <windows.h>
 #include <QList>
 #include <QPushButton>
+#include <QScrollBar>
 
 class AxWidget;
 class LeftWebKit;
@@ -57,7 +58,6 @@ public:
     ~MyWebView() {}
 
 signals:
-    void hideMenu();
     void startAssembly();
     void stopAssembly();
 
@@ -77,11 +77,13 @@ public:
     ~BsWidget();
 
 signals:
-    void hideMenu();
 
 public slots:
     void startAssembly();
     void stopAssembly();
+
+protected:
+    void paintEvent(QPaintEvent *event);
 
 private:
     LeftWebKit *_leftWebKit;
@@ -89,6 +91,8 @@ private:
 
     int _width;
     int _height;
+
+    QPixmap _pixmap;
 };
 
 class LeftWebKit : public QMainWindow
@@ -103,7 +107,6 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 signals:
-    void hideMenu();
     void link(const QUrl &url);
     void startAssembly();
     void stopAssembly();
@@ -148,7 +151,7 @@ class TabWidget : public QTabWidget
     Q_OBJECT
 public:
     TabWidget(QWidget *parent = 0);
-    ~TabWidget() {}
+    ~TabWidget();
 
 public slots:
     void createTab(const QUrl &url);
@@ -173,9 +176,9 @@ private:
     AxWidget *_axWidget;
     QList<AxWidget*> _axWs;
     QUrl _url;
-    QPushButton *_goBack;
-    QPushButton *_goForward;
-    QPushButton *_refresh;
+    QPushButton *_goBackBtn;
+    QPushButton *_goForwardBtn;
+    QPushButton *_refreshBtn;
 };
 
 class AxWidget : public QWidget
@@ -193,7 +196,7 @@ public:
     };
 
     AxWidget(int id = 0, QWidget *parent = 0);
-    ~AxWidget() {}
+    ~AxWidget();
 
     void setUrl(const QUrl &url);
     void setId(int id);
@@ -226,8 +229,16 @@ public slots:
     void downloadComplete();
 	void commandStateChange (int command, bool enable);
 
+    void scrollBarValueChanged(int value);
+    //void visbleRectChanged();
+
 protected:
     void resizeEvent(QResizeEvent *event);
+    void wheelEvent(QWheelEvent *event);
+
+//    void mousePressEvent(QMouseEvent *event);
+//    void mouseMoveEvent(QMouseEvent *event);
+//    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     QAxWidget *_ax;
@@ -236,6 +247,15 @@ private:
     bool _backState;
     bool _forwardState;
     bool _refreshState;
+
+    QScrollBar *_scrollBar;
+//    SCROLLINFO getVScrollBarInfo();
+//    SCROLLINFO getHScrollBarInfo();
+//    WId getVScroll();
+//    WId getHScroll();
+
+//    double xScale;
+//    double yScale;
 };
 
 #endif // BSWIDGET_H

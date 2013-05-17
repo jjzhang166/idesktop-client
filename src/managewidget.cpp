@@ -103,13 +103,13 @@ void ManageWidget::upLoad()
         QString str(tsr.readLine());
 
         if(str.contains("name=\"vurl\"", Qt::CaseInsensitive)){
-            str.replace(QRegExp("href=\"\.\*\""),QString("href=\"%1\"").arg(vUrl));
+            str.replace(QRegExp("href=\".*\""),QString("href=\"%1\"").arg(vUrl));
         }
         else if(str.contains("name=\"surl\"", Qt::CaseInsensitive)) {
-            str.replace(QRegExp("href=\"\.\*\""),QString("href=\"%1\"").arg(sUrl));
+            str.replace(QRegExp("href=\".*\""),QString("href=\"%1\"").arg(sUrl));
         }
         else if(str.contains("id=\"content\"", Qt::CaseInsensitive)) {
-            str.replace(QRegExp("src=\"\.\*\""),QString("src=\"%1\"").arg(vUrl));
+            str.replace(QRegExp("src=\".*\""),QString("src=\"%1\"").arg(vUrl));
         }
 
         htmlText += str;

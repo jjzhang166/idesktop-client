@@ -25,7 +25,6 @@
         <file>images/bottomPage_icon.png</file>
         <file>images/appbutton_app.png</file>
         <file>images/appbutton_app_hover.png</file>
-        <file>images/shadow.png</file>
         <file>images/appbutton_mouseover_bg.png</file>
         <file>images/widget/window_close.png</file>
         <file>images/widget/window_close_hover.png</file>
@@ -168,5 +167,13 @@
         <file>images/win_normal.png</file>
         <file>images/isoft_hover.png</file>
         <file>images/isoft_normal.png</file>
+        <file>images/icon_add_normal.png</file>
+        <file>images/icon_add_hover.png</file>
+        <file>images/bs_back_disabled.png</file>
+        <file>images/bs_forward_disabled.png</file>
+        <file>images/bs_refresh_disabled.png</file>
+        <file>images/bs_scrollbar.png</file>
+        <file>images/shadow.png</file>
+        <file>images/bs_shadow.png</file>
     </qresource>
 </RCC>

@@ -90,6 +90,16 @@ Dashboard::Dashboard(QWidget *parent)
 
     //vdesktop->setGeometry(QRect(0, 20, _width * vdesktop->count(), _height - indicator->height() - panel->height()));
     vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height - 40));
+
+    _bsWidget = new BsWidget(_width, _height, this);
+    //_bsWidget->setGeometry(0, 0, _width, _height);
+    _bsWidget->move(0, 0);
+    _bsWidget->setVisible(false);
+
+    _perWidget = new PersonalizationWidget(this);
+    _perWidget->setGeometry(QRect(0, 0, _width, _height));
+    _perWidget->setVisible(false);
+
     quitAction = new QAction("ÍË³ö", this);
     showAction = new QAction("ÏÔÊ¾", this);
     hideAction = new QAction("Òþ²Ø", this);
@@ -106,20 +116,16 @@ Dashboard::Dashboard(QWidget *parent)
 
     _animation = new QPropertyAnimation(this, "pos");
 
-    _configMenu = new ConfigMenu(this);
-    _configMenu->move(_width / 3 * 2 - 200, 40);
-    _configMenu->setVisible(false);
-
     QSqlQuery query = \
             QSqlDatabase::database("local").exec(QString("SELECT wallpaper FROM wallpapers where id=\'%1\';").arg(1));
     while (query.next())
         _pixmap = QPixmap(query.value(0).toString());
 
-    connect(_configMenu, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
-    connect(_configMenu, SIGNAL(upLoad()), vdesktop, SLOT(upLoad()));
+    connect(_perWidget, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
     connect(panel, SIGNAL(quit()), this, SLOT(quit()));
     connect(panel, SIGNAL(desktop()), this, SLOT(onShowDesktop()));
-    connect(panel, SIGNAL(iconDialog()), this, SLOT(onIconDialog()));
+    connect(panel, SIGNAL(showBsDesktop()), this, SLOT(onShowBsDesktop()));
+    connect(panel, SIGNAL(showPerDesktop()), this, SLOT(onShowPerDesktop()));
     connect(panel, SIGNAL(pageChanged(int)), this, SLOT(goPage(int)));
     connect(quitAction, SIGNAL(triggered()), this, SLOT(quit()));
     connect(showAction, SIGNAL(triggered()), this, SLOT(show()));
@@ -137,18 +143,21 @@ Dashboard::Dashboard(QWidget *parent)
     //connect(panel, SIGNAL(showDesktop()), this, SLOT(onShowDesktop()));
     //setGeoProper();
 
-    connect(vdesktop, SIGNAL(hideMenu()), this, SLOT(hideMenu()));
 }
 
 void Dashboard::goPage(int page)
 {
-    _configMenu->setVisible(false);
-    vdesktop->goPage(page);
-}
+//    if (page < 2)
+//    {
+//        _perWidget->setVisible(false);
+//        vdesktop->setVisible(true);
+//    }
 
-void Dashboard::hideMenu()
-{
-    _configMenu->setVisible(false);
+        _perWidget->setVisible(false);
+        _bsWidget->setVisible(false);
+
+    vdesktop->setVisible(true);
+    vdesktop->goPage(page);
 }
 
 void Dashboard::onShowDesktop()
@@ -157,9 +166,25 @@ void Dashboard::onShowDesktop()
         getIn();
 }
 
-void Dashboard::onIconDialog()
+void Dashboard::onShowBsDesktop()
 {
-    _configMenu->setVisible(true);
+
+    _perWidget->setVisible(false);
+
+    vdesktop->setVisible(false);
+
+    _bsWidget->setVisible(true);
+
+}
+
+void Dashboard::onShowPerDesktop()
+{
+    if (_bsWidget->isVisible())
+        _bsWidget->setVisible(false);
+    if (vdesktop->isVisible())
+        vdesktop->setVisible(false);
+
+    _perWidget->setVisible(true);
 
     /*
     _settingDialog = new IconArrangeDlg(vdesktop, NULL);

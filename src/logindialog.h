@@ -18,7 +18,7 @@
 class HintLineEdit;
 class QCheckBox;
 class DynamicButton;
-
+extern QList<APP_LIST> g_RemoteappList;
 class LoginDialog : public QDialog
 {
     Q_OBJECT

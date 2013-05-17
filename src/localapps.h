@@ -55,16 +55,45 @@ public:
     {
         _hidden= hidden;
     }
+    //remote app
+    QString id()
+    {
+        return _id;
+    }
+    void setId(QString id)
+    {
+        _id = id;
+    }
+    QString type()
+    {
+        return _type;
+    }
+    void setType(QString type)
+    {
+        _type = type;
+    }
+    bool isRemote()
+    {
+        return _isRemote;
+    }
+    void setIsRemote(bool isRemote)
+    {
+        _isRemote = isRemote;
+    }
+
 private:
     QString _name;
     QString _icon;
     QString _version;
     QString _execname;
     QString _uninstName;
+    QString _id;
+    QString _type;
     int _date;
     int _page;
     int _index;
     bool _hidden;
+    bool _isRemote;
 };
 
 class LocalAppList : public QObject
@@ -74,6 +103,10 @@ public:
     static LocalAppList *getList();
     ~LocalAppList();
     bool addApp(LocalApp*);
+    //remote app
+    bool addRemoteApp(LocalApp*);
+    void updateAppList();
+    void updateQList();
     void delApp(QString name);
     LocalApp * getAppByName(const QString &name);
     LocalApp* at(int i);

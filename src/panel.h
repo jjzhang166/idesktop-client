@@ -31,20 +31,20 @@ signals:
     void desktop();
     void setEqual(int);
     void setMini();
-    void iconDialog();
+    void showBsDesktop();
     void pageChanged(int);    
-    //void showDesktop();
+    void showPerDesktop();
     //void showStore();
 
 public slots:
     void runCenter();
-    void settings();
+    //void settings();
     //void addApp();
     void showDesktop();
     //void showVappDesktop();
-    void showBsDesktop();
+    void bsBtnClicked();
     //void showToolDesktop();
-    void showManageDesktop();
+    void perBtnClicked();
 
 private:
     bool autoHide;

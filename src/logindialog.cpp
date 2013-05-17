@@ -36,7 +36,7 @@ extern QString serverip;
 /****************************************************************/
 QList<APP_LIST> g_myVappList;
 QString  WIN_VAPP_IconPath;
-
+QList<APP_LIST> g_RemoteappList;
 LoginDialog::LoginDialog(QWidget *parent)
     : QDialog(parent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint), \
       _titlePressed(false),_vacfinished(false)
@@ -331,7 +331,7 @@ void LoginDialog::auth()
 
     //_commui->login("192.168.31.196:80", "demo", "123456",QString("%1").arg(sysInfo));
     //_commui->login("192.168.49.253:80", "test", "1357.com",QString("%1").arg(sysInfo));
-    _commui->login("192.168.30.63:80", "test", "1357.com",QString("%1").arg(sysInfo));
+    _commui->login("192.168.31.151:80", "test", "abc_123",QString("%1").arg(sysInfo));
 
     // heart beat.5s timer
     heartbeat_timer=new QTimer(this);
@@ -355,6 +355,7 @@ void LoginDialog::auth()
 
     g_myVappList = _commui->getList();
     qDebug()<<"g_myList.count()="<<g_myVappList.count();
+    qDebug()<<"g_myList:"<<g_myVappList[0].name;
 
     #ifdef Q_WS_WIN
     QString iconDirPath = WIN_VAPP_IconPath ;
@@ -377,6 +378,10 @@ void LoginDialog::auth()
                 .arg(iconDirPath)
                 .arg(g_myVappList[i].id);
         //qDebug()<<"iconPath="<<iconPath;
+        g_RemoteappList.insert(i, g_myVappList[i]);
+        qDebug()<<"g_mylist:"<<g_myVappList[i].icon;
+        g_RemoteappList[i].icon = iconPath;
+        qDebug()<<"g_Rmote:"<<g_RemoteappList.at(i).icon;
         //check if ico file is existed, or dont donwload
         QFile chkFile(iconPath);
         if(chkFile.exists())
@@ -417,7 +422,10 @@ void LoginDialog::auth()
          pt1.end();
          QPixmap pix = QPixmap::fromImage(normal);
          pix.save(newApp, "ICO", -1);
+
+
     }
+    //qDebug()<<"logins remote:"<<g_RemoteappList.count();
 //    _updateVappTimer = new QTimer(this);
 //    connect(_updateVappTimer, SIGNAL(timeout()), this, SLOT(updateVappIcon()));
 //    _updateVappTimer->start(1000 * 6);

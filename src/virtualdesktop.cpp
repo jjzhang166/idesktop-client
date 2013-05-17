@@ -119,12 +119,12 @@ IconItem::~IconItem()
 void IconItem::setPage(int page)
 {
     _page = page;
-    //_app->setPage(page);
+    _app->setPage(page);
 }
 void IconItem::setIndex(int index)
 {
     _index= index;
-   //_app->setIndex(index);
+   _app->setIndex(index);
 }
 void IconItem::setHidden(bool hide)
 {
@@ -532,7 +532,6 @@ void IconAddItem::paintEvent(QPaintEvent *event)
 
 void IconAddItem::mousePressEvent(QMouseEvent *event)
 {
-    emit hideMenu();
     qDebug() << "IconAddItem::mousePressEvent";
 
     if( Qt::LeftButton == event->button())
@@ -870,16 +869,16 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
 
-    //添加虚拟应用开始
-    //_vappCount = g_myVappList.count();
-    //qDebug()<<"virtualdesktop vappCount="<<_vappCount;
-    for(int j=0; j<g_myVappList.count(); j++){
-        //qDebug()<<"j="<<g_myVappList.at(j).name<<","<<WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
-        QString path =  WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
-        path.replace('/','\\');
-        qDebug() << path;
-        addIcon(g_myVappList.at(j).name, path, vappIcon);
-    }
+//    //添加虚拟应用开始
+//    //_vappCount = g_myVappList.count();
+//    //qDebug()<<"virtualdesktop vappCount="<<_vappCount;
+//    for(int j=0; j<g_myVappList.count(); j++){
+//        //qDebug()<<"j="<<g_myVappList.at(j).name<<","<<WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
+//        QString path =  WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
+//        path.replace('/','\\');
+//        qDebug() << path;
+//        addIcon(g_myVappList.at(j).name, path,vappIcon);
+//    }
 
     //添加虚拟应用结束
 
@@ -892,11 +891,19 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
             ip = -1;
             ix = -1;
         }
-        //addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                //_local->at(i)->page(), _local->at(i)->index());
-        addIcon(_local->at(i)->name(), _local->at(i)->icon(), \
-                _local->at(i)->page(), g_myVappList.count() + i,\
-                localIcon);
+        if(_local->at(i)->isRemote())
+        {
+            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+                    _local->at(i)->page(), _local->at(i)->index(), vappIcon);
+        }else{
+            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+                    _local->at(i)->page(), _local->at(i)->index(), localIcon);
+        }
+
+//        addIcon(_local->at(i)->name(), _local->at(i)->icon(), \
+//                _local->at(i)->page(), g_myVappList.count() + i,\
+//                localIcon);
+
         qDebug() << _local->at(i)->name();
         qDebug() << _local->at(i)->icon();
         qDebug() << _local->at(i)->page();
@@ -926,11 +933,11 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     dragRightTimer->setInterval(500);
     dragRightTimer->setSingleShot(true);
 
-    _bsWidget = new BsWidget(_width - 40, _height - 80, this);
-    _bsWidget->setGeometry(1 *_width, 0, _width - 40, _height - 80);
+//    _bsWidget = new BsWidget(_width - 40, _height - 80, this);
+//    _bsWidget->setGeometry(1 *_width, 0, _width - 40, _height - 80);
 
-    _manageWidget = new ManageWidget(this);
-    _manageWidget->setGeometry(2 *_width, 40, _width, _height);
+//    _manageWidget = new ManageWidget(this);
+//    _manageWidget->setGeometry(2 *_width, 40, _width, _height);
 
     _addAction = new QAction(QString(tr("添加")), this);
     _deleteAction = new QAction(QString(tr("开始抖动")), this);
@@ -945,9 +952,6 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
 
     connect(_local, SIGNAL(appAdded(const QString&, const QString&)), this, SLOT(addIcon(const QString&, const QString&)));
     connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
-
-    connect(g_addIcon, SIGNAL(hideMenu()), this, SIGNAL(hideMenu()));
-    connect(_bsWidget, SIGNAL(hideMenu()), this, SIGNAL(hideMenu()));
 
     connect(&_communi, SIGNAL(appRun()), this, SLOT(runServerApp()));
 }
@@ -1262,8 +1266,6 @@ void VirtualDesktop::arrangeMinimum()
 
 void VirtualDesktop::mousePressEvent(QMouseEvent *event)
 {
-    emit hideMenu();
-
     if (_animation->state() == QAbstractAnimation::Running) {
         _animation->stop();
     }
@@ -1775,8 +1777,6 @@ void VirtualDesktop::goPage(int page)
 
 void VirtualDesktop::goNext()
 {
-    emit hideMenu();
-
     _current++;
     _animation->setDuration(900);
     _animation->setStartValue(QRect(x(), y(), width(), height()));
@@ -1788,8 +1788,6 @@ void VirtualDesktop::goNext()
 
 void VirtualDesktop::goPrevious()
 {
-    emit hideMenu();
-
     _current--;
     _animation->setDuration(900);
     _animation->setStartValue(QRect(x(), y(), width(), height()));
@@ -2319,7 +2317,7 @@ void VirtualDesktop::appCancel()
 
 void VirtualDesktop::upLoad()
 {
-    _manageWidget->upLoad();
+//    _manageWidget->upLoad();
 }
 
 //void VirtualDesktop::updateIconTimeOut()

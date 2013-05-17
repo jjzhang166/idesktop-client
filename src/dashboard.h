@@ -14,7 +14,9 @@
 #include <QMenu>
 #include "../commuinication.h"
 #include "iconarrangedlg.h"
-#include "configmenu.h"
+//#include "configmenu.h"
+#include "personalizationwidget.h"
+#include "bswidget.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -57,13 +59,13 @@ public slots:
 //	void heartbeat();
     //void MenuTest();
 	//vac end
-    void onIconDialog();
+    void onShowPerDesktop();
     void onShowDesktop();
+    void onShowBsDesktop();
     //void onShowStore();
 
     void setBgPixmap(const QString &pixText);
     void goPage(int page);
-    void hideMenu();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -114,9 +116,11 @@ private:
     Indicator *indicator;
     QVBoxLayout *layout;
     IconArrangeDlg *_settingDialog;
-    ConfigMenu *_configMenu;
 
     QPixmap _pixmap;
     QString _pixText;
+
+    PersonalizationWidget *_perWidget;
+    BsWidget *_bsWidget;
 };
 #endif

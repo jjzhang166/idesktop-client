@@ -1,106 +1,106 @@
 #include "configmenu.h"
 
-#include <QDir>
-#include <QFile>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QPainter>
-#include <QWidget>
-#include <QDateTime>
-#include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlQuery>
-#include <QTextCodec>
-#include <QMouseEvent>
-#include <QBitmap>
-#include <QtDebug>
-#include "config.h"
+//#include <QDir>
+//#include <QFile>
+//#include <QFileDialog>
+//#include <QFileInfo>
+//#include <QPainter>
+//#include <QWidget>
+//#include <QDateTime>
+//#include <QtSql/QSqlDatabase>
+//#include <QtSql/QSqlQuery>
+//#include <QTextCodec>
+//#include <QMouseEvent>
+//#include <QBitmap>
+//#include <QtDebug>
+//#include "config.h"
 
 
-ConfigMenu::ConfigMenu(QWidget *parent)
-    : QLabel(parent)
-    , _enter(false)
-{
-    setFixedSize(143, 83);
-
-    this->setAutoFillBackground(true);
-
-    setStyleSheet("border: 0px solid gray;background:rgba(255,255,255,0);");
-
-    _skinAc = new QPushButton(tr("换皮肤"), this);
-    _skinAc->setGeometry(0, 0, 143, 42);
-    _skinAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_top.png);border-style:flat;color:white;}\
-                           QPushButton:hover:pressed{border-image:url(:/images/menu_top.png);border-style:flat;color:white;}\
-                           QPushButton:hover:!pressed{border-image:url(:/images/menu_top_hover.png);border-style:flat;color:white;}");
-    _bsStyleAc = new QPushButton(tr("B/S应用样式"), this);
-    _bsStyleAc->setGeometry(0, 42, 143, 41);
-    _bsStyleAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
-                              QPushButton:hover:pressed{border-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
-                              QPushButton:hover:!pressed{border-image:url(:/images/menu_bottom_hover.png);border-style:flat;color:white;}");
-//    _serverAc = new QPushButton(tr("服务器设置"), this);
-//    _serverAc->setGeometry(0, 76, 143, 41);
-//    _serverAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}
-//                             QPushButton:hover:pressed{border-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}
-//                             QPushButton:hover:!pressed{border-image:url(:/images/menu_bottom_hover.png);border-style:flat;color:white;}");
-
-    connect(_skinAc, SIGNAL(clicked()), this, SLOT(setSkin()));
-    connect(_bsStyleAc, SIGNAL(clicked()), this, SLOT(setBsStyle()));
-//    connect(_serverAc, SIGNAL(clicked()), this, SLOT(setServer()));
-
-}
-
-ConfigMenu::~ConfigMenu()
-{
-
-}
-
-//void ConfigMenu::paintEvent(QPaintEvent *event)
+//ConfigMenu::ConfigMenu(QWidget *parent)
+//    : QLabel(parent)
+//    , _enter(false)
 //{
-//    QPainter painter(this);
-//    painter.drawPixmap(0, 0,QPixmap(":/images/menu_top.png"));
-//    painter.drawPixmap(0, 42,QPixmap(":/images/menu_center.png"));
-//    painter.drawPixmap(0, 76,QPixmap(":/images/menu_bottom.png"));
+//    setFixedSize(143, 83);
+
+//    this->setAutoFillBackground(true);
+
+//    setStyleSheet("border: 0px solid gray;background:rgba(255,255,255,0);");
+
+//    _skinAc = new QPushButton(tr("换皮肤"), this);
+//    _skinAc->setGeometry(0, 0, 143, 42);
+//    _skinAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_top.png);border-style:flat;color:white;}\
+//                           QPushButton:hover:pressed{border-image:url(:/images/menu_top.png);border-style:flat;color:white;}\
+//                           QPushButton:hover:!pressed{border-image:url(:/images/menu_top_hover.png);border-style:flat;color:white;}");
+//    _bsStyleAc = new QPushButton(tr("B/S应用样式"), this);
+//    _bsStyleAc->setGeometry(0, 42, 143, 41);
+//    _bsStyleAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
+//                              QPushButton:hover:pressed{border-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}\
+//                              QPushButton:hover:!pressed{border-image:url(:/images/menu_bottom_hover.png);border-style:flat;color:white;}");
+////    _serverAc = new QPushButton(tr("服务器设置"), this);
+////    _serverAc->setGeometry(0, 76, 143, 41);
+////    _serverAc->setStyleSheet("QPushButton{background-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}
+////                             QPushButton:hover:pressed{border-image:url(:/images/menu_bottom.png);border-style:flat;color:white;}
+////                             QPushButton:hover:!pressed{border-image:url(:/images/menu_bottom_hover.png);border-style:flat;color:white;}");
+
+//    connect(_skinAc, SIGNAL(clicked()), this, SLOT(setSkin()));
+//    connect(_bsStyleAc, SIGNAL(clicked()), this, SLOT(setBsStyle()));
+////    connect(_serverAc, SIGNAL(clicked()), this, SLOT(setServer()));
+
 //}
 
-void ConfigMenu::enterEvent(QEvent *event)
-{
-    _enter = true;
-    QLabel::enterEvent(event);
-}
+//ConfigMenu::~ConfigMenu()
+//{
 
-void ConfigMenu::leaveEvent(QEvent *event)
-{
-    _enter = false;
-    QLabel::leaveEvent(event);
-}
+//}
 
-bool ConfigMenu::mouseEnter()
-{
-    return _enter;
-}
+////void ConfigMenu::paintEvent(QPaintEvent *event)
+////{
+////    QPainter painter(this);
+////    painter.drawPixmap(0, 0,QPixmap(":/images/menu_top.png"));
+////    painter.drawPixmap(0, 42,QPixmap(":/images/menu_center.png"));
+////    painter.drawPixmap(0, 76,QPixmap(":/images/menu_bottom.png"));
+////}
 
-void ConfigMenu::setSkin()
-{
-    _skinWidget = new SkinWidget();
-    _skinWidget->show();
+//void ConfigMenu::enterEvent(QEvent *event)
+//{
+//    _enter = true;
+//    QLabel::enterEvent(event);
+//}
 
-    connect(_skinWidget, SIGNAL(setBgPixmap(const QString&)), this, SIGNAL(setBgPixmap(const QString&)));
+//void ConfigMenu::leaveEvent(QEvent *event)
+//{
+//    _enter = false;
+//    QLabel::leaveEvent(event);
+//}
 
-    close();
-}
+//bool ConfigMenu::mouseEnter()
+//{
+//    return _enter;
+//}
 
-void ConfigMenu::setBsStyle()
-{
-    close();
-}
+//void ConfigMenu::setSkin()
+//{
+//    _skinWidget = new SkinWidget();
+//    _skinWidget->show();
 
-void ConfigMenu::setServer()
-{
-    _serverStgWidget = new ServerStgWidget();
-    _serverStgWidget->show();
-    connect(_serverStgWidget, SIGNAL(upLoad()), this, SIGNAL(upLoad()));
+//    connect(_skinWidget, SIGNAL(setBgPixmap(const QString&)), this, SIGNAL(setBgPixmap(const QString&)));
 
-    close();
-}
+//    close();
+//}
+
+//void ConfigMenu::setBsStyle()
+//{
+//    close();
+//}
+
+//void ConfigMenu::setServer()
+//{
+//    _serverStgWidget = new ServerStgWidget();
+//    _serverStgWidget->show();
+//    connect(_serverStgWidget, SIGNAL(upLoad()), this, SIGNAL(upLoad()));
+
+//    close();
+//}
 
 /*
 void ConfigMenu::backupData()
@@ -311,211 +311,211 @@ void ConfigMenu::setConfigure()
 //*/
 
 /************************** 换皮肤 *************************/
-SkinWidget::SkinWidget(QWidget *parent)
-    : QWidget(parent)
-    , _pageNum(0)
-{
-    resize(790, 450);
+//SkinWidget::SkinWidget(QWidget *parent)
+//    : QWidget(parent)
+//    , _pageNum(0)
+//{
+//    resize(790, 450);
 
-    setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
-    _skinPixWidget = new SkinPixWidget(this);
-    _skinPixWidget->move(0,0);
+//    setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
+//    _skinPixWidget = new SkinPixWidget(this);
+//    _skinPixWidget->move(0,0);
 
-    _scrollBar = new QScrollBar(this);
+//    _scrollBar = new QScrollBar(this);
 
-    if (_skinPixWidget->height() % height() == 0)
-        _pageNum = _skinPixWidget->height() / height();
-    else
-        _pageNum = _skinPixWidget->height() / height() + 1;
+//    if (_skinPixWidget->height() % height() == 0)
+//        _pageNum = _skinPixWidget->height() / height();
+//    else
+//        _pageNum = _skinPixWidget->height() / height() + 1;
 
-    _scrollBar->setSingleStep(height() -10);
-    _scrollBar->setPageStep(height() - 10);
+//    _scrollBar->setSingleStep(height() -10);
+//    _scrollBar->setPageStep(height() - 10);
 
-    _animation = new QPropertyAnimation(_skinPixWidget, "geometry");
+//    _animation = new QPropertyAnimation(_skinPixWidget, "geometry");
 
-    connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
-    connect(_skinPixWidget, SIGNAL(setBgPixmap(QString)), this, SIGNAL(setBgPixmap(QString)));
-}
+//    connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
+//    connect(_skinPixWidget, SIGNAL(setBgPixmap(QString)), this, SIGNAL(setBgPixmap(QString)));
+//}
 
-void SkinWidget::scrollBarValueChanged(int val)
-{
+//void SkinWidget::scrollBarValueChanged(int val)
+//{
 
-    if ((_skinPixWidget->pos().y() + val) % (height() - 10) != 0)
-    {
-        return;
-    }
+//    if ((_skinPixWidget->pos().y() + val) % (height() - 10) != 0)
+//    {
+//        return;
+//    }
 
-    if (_animation->state() == QAbstractAnimation::Running)
-    {
-        return;
-    }
+//    if (_animation->state() == QAbstractAnimation::Running)
+//    {
+//        return;
+//    }
 
-    _animation->setDuration(80);
-    _animation->setStartValue(QRect(0, _skinPixWidget->pos().y(), _skinPixWidget->width(), _skinPixWidget->height()));
-    _animation->setEndValue(QRect(0, -val, _skinPixWidget->width(), _skinPixWidget->height()));
+//    _animation->setDuration(80);
+//    _animation->setStartValue(QRect(0, _skinPixWidget->pos().y(), _skinPixWidget->width(), _skinPixWidget->height()));
+//    _animation->setEndValue(QRect(0, -val, _skinPixWidget->width(), _skinPixWidget->height()));
 
-    _animation->start();
-}
+//    _animation->start();
+//}
 
-void SkinWidget::resizeEvent(QResizeEvent *event)
-{
-    Q_UNUSED(event);
+//void SkinWidget::resizeEvent(QResizeEvent *event)
+//{
+//    Q_UNUSED(event);
 
-    int w = 15;
-    int x = width() - w;
-    x = x < 0 ? 0: x;
-    int h = height();
-    _scrollBar->setGeometry(x, 0, w, h);
+//    int w = 15;
+//    int x = width() - w;
+//    x = x < 0 ? 0: x;
+//    int h = height();
+//    _scrollBar->setGeometry(x, 0, w, h);
 
-    _scrollBar->setRange(0, _pageNum * height() - h - 10);
-}
+//    _scrollBar->setRange(0, _pageNum * height() - h - 10);
+//}
 
-void SkinWidget::wheelEvent(QWheelEvent *event)
-{
-    _scrollBar->event(event);
-}
+//void SkinWidget::wheelEvent(QWheelEvent *event)
+//{
+//    _scrollBar->event(event);
+//}
 
-SkinPixWidget::SkinPixWidget(QWidget *parent)
-    : QWidget(parent)
-    , _column(0)
-    , _rowNum(0)
-{
-   resize(770, 890);
+//SkinPixWidget::SkinPixWidget(QWidget *parent)
+//    : QWidget(parent)
+//    , _column(0)
+//    , _rowNum(0)
+//{
+//   resize(770, 890);
 
-    for (int i = 0; i < 30; i++)
-    {
-        _pixmapWidget = new PixmapWidget(QString(":/images/wallpager/wp_%1.jpg").arg(i), this);
+//    for (int i = 0; i < 30; i++)
+//    {
+//        _pixmapWidget = new PixmapWidget(QString(":/images/wallpager/wp_%1.jpg").arg(i), this);
 
-        _pixmapWidget->setSize(180, 100);
+//        _pixmapWidget->setSize(180, 100);
 
-        if ((_rowNum + 1) * (10 + _pixmapWidget->getWidth()) >= this->width())
-        {
-            _rowNum = 0;
-            _column++;
-        }
+//        if ((_rowNum + 1) * (10 + _pixmapWidget->getWidth()) >= this->width())
+//        {
+//            _rowNum = 0;
+//            _column++;
+//        }
 
-         _pixmapWidget->move(((_rowNum + 1) *10 + _pixmapWidget->getWidth() * _rowNum),
-                             ((_column + 1) * 10 + _pixmapWidget->getHeight() * _column));
-         _rowNum++;
+//         _pixmapWidget->move(((_rowNum + 1) *10 + _pixmapWidget->getWidth() * _rowNum),
+//                             ((_column + 1) * 10 + _pixmapWidget->getHeight() * _column));
+//         _rowNum++;
 
 
-        connect(_pixmapWidget, SIGNAL(mouseClicked(const QString&)), \
-                        this, SIGNAL(setBgPixmap(const QString&)));
-    }
+//        connect(_pixmapWidget, SIGNAL(mouseClicked(const QString&)), \
+//                        this, SIGNAL(setBgPixmap(const QString&)));
+//    }
 
-}
+//}
 
-PixmapWidget::PixmapWidget(QString pixText, QWidget *parent)
-    : QWidget(parent)
-    , _pixText(pixText)
-    , _width(180)
-    , _height(100)
-{
-    _pixmap.load(_pixText);
-}
+//PixmapWidget::PixmapWidget(QString pixText, QWidget *parent)
+//    : QWidget(parent)
+//    , _pixText(pixText)
+//    , _width(180)
+//    , _height(100)
+//{
+//    _pixmap.load(_pixText);
+//}
 
-void PixmapWidget::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-    painter.drawPixmap(0, 0, _width, _height, _pixmap);
+//void PixmapWidget::paintEvent(QPaintEvent *event)
+//{
+//    QPainter painter(this);
+//    painter.drawPixmap(0, 0, _width, _height, _pixmap);
 
-    QWidget::paintEvent(event);
-}
+//    QWidget::paintEvent(event);
+//}
 
-void PixmapWidget::setSize(int w, int h)
-{
-    _width = w;
-    _height = h;
-    resize(_width, _height);
-    update();
-}
+//void PixmapWidget::setSize(int w, int h)
+//{
+//    _width = w;
+//    _height = h;
+//    resize(_width, _height);
+//    update();
+//}
 
-QString PixmapWidget::getPixmapText()
-{
-    return _pixText;
-}
+//QString PixmapWidget::getPixmapText()
+//{
+//    return _pixText;
+//}
 
-int PixmapWidget::getWidth()
-{
-    return _width;
-}
+//int PixmapWidget::getWidth()
+//{
+//    return _width;
+//}
 
-int PixmapWidget::getHeight()
-{
-    return _height;
-}
+//int PixmapWidget::getHeight()
+//{
+//    return _height;
+//}
 
-void PixmapWidget::mousePressEvent(QMouseEvent *event)
-{
-    emit mouseClicked(_pixText);
+//void PixmapWidget::mousePressEvent(QMouseEvent *event)
+//{
+//    emit mouseClicked(_pixText);
 
-    QWidget::mousePressEvent(event);
-}
+//    QWidget::mousePressEvent(event);
+//}
 
-/************************** 服务器设置 *************************/
-ServerStgWidget::ServerStgWidget(QWidget *parent)
-    : QWidget(parent)
-{
-    resize(395, 300);
+///************************** 服务器设置 *************************/
+//ServerStgWidget::ServerStgWidget(QWidget *parent)
+//    : QWidget(parent)
+//{
+//    resize(395, 300);
 
-    _virtualLabel = new QLabel(tr("虚拟应用服务器："), this);
-    _virtualLabel->move(20, height() / 9);
+//    _virtualLabel = new QLabel(tr("虚拟应用服务器："), this);
+//    _virtualLabel->move(20, height() / 9);
 
-    _serviceLabel = new QLabel(tr("服务平台服务器："), this);
-    _serviceLabel->move(20, height() / 3);
+//    _serviceLabel = new QLabel(tr("服务平台服务器："), this);
+//    _serviceLabel->move(20, height() / 3);
 
-    _virtualEdit = new QLineEdit(this);
-    _virtualEdit->setGeometry(150, height() / 9 - 10, 208, 35);
-    _virtualEdit->setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:2px;");
+//    _virtualEdit = new QLineEdit(this);
+//    _virtualEdit->setGeometry(150, height() / 9 - 10, 208, 35);
+//    _virtualEdit->setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:2px;");
 
-    _serviceEdit = new QLineEdit(this);
-    _serviceEdit->setGeometry(150, height() / 3 - 10, 208, 35);
-    _serviceEdit->setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0);margin-left:2px;");
+//    _serviceEdit = new QLineEdit(this);
+//    _serviceEdit->setGeometry(150, height() / 3 - 10, 208, 35);
+//    _serviceEdit->setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0);margin-left:2px;");
 
-    _saveBtn = new QPushButton(tr("应用"), this);
-    _saveBtn->move(220, height() / 9 * 7);
+//    _saveBtn = new QPushButton(tr("应用"), this);
+//    _saveBtn->move(220, height() / 9 * 7);
 
-    _cancelBtn = new QPushButton(tr("取消"), this);
-    _cancelBtn->move(300, height() / 9 * 7);
+//    _cancelBtn = new QPushButton(tr("取消"), this);
+//    _cancelBtn->move(300, height() / 9 * 7);
 
-/*
-    QSqlQuery query = \
-            QSqlDatabase::database("local").exec(QString("SELECT virtualurl FROM urls where id=\'%1\';").arg(1));
-    while (query.next())
-        _virtualEdit->setText(query.value(0).toString());
-    query = QSqlDatabase::database("local").exec(QString("SELECT serviceurl FROM urls where id=\'%1\';").arg(1));
-        while (query.next())
-            _serviceEdit->setText(query.value(0).toString());
-*/
-    connect(_saveBtn, SIGNAL(clicked()), this, SLOT(saveIp()));
-    connect(_cancelBtn, SIGNAL(clicked()), this, SLOT(close()));
-}
+///*
+//    QSqlQuery query = \
+//            QSqlDatabase::database("local").exec(QString("SELECT virtualurl FROM urls where id=\'%1\';").arg(1));
+//    while (query.next())
+//        _virtualEdit->setText(query.value(0).toString());
+//    query = QSqlDatabase::database("local").exec(QString("SELECT serviceurl FROM urls where id=\'%1\';").arg(1));
+//        while (query.next())
+//            _serviceEdit->setText(query.value(0).toString());
+//*/
+//    connect(_saveBtn, SIGNAL(clicked()), this, SLOT(saveIp()));
+//    connect(_cancelBtn, SIGNAL(clicked()), this, SLOT(close()));
+//}
 
-void ServerStgWidget::saveIp()
-{
-    qDebug() << "1232132312321";
-    QSqlQuery query(QSqlDatabase::database("local"));
+//void ServerStgWidget::saveIp()
+//{
+//    qDebug() << "1232132312321";
+//    QSqlQuery query(QSqlDatabase::database("local"));
 
-    QString qstr = QString("update urls "\
-                           "set virtualurl=\'%1\', serviceurl=\'%2\' where id=1;")\
-                           .arg(_virtualEdit->text()).arg(_serviceEdit->text());
-    if(!query.exec(qstr)) {
-        qDebug() <<"query failed";
-        return;
-    }
+//    QString qstr = QString("update urls "\
+//                           "set virtualurl=\'%1\', serviceurl=\'%2\' where id=1;")\
+//                           .arg(_virtualEdit->text()).arg(_serviceEdit->text());
+//    if(!query.exec(qstr)) {
+//        qDebug() <<"query failed";
+//        return;
+//    }
 
-    emit upLoad();
+//    emit upLoad();
 
-    close();
-}
+//    close();
+//}
 
-void ServerStgWidget::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-    painter.setBrush(QBrush(Qt::white));
-    painter.drawRect(0, 0, width(), height());
-    painter.drawPixmap(150, height() / 9 - 10, QPixmap(":images/login_input_bg.png"));
-    painter.drawPixmap(150, height() / 3 - 10, QPixmap(":images/login_input_bg.png"));
+//void ServerStgWidget::paintEvent(QPaintEvent *event)
+//{
+//    QPainter painter(this);
+//    painter.setBrush(QBrush(Qt::white));
+//    painter.drawRect(0, 0, width(), height());
+//    painter.drawPixmap(150, height() / 9 - 10, QPixmap(":images/login_input_bg.png"));
+//    painter.drawPixmap(150, height() / 3 - 10, QPixmap(":images/login_input_bg.png"));
 
-    QWidget::paintEvent(event);
-}
+//    QWidget::paintEvent(event);
+//}

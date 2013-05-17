@@ -89,10 +89,10 @@ Panel::Panel(QWidget *parent)
     
     //layout->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-    QPixmap configPix(":images/appbutton_config.png");
-    QPixmap configPixHover(":images/appbutton_config_hover.png");
-    DynamicButton *configButton = new DynamicButton(configPix, configPixHover, this);
-    configButton->setGeometry(207, 0, 117, 39);
+    QPixmap personPix(":images/appbutton_config.png");
+    QPixmap personPixHover(":images/appbutton_config_hover.png");
+    DynamicButton *personButton = new DynamicButton(personPix, personPixHover, this);
+    personButton->setGeometry(207, 0, 117, 39);
 //    configButton->setFixedSize(109, 36);
 //    layout->addWidget(configButton);
 
@@ -105,30 +105,29 @@ Panel::Panel(QWidget *parent)
 
     connect(desktopButton, SIGNAL(clicked()), this, SLOT(showDesktop()));
     //connect(vappButton, SIGNAL(clicked()), this, SLOT(showVappDesktop()));
-    connect(bsButton, SIGNAL(clicked()), this, SLOT(showBsDesktop()));
+    connect(bsButton, SIGNAL(clicked()), this, SLOT(bsBtnClicked()));
     //connect(toolButton, SIGNAL(clicked()), this, SLOT(showToolDesktop()));
     //connect(addButton, SIGNAL(clicked()), this, SLOT(addApp()));
     //connect(storeButton, SIGNAL(clicked()), this, SLOT(runCenter()));
     //connect(manageButton, SIGNAL(clicked()), this, SLOT(showManageDesktop()));
-    connect(configButton, SIGNAL(clicked()), this, SLOT(settings()));
+    connect(personButton, SIGNAL(clicked()), this, SLOT(perBtnClicked()));
     connect(quitButton, SIGNAL(clicked()), this, SIGNAL(quit()));
 }
 
-void Panel::settings()
-{
-    emit iconDialog();
-    /*
-    if (_settingDialog == NULL)
-        _settingDialog = new IconArrangeDlg(this);
-    if (!_settingDialog->exec())
-        return;
+//void Panel::setting()
+//{
+//    /*
+//    if (_settingDialog == NULL)
+//        _settingDialog = new IconArrangeDlg(this);
+//    if (!_settingDialog->exec())
+//        return;
 
-    if (_settingDialog->equal)
-        emit setEqual(_settingDialog->pCount);
-    else
-        emit setMini();
-    */
-}
+//    if (_settingDialog->equal)
+//        emit setEqual(_settingDialog->pCount);
+//    else
+//        emit setMini();
+//    */
+//}
 
 void Panel::runCenter()
 {
@@ -269,10 +268,15 @@ void Panel::showVappDesktop()
     emit pageChanged(2);
 }
 */
-void Panel::showBsDesktop()
+void Panel::perBtnClicked()
 {
+    emit showPerDesktop();
+}
 
-    emit pageChanged(1);
+void Panel::bsBtnClicked()
+{
+    emit showBsDesktop();
+    //emit pageChanged(1);
 }
 /*
 void Panel::showToolDesktop()
@@ -280,8 +284,8 @@ void Panel::showToolDesktop()
     emit pageChanged(3);
 }
 */
-void Panel::showManageDesktop()
-{
-    emit pageChanged(2);
-}
+//void Panel::showManageDesktop()
+//{
+//    emit pageChanged(2);
+//}
 

@@ -7,9 +7,9 @@
 #include <QMenu>
 #include <QAction>
 #include "localapps.h"
-#include "bswidget.h"
+//#include "bswidget.h"
 #include "../commuinication.h"
-#include "managewidget.h"
+//#include "managewidget.h"
 //app
 #ifdef Q_WS_WIN
 #include <QLibrary>
@@ -184,8 +184,6 @@ signals:
     void trembleStoped();
     void reInitiate();
 
-    void hideMenu();
-
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
 
@@ -222,8 +220,8 @@ private:
     QAction *_deleteAction;
     QAction *_cancelAction;
 
-    BsWidget *_bsWidget;
-    ManageWidget *_manageWidget;
+//    BsWidget *_bsWidget;
+//    ManageWidget *_manageWidget;
     //app
     commuinication _communi;
     QString appText;
@@ -392,7 +390,6 @@ public:
     } 
 signals:
     //void clicked();
-    void hideMenu();
 
 public slots:
     void startTremble(); 

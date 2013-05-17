@@ -119,7 +119,10 @@ int main(int argc, char **argv)
                       "lastupdate int not null, " \
                       "page int not null, " \
                       "idx int not null, " \
-                      "hidden int not null default 0);";
+                      "hidden int not null default 0, " \
+                      "id nvarchar not null," \
+                      "type nvarchar not null," \
+                      "isRemote int not null default 0);";
        QString createUserTable = \
                       "CREATE TABLE users " \
                       "(name nvarchar not null primary key, " \
