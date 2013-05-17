@@ -23,7 +23,7 @@ extern QString serverip;
 MyWebView::MyWebView(QWidget *parent)
     : QWebView(parent)
 {
-
+    setContextMenuPolicy(Qt::NoContextMenu);
 }
 
 void MyWebView::setNewUrl(QString url)
