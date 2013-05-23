@@ -340,12 +340,17 @@ void Dashboard::setBgPixmap(const QString &pixText)
 void Dashboard::refreshDesktop()
 {
 
-    if (vdesktop->dragEvent())
+    if (vdesktop->dragEventState())
     {
         return;
     }
 
     if (vdesktop->trembleState())
+    {
+        return;
+    }
+
+    if (vdesktop->addAppState())
     {
         return;
     }

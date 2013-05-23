@@ -558,19 +558,19 @@ IconAddItem::~IconAddItem()
 {
 }
 
-void IconAddItem::addApp()
-{
-    qDebug() << "IconAddItem::addApp()";
-    QString path = QFileDialog::getOpenFileName(this, tr("选择一个应用程序或快捷方式"),
-                                                Config::get("CommonProgramDir"),
-                                                tr("app (*.lnk *.exe)"));
+//void IconAddItem::addApp()
+//{
+//    qDebug() << "IconAddItem::addApp()";
+//    QString path = QFileDialog::getOpenFileName(this, tr("选择一个应用程序或快捷方式"),
+//                                                Config::get("CommonProgramDir"),
+//                                                tr("app (*.lnk *.exe)"));
 
-    if (path.isEmpty())
-        return;
+//    if (path.isEmpty())
+//        return;
 
-    path.replace('/','\\');
-    AppDataReadExe::Instance()->addLocalApp(path);
-}
+//    path.replace('/','\\');
+//    AppDataReadExe::Instance()->addLocalApp(path);
+//}
 
 void IconAddItem::setPage(int page)
 {
@@ -623,7 +623,7 @@ void IconAddItem::mousePressEvent(QMouseEvent *event)
 
     if( Qt::LeftButton == event->button())
     {
-        addApp();
+        emit addApp();
     }
 
     event->accept();
@@ -865,6 +865,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     , _itemHeld(false)
     , _trembling(false)
     , _dragEvent(false)
+    , _addAppState(false)
 //    , _vappCount(0)
 
 {
@@ -1011,6 +1012,8 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
 
     connect(&_communi, SIGNAL(appRun()), this, SLOT(runServerApp()));
+
+    connect(g_addIcon, SIGNAL(addApp()), this, SLOT(appAdd()));
 }
 
 VirtualDesktop::~VirtualDesktop()
@@ -2391,15 +2394,20 @@ void VirtualDesktop::contextMenuEvent(QContextMenuEvent *event)
 
 void VirtualDesktop::appAdd()
 {
+    _addAppState = true;
     QString path = QFileDialog::getOpenFileName(this, tr("选择一个应用程序或快捷方式"),
                                                 Config::get("CommonProgramDir"),
                                                 tr("app (*.lnk *.exe)"));
 
     if (path.isEmpty())
+    {
+        _addAppState = false;
         return;
+    }
 
     path.replace('/','\\');
     AppDataReadExe::Instance()->addLocalApp(path);
+    _addAppState = false;
 }
 
 void VirtualDesktop::appDelete()

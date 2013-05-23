@@ -157,9 +157,13 @@ public:
     {
         return _trembling;
     }
-    bool dragEvent()
+    bool dragEventState()
     {
         return _dragEvent;
+    }
+    bool addAppState()
+    {
+        return _addAppState;
     }
 
     //void runApp(const QString &text);
@@ -250,6 +254,7 @@ private:
     //int _vappCount;
     //int _count;
     bool _dragEvent;
+    bool _addAppState;
 
 public:
     int _current;
@@ -420,12 +425,13 @@ public:
     } 
 signals:
     //void clicked();
+    void addApp();
 
 public slots:
     void startTremble(); 
     void stopTremble();
     void doTremble(qreal);
-    void addApp();
+    //void addApp();
 private:
     LocalApp *_app;
     QDrag *_drag;
