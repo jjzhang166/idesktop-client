@@ -2,6 +2,7 @@
 #include <QBrush>
 
 #include "personalizationwidget.h"
+#include "appmessagebox.h"
 
 PersonalizationWidget::PersonalizationWidget(QWidget *parent) :
     QWidget(parent)
@@ -246,7 +247,10 @@ int PixmapWidget::getHeight()
 
 void PixmapWidget::mousePressEvent(QMouseEvent *event)
 {
-    emit mouseClicked(_pixText);
+    AppMessageBox box(true, NULL);
+    box.setText("是否将选中的图片设置为桌面背景\n点击\"确定\"更换背景");
+    if (box.exec())
+        emit mouseClicked(_pixText);
 
     QWidget::mousePressEvent(event);
 }
