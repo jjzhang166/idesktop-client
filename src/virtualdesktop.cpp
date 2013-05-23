@@ -864,6 +864,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     , _itemClicked(false)
     , _itemHeld(false)
     , _trembling(false)
+    , _dragEvent(false)
 //    , _vappCount(0)
 
 {
@@ -1389,6 +1390,8 @@ void VirtualDesktop::mousePressEvent(QMouseEvent *event)
 
 void VirtualDesktop::dragEnterEvent(QDragEnterEvent *event)
 {
+    _dragEvent = true;
+
     _itemHeld = false;
     IconItem *icon = qobject_cast<IconItem*> (event->source());
     _inDrag = icon;
@@ -1641,6 +1644,8 @@ int VirtualDesktop::getNearestIndex(const QRect &rect)
 
 void VirtualDesktop::dragMoveEvent(QDragMoveEvent *event)
 {
+    _dragEvent = true;
+
     event->accept();
     _itemHeld = false;
     int p = _inDrag->page();
@@ -1712,6 +1717,8 @@ void VirtualDesktop::dragLeaveEvent(QDragLeaveEvent *event)
     //icon->show();
     //event->accept();
 
+    _dragEvent = false;
+
     Q_UNUSED(event);
 }
 
@@ -1748,6 +1755,8 @@ void VirtualDesktop::dropEvent(QDropEvent *event)
     qDebug() << "444444444444444444444444444444444444444";
     _inDrag=NULL;
     qDebug() << "555555555555555555555555555555555555555";
+
+    _dragEvent = false;
 }
 
 void VirtualDesktop::mouseReleaseEvent(QMouseEvent *event)
@@ -1964,7 +1973,6 @@ void VirtualDesktop::delIcon(const QString &text)
                 _iconTable[p][k]->animationMove(start, end);
                 _iconTable[p][k]->setIndex(k-1);
                 _iconTable[p][k - 1] = _iconTable[p][k];
-
             }
         }
         else {
@@ -1975,23 +1983,16 @@ void VirtualDesktop::delIcon(const QString &text)
                 {
 
                     QRect start = _gridTable[i][j].translated(SPACING, SPACING);
-
                     QRect end = _gridTable[i-1][_nextIdx[i-1] - 1].translated(SPACING, SPACING);
-
                     _iconTable[i][j]->animationMove(start, end);
-
                     _iconTable[i][j]->setPage(i-1);
                     _iconTable[i][j]->setIndex(_nextIdx[i-1] - 1);
-
                     _iconTable[i-1][_nextIdx[i-1] - 1] = _iconTable[i][j];
-
                 }
                 else {
 
                     QRect start = _gridTable[i][j].translated(SPACING, SPACING);
-
                     QRect end = _gridTable[i][j-1].translated(SPACING, SPACING);
-
                     _iconTable[i][j]->animationMove(start, end);
                     _iconTable[i][j]->setIndex(j-1);
                     _iconTable[i][j - 1] = _iconTable[i][j];
@@ -1999,10 +2000,11 @@ void VirtualDesktop::delIcon(const QString &text)
             }
         }
     }
+
     if (_nextIdx[_count - 1] == 0)
     {
-        _iconTable[_count - 2][_nextIdx[_count - 2] - 1] = NULL;
-        _nextIdx[_count - 2]--;
+        _iconTable[_count - 1 - 1][_nextIdx[_count - 1 - 1] - 1] = NULL;
+        _nextIdx[_count - 1 - 1]--;
     }else
     {
         _iconTable[_count - 1][_nextIdx[_count - 1] - 1] = NULL;
@@ -2012,15 +2014,30 @@ void VirtualDesktop::delIcon(const QString &text)
     if ((_count > 1) && (_local->count() < _iconsPerPage * (_count - 1)))
         delPage(_count - 1);
 
-    if (_local->count() == 0) {
-        appCancel();
-    }
-
     /*move addicon add the last*/
     if (_nextIdx[_count - 1] == _iconsPerPage)
         showAddIcon(_count - 1, _nextIdx[_count - 1] - 1);
     else
         showAddIcon(_count - 1, -1);
+
+    if (_local->count() == 0) {
+        appCancel();
+    }
+
+    bool trembling = true;
+
+    for (int i = 0; i < _local->count(); i++)
+    {
+        if (!_local->at(i)->isRemote())
+        {
+            trembling = false;
+            break;
+        }
+    }
+
+    if (trembling) {
+        appCancel();
+    }
 }
 
 void VirtualDesktop::runApp(const QString &text)
@@ -2348,15 +2365,27 @@ void VirtualDesktop::contextMenuEvent(QContextMenuEvent *event)
     } else {
         if (!_trembling)
         {
-            _menu->addAction(_deleteAction);
+            for (int i = 0; i < _local->count(); i++)
+            {
+                if (!_local->at(i)->isRemote())
+                {
+                    _menu->addAction(_deleteAction);
+                    break;
+                }
+            }
         }
         else {
-            _menu->addAction(_cancelAction);
+            for (int i = 0; i < _local->count(); i++)
+            {
+                if (!_local->at(i)->isRemote())
+                {
+                    _menu->addAction(_cancelAction);
+                    break;
+                }
+            }
         }
     }
-
     _menu->exec(cur.pos());
-
 
 }
 
@@ -2400,7 +2429,6 @@ void VirtualDesktop::movetoFist()
 
 void VirtualDesktop::reloadApplist()
 {
-
     //we need check the page. because we only have one page now;
 
     int expandPageCount = _local->count() / _iconsPerPage + 1;

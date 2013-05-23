@@ -69,11 +69,6 @@ typedef long (*Dll_StartAppEx)(DWORD windowstyle,				//8
                 );
 #endif
 
-
-
-
-
-
 class MovingDialog;
 class QPropertyAnimation;
 class QTimeLine;
@@ -157,6 +152,16 @@ public:
     QSize pageSize() {
         return _pageSize;
     }
+
+    bool trembleState()
+    {
+        return _trembling;
+    }
+    bool dragEvent()
+    {
+        return _dragEvent;
+    }
+
     //void runApp(const QString &text);
     void atExit();
     void moveItem(IconItem *item, int page);
@@ -244,6 +249,7 @@ private:
 
     //int _vappCount;
     //int _count;
+    bool _dragEvent;
 
 public:
     int _current;

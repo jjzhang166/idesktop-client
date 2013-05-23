@@ -339,6 +339,17 @@ void Dashboard::setBgPixmap(const QString &pixText)
 
 void Dashboard::refreshDesktop()
 {
+
+    if (vdesktop->dragEvent())
+    {
+        return;
+    }
+
+    if (vdesktop->trembleState())
+    {
+        return;
+    }
+
     //delete old page.
     vdesktop->movetoFist();
     vdesktop->deleteAllIconItem();
