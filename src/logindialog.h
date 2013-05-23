@@ -15,6 +15,11 @@
 #define CLOSE_WIDTH 47
 #define CLOSE_HEIGHT 35
 
+extern QString xmlPath;
+extern QString iconDirPath;
+extern QString WIN_VAPP_IconPath;
+extern QString WIN_TtempPath;
+
 class HintLineEdit;
 class QCheckBox;
 class DynamicButton;

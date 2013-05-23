@@ -58,12 +58,81 @@ IconItem::IconItem(const QString &text, const VirtualDesktop::iconStyle &iSt, QW
 {
     int width, height;
     QFontMetrics fm(QFont("", FONTSIZE, QFont::Black));
-    width = ICONWIDTH + CLOSEWIDTH/2;
-    height = ICONHEIGHT + CLOSEHEIGHT/2 + fm.height();
+
+    width = ICONWIDTH + CLOSEWIDTH/2 + 8;
+    height = ICONHEIGHT + CLOSEHEIGHT/2 + fm.height() * 2;
     setFixedSize(width, height);
     _textWidth = fm.width(_text);
-    if (_text.startsWith("/"))
+
+    if (_text.startsWith("/")) {
+        _texticon = _text.right(_text.length() - 1);
         _textWidth = fm.width(_text.right(_text.length() - 1));
+    }
+    else
+        _texticon = _text;
+
+//    _texticon = _text;
+    _texticon_firstrow = _texticon;
+    _texticon_secondrow = _texticon;
+    _texticon_thirdrow = _texticon;
+
+    int i;
+    for (i = 0; i < _textWidth; i++)
+    {
+        _textWidth_firstrow = fm.width(_texticon_firstrow);
+        //qDebug() << "_textWidth : " << _textWidth;
+        //qDebug() << "width : " << width;
+        if (_textWidth_firstrow > width - 20)
+        {
+            _texticon_firstrow.chop(1);
+            //qDebug() << "_texticon = " << _texticon.length();
+        }
+        else{
+            //_texticon.chop(1);
+            //_texticon.append("...");
+            break;
+        }
+    }
+    _texticon_secondrow = _texticon.right(_texticon.length() - _texticon_firstrow.length());
+//    qDebug() << "secondrow : " << _texticon_secondrow;
+
+    _textWidth_secondrow = fm.width(_texticon_secondrow);
+    for (i = 0; i < _textWidth_secondrow; i++)
+    {
+        _textWidth_secondrow = fm.width(_texticon_secondrow);
+        //qDebug() << "_textWidth : " << _textWidth;
+        //qDebug() << "width : " << width;
+        if (_textWidth_secondrow > width - 20)
+        {
+            _texticon_secondrow.chop(1);
+            //qDebug() << "_texticon = " << _texticon.length();
+        }
+        else{
+            //_texticon.chop(1);
+            //_texticon.append("...");
+            break;
+        }
+    }
+    _texticon_thirdrow = _texticon.right(_texticon.length() - _texticon_firstrow.length() - _texticon_secondrow.length());
+//    qDebug() << "secondrow : " << _texticon_thirdrow;
+
+    _textWidth_thirdrow = fm.width(_texticon_thirdrow);
+    if (_textWidth_thirdrow > width)
+    {
+        for (i = 0; i < _textWidth_thirdrow; i++)
+        {
+            _textWidth_thirdrow = fm.width(_texticon_thirdrow);
+            if (_textWidth_thirdrow > width - 20)
+            {
+                _texticon_thirdrow.chop(1);
+            }else{
+                _texticon_thirdrow.chop(3);
+                _texticon_thirdrow.append("...");
+                break;
+            }
+        }
+    }
+
     _textHeight = fm.height();
 
 
@@ -106,8 +175,8 @@ IconItem::IconItem(const QString &text, const VirtualDesktop::iconStyle &iSt, QW
 
 IconItem::~IconItem()
 {
-    if (_style == VirtualDesktop::localIcon)
-        delete _delAction;
+    //if (_style == VirtualDesktop::localIcon)
+        //delete _delAction;
 
     delete _openAction;
     delete _hoverIconItem;
@@ -326,21 +395,39 @@ void IconItem::setPixmap(const QString &icon)
     pt1.setCompositionMode(QPainter::CompositionMode_Source);
     pt1.fillRect(normal.rect(), Qt::transparent);
     pt1.drawImage(CLOSEWIDTH/2 - 3, CLOSEHEIGHT/2, image);
-    begin = (ICONWIDTH - _textWidth) / 2 + CLOSEWIDTH/2 - 3;
-    if (begin < CLOSEWIDTH/2)
-        begin = CLOSEWIDTH/2;
+//    begin = (ICONWIDTH - _textWidth) / 2 + CLOSEWIDTH/2 - 3;
+//    if (begin < CLOSEWIDTH/2)
+//        begin = CLOSEWIDTH/2;
     // pt1.drawText( QRect(begin, ICONHEIGHT + CLOSEHEIGHT/2 - 10 ,
     //width(), _textHeight), Qt::TextSingleLine, text);
 
-    QTextEdit *tEdit = new QTextEdit(this);
-    tEdit->setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0);\
-                         margin-left:0px; color:#FFFFFF");\
-                         tEdit->setText(text);\
-    tEdit->setAlignment(Qt::AlignCenter);
-    tEdit->setFixedWidth(width());
-    tEdit->setLineWrapColumnOrWidth(width());
-    tEdit->setEnabled(false);
-    tEdit->move(0, height() - 48);
+//    QTextEdit *tEdit = new QTextEdit(this);
+//    tEdit->setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0);\
+//                         margin-left:0px; color:#FFFFFF");\
+//                         tEdit->setText(text);\
+//    tEdit->setAlignment(Qt::AlignCenter);
+//    tEdit->setFixedWidth(width());
+//    tEdit->setLineWrapColumnOrWidth(width());
+//    tEdit->setEnabled(false);
+//    tEdit->move(0, height() - 48);
+
+//    begin = (ICONWIDTH - _textWidth) / 2 + CLOSEWIDTH/2 - 3;
+//    if (begin < CLOSEWIDTH/2)
+//        begin = CLOSEWIDTH/2;
+//    pt1.drawText( QRect(begin, ICONHEIGHT + CLOSEHEIGHT/2 , \
+//                        width() - begin, _textHeight), Qt::TextSingleLine, text);
+    QFont font("", FONTSIZE, QFont::Normal);
+    QFontMetrics fm(font);
+    _textWidth_firstrow = fm.width(_texticon_firstrow);
+    QString tx = _texticon_firstrow;
+    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_firstrow) / 2, height() - _textHeight * 3, _textWidth_firstrow, _textHeight), Qt::TextSingleLine, tx);
+    _textWidth_secondrow = fm.width(_texticon_secondrow);
+    tx = _texticon_secondrow;
+    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_secondrow) / 2, height() - _textHeight * 2, _textWidth_secondrow, _textHeight), Qt::TextSingleLine, tx);
+    _textWidth_thirdrow = fm.width(_texticon_thirdrow);
+    tx = _texticon_thirdrow;
+    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_thirdrow) / 2, height() - _textHeight , _textWidth_thirdrow, _textHeight), Qt::TextSingleLine, tx);
+    pt1.end();
 
     QImage light = QImage(width(), height(), QImage::Format_ARGB32);
     QImage dark =  QImage(width(), height(), QImage::Format_ARGB32);
@@ -781,25 +868,11 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
 
 {
 
-    int gridWidth;
-    int gridHeight;
+//    int gridWidth;
+//    int gridHeight;
 
-    _pageSize = pageSize;
-    _width = _pageSize.width();
-    _height = _pageSize.height();
-
-    gridWidth = ICONWIDTH + SPACING * 2;
-    gridHeight = ICONHEIGHT + SPACING * 2;
-    _col = _width / gridWidth;
-    _row = _height / gridHeight;
-    _iconsPerPage = _col * _row;
-    _current  = 0;
-
-    _local = LocalAppList::getList();
-
-    /*for local desktop add addbutton*/
-    //g_addIcon = new IconAddItem(tr("Add App"),this);
-    g_addIcon = new IconAddItem(tr(""),this);
+    _count = 1;
+    //_count = PAGENUM;
 
     /*
     int maxPage = 0;
@@ -826,12 +899,23 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
         QMessageBox::information(NULL,"NO","DllClientEngineMain is not loaded!");
 #endif
 
+    _pageSize = pageSize;
+    _width = _pageSize.width();
+    _height = _pageSize.height();
 
+    gridWidth = ICONWIDTH + SPACING * 2;
+    gridHeight = ICONHEIGHT + SPACING * 2;
+    _col = _width / gridWidth;
+    _row = _height / gridHeight;
+    _iconsPerPage = _col * _row;
+    _current  = 0;
 
+    _local = LocalAppList::getList();
 
-
-
-    _count = PAGENUM;
+    for (int i = 0; i < _local->count(); i++)
+    {
+        _count = i / _iconsPerPage + 1;
+    }
 
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _width));
@@ -842,10 +926,14 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
             int x =  _pageSize.width() * i \
                     + (j / _row) * gridWidth;
             int y = (j % _row) * gridHeight;
+//                    qDebug()<<"new Grid:" << x << "," << y << "," << gridWidth << "," << gridHeight;
             newList.insert(j, \
                            QRect(x, y, gridWidth, gridHeight));
         }
+
         _gridTable.insert(i, newList);
+        //for (int i=0; i < _gridTable.count(); i++)
+//            qDebug() << _gridTable.at(i);
     }
 
 
@@ -858,6 +946,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
 
     for (int i = 0; i < _count; i++)
         _nextIdx.insert(i, 0);
+
     _animation = new QPropertyAnimation(this, "geometry");
     _animation->setEasingCurve(QEasingCurve::OutBack);
 
@@ -869,28 +958,17 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
 
-//    //添加虚拟应用开始
-//    //_vappCount = g_myVappList.count();
-//    //qDebug()<<"virtualdesktop vappCount="<<_vappCount;
-//    for(int j=0; j<g_myVappList.count(); j++){
-//        //qDebug()<<"j="<<g_myVappList.at(j).name<<","<<WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
-//        QString path =  WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
-//        path.replace('/','\\');
-//        qDebug() << path;
-//        addIcon(g_myVappList.at(j).name, path,vappIcon);
-//    }
 
-    //添加虚拟应用结束
+    /*for local desktop add addbutton*/
+    g_addIcon = new IconAddItem(tr(""),this);
+
+    if (_local->count() == 0)
+        g_addIcon->setGeometry(_gridTable[0][0].translated(SPACING, SPACING));
 
     for (int i = 0; i < _local->count(); i++) {
         if (_local->at(i)->hidden())
             continue;
-        int ip = _local->at(i)->page();
-        int ix = _local->at(i)->index();
-        if (ip >= _count) {
-            ip = -1;
-            ix = -1;
-        }
+
         if(_local->at(i)->isRemote())
         {
             addIcon(_local->at(i)->name(), _local->at(i)->icon(),
@@ -899,31 +977,9 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
             addIcon(_local->at(i)->name(), _local->at(i)->icon(),
                     _local->at(i)->page(), _local->at(i)->index(), localIcon);
         }
-
-//        addIcon(_local->at(i)->name(), _local->at(i)->icon(), \
-//                _local->at(i)->page(), g_myVappList.count() + i,\
-//                localIcon);
-
-        qDebug() << _local->at(i)->name();
-        qDebug() << _local->at(i)->icon();
-        qDebug() << _local->at(i)->page();
-        qDebug() << _local->at(i)->index();
-
     }
 
-    //
-//    _updateIconTimer = new QTimer(this);
-//    connect(_updateIconTimer, SIGNAL(timeout()), this, SLOT(updateIconTimeOut()));
-//    _updateIconTimer->start(1000 * 10);
 
-    /*addicon add the last*/
-    showAddIcon(tr("Add App"), ":images/icon_add_normal.png", \
-                0, -1);
-    
-    g_addIcon->setGeometry(_gridTable[0][_nextIdx[0]].translated(SPACING, SPACING));
-    g_addIcon->setPage(0);
-    g_addIcon->setIndex(_nextIdx[0]);
-    g_addIcon->show();
 
     dragLeftTimer = new QTimer(this);
     dragLeftTimer->setInterval(500);
@@ -1138,8 +1194,8 @@ void VirtualDesktop::arrangeEqually(int pageCount)
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _width));
 
-    int gridWidth = ICONWIDTH + SPACING * 2;
-    int gridHeight = ICONHEIGHT + SPACING * 2;
+    gridWidth = ICONWIDTH + SPACING * 2;
+    gridHeight = ICONHEIGHT + SPACING * 2;
     for (int i = 0; i < _count; i++) {
         QList<QRect> newList;
         for (int j = 0; j < _col * _row; j++) {
@@ -1217,8 +1273,8 @@ void VirtualDesktop::arrangeMinimum()
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _width));
 
-    int gridWidth = ICONWIDTH + SPACING * 2;
-    int gridHeight = ICONHEIGHT + SPACING * 2;
+    gridWidth = ICONWIDTH + SPACING * 2;
+    gridHeight = ICONHEIGHT + SPACING * 2;
     for (int i = 0; i < _count; i++) {
         QList<QRect> newList;
         for (int j = 0; j < _col * _row; j++) {
@@ -1505,8 +1561,8 @@ void VirtualDesktop::expand()
     setFixedSize(_count * _pageSize.width(), _pageSize.height());
     _pages.append(-(_count-1) * _pageSize.width());
     QList<QRect> newGridList;
-    int gridWidth = ICONWIDTH + SPACING * 2;
-    int gridHeight = ICONHEIGHT + SPACING * 2;
+    gridWidth = ICONWIDTH + SPACING * 2;
+    gridHeight = ICONHEIGHT + SPACING * 2;
     for (int i = 0; i < _col * _row; i++) {
         int x =  _pageSize.width() * (_count - 1)\
                 + (i / _row) * gridWidth;
@@ -1752,17 +1808,6 @@ void VirtualDesktop::mouseMoveEvent(QMouseEvent *event)
 
 void VirtualDesktop::goPage(int page)
 {
-    /*
-    if (page == 0)
-    {
-        setContextMenuPolicy(Qt::DefaultContextMenu);
-
-    } else {
-
-        setContextMenuPolicy(Qt::NoContextMenu);
-
-    }
-*/
     _current = page;
     _animation->setDuration(900);
     _animation->setStartValue(QRect(x(), y(), width(), height()));
@@ -1803,6 +1848,12 @@ int VirtualDesktop::addIcon(const QString &text, \
                             int index,\
                             const iconStyle &iSt)
 {
+//    for (int i = 0; i < _count; i++)
+        qDebug() << "************************************************************" << _nextIdx[page];
+
+    int expandPageCount = _local->count() / _iconsPerPage + 1;
+    if (expandPageCount > _count)
+        expand();
 
     IconItem *icon = new IconItem(text, iSt, this);
     //icon->setText(text);
@@ -1832,6 +1883,7 @@ int VirtualDesktop::addIcon(const QString &text, \
         }
     }
 
+
     icon->setPixmap(iconPath);
     icon->setGeometry(_gridTable[page][index].translated(SPACING, SPACING));
     icon->setPage(page);
@@ -1844,11 +1896,10 @@ int VirtualDesktop::addIcon(const QString &text, \
     connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
     connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
 
-
     /*addicon add the last*/
-    showAddIcon(tr("Add App"), ":images/icon_add_normal.png", \
-                0, -1);
-    return page;
+    showAddIcon(page, -1);
+
+     return page;
     //LocalAppList::getList()->save();
 }
 
@@ -1857,16 +1908,9 @@ int VirtualDesktop::addIcon(const QString &text, const QString &icon, const icon
     return addIcon(text, icon, _current, -1, iSt);
 }
 
-int VirtualDesktop::showAddIcon(const QString &text, \
-                                const QString &iconPath, \
-                                int page, \
-                                int index)
+int VirtualDesktop::showAddIcon(int page, int index)
 {
 
-    Q_UNUSED(text);
-    //addIcon->setAcceptDrops(false);
-    
-    //icon->setText(text);
     /* TODO deal with the icon is full */
     if (page == -1) {
         for (int i = 0; i < _count; i++) {
@@ -1892,19 +1936,10 @@ int VirtualDesktop::showAddIcon(const QString &text, \
             }
         }
     }
-
-    //g_addIcon->setPixmap(iconPath);
-    g_addIcon->setGeometry(_gridTable[page][index].translated(SPACING, SPACING));
-    g_addIcon->setPage(page);
-    g_addIcon->setIndex(index);
-    //_iconDict.insert(text, reinterpret_cast<IconItem*>(addIcon));
-    //_iconTable[page][index] = reinterpret_cast<IconItem*>(addIcon);
-    //_nextIdx[page]++;
-    g_addIcon->show();
+   g_addIcon->setGeometry(_gridTable[page][index].translated(SPACING, SPACING));
+   g_addIcon->show();
     
-    return page;
-    //LocalAppList::getList()->save();
-    
+    return page;  
 }
 
 void VirtualDesktop::delIcon(const QString &text)
@@ -1917,33 +1952,75 @@ void VirtualDesktop::delIcon(const QString &text)
     //icon->setPage(-1);
     //icon->setIndex(-1);
     delete _iconTable[p][s];
-    int i;
-    for (i = s + 1; _iconTable[p][i] != NULL; i++) {
-        QRect start = _gridTable[p][i].translated(SPACING, SPACING);
-        QRect end = _gridTable[p][i-1].translated(SPACING, SPACING);
-        _iconTable[p][i]->animationMove(start, end);
-        _iconTable[p][i]->setIndex(i-1);
-        _iconTable[p][i - 1] = _iconTable[p][i];
-    }
-    _iconTable[p][i-1] = NULL;
-    _nextIdx[p]--;
 
-    /*move addicon add the last*/
-    showAddIcon(tr("Add App"), ":images/icon_add_normal.png", \
-                0, -1);
-    /*
+    for(int i = p; i < _count; i++)
+    {
+        if (i == p)
+        {
+            int k;
+            for (k = s + 1; k < _nextIdx[p]; k++) {
+                QRect start = _gridTable[p][k].translated(SPACING, SPACING);
+                QRect end = _gridTable[p][k-1].translated(SPACING, SPACING);
+                _iconTable[p][k]->animationMove(start, end);
+                _iconTable[p][k]->setIndex(k-1);
+                _iconTable[p][k - 1] = _iconTable[p][k];
 
-    if (_nextIdx[p] == 0) {
-        delPage(p);
-        _current = 0;
-        move(_pages[_current], y());
-        emit pageChanged(_current);
+            }
+        }
+        else {
+
+            for (int j = 0; j < _nextIdx[i]; j++)
+            {
+                if (j == 0)
+                {
+
+                    QRect start = _gridTable[i][j].translated(SPACING, SPACING);
+
+                    QRect end = _gridTable[i-1][_nextIdx[i-1] - 1].translated(SPACING, SPACING);
+
+                    _iconTable[i][j]->animationMove(start, end);
+
+                    _iconTable[i][j]->setPage(i-1);
+                    _iconTable[i][j]->setIndex(_nextIdx[i-1] - 1);
+
+                    _iconTable[i-1][_nextIdx[i-1] - 1] = _iconTable[i][j];
+
+                }
+                else {
+
+                    QRect start = _gridTable[i][j].translated(SPACING, SPACING);
+
+                    QRect end = _gridTable[i][j-1].translated(SPACING, SPACING);
+
+                    _iconTable[i][j]->animationMove(start, end);
+                    _iconTable[i][j]->setIndex(j-1);
+                    _iconTable[i][j - 1] = _iconTable[i][j];
+                }
+            }
+        }
     }
-    */
-    //LocalAppList::getList()->save();
+    if (_nextIdx[_count - 1] == 0)
+    {
+        _iconTable[_count - 2][_nextIdx[_count - 2] - 1] = NULL;
+        _nextIdx[_count - 2]--;
+    }else
+    {
+        _iconTable[_count - 1][_nextIdx[_count - 1] - 1] = NULL;
+        _nextIdx[_count - 1]--;
+    }
+
+    if ((_count > 1) && (_local->count() < _iconsPerPage * (_count - 1)))
+        delPage(_count - 1);
+
     if (_local->count() == 0) {
         appCancel();
     }
+
+    /*move addicon add the last*/
+    if (_nextIdx[_count - 1] == _iconsPerPage)
+        showAddIcon(_count - 1, _nextIdx[_count - 1] - 1);
+    else
+        showAddIcon(_count - 1, -1);
 }
 
 void VirtualDesktop::runApp(const QString &text)
@@ -2264,14 +2341,7 @@ void VirtualDesktop::contextMenuEvent(QContextMenuEvent *event)
 
     QCursor cur = this->cursor();
     _menu = new QMenu(this);
-    /*
-    QPalette pal = _menu->palette();
-    pal.setColor(QPalette::Background, QColor(0x00,0x00,0x00,0x00));
-    _menu->setPalette(pal);
 
-    _menu->setStyleSheet("QMenu{color:#FFFFFF;}\
-                          QMenu::item:select{color:#FFFFFF;}");
-*/
     _menu->addAction(_addAction);
     if (_local->count() == 0) {
 
@@ -2320,49 +2390,87 @@ void VirtualDesktop::upLoad()
 //    _manageWidget->upLoad();
 }
 
-//void VirtualDesktop::updateIconTimeOut()
-//{
-//    if (_trembling)
-//        return;
+void VirtualDesktop::movetoFist()
+{
+    _current = 0;
+    move(_pages[_current], y());
+    emit pageChanged(_current);
 
-//    for (int i = 0; i< _vappCount; i++)
-//    {
-//        delIcon(g_myVappList.at(i).name);
-//    }
+}
 
-//    for (int i = 0; i<_local->count(); i++)
-//    {
-//        delIcon(_local->at(i)->name());
-//    }
+void VirtualDesktop::reloadApplist()
+{
 
-//    //添加虚拟应用开始
-//    _vappCount = g_myVappList.count();
-//    qDebug()<<"virtualdesktop vappCount="<<_vappCount;
-//    for(int j=0; j<_vappCount; j++){
-//        //qDebug()<<"j="<<g_myVappList.at(j).name<<","<<WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
-//        QString path =  WIN_VAPP_IconPath + g_myVappList.at(j).id + ".ico";
-//        path.replace('/','\\');
-//        qDebug() << path;
-//        addIcon(g_myVappList.at(j).name, path, vappIcon);
-//    }
+    //we need check the page. because we only have one page now;
 
-//    //添加虚拟应用结束
+    int expandPageCount = _local->count() / _iconsPerPage + 1;
+    for(int i = _count; i < expandPageCount; i++)
+    {
+        expand();
+    }
+    qDebug()<<"reloadApplist  the _count is:"<<_count;
 
-//    for (int i = 0; i < _local->count(); i++) {
-//        if (_local->at(i)->hidden())
-//            continue;
-//        int ip = _local->at(i)->page();
-//        int ix = _local->at(i)->index();
-//        if (ip >= _count) {
-//            ip = -1;
-//            ix = -1;
-//        }
-//        addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-//                _local->at(i)->page(), _vappCount + i,
-//                localIcon);
+    // we need init some QList
+    for (int i = 0; i < _count; i++)
+           _pages.insert(i, -(i * _width));
 
-//    }
-//}
+    for (int i = 0; i < _count; i++) {
+            QList<QRect> newList;
+            for (int j = 0; j < _col * _row; j++) {
+                int x =  _pageSize.width() * i \
+                         + (j / _row) * gridWidth;
+                int y = (j % _row) * gridHeight;
+
+//                qDebug()<<"new Grid:"<<x<<","<<y<<","<<gridWidth<<","<<gridHeight;
+                newList.insert(j, QRect(x, y, gridWidth, gridHeight));
+            }
+            _gridTable.insert(i, newList);
+        }
+
+    for (int i = 0; i < _count; i++) {
+            QList<IconItem*> newList;
+            for (int j = 0; j < _col * _row; j++)
+                newList.insert(j, NULL);
+            _iconTable.insert(i, newList);
+        }
+
+    for (int i = 0; i < _count; i++)
+           _nextIdx.insert(i, 0);
+
+    for (int i = 0; i < _local->count(); i++) {
+        if (_local->at(i)->hidden())
+            continue;
+
+        if(_local->at(i)->isRemote())
+        {
+            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+                    _local->at(i)->page(), _local->at(i)->index(), vappIcon);
+        }else{
+            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+                    _local->at(i)->page(), _local->at(i)->index(), localIcon);
+        }
+    }
+
+    qDebug()<<"reload all.";
+}
+
+void VirtualDesktop::deleteAllIconItem()
+{
+    _local->save();
+
+    for (int i=0;i<_count;i++)
+    {
+        for(int j=0;j<_iconsPerPage;j++) // also you can use _nextIdx[i]
+        {
+            if(_iconTable[i][j]!=NULL)
+            {
+                delete _iconTable[i][j];
+                _iconTable[i][j]=NULL;
+            }
+        }
+        _nextIdx[i]=0;
+    }
+}
 
 HoverIconItem::HoverIconItem(int width, int height, QWidget *parent)
     : QWidget(parent)

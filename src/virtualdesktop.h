@@ -121,7 +121,7 @@ public:
 
     int addIcon(const QString &text, const QString &icon, \
                 int page, int index, const iconStyle &iSt = localIcon);
-    int showAddIcon(const QString &text, const QString &icon, int page, int index);
+    int showAddIcon(int page, int index);
     IconItem *getIconByName(const QString &name);
 
     void mousePressEvent(QMouseEvent *event);
@@ -133,15 +133,27 @@ public:
     void dropEvent(QDropEvent *event);
 
     void reload();
+    void delPage(int page);
+    void deleteAllIconItem();
+    void movetoFist();
+    void reloadApplist();
     int iconCount() {
         return _nextIdx[_current];
     }
     int currentPage() {
         return _current;
     }
+//    void setCurrentPage(int current) {
+//        _current = current;
+//    }
+
     int count() {
         return _count;
     }
+//    void setCount(int count) {
+//        _count = count;
+//    }
+
     QSize pageSize() {
         return _pageSize;
     }
@@ -191,7 +203,7 @@ private:
     void printDesktop();
     //void uninstall(const QString &name);
     void expand();
-    void delPage(int page);
+    //void delPage(int page);
     int getNearestIndex(const QRect &rect);
     bool largerThan(const QSize &a, const QSize &b);
     QPoint dragStartPosition;
@@ -227,7 +239,11 @@ private:
     QString appText;
     QString _appid;
 
+    int gridWidth;
+    int gridHeight;
+
     //int _vappCount;
+    //int _count;
 
 public:
     int _current;
@@ -327,7 +343,16 @@ private:
     QPoint dragStartPosition;
     QPropertyAnimation *_animation;
     int _textWidth;        
-    QString _text;    
+    QString _text;
+
+    QString _texticon;
+    QString _texticon_firstrow;
+    QString _texticon_secondrow;
+    QString _texticon_thirdrow;
+    int _textWidth_firstrow;
+    int _textWidth_secondrow;
+    int _textWidth_thirdrow;
+
     int _textHeight;
     int _page;
     int _index;
@@ -351,7 +376,6 @@ private:
  * Declaration of IconAddItem
  */
 class IconAddItem : public QWidget
-
 {
     Q_OBJECT
 public:

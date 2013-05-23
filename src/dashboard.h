@@ -67,9 +67,14 @@ public slots:
     void setBgPixmap(const QString &pixText);
     void goPage(int page);
 
+    void timeOut();
+    void onDone();
+
 protected:
     void closeEvent(QCloseEvent *event);
     void resizeEvent(QResizeEvent * event);
+private:
+    void refreshDesktop();
 private:
 	//vac 
 	int _retryTimes;
@@ -122,5 +127,6 @@ private:
 
     PersonalizationWidget *_perWidget;
     BsWidget *_bsWidget;
+    QTimer *_refreshTimer;
 };
 #endif

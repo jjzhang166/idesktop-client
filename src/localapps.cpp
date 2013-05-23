@@ -79,8 +79,8 @@ void LocalAppList::updateQList()
         app->setId(query.value(ID).toString());
         app->setType(query.value(TYPE).toString());
         app->setIsRemote(query.value(ISREMOTE).toBool());
-        qDebug()<<"index"<<query.value(IDX).toInt();
-        qDebug()<<"name:"<<query.value(NAME).toString();
+//        qDebug()<<"index"<<query.value(IDX).toInt();
+//        qDebug()<<"name:"<<query.value(NAME).toString();
        // qDebug()<<"isRemote"<<query.value(ISREMOTE).toInt();
         _list.append(app);
     }
@@ -184,7 +184,7 @@ void LocalAppList::updateAppList()
                QSqlQuery maxQuery = QSqlDatabase::database("local").exec("select max(idx) from localapps;");
                maxQuery.next();
                int index = maxQuery.value(0).toInt() + 1;
-               qDebug()<<"maxQuery:"<<index;
+//               qDebug()<<"maxQuery:"<<index;
                LocalApp *RemoteApp = new LocalApp();
                RemoteApp->setName(g_RemoteappList[j].name);
                RemoteApp->setId(g_RemoteappList[j].id);
@@ -294,7 +294,7 @@ int LocalAppList::count()
 void LocalAppList::save()
 {
     for (int i = 0; i < _list.count(); i++) {
-        qDebug() << _list.at(i)->name() << " -- " << _list.at(i)->page() << " : " << _list.at(i)->index();
+//        qDebug() << _list.at(i)->name() << " -- " << _list.at(i)->page() << " : " << _list.at(i)->index();
     }
     QSqlQuery query(QSqlDatabase::database("local"));
     for (int i = 0; i < _list.count(); i++) {

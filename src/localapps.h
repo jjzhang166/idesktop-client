@@ -2,7 +2,7 @@
 #define LOCALAPPS_H
 
 //#define PAGENUM 4
-#define PAGENUM 2
+//#define PAGENUM 1
 #include <QString>
 #include <QObject>
 #include <QVector>
