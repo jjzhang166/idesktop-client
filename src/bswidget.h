@@ -82,6 +82,8 @@ public slots:
     void startAssembly();
     void stopAssembly();
 
+    void rightFullScreen();
+
 protected:
     void paintEvent(QPaintEvent *event);
 
@@ -93,6 +95,9 @@ private:
     int _height;
 
     QPixmap _pixmap;
+
+    bool _fullScreen;
+    QPushButton *_fullScreenBtn;
 };
 
 class LeftWebKit : public QMainWindow

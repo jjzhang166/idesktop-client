@@ -46,6 +46,7 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
     : QWidget(parent)
     , _width(width)
     , _height(height)
+    , _fullScreen(false)
 {
     resize(_width, _height);
     _pixmap.load(":/images/shadow.png");
@@ -58,7 +59,12 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
     _rightWidget->setGeometry(_width * 0.15 + 63, 15, _width - (_width * 0.15 + 63) - 40, _height - 125);
     _rightWidget->setVisible(true);
 
+    _fullScreenBtn = new QPushButton(this);
+    _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
+                                9, 74);
+    _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_left.png);border-style:flat;}");
 
+    connect(_fullScreenBtn, SIGNAL(clicked()), this, SLOT(rightFullScreen()));
     connect(_leftWebKit, SIGNAL(startAssembly()), this, SLOT(startAssembly()));
     connect(_leftWebKit, SIGNAL(stopAssembly()), this, SLOT(stopAssembly()));
     connect(_leftWebKit, SIGNAL(link(const QUrl&)), _rightWidget, SLOT(createTab(const QUrl&)));
@@ -66,6 +72,34 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
 
 BsWidget::~BsWidget()
 {
+}
+
+void BsWidget::rightFullScreen()
+{
+    if (!_fullScreen)
+    {
+        _fullScreenBtn->setVisible(false);
+        _leftWebKit->setVisible(false);
+        _rightWidget->setGeometry(15, 15, _width - (15) - 40, _height - 125);
+        _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
+                                    9, 74);
+        _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_right.png);border-style:flat;}");
+        _fullScreenBtn->setVisible(true);
+
+        _fullScreen = true;
+    }
+    else
+    {
+        _fullScreenBtn->setVisible(false);
+        _leftWebKit->setVisible(true);
+        _rightWidget->setGeometry(_width * 0.15 + 63, 15, _width - (_width * 0.15 + 63) - 40, _height - 125);
+        _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
+                                    9, 74);
+        _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_left.png);border-style:flat;}");
+        _fullScreenBtn->setVisible(true);
+
+        _fullScreen = false;
+    }
 }
 
 void BsWidget::startAssembly()
