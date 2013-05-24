@@ -56,6 +56,7 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
     _leftWebKit->setGeometry(0, 0, _width, _height);
 
     _rightWidget = new RightWidget(this);
+    //ÓÒ²àwidgetµÄÎ»ÖÃ:15 + 15% + 1 + 15 + 15 + 1 + 8 + 8;   15:Îª×ó²à x;   15%:Îª×ó²àµ¼º½À¸¿í¶È
     _rightWidget->setGeometry(_width * 0.15 + 63, 15, _width - (_width * 0.15 + 63) - 40, _height - 125);
     _rightWidget->setVisible(true);
 
@@ -80,7 +81,7 @@ void BsWidget::rightFullScreen()
     {
         _fullScreenBtn->setVisible(false);
         _leftWebKit->setVisible(false);
-        _rightWidget->setGeometry(15, 15, _width - (15) - 40, _height - 125);
+        _rightWidget->setGeometry(15, 15, _width - (15) - 40, _height - 125); // 15 Îª×ó²à x
         _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
                                     9, 74);
         _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_right.png);border-style:flat;}");
@@ -104,6 +105,7 @@ void BsWidget::rightFullScreen()
 
 void BsWidget::startAssembly()
 {
+    _fullScreenBtn->setVisible(false);
 //        _leftWebKit->setGeometry(0, 0, _width - 40, _height - 110);
     _leftWebKit->setGeometry(0, 0, _width, _height);
     _rightWidget->setVisible(false);
@@ -115,6 +117,7 @@ void BsWidget::stopAssembly()
 //    _leftWebKit->setGeometry(0, 0, _width - 40, _height - 110);
     _leftWebKit->setGeometry(0, 0, _width, _height);
     _rightWidget->setVisible(true);
+    _fullScreenBtn->setVisible(true);
 }
 
 void BsWidget::paintEvent(QPaintEvent *event)
