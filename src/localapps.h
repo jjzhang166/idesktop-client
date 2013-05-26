@@ -44,42 +44,26 @@ public:
     void setPage(int page)
         { _page = page; }
     int index()
-        { return _index; }
+        {  return _index; }
     void setIndex(int index)
         { _index= index; }
     bool hidden()
-    {
-        return _hidden;
-    }
+        { return _hidden; }
     void setHidden(bool hidden)
-    {
-        _hidden= hidden;
-    }
+        { _hidden= hidden; }
     //remote app
     QString id()
-    {
-        return _id;
-    }
+        { return _id; }
     void setId(QString id)
-    {
-        _id = id;
-    }
+        { _id = id; }
     QString type()
-    {
-        return _type;
-    }
+        { return _type; }
     void setType(QString type)
-    {
-        _type = type;
-    }
+        { _type = type; }
     bool isRemote()
-    {
-        return _isRemote;
-    }
+        { return _isRemote; }
     void setIsRemote(bool isRemote)
-    {
-        _isRemote = isRemote;
-    }
+        { _isRemote = isRemote; }
 
 private:
     QString _name;
@@ -113,9 +97,11 @@ public:
     bool updateApp(LocalApp* app);
     int count();
     void save();
+
 signals:
     void appAdded(QString name, QString icon);
     void appRemoved(const QString &name);
+
 private:
     LocalAppList(QObject *parent = NULL);
     QVector<LocalApp*> _list;

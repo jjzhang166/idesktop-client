@@ -148,6 +148,10 @@ public:
 //    void setCount(int count) {
 //        _count = count;
 //    }
+    int iconsPerPage()
+    {
+        return _iconsPerPage;
+    }
 
     QSize pageSize() {
         return _pageSize;

@@ -34,6 +34,9 @@ public:
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+
+    void setIsheartbeat(bool Isheartbeat)
+        { _Isheartbeat = Isheartbeat; }
 public slots:
     void auth();
     void onLoginFinished(QNetworkReply *reply);
@@ -41,7 +44,6 @@ public slots:
     void heartbeat();
     void onDone();
 
-    //void updateVappIcon();
 private:
     void userError(QString text);
     void passError(QString text);
@@ -70,7 +72,7 @@ private:
     commuinication *_commui;
     int _retryTimes;
     QTimer *heartbeat_timer;  //heart beat.
-    bool  Isheartbeat;    // check if send the heart beat packet
+    bool _Isheartbeat;    // check if send the heart beat packet
     bool _vacfinished;
 
     //QTimer *_updateVappTimer;

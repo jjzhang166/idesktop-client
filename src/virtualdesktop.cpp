@@ -1860,9 +1860,6 @@ int VirtualDesktop::addIcon(const QString &text, \
                             int index,\
                             const iconStyle &iSt)
 {
-//    for (int i = 0; i < _count; i++)
-        qDebug() << "************************************************************" << _nextIdx[page];
-
     int expandPageCount = _local->count() / _iconsPerPage + 1;
     if (expandPageCount > _count)
         expand();
@@ -1880,21 +1877,20 @@ int VirtualDesktop::addIcon(const QString &text, \
         }
     } else {
         if (index == -1) {
-            if (_nextIdx[page] < _iconsPerPage) {
-                index = _nextIdx[page];
-            } else {
-                for (int i = 0; i < _count; i++) {
-                    if (_nextIdx[i] < _row * _col) {
-                        page = i;
-                        index = _nextIdx[i];
-                        move(_pages[page], y());
-                        break;
-                    }
+//            if ((_nextIdx[page - 1] == _iconsPerPage) && (_nextIdx[page] < _iconsPerPage)) {
+            index = _nextIdx[page];
+//            }
+        } else {
+            for (int i = 0; i < _count; i++) {
+                if (_nextIdx[i] < _row * _col) {
+                    page = i;
+                    index = _nextIdx[i];
+                    move(_pages[page], y());
+                    break;
                 }
             }
         }
     }
-
 
     icon->setPixmap(iconPath);
     icon->setGeometry(_gridTable[page][index].translated(SPACING, SPACING));
@@ -2018,8 +2014,8 @@ void VirtualDesktop::delIcon(const QString &text)
         delPage(_count - 1);
 
     /*move addicon add the last*/
-    if (_nextIdx[_count - 1] == _iconsPerPage)
-        showAddIcon(_count - 1, _nextIdx[_count - 1] - 1);
+    if (_nextIdx[_count - 1] == _iconsPerPage - 1)
+        showAddIcon(_count - 1, _nextIdx[_count - 1]);
     else
         showAddIcon(_count - 1, -1);
 

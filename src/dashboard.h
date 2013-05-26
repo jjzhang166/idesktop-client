@@ -17,6 +17,7 @@
 //#include "configmenu.h"
 #include "personalizationwidget.h"
 #include "bswidget.h"
+#include "logindialog.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -75,6 +76,7 @@ protected:
     void resizeEvent(QResizeEvent * event);
 private:
     void refreshDesktop();
+    void modify();
 private:
 	//vac 
 	int _retryTimes;
@@ -128,5 +130,7 @@ private:
     PersonalizationWidget *_perWidget;
     BsWidget *_bsWidget;
     QTimer *_refreshTimer;
+
+    LoginDialog *_ldialog;
 };
 #endif

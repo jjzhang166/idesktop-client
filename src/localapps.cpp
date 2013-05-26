@@ -81,7 +81,7 @@ void LocalAppList::updateQList()
         app->setIsRemote(query.value(ISREMOTE).toBool());
 //        qDebug()<<"index"<<query.value(IDX).toInt();
 //        qDebug()<<"name:"<<query.value(NAME).toString();
-       // qDebug()<<"isRemote"<<query.value(ISREMOTE).toInt();
+//        qDebug()<<"isRemote"<<query.value(ISREMOTE).toInt();
         _list.append(app);
     }
 }
@@ -113,7 +113,7 @@ void LocalAppList::updateAppList()
                 RemoteApp->setName(g_RemoteappList[i].name);
                 RemoteApp->setId(g_RemoteappList[i].id);
                 RemoteApp->setIcon(g_RemoteappList[i].icon);
-                RemoteApp->setPage(0);
+                RemoteApp->setPage(-1);
                 RemoteApp->setIndex(i+j+1);
                 RemoteApp->setType(g_RemoteappList[i].type);
                 RemoteApp->setIsRemote(true);
@@ -128,7 +128,7 @@ void LocalAppList::updateAppList()
                 RemoteApp->setName(g_RemoteappList[i].name);
                 RemoteApp->setId(g_RemoteappList[i].id);
                 RemoteApp->setIcon(g_RemoteappList[i].icon);
-                RemoteApp->setPage(0);
+                RemoteApp->setPage(-1);
                 RemoteApp->setIndex(i);
                 RemoteApp->setType(g_RemoteappList[i].type);
                 RemoteApp->setIsRemote(true);
@@ -189,7 +189,7 @@ void LocalAppList::updateAppList()
                RemoteApp->setName(g_RemoteappList[j].name);
                RemoteApp->setId(g_RemoteappList[j].id);
                RemoteApp->setIcon(g_RemoteappList[j].icon);
-               RemoteApp->setPage(0);
+               RemoteApp->setPage(-1);
                RemoteApp->setIndex(index);
                RemoteApp->setType(g_RemoteappList[j].type);
                RemoteApp->setIsRemote(true);
@@ -294,7 +294,7 @@ int LocalAppList::count()
 void LocalAppList::save()
 {
     for (int i = 0; i < _list.count(); i++) {
-//        qDebug() << _list.at(i)->name() << " -- " << _list.at(i)->page() << " : " << _list.at(i)->index();
+        qDebug() << _list.at(i)->name() << " -- " << _list.at(i)->page() << " : " << _list.at(i)->index();
     }
     QSqlQuery query(QSqlDatabase::database("local"));
     for (int i = 0; i < _list.count(); i++) {

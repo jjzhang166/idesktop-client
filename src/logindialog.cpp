@@ -342,7 +342,7 @@ void LoginDialog::auth()
     connect( heartbeat_timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
     heartbeat_timer->start(5000);
     _retryTimes = 3;
-    Isheartbeat=true;
+    _Isheartbeat=true;
     qDebug()<<"login end";
 
 
@@ -443,7 +443,7 @@ void LoginDialog::onDone()
 
 void LoginDialog::heartbeat()
 {
-    if(!Isheartbeat)
+    if(!_Isheartbeat)
         return;
     _commui->heartBeat();
 
@@ -475,87 +475,11 @@ void LoginDialog::heartbeat()
 #ifdef Q_WS_WIN
         m_dllCloseAppAll();
 #endif
-        Isheartbeat=false;
+        _Isheartbeat=false;
         QMessageBox::warning(this, tr("your seesion has to be ticked out."),tr("Your session has to be kicked out by the administrator, please contact the administrator"), tr("ok"));
         qApp->quit();
     }
 }
-
-//void LoginDialog::updateVappIcon()
-//{
-
-//    //get vapp list
-//    _commui->getAppList();
-//    while (!_vacfinished)
-//        QApplication::processEvents();
-//    _vacfinished = false;
-
-//    g_myVappList = _commui->getList();
-//    qDebug()<<"g_myList.count()="<<g_myVappList.count();
-
-//    #ifdef Q_WS_WIN
-//    QString iconDirPath = WIN_VAPP_IconPath ;
-//    #else
-//    QString iconDirPath =  xmlPath + "/App Center/Vicons/";
-//    #endif
-
-//    //qDebug()<<"############## WIN_IconPath"<<WIN_IconPath;
-//    //qDebug()<<"############## iconDirPath"<<iconDirPath;
-
-//    QDir iconDir(iconDirPath);
-//    if(!iconDir.exists())
-//    {
-//        iconDir.mkdir(iconDirPath);
-//    }
-//    //store ico file locally
-//    for(int i = 0; i < g_myVappList.count(); i++)
-//    {
-//        QString iconPath = QString("%1%2.ico")
-//                .arg(iconDirPath)
-//                .arg(g_myVappList[i].id);
-//        //qDebug()<<"iconPath="<<iconPath;
-//        //check if ico file is existed, or dont donwload
-//        QFile chkFile(iconPath);
-//        if(chkFile.exists())
-//        {
-//            chkFile.close();
-//            continue;
-//        }
-//        chkFile.close();
-
-//        //qDebug()<<"iconPath"<<iconPath;
-//        _commui->downloadIcon(QUrl(g_myVappList[i].icon), iconPath);
-//        while (!_vacfinished)
-//            QApplication::processEvents();
-//        _vacfinished = false;
-
-//        //ico 95 * 95
-//         QString newApp = iconPath;
-
-//         if (newApp.isEmpty())
-//             return;
-
-//         QImage image = QImage(newApp).scaled(48, 48);
-//         QImage normal = QImage(":images/app_bg.png");
-
-//         for (int i = 0; i < normal.width(); i++) {
-//             for (int j = 0; j < normal.height(); j++) {
-//                 QRgb pixel = normal.pixel(i,j);
-//                 int a = qAlpha(pixel);
-//                 QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel),
-//                                         qBlue(pixel), a * 0 / 255);
-//                 normal.setPixel(i, j, lightPixel);
-//             }
-//         }
-
-//         QPainter pt1(&normal);
-//         pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//         pt1.drawImage(17, 8, image);
-//         pt1.end();
-//         QPixmap pix = QPixmap::fromImage(normal);
-//         pix.save(newApp, "ICO", -1);
-//    }
-//}
 
 void LoginDialog::mousePressEvent(QMouseEvent *event)
 {
