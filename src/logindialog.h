@@ -15,6 +15,10 @@
 #define CLOSE_WIDTH 47
 #define CLOSE_HEIGHT 35
 
+extern QString VappServer;
+extern QString VappUser;
+extern QString VappPassword;
+
 extern QString xmlPath;
 extern QString iconDirPath;
 extern QString WIN_VAPP_IconPath;
@@ -35,13 +39,12 @@ public:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
 
-    void setIsheartbeat(bool Isheartbeat)
-        { _Isheartbeat = Isheartbeat; }
+    QString GetSystemInfo();
 public slots:
     void auth();
     void onLoginFinished(QNetworkReply *reply);
 	//vac
-    void heartbeat();
+//    void heartbeat();
     void onDone();
 
 private:
@@ -55,10 +58,7 @@ private:
     HintLineEdit *userEdit;
     HintLineEdit *passEdit;
     QIpAddressEdit *ipAddrEdit;
-    /****************************************************************/
-    //wangyaoli
-    //HintLineEdit *ipEdit;
-    /****************************************************************/
+
     DynamicButton *submit;
     QPoint startDrag;
     QString _uerror;
@@ -70,10 +70,9 @@ private:
     bool _finished;
 	//ivapp
     commuinication *_commui;
-    int _retryTimes;
-    QTimer *heartbeat_timer;  //heart beat.
-    bool _Isheartbeat;    // check if send the heart beat packet
+//    int _retryTimes;
+//    QTimer *heartbeat_timer;  //heart beat.
+//    bool _Isheartbeat;    // check if send the heart beat packet
     bool _vacfinished;
 
-    //QTimer *_updateVappTimer;
 };

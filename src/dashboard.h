@@ -69,6 +69,8 @@ public slots:
     void goPage(int page);
 
     void timeOut();
+    //vac
+    void heartbeat();
     void onDone();
 
 protected:
@@ -79,7 +81,6 @@ private:
     void modify();
 private:
 	//vac 
-	int _retryTimes;
     int ind_height;
     int _width;
     int _height;
@@ -107,9 +108,10 @@ private:
     QString _sID;
     QString _smIP;
     commuinication *_commui;
-    bool _finished;
     QTimer *heartbeat_timer;  //heart beat.
-    bool  Isheartbeat;    // check if send the heart beat packet
+    bool  _Isheartbeat;    // check if send the heart beat packet
+    int _retryTimes;
+    bool _finished;
 	 //??//
     TopWidget *topWidget;
     QPropertyAnimation *_animation;

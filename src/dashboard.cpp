@@ -33,6 +33,7 @@
 #include "switcher.h"
 #include "panel.h"
 #include "config.h"
+#include "appmessagebox.h"
 
 extern QString xmlPath;
 extern QString iconDirPath;
@@ -42,10 +43,16 @@ extern QString WIN_TtempPath;
 extern QList<APP_LIST> g_myVappList;
 extern QList<APP_LIST> g_RemoteappList;
 
+#ifdef Q_WS_WIN
+    QLibrary *mylib;   //
+    Dll_CloseAppAll m_dllCloseAppAll;
+#endif
+
 Dashboard::Dashboard(QWidget *parent)
     :QWidget(parent, Qt::FramelessWindowHint | Qt::Tool), \
      _outOfScreen(false), _settingDialog(NULL)
 {
+
 #ifdef LINUX_X11
     Atom net_wm_state_skip_taskbar = XInternAtom(QX11Info::display(), 
                                         "_NET_WM_STATE_SKIP_TASKBAR", False);
@@ -157,6 +164,14 @@ Dashboard::Dashboard(QWidget *parent)
     //connect(panel, SIGNAL(showDesktop()), this, SLOT(onShowDesktop()));
     //setGeoProper();
 
+    // heart beat.5s timer
+    heartbeat_timer = new QTimer(this);
+    connect( heartbeat_timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
+    heartbeat_timer->start(5000);
+    _retryTimes = 3;
+    _Isheartbeat=true;
+//    qDebug()<<"login end";
+
 }
 
 void Dashboard::onDone()
@@ -165,14 +180,48 @@ void Dashboard::onDone()
     _finished = true;
 }
 
+void Dashboard::heartbeat()
+{
+    if(!_Isheartbeat)
+        return;
+    _commui->heartBeat();
+
+    if(_commui->_isNetError)
+    {
+        if( _retryTimes > 0)
+        {
+            heartbeat_timer->start(10);
+            _retryTimes--;
+        }
+        else
+        {
+            heartbeat_timer->start(5000);
+        }
+    }
+    else
+    {
+        _retryTimes = 3;
+        heartbeat_timer->start(5000);
+    }
+
+    while (!_finished)
+        QApplication::processEvents();
+    _finished = false;
+
+    //qDebug()<<"errID"<<_commui->errID;
+    if(_commui->errID=="10036")
+    {
+#ifdef Q_WS_WIN
+        m_dllCloseAppAll();
+#endif
+        _Isheartbeat=false;
+        QMessageBox::warning(this, tr("your seesion has to be ticked out."),tr("Your session has to be kicked out by the administrator, please contact the administrator"), tr("ok"));
+        //qApp->quit();
+    }
+}
+
 void Dashboard::goPage(int page)
 {
-//    if (page < 2)
-//    {
-//        _perWidget->setVisible(false);
-//        vdesktop->setVisible(true);
-//    }
-
     _perWidget->setVisible(false);
     _bsWidget->setVisible(false);
 
@@ -289,16 +338,21 @@ void Dashboard::iconActivated(QSystemTrayIcon::ActivationReason)
 
 void Dashboard::quit()
 {
-    vdesktop->atExit();
+    AppMessageBox box(true, NULL);
+    box.setText("是否确定退出？");
+    if (box.exec()) {
 
-    _ldialog->setIsheartbeat(false);
-    _commui->logoff();
-    while (!_finished)
-    {
-        QApplication::processEvents();
+        vdesktop->atExit();
+
+        _Isheartbeat = false;
+        _commui->logoff();
+        while (!_finished)
+        {
+            QApplication::processEvents();
+        }
+
+        qApp->quit();
     }
-
-    qApp->quit();
 } 
     
 void Dashboard::closeEvent(QCloseEvent *event)
@@ -337,144 +391,6 @@ void Dashboard::setBgPixmap(const QString &pixText)
 
 }
 
-//void Dashboard::refreshDesktop()
-//{
-
-//    if (vdesktop->dragEventState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->trembleState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->addAppState())
-//    {
-//        return;
-//    }
-
-//    //delete old page.
-//    vdesktop->movetoFist();
-//    vdesktop->deleteAllIconItem();
-
-//    int count = vdesktop->_count;
-//    for(int i = count; i > 1; i--)
-//    {
-//        vdesktop->delPage(i-1);
-//    }
-
-//    qDebug()<<"clear over.."<<endl;
-
-//    g_myVappList.clear();
-//    g_RemoteappList.clear();
-
-//    //get vapp list
-//    _commui->getAppList();
-//    while (!_finished)
-//        QApplication::processEvents();
-//    _finished = false;
-
-//    g_myVappList = _commui->getList();
-//    qDebug()<<"g_myList.count()="<<g_myVappList.count();
-//    //qDebug()<<"g_myList:"<<g_myVappList[0].name;
-
-//    #ifdef Q_WS_WIN
-//    QString iconDirPath = WIN_VAPP_IconPath ;
-//    #else
-//    QString iconDirPath =  xmlPath + "\\App Center\\Vicons";
-//    #endif
-
-//    //qDebug()<<"############## WIN_IconPath"<<WIN_IconPath;
-//    //qDebug()<<"############## iconDirPath"<<iconDirPath;
-
-//    QDir iconDir(iconDirPath);
-//    if(!iconDir.exists())
-//    {
-//        iconDir.mkdir(iconDirPath);
-//    }
-//    //store ico file locally
-//    for(int i = 0; i < g_myVappList.count(); i++)
-//    {
-//        QString iconPath = QString("%1%2.ico")
-//                .arg(iconDirPath)
-//                .arg(g_myVappList[i].id);
-//        //qDebug()<<"iconPath="<<iconPath;
-//        g_RemoteappList.insert(i, g_myVappList[i]);
-//        qDebug()<<"g_mylist:"<<g_myVappList[i].icon;
-//        g_RemoteappList[i].icon = iconPath;
-//        qDebug()<<"g_Rmote:"<<g_RemoteappList.at(i).icon;
-//        //check if ico file is existed, or dont donwload
-//        QFile chkFile(iconPath);
-//        if(chkFile.exists())
-//        {
-//            chkFile.close();
-//            continue;
-//        }
-//        chkFile.close();
-
-//        //qDebug()<<"iconPath"<<iconPath;
-//        _commui->downloadIcon(QUrl(g_myVappList[i].icon), iconPath);
-//        while (!_finished)
-//            QApplication::processEvents();
-//        _finished = false;
-
-//        //ico 95 * 95
-//         QString newApp = iconPath;
-
-//         if (newApp.isEmpty())
-//             return;
-
-//         QImage image = QImage(newApp).scaled(48, 48);
-//         QImage normal = QImage(":images/app_bg.png");
-
-//         for (int i = 0; i < normal.width(); i++) {
-//             for (int j = 0; j < normal.height(); j++) {
-//                 QRgb pixel = normal.pixel(i,j);
-//                 int a = qAlpha(pixel);
-//                 QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
-//                                         qBlue(pixel), a * 0 / 255);
-//                 normal.setPixel(i, j, lightPixel);
-//             }
-//         }
-
-//         QPainter pt1(&normal);
-//         pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//         pt1.drawImage(17, 8, image);
-//         pt1.end();
-//         QPixmap pix = QPixmap::fromImage(normal);
-//         pix.save(newApp, "ICO", -1);
-
-
-//    }
-
-//    LocalAppList::getList()->updateAppList();
-///*
-//    modify();
-
-//    LocalAppList::getList()->save();
-//    LocalAppList::getList()->clearList();
-//    LocalAppList::getList()->updateQList();
-//*/
-
-//     //after we get the new app list,we can add it to the page
-//     //first we must clear some value which in the vdesktop;
-////     qDebug()<<"get the new appp list the count is:"<<g_myVappList.count();
-
-//     vdesktop->_pages.clear();
-//     vdesktop->_iconTable.clear();
-//     vdesktop->_nextIdx.clear();
-//     vdesktop->_iconDict.clear();
-//     vdesktop->_gridTable.clear();
-
-////     vdesktop->_count = 1;
-////     qDebug()<<"the new page count is"<<vdesktop->_count;
-
-////     //before we add the icon,we need download the icon from the server.
-////
-//    vdesktop->reloadApplist();
-//}
 void Dashboard::refreshDesktop()
 {
     if (vdesktop->dragEventState())
@@ -493,81 +409,95 @@ void Dashboard::refreshDesktop()
     }
 
     qDebug() << "start";
-
-    g_myVappList.clear();
-
-    //get vapp list
-    _commui->getAppList();
-    while (!_finished)
-        QApplication::processEvents();
-    _finished = false;
-
-    g_myVappList = _commui->getList();
-
-
-    #ifdef Q_WS_WIN
-    QString iconDirPath = WIN_VAPP_IconPath ;
-    #else
-    QString iconDirPath =  xmlPath + "\\App Center\\Vicons";
-    #endif
-
-    QDir iconDir(iconDirPath);
-    if(!iconDir.exists())
+    if(_commui->errID == "10036")
     {
-        iconDir.mkdir(iconDirPath);
+        _Isheartbeat = false;
+
+//        for (int i = 0; i < g_RemoteappList.count(); i++)
+//        {
+//            LocalAppList::getList()->delApp(g_RemoteappList[i].name);
+//        }
+
+        return;
     }
-    //store ico file locally
-    for(int i = 0; i < g_myVappList.count(); i++)
+
+    if(_commui->errID == "10000")
     {
-        QString iconPath = QString("%1%2.ico")
-                .arg(iconDirPath)
-                .arg(g_myVappList[i].id);
-//        qDebug()<<"iconPath="<<iconPath;
+        g_myVappList.clear();
 
-        //check if ico file is existed, or dont donwload
-
-        QFile chkFile(iconPath);
-        if(chkFile.exists())
-        {
-            chkFile.close();
-            continue;
-        }
-        chkFile.close();
-
-        //qDebug()<<"iconPath"<<iconPath;
-        _commui->downloadIcon(QUrl(g_myVappList[i].icon), iconPath);
+        //get vapp list
+        _commui->getAppList();
         while (!_finished)
             QApplication::processEvents();
         _finished = false;
 
-        //ico 95 * 95
-         QString newApp = iconPath;
+        g_myVappList = _commui->getList();
 
-         if (newApp.isEmpty())
-             return;
 
-         QImage image = QImage(newApp).scaled(48, 48);
-         QImage normal = QImage(":images/app_bg.png");
+        #ifdef Q_WS_WIN
+        QString iconDirPath = WIN_VAPP_IconPath ;
+        #else
+        QString iconDirPath =  xmlPath + "\\App Center\\Vicons";
+        #endif
 
-         for (int i = 0; i < normal.width(); i++) {
-             for (int j = 0; j < normal.height(); j++) {
-                 QRgb pixel = normal.pixel(i,j);
-                 int a = qAlpha(pixel);
-                 QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
-                                         qBlue(pixel), a * 0 / 255);
-                 normal.setPixel(i, j, lightPixel);
+        QDir iconDir(iconDirPath);
+        if(!iconDir.exists())
+        {
+            iconDir.mkdir(iconDirPath);
+        }
+        //store ico file locally
+        for(int i = 0; i < g_myVappList.count(); i++)
+        {
+            QString iconPath = QString("%1%2.ico")
+                    .arg(iconDirPath)
+                    .arg(g_myVappList[i].id);
+    //        qDebug()<<"iconPath="<<iconPath;
+
+            //check if ico file is existed, or dont donwload
+
+            QFile chkFile(iconPath);
+            if(chkFile.exists())
+            {
+                chkFile.close();
+                continue;
+            }
+            chkFile.close();
+
+            //qDebug()<<"iconPath"<<iconPath;
+            _commui->downloadIcon(QUrl(g_myVappList[i].icon), iconPath);
+             while (!_finished)
+                QApplication::processEvents();
+            _finished = false;
+
+            //ico 95 * 95
+             QString newApp = iconPath;
+
+             if (newApp.isEmpty())
+                 return;
+
+             QImage image = QImage(newApp).scaled(48, 48);
+             QImage normal = QImage(":images/app_bg.png");
+
+             for (int i = 0; i < normal.width(); i++) {
+                 for (int j = 0; j < normal.height(); j++) {
+                     QRgb pixel = normal.pixel(i,j);
+                     int a = qAlpha(pixel);
+                     QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
+                                             qBlue(pixel), a * 0 / 255);
+                     normal.setPixel(i, j, lightPixel);
+                 }
              }
-         }
 
-         QPainter pt1(&normal);
-         pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
-         pt1.drawImage(17, 8, image);
-         pt1.end();
-         QPixmap pix = QPixmap::fromImage(normal);
-         pix.save(newApp, "ICO", -1);
+             QPainter pt1(&normal);
+             pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
+             pt1.drawImage(17, 8, image);
+             pt1.end();
+             QPixmap pix = QPixmap::fromImage(normal);
+             pix.save(newApp, "ICO", -1);
+        }
+
+        modify();
     }
-
-    modify();
 }
 
 void Dashboard::timeOut()
