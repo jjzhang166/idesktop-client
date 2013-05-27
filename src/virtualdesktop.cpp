@@ -1876,20 +1876,24 @@ int VirtualDesktop::addIcon(const QString &text, \
             }
         }
     } else {
-        if (index == -1) {
-//            if ((_nextIdx[page - 1] == _iconsPerPage) && (_nextIdx[page] < _iconsPerPage)) {
-            index = _nextIdx[page];
-//            }
-        } else {
-            for (int i = 0; i < _count; i++) {
-                if (_nextIdx[i] < _row * _col) {
-                    page = i;
-                    index = _nextIdx[i];
-                    move(_pages[page], y());
-                    break;
+//        if (index == -1) {
+            if ((page > 0) && (_nextIdx[page - 1] == _iconsPerPage) && (_nextIdx[page] < _iconsPerPage)) {
+                index = _nextIdx[page];
+            }
+            else if ((page == 0) && (_nextIdx[page] < _iconsPerPage)) {
+                index = _nextIdx[page];
+            }
+            else {
+                for (int i = 0; i < _count; i++) {
+                    if (_nextIdx[i] < _row * _col) {
+                        page = i;
+                        index = _nextIdx[i];
+                        move(_pages[page], y());
+                        break;
+                    }
                 }
             }
-        }
+//        }
     }
 
     icon->setPixmap(iconPath);
