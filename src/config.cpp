@@ -83,7 +83,7 @@ void Config::setServerIp()
 
     /****************************************************************/
 
-    set("Server", "http://" + serverip + "/");
+    set("Server", "http://" + serverip);
     qDebug() << "setServerIP : "<<get("Server");
 }
 
@@ -95,7 +95,7 @@ void Config::getServerIp()
     serverip = tsip.readLine();
     if (false == serverip.isEmpty())
     {
-      set("Server", "http://" + serverip + "/");
+      set("Server", "http://" + serverip);
       qDebug() <<"getServerIp() : "<<get("Server");
     }
     fip.close();

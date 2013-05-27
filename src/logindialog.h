@@ -40,6 +40,7 @@ public:
     void mouseMoveEvent(QMouseEvent *event);
 
     QString GetSystemInfo();
+    void debugPrintVariant (QVariant const& v);
 public slots:
     void auth();
     void onLoginFinished(QNetworkReply *reply);

@@ -25,10 +25,16 @@
 #include <windows.h>
 #include <shellapi.h>
 #include "ShlObj.h "
+
+#include <QtScript/QScriptEngine>
+#include <QtScript/QScriptValueIterator>
+#include <QtScript/QScriptValue>
+
 //#ifdef Q_WS_WIN
 //QLibrary *mylib;   //
 //Dll_CloseAppAll m_dllCloseAppAll;
 //#endif
+
 
 /****************************************************************/
 //wangyaoli
@@ -180,8 +186,39 @@ void LoginDialog::connError(QString text)
     repaint();
 }
 
+void LoginDialog::debugPrintVariant (QVariant const & v)
+{
+    if (! v. isValid ()) 
+	{
+        qDebug () << "invalid";
+    }
+    if (QVariant:: List == v. type ())
+	{
+        qDebug () << "list";
+        for (QList <QVariant>:: const_iterator i = v.toList (). begin (); i != v. toList (). end (); ++ i)
+        debugPrintVariant (*i);
+    }
+	else if (QVariant:: Map == v. type ())
+	{
+        qDebug () << "map";
+        for (QMap <QString, QVariant>:: const_iterator i = v. toMap (). begin (); i != v. toMap (). end (); ++ i) 
+		{
+            qDebug () << "Key: " << i. key ();
+            debugPrintVariant (i. value ());
+        }
+    } 
+	else
+	{
+        qDebug () << "type: " << v. type ();
+        qDebug () << v. toString ();
+    }
+}
 void LoginDialog::onLoginFinished(QNetworkReply *reply)
 {
+    QScriptValue sc;
+    QScriptEngine engine;
+    QString result;
+
     _finished = true;
     serverAddr->setEnabled(true);
     userEdit->setEnabled(true);
@@ -190,23 +227,40 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     remoteAuth->setEnabled(true);
     connMsg("");
 
-    QString result = reply->readAll();
+    QString jsonResult = reply->readAll();
     _authSuccess = false;
-    if (result == "APPSTORE SUCCESS") {
+	
+    sc = engine.evaluate ("JSON.parse").call(QScriptValue(), QScriptValueList() << jsonResult);
+
+	if(sc.property("data").isObject())
+	{	
+        result = sc.property("data").toVariant().toString();
+        qDebug() << result;
+
+	} 
+	else
+	{
+        qDebug()<<"Invalid response: " << jsonResult;
+		// fatal error
+	}
+
+    if (result == "APPSTORE SUCCESS")
+    {
         _authSuccess = true;
     }
-    else if (result == "USER NOT EXISTS") {
+    else if (result == "USER NOT EXISTS")
+    {
         userError("该用户不存在");
     }
-    else if (result == "WRONG PASSWORD") {
+    else if (result == "WRONG PASSWORD")
+    {
         passError("密码验证失败");
     }
-    else {
-
+    else
+    {
         connError("连接服务器失败...");
 
     }
-
 }
 
 void LoginDialog::auth()
@@ -249,7 +303,7 @@ void LoginDialog::auth()
         _finished = false;
         _authSuccess = false;
         //QString loginUrl = "http://" + serverAddr->currentText() + "/api/login";
-        QString loginUrl = Config::get("Server") + "/api/login";
+        QString loginUrl = Config::get("Server") + ":8080/idesktop/platform/service/ClientServiceLogin.action";
         qDebug() << loginUrl;
         QString data = "name=" + userEdit->text() + "&password=" + md5;
         _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toAscii());
