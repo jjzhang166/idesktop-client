@@ -87,7 +87,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     passEdit->setGeometry(75, 165, 208, 35);
 
     userEdit->setText(QString("admin"));
-    passEdit->setText(QString("abc123"));
+    passEdit->setText(QString("root"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -232,17 +232,17 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
 	
     sc = engine.evaluate ("JSON.parse").call(QScriptValue(), QScriptValueList() << jsonResult);
 
-	if(sc.property("data").isObject())
-	{	
+    if(sc.isObject())
+    {
         result = sc.property("data").toVariant().toString();
         qDebug() << result;
 
-	} 
-	else
-	{
+    }
+    else
+    {
         qDebug()<<"Invalid response: " << jsonResult;
 		// fatal error
-	}
+    }
 
     if (result == "APPSTORE SUCCESS")
     {

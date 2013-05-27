@@ -148,7 +148,7 @@ LeftWebKit::LeftWebKit(QWidget *parent) :
     websetting->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls,true);
     websetting->setObjectCacheCapacities(0, 0, 0);
 
-    _webview->load(QUrl("http://"+serverip+"/demo.html"));
+    _webview->load(QUrl("http://"+serverip+":8080/idesktop/demo.html"));
 
     //_webview->load(QUrl("./system_manage/revamp/demo.html"));
     //_webview->load(QUrl("http://192.168.30.68/point.html"));

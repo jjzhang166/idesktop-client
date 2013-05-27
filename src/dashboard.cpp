@@ -35,6 +35,10 @@
 #include "config.h"
 #include "appmessagebox.h"
 
+extern QString VappServer;
+extern QString VappUser;
+extern QString VappPassword;
+
 extern QString xmlPath;
 extern QString iconDirPath;
 extern QString WIN_VAPP_IconPath;
@@ -52,6 +56,15 @@ Dashboard::Dashboard(QWidget *parent)
     :QWidget(parent, Qt::FramelessWindowHint | Qt::Tool), \
      _outOfScreen(false), _settingDialog(NULL)
 {
+
+#ifdef Q_WS_WIN
+
+    mylib= new QLibrary("DllClientEngineMain.dll");   //
+    if (mylib->load())              //check whether load successfully
+    {
+            m_dllCloseAppAll=(Dll_CloseAppAll)mylib->resolve("DllCEM_closeAppAll");
+    }
+#endif
 
 #ifdef LINUX_X11
     Atom net_wm_state_skip_taskbar = XInternAtom(QX11Info::display(), 
@@ -170,8 +183,6 @@ Dashboard::Dashboard(QWidget *parent)
     heartbeat_timer->start(5000);
     _retryTimes = 3;
     _Isheartbeat=true;
-//    qDebug()<<"login end";
-
 }
 
 void Dashboard::onDone()
@@ -208,8 +219,7 @@ void Dashboard::heartbeat()
         QApplication::processEvents();
     _finished = false;
 
-    //qDebug()<<"errID"<<_commui->errID;
-    if(_commui->errID=="10036")
+    if(_commui->errID == "10036")
     {
 #ifdef Q_WS_WIN
         m_dllCloseAppAll();
@@ -391,6 +401,16 @@ void Dashboard::setBgPixmap(const QString &pixText)
 
 }
 
+void Dashboard::errOut()
+{
+    _commui->login(VappServer, VappUser, VappPassword, _ldialog->GetSystemInfo());
+    while (!_finished)
+        QApplication::processEvents();
+    _finished = false;
+
+    _Isheartbeat = true;
+}
+
 void Dashboard::refreshDesktop()
 {
     if (vdesktop->dragEventState())
@@ -408,21 +428,28 @@ void Dashboard::refreshDesktop()
         return;
     }
 
-    qDebug() << "start";
-    if(_commui->errID == "10036")
+    qDebug() << "refresh desktop";
+    if (!_Isheartbeat)
     {
-        _Isheartbeat = false;
+        qDebug() << "_commui->errID:" << _commui->errID;
+        if(_commui->errID == "10036")
+        {
+            qDebug() << "虚拟应用服务连接失败，正在重新连接。。。";
 
-//        for (int i = 0; i < g_RemoteappList.count(); i++)
-//        {
-//            LocalAppList::getList()->delApp(g_RemoteappList[i].name);
-//        }
+            QTimer::singleShot(1000 * 5, this, SLOT(errOut()));
+        }
 
         return;
     }
 
+
     if(_commui->errID == "10000")
     {
+        if (!_Isheartbeat)
+        {
+            _Isheartbeat = true;
+            qDebug() << "虚拟应用服务器已成功连接";
+        }
         g_myVappList.clear();
 
         //get vapp list

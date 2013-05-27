@@ -72,6 +72,7 @@ public slots:
     //vac
     void heartbeat();
     void onDone();
+    void errOut();
 
 protected:
     void closeEvent(QCloseEvent *event);
