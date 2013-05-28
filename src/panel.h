@@ -2,13 +2,12 @@
 #define PANEL_H
 
 #include <QWidget>
-#include "iconarrangedlg.h"
+//#include "iconarrangedlg.h"
 #include "dynamicbutton.h"
 
 class QPropertyAnimation;
 class AppCenter;
-class SettingDialog;
-class AppCenterWdg;
+//class AppCenterWdg;
 class TestWidget;
 class Panel : public QWidget
 {
@@ -51,9 +50,8 @@ private:
     bool autoHide;
     bool visible;
     QPropertyAnimation *animation;
-    AppCenterWdg *_center;
+//    AppCenterWdg *_center;
 //    TestWidget* _center;
-    IconArrangeDlg *_settingDialog;
 
     DynamicButton *desktopButton;
     DynamicButton *bsButton;

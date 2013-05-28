@@ -14,15 +14,14 @@
 #include "config.h"
 #include "panel.h"
 #include "dynamicbutton.h"
-#include "settingDialog.h"
 
-#include "client/appcenterwdg.h"
-#include "client/appdatareadexe.h"
+//#include "client/appcenterwdg.h"
+//#include "client/appdatareadexe.h"
 #include "appmessagebox.h"
 
 Panel::Panel(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint | Qt::Tool), \
-      autoHide(false), visible(false), animation(NULL), _center(NULL), _settingDialog(NULL)
+      autoHide(false), visible(false), animation(NULL)//, _center(NULL)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAutoFillBackground(true);
@@ -115,31 +114,18 @@ Panel::Panel(QWidget *parent)
     connect(quitButton, SIGNAL(clicked()), this, SIGNAL(quit()));
 }
 
-//void Panel::setting()
-//{
-//    /*
-//    if (_settingDialog == NULL)
-//        _settingDialog = new IconArrangeDlg(this);
-//    if (!_settingDialog->exec())
-//        return;
 
-//    if (_settingDialog->equal)
-//        emit setEqual(_settingDialog->pCount);
-//    else
-//        emit setMini();
-//    */
-//}
 
 void Panel::runCenter()
 {
-    if (_center == NULL) {
-        _center = new AppCenterWdg();
-      //  _center->setTitle("软件中心");
-        _center->resize(753,550);
-      //  _center->move(10, 50);
-    } else {
-        _center->refresh();
-    }
+//    if (_center == NULL) {
+//        _center = new AppCenterWdg();
+//      //  _center->setTitle("软件中心");
+//        _center->resize(753,550);
+//      //  _center->move(10, 50);
+//    } else {
+//        _center->refresh();
+//    }
 
 /*    if (_center == NULL) {
          _center = new TestWidget();
@@ -149,8 +135,8 @@ void Panel::runCenter()
      }// else {
      //    _center->refresh();
     // }*/
-    _center->centerWidget();
-    _center->show();
+//    _center->centerWidget();
+//    _center->show();
 
     //emit showStore();
 }

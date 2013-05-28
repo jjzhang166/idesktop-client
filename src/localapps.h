@@ -98,6 +98,10 @@ public:
     int count();
     void save();
 
+    void addLocalApp(QString appPath);
+    QString getAppImage(QString appPath);
+    QString getUninstExec(QString display);
+
 signals:
     void appAdded(QString name, QString icon);
     void appRemoved(const QString &name);

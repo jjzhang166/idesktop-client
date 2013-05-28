@@ -76,34 +76,32 @@ int main(int argc, char **argv)
     /* check whether appdir exists */
 
     bool dbExists = true;
+
     QFileInfo aInfo(Config::get("AppDir"));
-    if (!aInfo.exists() || !aInfo.isDir()) {
+    if (!aInfo.exists() || !aInfo.isDir())
+    {
        QDir appDir(Config::get("DataDir"));
-
-       appDir.mkdir("App Center");       
-       appDir.mkdir("icons");
-       appDir.mkdir("downloads");
-
+       appDir.mkdir("App Center");
        dbExists = false;
     }
-    else
+
+    QFileInfo dbInfo(Config::get("LocalDb"));
+    if (!dbInfo.exists())
+        dbExists = false;
+
+    QFileInfo iInfo(Config::get("IconDir"));
+    if (!iInfo.exists() || !iInfo.isDir())
     {
-      QFileInfo dbInfo(Config::get("LocalDb"));
-      if (!dbInfo.exists())
-          dbExists = false;
-
-        QFileInfo iInfo(Config::get("IconDir"));
-        if (!iInfo.exists() || !iInfo.isDir()) {
-           QDir appDir(Config::get("AppDir"));
-           appDir.mkdir("icons");
-        }
-
-        QFileInfo dInfo(Config::get("InstDir"));
-        if (!dInfo.exists() || !dInfo.isDir()) {
-           QDir appDir(Config::get("AppDir"));
-           appDir.mkdir("downloads");
-        }
+        QDir appDir(Config::get("AppDir"));
+        appDir.mkdir("icons");
     }
+
+//    QFileInfo dInfo(Config::get("InstDir"));
+//    if (!dInfo.exists() || !dInfo.isDir())
+//    {
+//        QDir appDir(Config::get("AppDir"));
+//        appDir.mkdir("downloads");
+//    }
 
     QSqlDatabase localDb = QSqlDatabase::addDatabase("QSQLITE", "local");
     localDb.setDatabaseName(Config::get("LocalDb"));
@@ -135,17 +133,17 @@ int main(int argc, char **argv)
                       "CREATE TABLE wallpapers " \
                       "(id int not null primary key, " \
                       "wallpaper nvarchar not null);";
-       QString createUrlTable = \
-                      "CREATE TABLE urls " \
-                      "(id int not null primary key, " \
-                      "virtualurl nvarchar not null," \
-                      "serviceurl nvarchar not null);";
+//       QString createUrlTable = \
+//                      "CREATE TABLE urls " \
+//                      "(id int not null primary key, " \
+//                      "virtualurl nvarchar not null," \
+//                      "serviceurl nvarchar not null);";
 
        QSqlDatabase::database("local").exec(createAppTable);
        QSqlDatabase::database("local").exec(createUserTable);
        QSqlDatabase::database("local").exec(createAddrTable);
        QSqlDatabase::database("local").exec(createWallpaperTable);
-       QSqlDatabase::database("local").exec(createUrlTable);
+//       QSqlDatabase::database("local").exec(createUrlTable);
 
        QString qstrWp = QString("insert into wallpapers ("\
                               "id, wallpaper) values ( "\
@@ -156,13 +154,13 @@ int main(int argc, char **argv)
             qDebug() <<"query failed";
         }
 
-        QString qstrUrl = QString("insert into urls ("\
-                                  "id, virtualurl, serviceurl) values ("\
-                                  "\'%1\', \'%2\', \'%3\');")\
-                                .arg(1).arg("welcome_manage.html").arg("welcome_manage.html");
-         if(!query.exec(qstrUrl)) {
-             qDebug() <<"query failed";
-         }
+//        QString qstrUrl = QString("insert into urls ("\
+//                                  "id, virtualurl, serviceurl) values ("\
+//                                  "\'%1\', \'%2\', \'%3\');")\
+//                                .arg(1).arg("welcome_manage.html").arg("welcome_manage.html");
+//         if(!query.exec(qstrUrl)) {
+//             qDebug() <<"query failed";
+//         }
     }
 
     /*获取localdb的数据*/

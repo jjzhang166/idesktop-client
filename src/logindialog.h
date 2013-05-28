@@ -11,7 +11,7 @@
 #include "qtipaddressedit/qipaddressedit.h"
 #include "qtipaddressedit/qipaddressedititem.h"
 //vac
-#include "../commuinication.h"
+#include "commuinication.h"
 #define CLOSE_WIDTH 47
 #define CLOSE_HEIGHT 35
 

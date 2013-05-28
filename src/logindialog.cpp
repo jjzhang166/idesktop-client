@@ -21,7 +21,7 @@
 #include "config.h"
 #include "qtipaddressedit/qipaddressedit.h"
 #include "qtipaddressedit/qipaddressedititem.h"
-#include "../vappvirtualdesktop.h"
+#include "vappvirtualdesktop.h"
 #include <windows.h>
 #include <shellapi.h>
 #include "ShlObj.h "
@@ -41,7 +41,7 @@
 extern QString serverip;
 /****************************************************************/
 QString VappServer = QString("192.168.31.151:80");  //  "192.168.49.253:80"
-QString VappUser = QString("test");                 //  "test"
+QString VappUser = QString("test3");                 //  "test"
 QString VappPassword = QString("abc_123");          //  "1357.com"
 
 QList<APP_LIST> g_myVappList;

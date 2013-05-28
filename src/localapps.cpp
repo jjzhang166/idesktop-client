@@ -8,9 +8,25 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <QPixmap>
+#include <QRgb>
+#include <QPainter>
+#include <QFileInfo>
+#include <QApplication>
+#include <QProcess>
+#include <QDir>
+#include <QFileInfoList>
+#include <QLibrary>
+#include <windows.h>
+#include <stdio.h>
+
 #include "localapps.h"
-#include "constants.h"
-#include "../common.h"
+//#include "constants.h"
+#include "common.h"
+#include "appmessagebox.h"
+#include "config.h"
+
+#define KEY "\\Windows\\CurrentVersion\\Uninstall\\"
 #define SQL_STATEMENT "select * from localapps;"
 
 #define NAME    0
@@ -308,4 +324,89 @@ void LocalAppList::save()
             return;
         }
     }
+}
+
+QString LocalAppList::getAppImage(QString appPath)
+{
+    typedef HICON (*tempFuc)(CONST TCHAR *filePath);
+    QLibrary myLib;
+    #ifdef DEBUG
+        myLib.setFileName("IconGetD.dll");
+    #else
+        myLib.setFileName("IconGet.dll");
+    #endif
+
+    tempFuc myFunction = (tempFuc) myLib.resolve("getJumbIcon");
+    if (myFunction) {
+         HICON jumbIcon = myFunction((CONST TCHAR *)appPath.utf16 ());
+
+         QPixmap picon = QPixmap::fromWinHICON(jumbIcon);
+
+         QFileInfo info = QFileInfo(appPath);
+         QString path(Config::get("IconDir"));
+         path = path + "\\" + "USER_ADDED_" + info.baseName();
+         path += ".png";
+         QPixmap newicon =  picon.scaled(48,48,Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+         newicon.save(path, "PNG",-1);
+         return path;
+    }
+    return "";
+}
+
+void LocalAppList::addLocalApp(QString appPath)
+{
+    QString newApp = getAppImage(appPath);
+
+    if (newApp.isEmpty())
+        return;
+
+    QImage image = QImage(newApp).scaled(48, 48);
+    QImage normal = QImage(":images/app_bg.png");
+    //setImgOpacity(normal, 0);
+
+    for (int i = 0; i < normal.width(); i++) {
+        for (int j = 0; j < normal.height(); j++) {
+            QRgb pixel = normal.pixel(i,j);
+            int a = qAlpha(pixel);
+            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
+                                    qBlue(pixel), a * 0 / 255);
+            normal.setPixel(i, j, lightPixel);
+        }
+    }
+
+    QPainter pt1(&normal);
+    pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    pt1.drawImage(17, 8, image);
+    pt1.end();
+    QPixmap pix = QPixmap::fromImage(normal);
+    pix.save(newApp, "PNG", -1);
+
+    QFileInfo info = QFileInfo(appPath);
+    LocalApp *app = new LocalApp();
+    app->setName("/" + info.baseName());
+    app->setIcon(newApp);
+    app->setExecname(appPath);
+    if (LocalAppList::getList()->getAppByName(app->name())) {
+        QApplication::processEvents();
+        AppMessageBox box(false, NULL);
+        box.setText("    已添加该图标");
+        box.exec();
+    } else {
+        addApp(app);
+    }
+}
+
+QString LocalAppList::getUninstExec(QString display)
+{
+    QSettings reg(QSettings::NativeFormat, \
+        QSettings::SystemScope, "Microsoft", KEY);
+    for (int i = 0; i < reg.childGroups().count(); i++) {
+        QSettings tmp(QSettings::NativeFormat, \
+            QSettings::SystemScope, "Microsoft", \
+            KEY + reg.childGroups().at(i));
+        if (tmp.value("DisplayName").toString() == display) {
+            return tmp.value("UninstallString").toString();
+        }
+    }
+    return QString("");
 }

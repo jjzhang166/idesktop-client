@@ -22,9 +22,9 @@ Switcher::Switcher(QWidget *parent)
 //        for (int j = 0; j < normalRight.height(); j++) {
 //            QRgb pixel = normalRight.pixel(i,j);
 //            int a = qAlpha(pixel);
-//            QRgb transPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//            QRgb transPixel = qRgba(qRed(pixel), qGreen(pixel),
 //                                    qBlue(pixel), a/2);
-//            QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8, \
+//            QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8,
 //                                    qBlue(pixel)*0.8, a);
 //            transRight.setPixel(i, j, transPixel);
 //            darkRight.setPixel(i, j, darkPixel);
@@ -34,9 +34,9 @@ Switcher::Switcher(QWidget *parent)
 //        for (int j = 0; j < normalLeft.height(); j++) {
 //            QRgb pixel = normalLeft.pixel(i,j);
 //            int a = qAlpha(pixel);
-//            QRgb transPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//            QRgb transPixel = qRgba(qRed(pixel), qGreen(pixel),
 //                                    qBlue(pixel), a/2);
-//            QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8, \
+//            QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8,
 //                                    qBlue(pixel)*0.8, a);
 //            transLeft.setPixel(i, j, transPixel);
 //            darkLeft.setPixel(i, j, darkPixel);

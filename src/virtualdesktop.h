@@ -8,7 +8,7 @@
 #include <QAction>
 #include "localapps.h"
 //#include "bswidget.h"
-#include "../commuinication.h"
+#include "commuinication.h"
 //#include "managewidget.h"
 //app
 #ifdef Q_WS_WIN

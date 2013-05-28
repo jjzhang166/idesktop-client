@@ -54,7 +54,7 @@ extern QList<APP_LIST> g_RemoteappList;
 
 Dashboard::Dashboard(QWidget *parent)
     :QWidget(parent, Qt::FramelessWindowHint | Qt::Tool), \
-     _outOfScreen(false), _settingDialog(NULL)
+     _outOfScreen(false)
 {
 
 #ifdef Q_WS_WIN
@@ -264,13 +264,6 @@ void Dashboard::onShowPerDesktop()
         vdesktop->setVisible(false);
 
     _perWidget->setVisible(true);
-
-    /*
-    _settingDialog = new IconArrangeDlg(vdesktop, NULL);
-    _settingDialog->exec();
-    delete _settingDialog;
-    _settingDialog = NULL;
-    */
 }
 
 void Dashboard::moveIndicator()
@@ -404,6 +397,7 @@ void Dashboard::setBgPixmap(const QString &pixText)
 void Dashboard::errOut()
 {
     _commui->login(VappServer, VappUser, VappPassword, _ldialog->GetSystemInfo());
+
     while (!_finished)
         QApplication::processEvents();
     _finished = false;
@@ -442,9 +436,7 @@ void Dashboard::refreshDesktop()
         return;
     }
 
-
-    if(_commui->errID == "10000")
-    {
+    if (_commui->errID == "10000") {
         if (!_Isheartbeat)
         {
             _Isheartbeat = true;
@@ -459,6 +451,7 @@ void Dashboard::refreshDesktop()
         _finished = false;
 
         g_myVappList = _commui->getList();
+        qDebug() << "********" << g_myVappList.count();
 
 
         #ifdef Q_WS_WIN
@@ -525,6 +518,7 @@ void Dashboard::refreshDesktop()
 
         modify();
     }
+
 }
 
 void Dashboard::timeOut()
@@ -551,7 +545,14 @@ void Dashboard::modify()
             if(!isExist)
             {
                 //delete
+                qDebug() << "****delete*** start ****" << g_RemoteappList[i].id;
+                qDebug() << "**************************g_myVappList.count()********************" << g_myVappList.count();
+                 for (int i = 0; i < g_myVappList.count(); i++)
+                     qDebug() << g_myVappList[i].name << "g_myVappList[" << i << "].id : " << g_myVappList[i].id;
+
                 LocalAppList::getList()->delApp(g_RemoteappList[i].name);
+
+                qDebug() << "****delete*** end ****" << g_RemoteappList[i].name;
             }
         }
         // add
@@ -569,6 +570,12 @@ void Dashboard::modify()
 
             if (!isExist)
             {
+                qDebug() << "****add** start *****" << g_myVappList[i].name << "id : " << g_myVappList[i].id;
+                qDebug() << "**************************g_RemoteappList.count()********************" << g_RemoteappList.count();
+
+                for (int j = 0; j < g_RemoteappList.count(); j++)
+                    qDebug() << g_RemoteappList[j].name << "g_RemoteappList[" << j << "].id : " << g_RemoteappList[j].id;
+
                 LocalApp *RemoteApp = new LocalApp();
                 RemoteApp->setName(g_myVappList[i].name);
                 RemoteApp->setId(g_myVappList[i].id);
@@ -581,6 +588,7 @@ void Dashboard::modify()
 
                 vdesktop->addIcon(g_myVappList[i].name, WIN_VAPP_IconPath + g_myVappList[i].id + ".ico", \
                                   vdesktop->count() - 1, -1, VirtualDesktop::vappIcon);
+                qDebug() << "****add** end *****" << g_myVappList[i].name;
             }
         }
     }

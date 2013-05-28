@@ -12,9 +12,7 @@
 #include <QPushButton>
 #include <QAction>
 #include <QMenu>
-#include "../commuinication.h"
-#include "iconarrangedlg.h"
-//#include "configmenu.h"
+#include "commuinication.h"
 #include "personalizationwidget.h"
 #include "bswidget.h"
 #include "logindialog.h"
@@ -125,7 +123,6 @@ private:
     Panel *panel;
     Indicator *indicator;
     QVBoxLayout *layout;
-    IconArrangeDlg *_settingDialog;
 
     QPixmap _pixmap;
     QString _pixText;
