@@ -175,5 +175,7 @@
         <file>images/bs_scrollbar.png</file>
         <file>images/shadow.png</file>
         <file>images/bs_shadow.png</file>
+        <file>images/handle_left.png</file>
+        <file>images/handle_right.png</file>
     </qresource>
 </RCC>

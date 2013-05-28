@@ -93,7 +93,6 @@ HEADERS += src/config.h \
     src/qtipaddressedit/qipaddressedit.h \
     src/qtipaddressedit/qipaddressedititem.h \
     src/bswidget.h \
-    src/configmenu.h \
     src/managewidget.h \
     commuinication.h \
     common.h \
@@ -170,7 +169,6 @@ SOURCES += src/config.cpp \
     src/qtipaddressedit/qipaddressedit.cpp \
     src/qtipaddressedit/qipaddressedititem.cpp \
     src/bswidget.cpp \
-    src/configmenu.cpp \
     src/main.cpp \
     src/managewidget.cpp \
     commuinication.cpp \
