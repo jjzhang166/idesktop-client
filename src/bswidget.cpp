@@ -468,25 +468,25 @@ AxWidget::AxWidget(int id, QWidget *parent)
 //    _scrollBar = new QScrollBar(this);
 //    _scrollBar->setSingleStep(height() -10);
 //    _scrollBar->setPageStep(height() - 10);
-//    _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}\
-//                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 249px; background-image:url(:/images/bs_scrollbar.png);\
-//                    background-position: left; background-repeat:none; border-style:flat;}\
-//                    QScrollBar::handle:vertical::disabled{background:#232329;}\
-//                    QScrollBar::handle:vertical:hover{background-image:url(:/images/bs_scrollbar.png);}\
-//                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);\
-//                                                  subcontrol-position: bottom; subcontrol-origin: margin;}\
-//                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);\
-//                                                  subcontrol-position: top; subcontrol-origin: margin;}\
-//                    QScrollBar::add-page:vertical{background-color: rgba(255,255,255,0);}\
-//                    QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}\
-//                    QScrollBar::up-arrow:vertical{background-color: rgba(255,255,255,0);}\
+//    _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}
+//                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 249px; background-image:url(:/images/bs_scrollbar.png);
+//                    background-position: left; background-repeat:none; border-style:flat;}
+//                    QScrollBar::handle:vertical::disabled{background:#232329;}
+//                    QScrollBar::handle:vertical:hover{background-image:url(:/images/bs_scrollbar.png);}
+//                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);
+//                                                  subcontrol-position: bottom; subcontrol-origin: margin;}
+//                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);
+//                                                  subcontrol-position: top; subcontrol-origin: margin;}
+//                    QScrollBar::add-page:vertical{background-color: rgba(255,255,255,0);}
+//                    QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}
+//                    QScrollBar::up-arrow:vertical{background-color: rgba(255,255,255,0);}
 //                    QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);}");
 
 
 //    connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
 
     //ÐÂµ¯³öÒ³
-//    connect(_ax, SIGNAL(NewWindow(QString, int, QString, QVariant&, QString, bool&)), \
+//    connect(_ax, SIGNAL(NewWindow(QString, int, QString, QVariant&, QString, bool&)),
 //            this, SLOT(newWindow(QString, int, QString, QVariant&, QString, bool&)));
     connect(_ax, SIGNAL(TitleChange(QString)), this, SLOT(titleChange(QString)));
     //connect(_ax, SIGNAL(WindowActivate()), receiver, SLOT(windowActivate()));

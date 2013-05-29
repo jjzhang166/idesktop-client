@@ -149,7 +149,7 @@ Dashboard::Dashboard(QWidget *parent)
 
     _refreshTimer = new QTimer(this);
     connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(timeOut()));
-    _refreshTimer->start(1000 * 20);
+    _refreshTimer->start(1000 * 60);
 
     _finished = false;
     _commui = new commuinication();
@@ -545,14 +545,14 @@ void Dashboard::modify()
             if(!isExist)
             {
                 //delete
-                qDebug() << "****delete*** start ****" << g_RemoteappList[i].id;
-                qDebug() << "**************************g_myVappList.count()********************" << g_myVappList.count();
-                 for (int i = 0; i < g_myVappList.count(); i++)
-                     qDebug() << g_myVappList[i].name << "g_myVappList[" << i << "].id : " << g_myVappList[i].id;
+//                qDebug() << "****delete*** start ****" << g_RemoteappList[i].id;
+//                qDebug() << "**************************g_myVappList.count()********************" << g_myVappList.count();
+//                 for (int i = 0; i < g_myVappList.count(); i++)
+//                     qDebug() << g_myVappList[i].name << "g_myVappList[" << i << "].id : " << g_myVappList[i].id;
 
                 LocalAppList::getList()->delApp(g_RemoteappList[i].name);
 
-                qDebug() << "****delete*** end ****" << g_RemoteappList[i].name;
+//                qDebug() << "****delete*** end ****" << g_RemoteappList[i].name;
             }
         }
         // add
@@ -570,11 +570,11 @@ void Dashboard::modify()
 
             if (!isExist)
             {
-                qDebug() << "****add** start *****" << g_myVappList[i].name << "id : " << g_myVappList[i].id;
-                qDebug() << "**************************g_RemoteappList.count()********************" << g_RemoteappList.count();
+//                qDebug() << "****add** start *****" << g_myVappList[i].name << "id : " << g_myVappList[i].id;
+//                qDebug() << "**************************g_RemoteappList.count()********************" << g_RemoteappList.count();
 
-                for (int j = 0; j < g_RemoteappList.count(); j++)
-                    qDebug() << g_RemoteappList[j].name << "g_RemoteappList[" << j << "].id : " << g_RemoteappList[j].id;
+//                for (int j = 0; j < g_RemoteappList.count(); j++)
+//                    qDebug() << g_RemoteappList[j].name << "g_RemoteappList[" << j << "].id : " << g_RemoteappList[j].id;
 
                 LocalApp *RemoteApp = new LocalApp();
                 RemoteApp->setName(g_myVappList[i].name);
@@ -588,7 +588,7 @@ void Dashboard::modify()
 
                 vdesktop->addIcon(g_myVappList[i].name, WIN_VAPP_IconPath + g_myVappList[i].id + ".ico", \
                                   vdesktop->count() - 1, -1, VirtualDesktop::vappIcon);
-                qDebug() << "****add** end *****" << g_myVappList[i].name;
+//                qDebug() << "****add** end *****" << g_myVappList[i].name;
             }
         }
     }

@@ -62,10 +62,9 @@ HEADERS += src/config.h \
     src/qtipaddressedit/qipaddressedititem.h \
     src/bswidget.h \
     src/personalizationwidget.h \
-    src/vappvirtualdesktop.h \
     src/commuinication.h \
     src/common.h \
-    src/applist.h
+    src/arrangewidget.h
 
 
 win32 {
@@ -107,9 +106,8 @@ SOURCES += src/config.cpp \
     src/bswidget.cpp \
     src/main.cpp \
     src/personalizationwidget.cpp \
-    src/vappvirtualdesktop.cpp \
     src/commuinication.cpp \
-    src/applist.cpp
+    src/arrangewidget.cpp
 
 
 FORMS +=\

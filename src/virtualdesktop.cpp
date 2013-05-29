@@ -2088,11 +2088,13 @@ void VirtualDesktop::runApp(const QString &text)
         QFileInfo link(la->execname());
         //   QString exec = AppDataReadExe::Instance()->getExec(la->execname());
         if (!link.exists()) {
-            QString msg = QString("%1没有被正确安装, 请在\n软件商店中重新安装, 是否删除图标?").arg(text);
-            AppMessageBox box(true, NULL);
-            box.setText(msg);
-            if (box.exec())
-                LocalAppList::getList()->delApp(la->name());
+//            QString msg = QString("%1没有被正确安装, 请在\n软件商店中重新安装, 是否删除图标?").arg(text);
+//            AppMessageBox box(true, NULL);
+//            box.setText(msg);
+//            if (box.exec())
+//                LocalAppList::getList()->delApp(la->name());
+
+            QMessageBox::information(NULL,"NO","Linke to Function is not OK!!!!");
             return;
         }
         sprintf(command, "\"%s\"", la->execname().toLocal8Bit().data());

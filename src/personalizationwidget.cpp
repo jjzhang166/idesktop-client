@@ -30,6 +30,8 @@ void PersonalizationWidget::paintEvent(QPaintEvent *event)
 
 void PersonalizationWidget::resizeEvent(QResizeEvent *event)
 {
+    Q_UNUSED(event);
+
     _skinWidget->resize(width() - 70, height() - 110);
 }
 
@@ -85,7 +87,7 @@ SkinWidget::SkinWidget(QWidget *parent)
 
 void SkinWidget::scrollBarValueChanged(int val)
 {
-
+    Q_UNUSED(val);
 //    if ((_skinPixWidget->pos().y() + val) % (height() - 10) != 0)
 //    {
 //        return;
@@ -122,6 +124,7 @@ void SkinWidget::resizeEvent(QResizeEvent *event)
 
 void SkinWidget::wheelEvent(QWheelEvent *event)
 {
+    Q_UNUSED(event);
 //    _scrollBar->event(event);
 }
 
