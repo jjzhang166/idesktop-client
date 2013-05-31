@@ -15,9 +15,10 @@
 #define CLOSE_WIDTH 47
 #define CLOSE_HEIGHT 35
 
-extern QString VappServer;
-extern QString VappUser;
-extern QString VappPassword;
+extern QString VacServer;
+extern QString VacPort;
+extern QString VacUser;
+extern QString VacPassword;
 
 extern QString xmlPath;
 extern QString iconDirPath;
@@ -41,6 +42,8 @@ public:
 
     QString GetSystemInfo();
     void debugPrintVariant (QVariant const& v);
+
+    void updateVacServer();
 public slots:
     void auth();
     void onLoginFinished(QNetworkReply *reply);

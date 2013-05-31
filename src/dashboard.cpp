@@ -35,9 +35,10 @@
 #include "config.h"
 #include "appmessagebox.h"
 
-extern QString VappServer;
-extern QString VappUser;
-extern QString VappPassword;
+extern QString VacServer;
+extern QString VacPort;
+extern QString VacUser;
+extern QString VacPassword;
 
 extern QString xmlPath;
 extern QString iconDirPath;
@@ -53,10 +54,9 @@ extern QList<APP_LIST> g_RemoteappList;
 #endif
 
 Dashboard::Dashboard(QWidget *parent)
-    :QWidget(parent, Qt::FramelessWindowHint | Qt::Tool), \
-     _outOfScreen(false)
+    : QWidget(parent, Qt::FramelessWindowHint | Qt::Tool)
+    , _outOfScreen(false)
 {
-
 #ifdef Q_WS_WIN
 
     mylib= new QLibrary("DllClientEngineMain.dll");   //
@@ -87,6 +87,7 @@ Dashboard::Dashboard(QWidget *parent)
     if (!_ldialog->exec())
        exit(1);
 
+//    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool);
 
     QDesktopWidget *d = QApplication::desktop();
     QRect r = d->availableGeometry();
@@ -129,9 +130,13 @@ Dashboard::Dashboard(QWidget *parent)
     quitAction = new QAction("退出", this);
     showAction = new QAction("显示", this);
     hideAction = new QAction("隐藏", this);
+    _setVacServer = new QAction("设置服务器地址", this);
     QMenu *trayMenu = new QMenu(this);
+    trayMenu->addAction(_setVacServer);
+    trayMenu->addSeparator();
     trayMenu->addAction(showAction);
     trayMenu->addAction(hideAction);
+    trayMenu->addSeparator();
     trayMenu->addAction(quitAction);
 
     tray = new QSystemTrayIcon(this);
@@ -151,10 +156,21 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(timeOut()));
     _refreshTimer->start(1000 * 60);
 
+    _vacServerWidget = new VacServerWidget();
+    _vacServerWidget->setVisible(false);
+
     _finished = false;
     _commui = new commuinication();
-    connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
 
+    // heart beat.5s timer
+    heartbeat_timer = new QTimer(this);
+    connect( heartbeat_timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
+    heartbeat_timer->start(5000);
+    _retryTimes = 3;
+    _Isheartbeat=true;
+
+    connect(_vacServerWidget, SIGNAL(serverChanged()), this, SLOT(updateVacServer()));
+    connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
     connect(_perWidget, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
     connect(panel, SIGNAL(quit()), this, SLOT(quit()));
     connect(panel, SIGNAL(desktop()), this, SLOT(onShowDesktop()));
@@ -166,6 +182,9 @@ Dashboard::Dashboard(QWidget *parent)
     connect(hideAction, SIGNAL(triggered()), this, SLOT(hide()));
     connect(showAction, SIGNAL(triggered()), switcher, SLOT(show()));
     connect(hideAction, SIGNAL(triggered()), switcher, SLOT(hide()));
+    connect(showAction, SIGNAL(triggered()), panel, SLOT(show()));
+    connect(hideAction, SIGNAL(triggered()), panel, SLOT(hide()));
+    connect(_setVacServer, SIGNAL(triggered()), this, SLOT(setVacServer()));
     connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
         this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
     connect(switcher, SIGNAL(activated()), this, SLOT(switchBetween()));
@@ -176,13 +195,6 @@ Dashboard::Dashboard(QWidget *parent)
 //    connect(indicator, SIGNAL(iNeedMove()), this, SLOT(moveIndicator()));
     //connect(panel, SIGNAL(showDesktop()), this, SLOT(onShowDesktop()));
     //setGeoProper();
-
-    // heart beat.5s timer
-    heartbeat_timer = new QTimer(this);
-    connect( heartbeat_timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
-    heartbeat_timer->start(5000);
-    _retryTimes = 3;
-    _Isheartbeat=true;
 }
 
 void Dashboard::onDone()
@@ -396,7 +408,7 @@ void Dashboard::setBgPixmap(const QString &pixText)
 
 void Dashboard::errOut()
 {
-    _commui->login(VappServer, VappUser, VappPassword, _ldialog->GetSystemInfo());
+    _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, _ldialog->GetSystemInfo());
 
     while (!_finished)
         QApplication::processEvents();
@@ -545,14 +557,7 @@ void Dashboard::modify()
             if(!isExist)
             {
                 //delete
-//                qDebug() << "****delete*** start ****" << g_RemoteappList[i].id;
-//                qDebug() << "**************************g_myVappList.count()********************" << g_myVappList.count();
-//                 for (int i = 0; i < g_myVappList.count(); i++)
-//                     qDebug() << g_myVappList[i].name << "g_myVappList[" << i << "].id : " << g_myVappList[i].id;
-
                 LocalAppList::getList()->delApp(g_RemoteappList[i].name);
-
-//                qDebug() << "****delete*** end ****" << g_RemoteappList[i].name;
             }
         }
         // add
@@ -570,12 +575,6 @@ void Dashboard::modify()
 
             if (!isExist)
             {
-//                qDebug() << "****add** start *****" << g_myVappList[i].name << "id : " << g_myVappList[i].id;
-//                qDebug() << "**************************g_RemoteappList.count()********************" << g_RemoteappList.count();
-
-//                for (int j = 0; j < g_RemoteappList.count(); j++)
-//                    qDebug() << g_RemoteappList[j].name << "g_RemoteappList[" << j << "].id : " << g_RemoteappList[j].id;
-
                 LocalApp *RemoteApp = new LocalApp();
                 RemoteApp->setName(g_myVappList[i].name);
                 RemoteApp->setId(g_myVappList[i].id);
@@ -588,7 +587,6 @@ void Dashboard::modify()
 
                 vdesktop->addIcon(g_myVappList[i].name, WIN_VAPP_IconPath + g_myVappList[i].id + ".ico", \
                                   vdesktop->count() - 1, -1, VirtualDesktop::vappIcon);
-//                qDebug() << "****add** end *****" << g_myVappList[i].name;
             }
         }
     }
@@ -606,5 +604,19 @@ void Dashboard::modify()
         g_RemoteappList[i].icon = iconPath;
 //        qDebug()<<"g_Rmote:"<<g_RemoteappList.at(i).icon;
     }
+
+}
+
+void Dashboard::setVacServer()
+{
+    _vacServerWidget->setVisible(true);
+}
+
+void Dashboard::updateVacServer()
+{
+    _ldialog->updateVacServer();
+
+//    _Isheartbeat = false;
+    _commui->logoff();
 
 }

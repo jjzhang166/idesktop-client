@@ -4,9 +4,9 @@
 #define WIDTH 350
 #define HEIGHT 200
 
-AppMessageBox::AppMessageBox(bool hasCancel, QWidget *parent) :
-    QDialog(parent, Qt::FramelessWindowHint | Qt::Tool)
-  , _bPressTitle(false)
+AppMessageBox::AppMessageBox(bool hasCancel, QWidget *parent)
+    : QDialog(parent, /*Qt::WindowStaysOnTopHint |*/ Qt::FramelessWindowHint | Qt::Tool)
+    , _bPressTitle(false)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAutoFillBackground(true);

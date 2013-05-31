@@ -16,6 +16,7 @@
 #include "personalizationwidget.h"
 #include "bswidget.h"
 #include "logindialog.h"
+#include "vacserverwidget.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -33,7 +34,7 @@ class Dashboard : public QWidget
     Q_OBJECT
 public:
     Dashboard(QWidget * parent = NULL);
-    ~Dashboard() {}
+    ~Dashboard() { delete _ldialog; }
     QSize size;
 //vac
    void setInfo(QString smIP, QString sID)
@@ -71,6 +72,9 @@ public slots:
     void heartbeat();
     void onDone();
     void errOut();
+
+    void setVacServer();
+    void updateVacServer();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -118,6 +122,7 @@ private:
     QAction *quitAction;
     QAction *hideAction;
     QAction *showAction;
+    QAction *_setVacServer;
     VirtualDesktop *vdesktop;
     Switcher *switcher;
     Panel *panel;
@@ -132,5 +137,6 @@ private:
     QTimer *_refreshTimer;
 
     LoginDialog *_ldialog;
+    VacServerWidget *_vacServerWidget;
 };
 #endif

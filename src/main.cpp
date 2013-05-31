@@ -133,17 +133,19 @@ int main(int argc, char **argv)
                       "CREATE TABLE wallpapers " \
                       "(id int not null primary key, " \
                       "wallpaper nvarchar not null);";
-//       QString createUrlTable = \
-//                      "CREATE TABLE urls " \
-//                      "(id int not null primary key, " \
-//                      "virtualurl nvarchar not null," \
-//                      "serviceurl nvarchar not null);";
+       QString createVacServerTable = \
+                      "CREATE TABLE vacservers " \
+                      "(id int not null primary key, " \
+                      "server nvarchar not null, " \
+                      "port int not null, " \
+                      "name nvarchar not null, " \
+                      "password nvarchar not null);";
 
        QSqlDatabase::database("local").exec(createAppTable);
        QSqlDatabase::database("local").exec(createUserTable);
        QSqlDatabase::database("local").exec(createAddrTable);
        QSqlDatabase::database("local").exec(createWallpaperTable);
-//       QSqlDatabase::database("local").exec(createUrlTable);
+       QSqlDatabase::database("local").exec(createVacServerTable);
 
        QString qstrWp = QString("insert into wallpapers ("\
                               "id, wallpaper) values ( "\
@@ -154,13 +156,13 @@ int main(int argc, char **argv)
             qDebug() <<"query failed";
         }
 
-//        QString qstrUrl = QString("insert into urls ("\
-//                                  "id, virtualurl, serviceurl) values ("\
-//                                  "\'%1\', \'%2\', \'%3\');")\
-//                                .arg(1).arg("welcome_manage.html").arg("welcome_manage.html");
-//         if(!query.exec(qstrUrl)) {
-//             qDebug() <<"query failed";
-//         }
+        QString qstrVacS = QString("insert into vacservers ("\
+                                  "id, server, port, name, password) values ("\
+                                  "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\');")\
+                                  .arg(1).arg("192.168.49.253").arg(80).arg("test").arg("1357.com");
+         if(!query.exec(qstrVacS)) {
+             qDebug() <<"query failed";
+         }
     }
 
     /*获取localdb的数据*/

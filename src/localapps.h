@@ -15,55 +15,31 @@ class LocalApp
 public:
     LocalApp();
     ~LocalApp();
-    QString name()
-        { return _name; }
-    void setName(QString name) 
-        { _name = name; }
-    QString icon()
-        { return _icon; }
-    void setIcon(QString icon) 
-        { _icon = icon; }
-    QString version()
-        { return _version; }
-    void setVersion(QString version)
-        { _version = version; }
-    QString execname()
-        { return _execname; }
-    void setExecname(QString execname)
-        { _execname = execname; }
-    QString uninstName()
-        { return _uninstName; }
-    void setUninstName(QString uninstName)
-        { _uninstName = uninstName;}
-    int date()
-        { return _date; }
-    void setDate(int date)
-        { _date= date; }
-    int page()
-        { return _page; }
-    void setPage(int page)
-        { _page = page; }
-    int index()
-        {  return _index; }
-    void setIndex(int index)
-        { _index= index; }
-    bool hidden()
-        { return _hidden; }
-    void setHidden(bool hidden)
-        { _hidden= hidden; }
+    QString name()                          { return _name; }
+    void setName(QString name)              { _name = name; }
+    QString icon()                          { return _icon; }
+    void setIcon(QString icon)              { _icon = icon; }
+    QString version()                       { return _version; }
+    void setVersion(QString version)        { _version = version; }
+    QString execname()                      { return _execname; }
+    void setExecname(QString execname)      { _execname = execname; }
+    QString uninstName()                    { return _uninstName; }
+    void setUninstName(QString uninstName)  { _uninstName = uninstName;}
+    int date()                              { return _date; }
+    void setDate(int date)                  { _date= date; }
+    int page()                              { return _page; }
+    void setPage(int page)                  { _page = page; }
+    int index()                             {  return _index; }
+    void setIndex(int index)                { _index= index; }
+    bool hidden()                           { return _hidden; }
+    void setHidden(bool hidden)             { _hidden= hidden; }
     //remote app
-    QString id()
-        { return _id; }
-    void setId(QString id)
-        { _id = id; }
-    QString type()
-        { return _type; }
-    void setType(QString type)
-        { _type = type; }
-    bool isRemote()
-        { return _isRemote; }
-    void setIsRemote(bool isRemote)
-        { _isRemote = isRemote; }
+    QString id()                            { return _id; }
+    void setId(QString id)                  { _id = id; }
+    QString type()                          { return _type; }
+    void setType(QString type)              { _type = type; }
+    bool isRemote()                         { return _isRemote; }
+    void setIsRemote(bool isRemote)         { _isRemote = isRemote; }
 
 private:
     QString _name;

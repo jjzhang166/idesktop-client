@@ -991,16 +991,15 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     dragRightTimer->setInterval(500);
     dragRightTimer->setSingleShot(true);
 
-//    _bsWidget = new BsWidget(_width - 40, _height - 80, this);
-//    _bsWidget->setGeometry(1 *_width, 0, _width - 40, _height - 80);
-
-//    _manageWidget = new ManageWidget(this);
-//    _manageWidget->setGeometry(2 *_width, 40, _width, _height);
-
     _addAction = new QAction(QString(tr("添加")), this);
     _deleteAction = new QAction(QString(tr("开始抖动")), this);
     _cancelAction = new QAction(QString(tr("取消抖动")), this);
 
+    _arrangeWidget = new ArrangeWidget(this);
+    _arrangeWidget->move(200,200);
+    _arrangeWidget->setVisible(false);
+
+    connect(_arrangeWidget, SIGNAL(setPos(QPoint)), this, SLOT(arrangeWidgetMove(QPoint)));
     connect(_addAction, SIGNAL(triggered()), this, SLOT(appAdd()));
     connect(_deleteAction, SIGNAL(triggered()), this, SLOT(appDelete()));
     connect(_cancelAction, SIGNAL(triggered()), this, SLOT(appCancel()));
@@ -1014,6 +1013,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     connect(&_communi, SIGNAL(appRun()), this, SLOT(runServerApp()));
 
     connect(g_addIcon, SIGNAL(addApp()), this, SLOT(appAdd()));
+
 }
 
 VirtualDesktop::~VirtualDesktop()
@@ -1025,6 +1025,11 @@ VirtualDesktop::~VirtualDesktop()
         delete &_iconDict[0][j];
     }
 #endif
+}
+
+void VirtualDesktop::arrangeWidgetMove(QPoint pos)
+{
+    _arrangeWidget->move(pos);
 }
 
 void VirtualDesktop::updateClicked()

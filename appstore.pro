@@ -64,7 +64,8 @@ HEADERS += src/config.h \
     src/personalizationwidget.h \
     src/commuinication.h \
     src/common.h \
-    src/arrangewidget.h
+    src/arrangewidget.h \
+    src/vacserverwidget.h
 
 
 win32 {
@@ -107,7 +108,8 @@ SOURCES += src/config.cpp \
     src/main.cpp \
     src/personalizationwidget.cpp \
     src/commuinication.cpp \
-    src/arrangewidget.cpp
+    src/arrangewidget.cpp \
+    src/vacserverwidget.cpp
 
 
 FORMS +=\

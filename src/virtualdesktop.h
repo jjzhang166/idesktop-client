@@ -7,9 +7,10 @@
 #include <QMenu>
 #include <QAction>
 #include "localapps.h"
-//#include "bswidget.h"
 #include "commuinication.h"
-//#include "managewidget.h"
+#include "arrangewidget.h"
+class ArrangeWidget;
+
 //app
 #ifdef Q_WS_WIN
 #include <QLibrary>
@@ -23,9 +24,9 @@
 #include <QtNetwork>
 #include <QTimer>
 #include <QPoint>
-#include "commuinication.h"
-//#include "../myapplication.h"
+
 typedef  unsigned long DWORD;
+
 //typedef  wchar_t * LPCWSTR;
 //#define WINAPI __stdcall
 /*typedef struct _GUID {
@@ -132,43 +133,19 @@ public:
     void deleteAllIconItem();
     void movetoFist();
     void reloadApplist();
-    int iconCount() {
-        return _nextIdx[_current];
-    }
-    int currentPage() {
-        return _current;
-    }
-//    void setCurrentPage(int current) {
-//        _current = current;
-//    }
+    int iconCount()             { return _nextIdx[_current]; }
+    int currentPage()           { return _current; }
+//    void setCurrentPage(int current) { _current = current; }
 
-    int count() {
-        return _count;
-    }
-//    void setCount(int count) {
-//        _count = count;
-//    }
-    int iconsPerPage()
-    {
-        return _iconsPerPage;
-    }
+    int count()                 { return _count; }
+//    void setCount(int count)  {_count = count; }
+    int iconsPerPage()          {  return _iconsPerPage; }
 
-    QSize pageSize() {
-        return _pageSize;
-    }
+    QSize pageSize()            { return _pageSize; }
 
-    bool trembleState()
-    {
-        return _trembling;
-    }
-    bool dragEventState()
-    {
-        return _dragEvent;
-    }
-    bool addAppState()
-    {
-        return _addAppState;
-    }
+    bool trembleState()         { return _trembling; }
+    bool dragEventState()       { return _dragEvent; }
+    bool addAppState()          { return _addAppState; }
 
     //void runApp(const QString &text);
     void atExit();
@@ -197,6 +174,8 @@ public slots:
     void upLoad();
 
     void runServerApp();
+
+    void arrangeWidgetMove(QPoint pos);
 
     //void updateIconTimeOut();
 
@@ -259,6 +238,8 @@ private:
     //int _count;
     bool _dragEvent;
     bool _addAppState;
+
+    ArrangeWidget *_arrangeWidget;
 
 public:
     int _current;

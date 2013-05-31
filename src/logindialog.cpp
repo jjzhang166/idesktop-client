@@ -8,6 +8,7 @@
 #include <QCryptographicHash>
 #include <QVBoxLayout>
 #include <QRadioButton>
+#include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 #include <QVariant>
 #include <QBitmap>
@@ -40,9 +41,10 @@
 //wangyaoli
 extern QString serverip;
 /****************************************************************/
-QString VappServer = QString("192.168.49.253:80");  //  "192.168.49.253:80"
-QString VappUser = QString("test");                 //  "test"
-QString VappPassword = QString("1357.com");          //  "1357.com"
+QString VacServer;
+QString VacPort;
+QString VacUser;
+QString VacPassword;
 
 QList<APP_LIST> g_myVappList;
 QString  WIN_VAPP_IconPath;
@@ -86,8 +88,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry(75, 105, 208, 35);
     passEdit->setGeometry(75, 165, 208, 35);
 
-    userEdit->setText(QString("admin"));
-    passEdit->setText(QString("root"));
+//    userEdit->setText(QString("admin"));
+//    passEdit->setText(QString("root"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -351,7 +353,9 @@ void LoginDialog::auth()
 
 	//vac
 //    connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
-    _commui->login(VappServer, VappUser, VappPassword, GetSystemInfo());
+
+    updateVacServer();
+    _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
     while (!_vacfinished)
         QApplication::processEvents();
     _vacfinished = false;
@@ -560,4 +564,17 @@ QString LoginDialog::GetSystemInfo()
     sysInfo = "linux";
 #endif
     return sysInfo;
+}
+
+void LoginDialog::updateVacServer()
+{
+    QSqlQuery query = \
+            QSqlDatabase::database("local").exec(QString("SELECT server,port,name,password FROM vacservers where id=1;"));
+    while (query.next())
+    {
+        VacServer = query.value(0).toString();
+        VacPort = query.value(1).toString();
+        VacUser = query.value(2).toString();
+        VacPassword = query.value(3).toString();
+    }
 }
