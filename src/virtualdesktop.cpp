@@ -925,17 +925,21 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     for (int i = 0; i < _count; i++) {
         QList<QRect> newList;
         for (int j = 0; j < _col * _row; j++) {
+            //vertical display
+//            int x =  _pageSize.width() * i \
+//                    + (j / _row) * gridWidth;
+//            int y = (j % _row) * gridHeight;
+
+            //horizontal display
             int x =  _pageSize.width() * i \
-                    + (j / _row) * gridWidth;
-            int y = (j % _row) * gridHeight;
-//                    qDebug()<<"new Grid:" << x << "," << y << "," << gridWidth << "," << gridHeight;
+                    + (j % _col) * gridWidth;
+            int y = (j / _col) * gridHeight;
+
             newList.insert(j, \
                            QRect(x, y, gridWidth, gridHeight));
         }
-
         _gridTable.insert(i, newList);
-        //for (int i=0; i < _gridTable.count(); i++)
-//            qDebug() << _gridTable.at(i);
+
     }
 
 
@@ -1575,9 +1579,15 @@ void VirtualDesktop::expand()
     gridWidth = ICONWIDTH + SPACING * 2;
     gridHeight = ICONHEIGHT + SPACING * 2;
     for (int i = 0; i < _col * _row; i++) {
-        int x =  _pageSize.width() * (_count - 1)\
-                + (i / _row) * gridWidth;
-        int y = (i % _row) * gridHeight;
+        //vertical display
+//        int x =  _pageSize.width() * (_count - 1)\
+//                + (i / _row) * gridWidth;
+//        int y = (i % _row) * gridHeight;
+
+            //horizontal display
+            int x =  _pageSize.width() * (_count - 1)\
+                    + (i % _col) * gridWidth;
+            int y = (i / _col) * gridHeight;
         newGridList.insert(i, \
                            QRect(x, y, gridWidth, gridHeight));
     }
@@ -1881,24 +1891,28 @@ int VirtualDesktop::addIcon(const QString &text, \
             }
         }
     } else {
-//        if (index == -1) {
-            if ((page > 0) && (_nextIdx[page - 1] == _iconsPerPage) && (_nextIdx[page] < _iconsPerPage)) {
+        if (index == -1) {
+//            if ((page > 0) && (_nextIdx[page - 1] == _iconsPerPage) && (_nextIdx[page] < _iconsPerPage)) {
+//                index = _nextIdx[page];
+//            }
+//            else if ((page == 0) && (_nextIdx[page] < _iconsPerPage)) {
+//                index = _nextIdx[page];
+//            }
+//            else {
+//                for (int i = 0; i < _count; i++) {
+//                    if (_nextIdx[i] < _row * _col) {
+//                        page = i;
+//                        index = _nextIdx[i];
+//                        move(_pages[page], y());
+//                        break;
+//                    }
+//                }
+//            }
+            if (_nextIdx[page] < _iconsPerPage)
+            {
                 index = _nextIdx[page];
             }
-            else if ((page == 0) && (_nextIdx[page] < _iconsPerPage)) {
-                index = _nextIdx[page];
-            }
-            else {
-                for (int i = 0; i < _count; i++) {
-                    if (_nextIdx[i] < _row * _col) {
-                        page = i;
-                        index = _nextIdx[i];
-                        move(_pages[page], y());
-                        break;
-                    }
-                }
-            }
-//        }
+        }
     }
 
     icon->setPixmap(iconPath);
