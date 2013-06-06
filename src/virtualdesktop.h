@@ -6,9 +6,12 @@
 #include <QTimer>
 #include <QMenu>
 #include <QAction>
+
 #include "localapps.h"
 #include "commuinication.h"
 #include "arrangewidget.h"
+#include "hovericonitem.h"
+
 class ArrangeWidget;
 
 //app
@@ -462,24 +465,5 @@ private:
     QSize _itemSize;
 };
 
-/* ##############################################
- * Mouse Enter IconItem
- */
-
-class HoverIconItem : public QWidget
-{
-    Q_OBJECT
-public:
-    HoverIconItem(int width, int height, QWidget *parent = 0);
-    ~HoverIconItem(){}
-
-protected:
-    void paintEvent(QPaintEvent *event);
-
-private:
-    int _width;
-    int _height;
-
-};
 
 #endif

@@ -31,19 +31,23 @@ signals:
     void desktop();
     void setEqual(int);
     void setMini();
-    void showBsDesktop();
     void pageChanged(int);    
+
+    void showSwitcherDesktop();
+    void showVacDesktop();
+    void showLocalDesktop();
+    void showDirDesktop();
     void showPerDesktop();
+
     //void showStore();
 
 public slots:
     void runCenter();
-    //void settings();
-    //void addApp();
-    void showDesktop();
-    //void showVappDesktop();
-    void bsBtnClicked();
-    //void showToolDesktop();
+
+    void switcherBtnClicked();
+    void vacBtnClicked();
+    void localBtnClicked();
+    void dirBtnClicked();
     void perBtnClicked();
 
 private:
@@ -53,10 +57,12 @@ private:
 //    AppCenterWdg *_center;
 //    TestWidget* _center;
 
-    DynamicButton *desktopButton;
-    DynamicButton *bsButton;
-    DynamicButton *personButton;
-    DynamicButton *quitButton;
+    DynamicButton *_switcherButton;
+    DynamicButton *_vacButton;
+    DynamicButton *_localButton;
+    DynamicButton *_dirButton;
+    DynamicButton *_personButton;
+    DynamicButton *_quitButton;
 };
 
 #endif

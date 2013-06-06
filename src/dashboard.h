@@ -12,11 +12,15 @@
 #include <QPushButton>
 #include <QAction>
 #include <QMenu>
+
 #include "commuinication.h"
-#include "personalizationwidget.h"
+//#include "personalizationwidget.h"
 #include "bswidget.h"
 #include "logindialog.h"
 #include "vacserverwidget.h"
+#include "localwidget.h"
+#include "vacwidget.h"
+#include "skinwidget.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -59,9 +63,11 @@ public slots:
 //	void heartbeat();
     //void MenuTest();
 	//vac end
+//    void onShowSwitcherDesktop();
+    void onShowVacDesktop();
+    void onShowLocalDesktop();
+    void onShowDirDesktop();
     void onShowPerDesktop();
-    void onShowDesktop();
-    void onShowBsDesktop();
     //void onShowStore();
 
     void setBgPixmap(const QString &pixText);
@@ -132,11 +138,15 @@ private:
     QPixmap _pixmap;
     QString _pixText;
 
-    PersonalizationWidget *_perWidget;
+//    PersonalizationWidget *_perWidget;
     BsWidget *_bsWidget;
     QTimer *_refreshTimer;
 
     LoginDialog *_ldialog;
     VacServerWidget *_vacServerWidget;
+
+    LocalShowWidget *_localShowWidget;
+    VacShowWidget *_vacShowWidget;
+    SkinWidget *_skinShowWidget;
 };
 #endif

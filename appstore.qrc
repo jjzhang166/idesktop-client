@@ -177,5 +177,16 @@
         <file>images/bs_shadow.png</file>
         <file>images/handle_left.png</file>
         <file>images/handle_right.png</file>
+        <file>images/widget_bottom.png</file>
+        <file>images/widget_center.png</file>
+        <file>images/widget_top.png</file>
+        <file>images/appbutton_desktop.png</file>
+        <file>images/appbutton_desktop_hover.png</file>
+        <file>images/dlgMinIcon.png</file>
+        <file>images/dlgMinIconHover.png</file>
+        <file>images/cancel_btn.png</file>
+        <file>images/cancel_btn_hover.png</file>
+        <file>images/login_input.png</file>
+        <file>images/login_input_hover.png</file>
     </qresource>
 </RCC>

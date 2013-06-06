@@ -103,14 +103,14 @@ Dashboard::Dashboard(QWidget *parent)
 //    indicator->show();
     indicator->hide();
 
-    switcher = new Switcher(this);
-    switcher->setGeometry(_width - switcher->width(), (_height - switcher->height())/2, 20, 80);
-    switcher->show();
+//    switcher = new Switcher(this);
+//    switcher->setGeometry(_width - switcher->width(), (_height - switcher->height())/2, 20, 80);
+//    switcher->show();
 
     panel = new Panel(this);
-    panel->setFixedSize(442, 63);
+    panel->setFixedSize(78, 484);
     //panel->setFixedSize(_width / 3, 40);
-    panel->move((_width - panel->width()) / 2, _height - panel->height() - 10);
+    panel->move(_width - panel->width(), (_height - panel->height()) / 2);
     panel->show();
     panel->animationHide();
     panel->animationShow();
@@ -123,9 +123,9 @@ Dashboard::Dashboard(QWidget *parent)
     _bsWidget->move(0, 0);
     _bsWidget->setVisible(false);
 
-    _perWidget = new PersonalizationWidget(this);
-    _perWidget->setGeometry(QRect(0, 0, _width, _height));
-    _perWidget->setVisible(false);
+//    _perWidget = new PersonalizationWidget(this);
+//    _perWidget->setGeometry(QRect(0, 0, _width, _height));
+//    _perWidget->setVisible(false);
 
     quitAction = new QAction("ÍË³ö", this);
     showAction = new QAction("ÏÔÊ¾", this);
@@ -169,27 +169,46 @@ Dashboard::Dashboard(QWidget *parent)
     _retryTimes = 3;
     _Isheartbeat=true;
 
+    _localShowWidget = new LocalShowWidget(QSize(700, 500), this);
+    _localShowWidget->move(_width - panel->width() - _localShowWidget->width() - 20, 100);
+//    _localShowWidget->showApp(true);
+    _localShowWidget->setVisible(false);
+
+
+    _vacShowWidget = new VacShowWidget(QSize(700, 500), this);
+    _vacShowWidget->move(_width - panel->width() - _vacShowWidget->width() - 20, 100);
+//    _localShowWidget->showApp(true);
+    _vacShowWidget->setVisible(false);
+
+    _skinShowWidget = new SkinWidget(this);
+    _skinShowWidget->resize(700, 400);
+    _skinShowWidget->move(_width - panel->width() - _skinShowWidget->width() - 20, panel->pos().y());
+    _skinShowWidget->setVisible(false);
+
+
     connect(_vacServerWidget, SIGNAL(serverChanged()), this, SLOT(updateVacServer()));
     connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
-    connect(_perWidget, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
+    connect(_skinShowWidget, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
     connect(panel, SIGNAL(quit()), this, SLOT(quit()));
-    connect(panel, SIGNAL(desktop()), this, SLOT(onShowDesktop()));
-    connect(panel, SIGNAL(showBsDesktop()), this, SLOT(onShowBsDesktop()));
+//    connect(panel, SIGNAL(showSwitcherDesktop()), this, SLOT(onShowSwitcherDesktop()));
+    connect(panel, SIGNAL(showSwitcherDesktop()), this, SLOT(switchBetween()));
+    connect(panel, SIGNAL(showVacDesktop()), this, SLOT(onShowVacDesktop()));
+    connect(panel, SIGNAL(showLocalDesktop()), this, SLOT(onShowLocalDesktop()));
+    connect(panel, SIGNAL(showDirDesktop()), this, SLOT(onShowDirDesktop()));
     connect(panel, SIGNAL(showPerDesktop()), this, SLOT(onShowPerDesktop()));
     connect(panel, SIGNAL(pageChanged(int)), this, SLOT(goPage(int)));
     connect(quitAction, SIGNAL(triggered()), this, SLOT(quit()));
     connect(showAction, SIGNAL(triggered()), this, SLOT(show()));
     connect(hideAction, SIGNAL(triggered()), this, SLOT(hide()));
-    connect(showAction, SIGNAL(triggered()), switcher, SLOT(show()));
-    connect(hideAction, SIGNAL(triggered()), switcher, SLOT(hide()));
     connect(showAction, SIGNAL(triggered()), panel, SLOT(show()));
     connect(hideAction, SIGNAL(triggered()), panel, SLOT(hide()));
+//    connect(showAction, SIGNAL(triggered()), panel, SLOT(show()));
+//    connect(hideAction, SIGNAL(triggered()), panel, SLOT(hide()));
     connect(_setVacServer, SIGNAL(triggered()), this, SLOT(setVacServer()));
     connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
         this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
-    connect(switcher, SIGNAL(activated()), this, SLOT(switchBetween()));
     connect(vdesktop, SIGNAL(toOrigin()), this, SLOT(switchBetween()));
-    connect(vdesktop, SIGNAL(toOrigin()), switcher, SLOT(changed()));
+//    connect(vdesktop, SIGNAL(toOrigin()), switcher, SLOT(changed()));
     connect(panel, SIGNAL(setEqual(int)), vdesktop, SLOT(arrangeEqually(int)));
     connect(panel, SIGNAL(setMini()), vdesktop, SLOT(arrangeMinimum()));
 //    connect(indicator, SIGNAL(iNeedMove()), this, SLOT(moveIndicator()));
@@ -244,38 +263,90 @@ void Dashboard::heartbeat()
 
 void Dashboard::goPage(int page)
 {
-    _perWidget->setVisible(false);
-    _bsWidget->setVisible(false);
+//    _perWidget->setVisible(false);
+//    _bsWidget->setVisible(false);
 
     vdesktop->setVisible(true);
     vdesktop->goPage(page);
 }
 
-void Dashboard::onShowDesktop()
+//void Dashboard::onShowSwitcherDesktop()
+//{
+////    if (_outOfScreen)
+////        getIn();
+//    qDebug() << " 11111111111111";
+//}
+
+void Dashboard::onShowVacDesktop()
 {
-    if (_outOfScreen)
-        getIn();
+    qDebug() << "onShowVacDesktoponShowVacDesktoponShowVacDesktoponShowVacDesktoponShowVacDesktop";
+//    _perWidget->setVisible(false);
+
+//    vdesktop->setVisible(false);
+
+//    _bsWidget->setVisible(true);
+//    panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
+//    panel->show();
+//    panel->setAutoHide(false);
+//    panel->animationShow();
+
+    _localShowWidget->setVisible(false);
+    _skinShowWidget->setVisible(false);
+
+    if (_vacShowWidget->isVisible())
+        _vacShowWidget->setVisible(false);
+    else
+        _vacShowWidget->setVisible(true);
+
 }
 
-void Dashboard::onShowBsDesktop()
+void Dashboard::onShowLocalDesktop()
 {
+//    panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
+//    panel->show();
+//    panel->setAutoHide(false);
+//    panel->animationShow();
 
-    _perWidget->setVisible(false);
+    _vacShowWidget->setVisible(false);
+    _skinShowWidget->setVisible(false);
 
-    vdesktop->setVisible(false);
+    if (_localShowWidget->isVisible())
+        _localShowWidget->setVisible(false);
+    else
+        _localShowWidget->setVisible(true);
 
-    _bsWidget->setVisible(true);
+}
+
+void Dashboard::onShowDirDesktop()
+{
+    qDebug() << "onShowDirDesktoponShowDirDesktoponShowDirDesktoponShowDirDesktop";
+    _vacShowWidget->setVisible(false);
+    _localShowWidget->setVisible(false);
+    _skinShowWidget->setVisible(false);
 
 }
 
 void Dashboard::onShowPerDesktop()
 {
-    if (_bsWidget->isVisible())
-        _bsWidget->setVisible(false);
-    if (vdesktop->isVisible())
-        vdesktop->setVisible(false);
+//    panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
+//    panel->show();
+//    panel->setAutoHide(false);
+//    panel->animationShow();
 
-    _perWidget->setVisible(true);
+    _localShowWidget->setVisible(false);
+    _vacShowWidget->setVisible(false);
+
+    if (_skinShowWidget->isVisible())
+        _skinShowWidget->setVisible(false);
+    else
+        _skinShowWidget->setVisible(true);
+
+//    if (_bsWidget->isVisible())
+//        _bsWidget->setVisible(false);
+//    if (vdesktop->isVisible())
+//        vdesktop->setVisible(false);
+
+//    _perWidget->setVisible(true);
 }
 
 void Dashboard::moveIndicator()
@@ -285,6 +356,7 @@ void Dashboard::moveIndicator()
 
 void Dashboard::getIn()
 {
+    qDebug() << "getIngetIngetIngetIngetIngetIngetIngetIngetIngetIngetIngetIngetIngetIngetIngetIn";
     QPoint start;
     QPoint end;
     if (_animation->state() == QAbstractAnimation::Running) {
@@ -299,6 +371,7 @@ void Dashboard::getIn()
     panel->setAutoHide(false);
     panel->animationShow();
 //    indicator->show();
+
     _animation->setStartValue(start);
     _animation->setEndValue(end);
     _outOfScreen = !_outOfScreen;
@@ -307,6 +380,7 @@ void Dashboard::getIn()
 
 void Dashboard::getOut()
 {
+    qDebug() << "getOutgetOutgetOutgetOutgetOutgetOutgetOutgetOutgetOutgetOutgetOut";
     QPoint start;
     QPoint end;
     if (_animation->state() == QAbstractAnimation::Running) {
@@ -320,7 +394,7 @@ void Dashboard::getOut()
     panel->show();
     panel->setAutoHide(true);
     panel->animationHide();
-//    indicator->hide();
+    indicator->hide();
     _animation->setStartValue(start);
     _animation->setEndValue(end);
     _outOfScreen = !_outOfScreen;
@@ -329,6 +403,25 @@ void Dashboard::getOut()
 
 void Dashboard::switchBetween()
 {
+    if (_localShowWidget->isVisible())
+    {
+        _localShowWidget->setVisible(false);
+//        return;
+    }
+
+    if (_vacShowWidget->isVisible())
+    {
+        _vacShowWidget->setVisible(false);
+//        return;
+    }
+
+    if (_skinShowWidget->isVisible())
+    {
+        _skinShowWidget->setVisible(false);
+//        return;
+    }
+
+    qDebug() <<"********************_outOfScreen"<< _outOfScreen;
     if (_outOfScreen)
         getIn();
     else
@@ -465,6 +558,8 @@ void Dashboard::refreshDesktop()
         g_myVappList = _commui->getList();
         qDebug() << "********" << g_myVappList.count();
 
+        if (g_myVappList.count() == 0)
+            return;
 
         #ifdef Q_WS_WIN
         QString iconDirPath = WIN_VAPP_IconPath ;
@@ -617,6 +712,9 @@ void Dashboard::updateVacServer()
     _ldialog->updateVacServer();
 
 //    _Isheartbeat = false;
-    _commui->logoff();
+    if (_commui->errID == "10000")
+        _commui->logoff();
+    else
+        errOut();
 
 }

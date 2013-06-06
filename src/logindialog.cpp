@@ -16,6 +16,8 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 #include <QDir>
+//#include <QApplication>
+
 #include "logindialog.h"
 #include "hintlineEdit.h"
 #include "dynamicbutton.h"
@@ -67,7 +69,12 @@ LoginDialog::LoginDialog(QWidget *parent)
     QPixmap closeIcon(":images/dlgCloseIcon.png");
     QPixmap closeIconHover(":images/dlgCloseIconHover.png");
     DynamicButton *closeButton = new DynamicButton(closeIcon, closeIconHover, this);
-    closeButton->setGeometry(351, 11, CLOSE_WIDTH, CLOSE_HEIGHT);
+    closeButton->setGeometry(width() - 10 - CLOSE_WIDTH, 10, CLOSE_WIDTH, CLOSE_HEIGHT);
+
+    QPixmap minIcon(":images/dlgMinIcon.png");
+    QPixmap minIconHover(":images/dlgMinIconHover.png");
+    DynamicButton *minButton = new DynamicButton(minIcon, minIconHover, this);
+    minButton->setGeometry(width() - 10 * 2 - CLOSE_WIDTH * 2, 10, CLOSE_WIDTH, CLOSE_HEIGHT);
 
 #if 0
     /****************************************************************/
@@ -79,28 +86,38 @@ LoginDialog::LoginDialog(QWidget *parent)
 #endif
     ipAddrEdit = new QIpAddressEdit(serverip, this);
     ipAddrEdit->setGeometry(75, 55, 208, 35);
+    ipAddrEdit->setVisible(false);
 
     userEdit = new HintLineEdit("请输入您的用户名", ":images/user_icon.png", this);
     passEdit = new HintLineEdit("请输入您的密码", ":images/password_icon.png", this);
     passEdit->setEchoMode(QLineEdit::Password);
-    userEdit->setTextMargins(32, 5, 2, 5);
-    passEdit->setTextMargins(32, 5, 2, 5);
-    userEdit->setGeometry(75, 105, 208, 35);
-    passEdit->setGeometry(75, 165, 208, 35);
+    userEdit->setTextMargins(5, 5, 2, 5);
+    passEdit->setTextMargins(5, 5, 2, 5);
+    userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
+    passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
-//    userEdit->setText(QString("admin"));
-//    passEdit->setText(QString("root"));
+    userEdit->setText(QString("admin"));
+    passEdit->setText(QString("root"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
 
     submit = new DynamicButton(loginButton, loginButtonHover, this);
-    submit->setGeometry(78, 230, 85, 35);
+    submit->setGeometry((width() - passEdit->width()) / 2, passEdit->pos().y() + passEdit->height() + 20, \
+                        89, 34);
+
+    QPixmap cancelButton(":images/cancel_btn.png");
+    QPixmap cancelButtonHover(":images/cancel_btn_hover.png");
+
+    cancelBtn = new DynamicButton(cancelButton, cancelButtonHover, this);
+    cancelBtn->setGeometry(submit->pos().x() + submit->width() + 20, passEdit->pos().y() + passEdit->height() + 20,\
+                           89, 34);
 
     remoteAuth = new QCheckBox(this);
-    remoteAuth->setChecked(false);
+    remoteAuth->setChecked(true);  //true
     remoteAuth->setText("远程验证");
     remoteAuth->setGeometry(181, 230, 80, 35);
+    remoteAuth->setVisible(false);
 
     serverAddr = new QComboBox(this);
     serverAddr->setGeometry(75, 60, 208, 25);
@@ -126,6 +143,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     }
 
     connect(submit, SIGNAL(clicked()), this, SLOT(auth()));
+    connect(cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(minButton, SIGNAL(clicked()), this, SLOT(hide()));
     connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
     connect(userEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
     connect(passEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
@@ -136,30 +155,34 @@ void LoginDialog::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     QPixmap bg(":images/bg_loginBox.png");
-    painter.drawPixmap(0, 0, bg);
-    painter.drawPixmap(22, 17, QPixmap(":images/logo_login.png"));
-    painter.setPen(Qt::gray);
-    painter.setFont(QFont("", 11, QFont::Black));
-    painter.drawText(55, 33, "软件中心");
-    painter.drawPixmap(74, 104, QPixmap(":images/login_input_bg.png"));
-    painter.drawPixmap(74, 164, QPixmap(":images/login_input_bg.png"));
+    painter.drawPixmap(0, 0, width(), height(), bg.scaled(width(), height()));
+//    painter.drawPixmap(22, 17, QPixmap(":images/logo_login.png"));
 
-    painter.drawPixmap(74, 54, QPixmap(":images/login_input_bg.png"));
+    painter.setPen(Qt::gray);
+    painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 9, QFont::Normal));
+//    painter->setFont(QFont(QString::fromLocal8Bit("宋体"),13,-1,false));
+    painter.drawText(43, 143, "用户名");
+    painter.drawText(43, 183, "密  码");
+    painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 8, QFont::Normal));
+//    painter.drawPixmap(74, 104, QPixmap(":images/login_input.png"));
+//    painter.drawPixmap(74, 164, QPixmap(":images/login_input.png"));
+
+//    painter.drawPixmap(74, 54, QPixmap(":images/login_input.png"));
     if (!_uerror.isEmpty()) {
-        painter.setPen(Qt::red);
-        painter.drawText(74, 160, _uerror);
+        painter.setPen(QPen(QColor("#ff0000")));
+        painter.drawText((width() + userEdit->width()) / 2 + 7, 140, _uerror);
     }
     if (!_perror.isEmpty()) {
-        painter.setPen(Qt::red);
-        painter.drawText(74, 220, _perror);
+        painter.setPen(QPen(QColor("#ff0000")));
+        painter.drawText((width() + passEdit->width()) / 2 + 7, 180, _perror);
     }
     if (!_cerror.isEmpty()) {
-        painter.setPen(Qt::red);
-        painter.drawText(74, 280, _cerror);
+        painter.setPen(QPen(QColor("#ff0000")));
+        painter.drawText((width() - userEdit->width()) / 2, submit->pos().y() + submit->height() + 25, _cerror);
     }
     if (!_cmsg.isEmpty()) {
-        painter.setPen(Qt::blue);
-        painter.drawText(74, 280, _cmsg);
+        painter.setPen(QPen(QColor("#299cfd")));
+        painter.drawText((width() - userEdit->width()) / 2, submit->pos().y() + submit->height() + 25, _cmsg);
     }
     QDialog::paintEvent(event);
 }
@@ -294,6 +317,7 @@ void LoginDialog::auth()
         //wangyaoli
             //serverip = ipEdit->text();
             serverip = ipAddrEdit->text();
+//        serverip = "192.168.30.64";
             if(true == serverip.isEmpty())
             {
               return;
@@ -506,7 +530,7 @@ void LoginDialog::onDone()
 
 void LoginDialog::mousePressEvent(QMouseEvent *event)
 {
-    if (QRect(10, 10, 350, 35).contains(event->pos())) {
+    if (QRect(10, 10, width(), height()).contains(event->pos())) {
         _titlePressed = true;
         startDrag = event->pos();
     }

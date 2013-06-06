@@ -12,8 +12,8 @@
 #include "qtipaddressedit/qipaddressedititem.h"
 //vac
 #include "commuinication.h"
-#define CLOSE_WIDTH 47
-#define CLOSE_HEIGHT 35
+#define CLOSE_WIDTH 10
+#define CLOSE_HEIGHT 10
 
 extern QString VacServer;
 extern QString VacPort;
@@ -64,6 +64,7 @@ private:
     QIpAddressEdit *ipAddrEdit;
 
     DynamicButton *submit;
+    DynamicButton *cancelBtn;
     QPoint startDrag;
     QString _uerror;
     QString _perror;

@@ -1,129 +1,129 @@
-#ifndef PERSONALIZATIONWIDGET_H
-#define PERSONALIZATIONWIDGET_H
+//#ifndef PERSONALIZATIONWIDGET_H
+//#define PERSONALIZATIONWIDGET_H
 
-#include <QWidget>
-#include <QScrollBar>
-#include <QPropertyAnimation>
-#include <QPaintEvent>
-#include <QMouseEvent>
-#include <QWheelEvent>
-#include <QPixmap>
-#include <QPainter>
-#include <QLabel>
+//#include <QWidget>
+//#include <QScrollBar>
+//#include <QPropertyAnimation>
+//#include <QPaintEvent>
+//#include <QMouseEvent>
+//#include <QWheelEvent>
+//#include <QPixmap>
+//#include <QPainter>
+//#include <QLabel>
 
-class PixmapWidget;
-class SkinPixWidget;
+//class PixmapWidget;
+//class SkinPixWidget;
 
-class SkinWidget;
+//class SkinWidget;
 
-class PersonalizationWidget : public QWidget
-{
-    Q_OBJECT
+//class PersonalizationWidget : public QWidget
+//{
+//    Q_OBJECT
     
-public:
-    explicit PersonalizationWidget(QWidget *parent = 0);
-    ~PersonalizationWidget();
+//public:
+//    explicit PersonalizationWidget(QWidget *parent = 0);
+//    ~PersonalizationWidget();
 
-signals:
-    void setBgPixmap(const QString &pixText);
+//signals:
+//    void setBgPixmap(const QString &pixText);
     
-protected:
-    void paintEvent(QPaintEvent *event);
-    void resizeEvent(QResizeEvent *event);
-private:
-    QPixmap _pixmap;
-    SkinWidget *_skinWidget;
-};
+//protected:
+//    void paintEvent(QPaintEvent *event);
+//    void resizeEvent(QResizeEvent *event);
+//private:
+//    QPixmap _pixmap;
+//    SkinWidget *_skinWidget;
+//};
 
-class SkinWidget : public QWidget
-{
-    Q_OBJECT
-public :
-    explicit SkinWidget(QWidget *parent = 0);
-    ~SkinWidget() {}
+//class SkinWidget : public QWidget
+//{
+//    Q_OBJECT
+//public :
+//    explicit SkinWidget(QWidget *parent = 0);
+//    ~SkinWidget() {}
 
-signals:
-    void setBgPixmap(const QString &pixText);
+//signals:
+//    void setBgPixmap(const QString &pixText);
 
-public slots:
-    void scrollBarValueChanged(int val);
+//public slots:
+//    void scrollBarValueChanged(int val);
 
-protected:
-    void resizeEvent(QResizeEvent *event);
-    void wheelEvent(QWheelEvent *event);
-    void paintEvent(QPaintEvent *event);
+//protected:
+//    void resizeEvent(QResizeEvent *event);
+//    void wheelEvent(QWheelEvent *event);
+//    void paintEvent(QPaintEvent *event);
 
-private:
-    PixmapWidget *_pixmapWidget;
-    QScrollBar *_scrollBar;
+//private:
+//    PixmapWidget *_pixmapWidget;
+//    QScrollBar *_scrollBar;
 
-    SkinPixWidget *_skinPixWidget;
+//    SkinPixWidget *_skinPixWidget;
 
-    QPropertyAnimation *_animation;
+//    QPropertyAnimation *_animation;
 
-    QPixmap _rightTopPix;
-    QPixmap _rightCenterPix;
-    QPixmap _rightBottomPix;
+//    QPixmap _rightTopPix;
+//    QPixmap _rightCenterPix;
+//    QPixmap _rightBottomPix;
 
-    QLabel *_skinLabel;
+//    QLabel *_skinLabel;
 
-    int _pageNum;
+//    int _pageNum;
 
-    int _width;
-    int _height;
+//    int _width;
+//    int _height;
 
-};
+//};
 
-class SkinPixWidget : public QWidget
-{
-    Q_OBJECT
-public :
-    explicit SkinPixWidget(QWidget *parent = 0);
-    ~SkinPixWidget() {}
+//class SkinPixWidget : public QWidget
+//{
+//    Q_OBJECT
+//public :
+//    explicit SkinPixWidget(QWidget *parent = 0);
+//    ~SkinPixWidget() {}
 
-    void setSize(int width, int height, int pixNum);
-    int getWidth();
-    int getHeight();
+//    void setSize(int width, int height, int pixNum);
+//    int getWidth();
+//    int getHeight();
 
-signals:
-    void setBgPixmap(const QString &pixText);
+//signals:
+//    void setBgPixmap(const QString &pixText);
 
-private:
-    PixmapWidget *_pixmapWidget;
+//private:
+//    PixmapWidget *_pixmapWidget;
 
-    int _column;
-    int _rowNum;
+//    int _column;
+//    int _rowNum;
 
-    int _width;
-    int _height;
-    int _pixNum;
-    int _bgHeight;
-};
+//    int _width;
+//    int _height;
+//    int _pixNum;
+//    int _bgHeight;
+//};
 
-class PixmapWidget : public QWidget
-{
-    Q_OBJECT
-public :
-    explicit PixmapWidget(QString pixText, QWidget *parent = 0);
-    ~PixmapWidget() {}
+//class PixmapWidget : public QWidget
+//{
+//    Q_OBJECT
+//public :
+//    explicit PixmapWidget(QString pixText, QWidget *parent = 0);
+//    ~PixmapWidget() {}
 
-    void setSize(int w, int h);
-    QString getPixmapText();
-    int getWidth();
-    int getHeight();
+//    void setSize(int w, int h);
+//    QString getPixmapText();
+//    int getWidth();
+//    int getHeight();
 
-signals:
-    void mouseClicked(const QString &pixText);
+//signals:
+//    void mouseClicked(const QString &pixText);
 
-protected:
-    void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent *event);
+//protected:
+//    void paintEvent(QPaintEvent *event);
+//    void mousePressEvent(QMouseEvent *event);
 
-private:
-    int _width;
-    int _height;
-    QString _pixText;
-    QPixmap _pixmap;
+//private:
+//    int _width;
+//    int _height;
+//    QString _pixText;
+//    QPixmap _pixmap;
 
-};
-#endif // PERSONALIZATIONWIDGET_H
+//};
+//#endif // PERSONALIZATIONWIDGET_H

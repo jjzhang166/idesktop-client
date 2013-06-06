@@ -65,7 +65,11 @@ HEADERS += src/config.h \
     src/commuinication.h \
     src/common.h \
     src/arrangewidget.h \
-    src/vacserverwidget.h
+    src/vacserverwidget.h \
+    src/hovericonitem.h \
+    src/localwidget.h \
+    src/vacwidget.h \
+    src/skinwidget.h
 
 
 win32 {
@@ -109,7 +113,11 @@ SOURCES += src/config.cpp \
     src/personalizationwidget.cpp \
     src/commuinication.cpp \
     src/arrangewidget.cpp \
-    src/vacserverwidget.cpp
+    src/vacserverwidget.cpp \
+    src/hovericonitem.cpp \
+    src/localwidget.cpp \
+    src/vacwidget.cpp \
+    src/skinwidget.cpp
 
 
 FORMS +=\

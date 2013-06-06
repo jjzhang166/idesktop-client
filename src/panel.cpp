@@ -34,84 +34,59 @@ Panel::Panel(QWidget *parent)
 
     //QHBoxLayout *layout = new QHBoxLayout(this);
     //QPixmap desktopPix(":images/appbutton_localapp.png");
-    QPixmap desktopPix(":images/appbutton_localapp_hover.png");
-    QPixmap desktopPixHover(":images/appbutton_localapp_hover.png");
-    desktopButton = new DynamicButton(desktopPix, desktopPixHover, this);
-    desktopButton->setGeometry(0, 0, 99, 39);
+
+    QPixmap switcherPix(":images/appbutton_desktop.png");
+    QPixmap switcherPixHover(":images/appbutton_desktop_hover.png");
+    _switcherButton = new DynamicButton(switcherPix, switcherPixHover, this);
+    _switcherButton->setGeometry(0, 0, 85, 86);
+
+    QPixmap vacPix(":images/appbutton_vapp.png");
+    QPixmap vacPixHover(":images/appbutton_vapp_hover.png");
+    _vacButton = new DynamicButton(vacPix, vacPixHover, this);
+    _vacButton->setGeometry(0, 86, 85, 78);
     //desktopButton->setFixedSize(99, 36);
 //    layout->addWidget(desktopButton);
 //    layout->setContentsMargins(10, 0, 10, 0);
 //    layout->setSpacing(0);
 
-    QPixmap bsPix(":images/appbutton_bs.png");
-    QPixmap bsPixHover(":images/appbutton_bs_hover.png");
-    bsButton = new DynamicButton(bsPix, bsPixHover, this);
-    bsButton->setGeometry(99, 0, 108, 39);
+    QPixmap localPix(":images/appbutton_app.png");
+    QPixmap localPixHover(":images/appbutton_app_hover.png");
+    _localButton = new DynamicButton(localPix, localPixHover, this);
+    _localButton->setGeometry(0, 164, 85, 78);
 //    bsButton->setFixedSize(99, 36);
 //    layout->addWidget(bsButton);
 
-//    QPixmap managePix(":images/appbutton_manage.png");
-//    QPixmap managePixHover(":images/appbutton_manage_hover.png");
-//    DynamicButton *manageButton = new DynamicButton(managePix, managePixHover, this);
-//    //appButton->setGeometry(76, 0, 58, 58);
-//    manageButton->setFixedSize(58, 58);
-//    layout->addWidget(manageButton);
-/*
-    QPixmap vappPix(":images/appbutton_vapp.png");
-    QPixmap vappPixHover(":images/appbutton_vapp_hover.png");
-    DynamicButton *vappButton = new DynamicButton(vappPix, vappPixHover, this);
-    //appButton->setGeometry(76, 0, 58, 58);
-    vappButton->setFixedSize(58, 58);
-    layout->addWidget(vappButton);
-	
-    QPixmap toolPix(":images/appbutton_toolbox.png");
-    QPixmap toolPixHover(":images/appbutton_toolbox_hover.png");
-    DynamicButton *toolButton = new DynamicButton(toolPix, toolPixHover, this);
-    //appButton->setGeometry(76, 0, 58, 58);
-    toolButton->setFixedSize(58, 58);
-    layout->addWidget(toolButton);
+    QPixmap dirPix(":images/appbutton_add.png");
+    QPixmap dirPixHover(":images/appbutton_add_hover.png");
+    _dirButton = new DynamicButton(dirPix, dirPixHover, this);
+    _dirButton->setGeometry(0, 242, 85, 78);
+//    addButton->setFixedSize(58, 58);
+//    layout->addWidget(_addButton);
 
-    QPixmap storePix(":images/appbutton_store.png");
-    QPixmap storePixHover(":images/appbutton_store_hover.png");
-    DynamicButton *storeButton = new DynamicButton(storePix, storePixHover, this);
-    //appButton->setGeometry(76, 0, 58, 58);
-    storeButton->setFixedSize(58, 58);
-    layout->addWidget(storeButton);
-*/
-    /*
-    QPixmap addPix(":images/appbutton_add.png");
-    QPixmap addPixHover(":images/appbutton_add_hover.png");
-    DynamicButton *addButton = new DynamicButton(addPix, addPixHover, this);
-    //addButton->setGeometry(146, 0, 58, 58);
-    addButton->setFixedSize(58, 58);
-    layout->addWidget(addButton);
-    */
     
     //layout->addItem(new QSpacerItem(1, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-    QPixmap personPix(":images/appbutton_config.png");
-    QPixmap personPixHover(":images/appbutton_config_hover.png");
-    personButton = new DynamicButton(personPix, personPixHover, this);
-    personButton->setGeometry(207, 0, 117, 39);
+    QPixmap personPix(":images/appbutton_toolbox.png");
+    QPixmap personPixHover(":images/appbutton_toolbox_hover.png");
+    _personButton = new DynamicButton(personPix, personPixHover, this);
+    _personButton->setGeometry(0, 320, 85, 78);
 //    configButton->setFixedSize(109, 36);
 //    layout->addWidget(configButton);
 
-    QPixmap quitPix(":images/appbutton_quit.png");
-    QPixmap quitPixHover(":images/appbutton_quit_hover.png");
-    quitButton = new DynamicButton(quitPix, quitPixHover, this);
-    quitButton->setGeometry(324, 0, 117, 39);
+    QPixmap quitPix(":images/appbutton_store.png");
+    QPixmap quitPixHover(":images/appbutton_store_hover.png");
+    _quitButton = new DynamicButton(quitPix, quitPixHover, this);
+    _quitButton->setGeometry(0, 398, 85, 86);
+
 //    quitButton->setFixedSize(69, 36);
 //    layout->addWidget(quitButton);
 
-    connect(desktopButton, SIGNAL(clicked()), this, SLOT(showDesktop()));
-    //connect(vappButton, SIGNAL(clicked()), this, SLOT(showVappDesktop()));
-    connect(bsButton, SIGNAL(clicked()), this, SLOT(bsBtnClicked()));
-    //connect(toolButton, SIGNAL(clicked()), this, SLOT(showToolDesktop()));
-    //connect(addButton, SIGNAL(clicked()), this, SLOT(addApp()));
-    //connect(storeButton, SIGNAL(clicked()), this, SLOT(runCenter()));
-    //connect(manageButton, SIGNAL(clicked()), this, SLOT(showManageDesktop()));
-    connect(personButton, SIGNAL(clicked()), this, SLOT(perBtnClicked()));
-    connect(quitButton, SIGNAL(clicked()), this, SIGNAL(quit()));
+    connect(_switcherButton, SIGNAL(clicked()), this, SLOT(switcherBtnClicked()));
+    connect(_vacButton, SIGNAL(clicked()), this, SLOT(vacBtnClicked()));
+    connect(_localButton, SIGNAL(clicked()), this, SLOT(localBtnClicked()));
+    connect(_dirButton, SIGNAL(clicked()), this, SLOT(dirBtnClicked()));
+    connect(_personButton, SIGNAL(clicked()), this, SLOT(perBtnClicked()));
+    connect(_quitButton, SIGNAL(clicked()), this, SIGNAL(quit()));
 }
 
 
@@ -154,6 +129,8 @@ void Panel::enterEvent(QEvent *event)
     if (!visible)
         animationShow();
 
+    qDebug() << "enterEvententerEvententerEvententerEvententerEvententerEvententerEvententerEvent";
+
     Q_UNUSED(event);
 }
 
@@ -161,6 +138,8 @@ void Panel::leaveEvent(QEvent *event)
 {
     if (autoHide)
         animationHide();
+
+    qDebug() << "leaveEventleaveEventleaveEventleaveEventleaveEventleaveEventleaveEventleaveEventleaveEvent";
 
     Q_UNUSED(event);
 }
@@ -174,7 +153,7 @@ void Panel::animationShow()
     QDesktopWidget *desktop = QApplication::desktop();
     QRect rect = desktop->availableGeometry();
 
-    QPoint end(x(), rect.height() - height() - 10);
+    QPoint end(rect.width() - width(), y());
     animation->setStartValue(pos());
     animation->setEndValue(end);
     animation->start();
@@ -188,8 +167,8 @@ void Panel::animationHide()
     }
     QDesktopWidget *desktop = QApplication::desktop();
     QRect rect = desktop->availableGeometry();
-    //QPoint end(x(), -(height() - 2));
-    QPoint end(x(), rect.height() + height());
+
+    QPoint end(rect.width() - 9, y());
     animation->setStartValue(pos());
     animation->setEndValue(end);
     animation->start();
@@ -221,64 +200,100 @@ void Panel::addApp()
 }
 #endif
 
-void Panel::showDesktop()
+void Panel::switcherBtnClicked()
 {
-    typedef void (*tempFuc)(void);
-    QLibrary myLib;
+//    typedef void (*tempFuc)(void);
+//    QLibrary myLib;
 
-    #ifdef DEBUG
-        myLib.setFileName("IconGetD.dll");
-    #else
-        myLib.setFileName("IconGet.dll");
-    #endif
+//    #ifdef DEBUG
+//        myLib.setFileName("IconGetD.dll");
+//    #else
+//        myLib.setFileName("IconGet.dll");
+//    #endif
 
-	/*
-    tempFuc myFunction = (tempFuc) myLib.resolve("ToggleDesktop");
-    if (myFunction) {
-        myFunction();
-        emit desktop();
-    }
-    */
-	/*手动卸载dll */
-	/*除非unload()函数被显示调用，否则库会保留在内存中直到程序终止。*/
-    if(myLib.isLoaded ())
-    {
-        myLib.unload();
-    }
+//	/*
+//    tempFuc myFunction = (tempFuc) myLib.resolve("ToggleDesktop");
+//    if (myFunction) {
+//        myFunction();
+//        emit desktop();
+//    }
+//    */
+//	/*手动卸载dll */
+//	/*除非unload()函数被显示调用，否则库会保留在内存中直到程序终止。*/
+//    if(myLib.isLoaded ())
+//    {
+//        myLib.unload();
+//    }
     
-	emit pageChanged(0);
+    emit pageChanged(0);
+    emit showSwitcherDesktop();
 
-    bsButton->setcurrentPixmap(QPixmap(":images/appbutton_bs.png"));
-    personButton->setcurrentPixmap(QPixmap(":images/appbutton_config.png"));
-
-    desktopButton->setcurrentPixmap(QPixmap(":images/appbutton_localapp_hover.png"));
+    _switcherButton->setcurrentPixmap(QPixmap(":images/appbutton_desktop_hover.png"));
+    _vacButton->setcurrentPixmap(QPixmap(":images/appbutton_vapp.png"));
+    _localButton->setcurrentPixmap(QPixmap(":images/appbutton_app.png"));
+    _dirButton->setcurrentPixmap(QPixmap(":images/appbutton_add.png"));
+    _personButton->setcurrentPixmap(QPixmap(":images/appbutton_toolbox.png"));
+    _quitButton->setcurrentPixmap(QPixmap(":images/appbutton_store.png"));
 
 }
-/*
-void Panel::showVappDesktop()
+
+void Panel::vacBtnClicked()
 {
-    emit pageChanged(2);
+//    emit pageChanged(2);
+
+    emit showVacDesktop();
+
+    _switcherButton->setcurrentPixmap(QPixmap(":images/appbutton_desktop.png"));
+    _vacButton->setcurrentPixmap(QPixmap(":images/appbutton_vapp_hover.png"));
+    _localButton->setcurrentPixmap(QPixmap(":images/appbutton_app.png"));
+    _dirButton->setcurrentPixmap(QPixmap(":images/appbutton_add.png"));
+    _personButton->setcurrentPixmap(QPixmap(":images/appbutton_toolbox.png"));
+    _quitButton->setcurrentPixmap(QPixmap(":images/appbutton_store.png"));
+
 }
-*/
+void Panel::localBtnClicked()
+{
+//    emit pageChanged(2);
+
+    emit showLocalDesktop();
+
+    _switcherButton->setcurrentPixmap(QPixmap(":images/appbutton_desktop.png"));
+    _vacButton->setcurrentPixmap(QPixmap(":images/appbutton_vapp.png"));
+    _localButton->setcurrentPixmap(QPixmap(":images/appbutton_app_hover.png"));
+    _dirButton->setcurrentPixmap(QPixmap(":images/appbutton_add.png"));
+    _personButton->setcurrentPixmap(QPixmap(":images/appbutton_toolbox.png"));
+    _quitButton->setcurrentPixmap(QPixmap(":images/appbutton_store.png"));
+
+}
+
+void Panel::dirBtnClicked()
+{
+//    emit pageChanged(2);
+
+    emit showDirDesktop();
+
+    _switcherButton->setcurrentPixmap(QPixmap(":images/appbutton_desktop.png"));
+    _vacButton->setcurrentPixmap(QPixmap(":images/appbutton_vapp.png"));
+    _localButton->setcurrentPixmap(QPixmap(":images/appbutton_app.png"));
+    _dirButton->setcurrentPixmap(QPixmap(":images/appbutton_add_hover.png"));
+    _personButton->setcurrentPixmap(QPixmap(":images/appbutton_toolbox.png"));
+    _quitButton->setcurrentPixmap(QPixmap(":images/appbutton_store.png"));
+
+}
+
 void Panel::perBtnClicked()
 {
-    desktopButton->setcurrentPixmap(QPixmap(":images/appbutton_localapp.png"));
-    bsButton->setcurrentPixmap(QPixmap(":images/appbutton_bs.png"));
-
-    personButton->setcurrentPixmap(QPixmap(":images/appbutton_config_hover.png"));
     emit showPerDesktop();
+
+    _switcherButton->setcurrentPixmap(QPixmap(":images/appbutton_desktop.png"));
+    _vacButton->setcurrentPixmap(QPixmap(":images/appbutton_vapp.png"));
+    _localButton->setcurrentPixmap(QPixmap(":images/appbutton_app.png"));
+    _dirButton->setcurrentPixmap(QPixmap(":images/appbutton_add.png"));
+    _personButton->setcurrentPixmap(QPixmap(":images/appbutton_toolbox_hover.png"));
+    _quitButton->setcurrentPixmap(QPixmap(":images/appbutton_store.png"));
+
 }
 
-void Panel::bsBtnClicked()
-{
-    desktopButton->setcurrentPixmap(QPixmap(":images/appbutton_localapp.png"));
-    personButton->setcurrentPixmap(QPixmap(":images/appbutton_config.png"));
-
-    bsButton->setcurrentPixmap(QPixmap(":images/appbutton_bs_hover.png"));
-
-    emit showBsDesktop();
-    //emit pageChanged(1);
-}
 /*
 void Panel::showToolDesktop()
 {

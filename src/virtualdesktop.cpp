@@ -45,7 +45,8 @@ using namespace std;
 
 //#define FONTSIZE 11
 
-#define KEY "\\Windows\\CurrentVersion\\Uninstall\\"
+//#define KEY "\\Windows\\CurrentVersion\\Uninstall\\"
+#define KEY "\\Windows\\CurrentVersion\\App Paths\\"
 extern QString WIN_VAPP_IconPath;
 extern QList<APP_LIST> g_myVappList;
 /* ####################################################
@@ -57,7 +58,7 @@ IconItem::IconItem(const QString &text, const VirtualDesktop::iconStyle &iSt, QW
     : QWidget(parent), _text(text), _trembling(0), _style(iSt)
 {
     int width, height;
-    QFontMetrics fm(QFont("", FONTSIZE, QFont::Black));
+    QFontMetrics fm(QFont("Times New Roman", FONTSIZE, QFont::Black));
 
     width = ICONWIDTH + CLOSEWIDTH/2 + 8;
     height = ICONHEIGHT + CLOSEHEIGHT/2 + fm.height() * 2;
@@ -1912,6 +1913,16 @@ int VirtualDesktop::addIcon(const QString &text, \
             {
                 index = _nextIdx[page];
             }
+            else {
+                for (int i = 0; i < _count; i++) {
+                    if (_nextIdx[i] < _row * _col) {
+                        page = i;
+                        index = _nextIdx[i];
+                        move(_pages[page], y());
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -2415,6 +2426,18 @@ void VirtualDesktop::contextMenuEvent(QContextMenuEvent *event)
 
 void VirtualDesktop::appAdd()
 {
+
+//    QSettings reg(QSettings::NativeFormat, \
+//        QSettings::SystemScope, "Microsoft", KEY);
+//    for (int i = 0; i < reg.childGroups().count(); i++) {
+//        QSettings tmp(QSettings::NativeFormat, \
+//            QSettings::SystemScope, "Microsoft", \
+//            KEY + reg.childGroups().at(i));
+////        if (tmp.value("DisplayName").toString() == display) {
+////            return tmp.value("UninstallString").toString();
+////        }
+//        qDebug() << "************" << tmp.value("Path").toString();
+//    }
     _addAppState = true;
     QString path = QFileDialog::getOpenFileName(this, tr("选择一个应用程序或快捷方式"),
                                                 Config::get("CommonProgramDir"),
@@ -2528,22 +2551,4 @@ void VirtualDesktop::deleteAllIconItem()
         }
         _nextIdx[i]=0;
     }
-}
-
-HoverIconItem::HoverIconItem(int width, int height, QWidget *parent)
-    : QWidget(parent)
-    , _width(width)
-    , _height(height)
-{
-    resize(_width, _height);
-}
-
-void HoverIconItem::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-    painter.setPen(QPen(Qt::white, 1));
-    painter.setBrush(QBrush(QColor(255, 255, 255, 25)));
-    painter.drawRoundRect(QRect(0, 0, _width - 1, _height - 1), 5, 5);
-
-    Q_UNUSED(event);
 }

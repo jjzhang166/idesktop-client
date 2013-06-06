@@ -16,9 +16,13 @@ public:
     }
 protected:
     virtual void paintEvent(QPaintEvent* event);
+    void focusInEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event);
+
 private:
     QString _hint;
     QPixmap _pixmap;
+
 };
 
 #endif
