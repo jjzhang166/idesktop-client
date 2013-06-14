@@ -18,7 +18,7 @@ public:
         _value = value;
     }
 
-    void setcurrentPixmap(QPixmap normal)
+    void setCurrentPixmap(QPixmap normal)
     {
         _normal = normal;
         setPixmap(_normal);

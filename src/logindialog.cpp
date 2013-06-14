@@ -159,11 +159,11 @@ void LoginDialog::paintEvent(QPaintEvent *event)
 //    painter.drawPixmap(22, 17, QPixmap(":images/logo_login.png"));
 
     painter.setPen(Qt::gray);
-    painter.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), 9, QFont::Normal));
+    painter.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), 10, QFont::Normal));
 //    painter->setFont(QFont(QString::fromLocal8Bit("ËÎÌå"),13,-1,false));
     painter.drawText(43, 143, "ÓÃ»§Ãû");
     painter.drawText(43, 183, "ÃÜ  Âë");
-    painter.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), 8, QFont::Normal));
+    painter.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), 9, QFont::Normal));
 //    painter.drawPixmap(74, 104, QPixmap(":images/login_input.png"));
 //    painter.drawPixmap(74, 164, QPixmap(":images/login_input.png"));
 
@@ -253,6 +253,7 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     connMsg("");
 
     QString jsonResult = reply->readAll();
+    qDebug() << "jsonResult" << jsonResult;
     _authSuccess = false;
 	
     sc = engine.evaluate ("JSON.parse").call(QScriptValue(), QScriptValueList() << jsonResult);
@@ -330,7 +331,7 @@ void LoginDialog::auth()
         _authSuccess = false;
         //QString loginUrl = "http://" + serverAddr->currentText() + "/api/login";
         QString loginUrl = Config::get("Server") + ":8080/idesktop/platform/service/ClientServiceLogin.action";
-        qDebug() << loginUrl;
+        qDebug() <<"loginUrl"<<loginUrl;
         QString data = "name=" + userEdit->text() + "&password=" + md5;
         _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toAscii());
         connMsg("ÕýÔÚÁ¬½Ó·þÎñÆ÷...");
@@ -377,7 +378,7 @@ void LoginDialog::auth()
 
 	//vac
 //    connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
-
+/*
     updateVacServer();
     _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
     while (!_vacfinished)
@@ -480,6 +481,7 @@ void LoginDialog::auth()
         QMessageBox::warning(this, tr("vapp login failed"), _commui->errInfo, tr("OK"));
         return;
     }
+*/
 }
 
 void LoginDialog::onDone()

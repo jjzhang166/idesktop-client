@@ -16,6 +16,8 @@
 #include <QDir>
 #include <QTimer>
 #include <QDesktopServices>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
 //#include "config.h"
 
 extern QString serverip;
@@ -48,87 +50,117 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
     , _height(height)
     , _fullScreen(false)
 {
+//    this->setStyleSheet("border: 0px solid gray;background:rgba(255,255,255,0);");
     resize(_width, _height);
-    _pixmap.load(":/images/shadow.png");
+    QSqlQuery query = QSqlDatabase::database("local").exec("select wallpaper from wallpapers where id=1;");
+    query.next();
 
-    _leftWebKit = new LeftWebKit(this);
-    //_leftWebKit->setGeometry(0, 0, _width - 40, _height - 110);
-    _leftWebKit->setGeometry(0, 0, _width, _height);
+    QPalette pal = this->palette();
+    pal.setBrush(QPalette::Window, QBrush(QPixmap(query.value(0).toString())));
+    this->setPalette(pal);
+//    _pixmap.load(query.value(0).toString());
+
+//    _leftWebKit = new LeftWebKit(this);//
+//    //_leftWebKit->setGeometry(0, 0, _width - 40, _height - 110);//
+//    _leftWebKit->setGeometry(0, 0, _width, _height);//
 
     _rightWidget = new RightWidget(this);
     //ÓÒ²àwidgetµÄÎ»ÖÃ:15 + 15% + 1 + 15 + 15 + 1 + 8 + 8;   15:Îª×ó²à x;   15%:Îª×ó²àµ¼º½À¸¿í¶È
-    _rightWidget->setGeometry(_width * 0.15 + 63, 15, _width - (_width * 0.15 + 63) - 40, _height - 125);
+//    _rightWidget->setGeometry(_width * 0.15 + 63, 15, _width - (_width * 0.15 + 63) - 40, _height - 125);
+    _rightWidget->setGeometry(0, 0, _width, _height);
     _rightWidget->setVisible(true);
 
-    _fullScreenBtn = new QPushButton(this);
-    _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
-                                9, 74);
-    _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_left.png);border-style:flat;}");
+//    _fullScreenBtn = new QPushButton(this);//
+//    _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
+//                                9, 74);//
+//    _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_left.png);border-style:flat;}");//
 
-    connect(_fullScreenBtn, SIGNAL(clicked()), this, SLOT(rightFullScreen()));
-    connect(_leftWebKit, SIGNAL(startAssembly()), this, SLOT(startAssembly()));
-    connect(_leftWebKit, SIGNAL(stopAssembly()), this, SLOT(stopAssembly()));
-    connect(_leftWebKit, SIGNAL(link(const QUrl&)), _rightWidget, SLOT(createTab(const QUrl&)));
+//    connect(_fullScreenBtn, SIGNAL(clicked()), this, SLOT(rightFullScreen()));//
+//    connect(_leftWebKit, SIGNAL(startAssembly()), this, SLOT(startAssembly()));//
+//    connect(_leftWebKit, SIGNAL(stopAssembly()), this, SLOT(stopAssembly()));//
+//    connect(_leftWebKit, SIGNAL(link(const QUrl&)), _rightWidget, SLOT(createTab(const QUrl&)));//
+
+//    QPixmap backPix(":images/bs_goback.png");
+//    QPixmap backPixHover(":images/bs_goback_hove.png");
+//    _backBtn = new DynamicButton(backPix, backPixHover, this);
+
+//    _backBtn->setGeometry(60, _rightWidget->pos().y() + _rightWidget->height() / 2,\
+//                                   50, 50);
+//    //_backBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_left.png);border-style:flat;}");//
+
+//    connect(_backBtn, SIGNAL(clicked()), this, SIGNAL(goBack()));//
+
 }
 
 BsWidget::~BsWidget()
 {
 }
 
-void BsWidget::rightFullScreen()
+void BsWidget::rightFullScreen()//
 {
-    if (!_fullScreen)
-    {
-        _fullScreenBtn->setVisible(false);
-        _leftWebKit->setVisible(false);
-        _rightWidget->setGeometry(15, 15, _width - (15) - 40, _height - 125); // 15 Îª×ó²à x
-        _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
-                                    9, 74);
-        _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_right.png);border-style:flat;}");
-        _fullScreenBtn->setVisible(true);
+//    if (!_fullScreen)
+//    {
+//        _fullScreenBtn->setVisible(false);
+//        _leftWebKit->setVisible(false);
+//        _rightWidget->setGeometry(15, 15, _width - (15) - 40, _height - 125); // 15 Îª×ó²à x
+//        _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
+//                                    9, 74);
+//        _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_right.png);border-style:flat;}");
+//        _fullScreenBtn->setVisible(true);
 
-        _fullScreen = true;
-    }
-    else
-    {
-        _fullScreenBtn->setVisible(false);
-        _leftWebKit->setVisible(true);
-        _rightWidget->setGeometry(_width * 0.15 + 63, 15, _width - (_width * 0.15 + 63) - 40, _height - 125);
-        _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
-                                    9, 74);
-        _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_left.png);border-style:flat;}");
-        _fullScreenBtn->setVisible(true);
+//        _fullScreen = true;
+//    }
+//    else
+//    {
+//        _fullScreenBtn->setVisible(false);
+//        _leftWebKit->setVisible(true);
+//        _rightWidget->setGeometry(_width * 0.15 + 63, 15, _width - (_width * 0.15 + 63) - 40, _height - 125);
+//        _fullScreenBtn->setGeometry(_rightWidget->pos().x() - 9, _rightWidget->pos().y() + _rightWidget->height() / 2,\
+//                                    9, 74);
+//        _fullScreenBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_left.png);border-style:flat;}");
+//        _fullScreenBtn->setVisible(true);
 
-        _fullScreen = false;
-    }
+//        _fullScreen = false;
+//    }
 }
 
 void BsWidget::startAssembly()
 {
-    _fullScreenBtn->setVisible(false);
+//    _fullScreenBtn->setVisible(false);//
 //        _leftWebKit->setGeometry(0, 0, _width - 40, _height - 110);
-    _leftWebKit->setGeometry(0, 0, _width, _height);
-    _rightWidget->setVisible(false);
+//    _leftWebKit->setGeometry(0, 0, _width, _height);    //
+//    _rightWidget->setVisible(false);
 }
 
 void BsWidget::stopAssembly()
 {
     //_leftWebKit->setGeometry(0, 20, _width * 0.14 + 10, _height);
 //    _leftWebKit->setGeometry(0, 0, _width - 40, _height - 110);
-    _leftWebKit->setGeometry(0, 0, _width, _height);
-    _rightWidget->setVisible(true);
-    _fullScreenBtn->setVisible(true);
+//    _leftWebKit->setGeometry(0, 0, _width, _height);//
+//    _rightWidget->setVisible(true);//
+//    _fullScreenBtn->setVisible(true);//
 }
 
-void BsWidget::paintEvent(QPaintEvent *event)
+//void BsWidget::paintEvent(QPaintEvent *event)
+//{
+//    QPainter painter(this);
+//    painter.drawPixmap(0, 0, _width, _height, _pixmap);
+
+//    QWidget::paintEvent(event);
+
+//}
+
+void BsWidget::setUrl(const QString &url)
 {
-    QPainter painter(this);
-    painter.drawPixmap(0, 0, _width, _height, _pixmap);
-
-    QWidget::paintEvent(event);
-
+    _rightWidget->createTab(url);
 }
 
+void BsWidget::setPixmap(const QString &pix)
+{
+    _pixmap.load(pix);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 LeftWebKit::LeftWebKit(QWidget *parent) :
     QMainWindow(parent)
 {
@@ -889,3 +921,4 @@ void AxWidget::scrollBarValueChanged(int value)
 //    }
 //    QWidget::mouseReleaseEvent(event);
 //}
+

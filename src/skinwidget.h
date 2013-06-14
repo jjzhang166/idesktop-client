@@ -43,9 +43,11 @@ private:
 
     QPropertyAnimation *_animation;
 
-    QPixmap _rightTopPix;
-    QPixmap _rightCenterPix;
-    QPixmap _rightBottomPix;
+//    QPixmap _rightTopPix;
+//    QPixmap _rightCenterPix;
+//    QPixmap _rightBottomPix;
+
+    QPixmap _bgPix;
 
 //    QLabel *_skinLabel;
 
@@ -76,6 +78,7 @@ public:
 
 signals:
     void setBgPixmap(const QString &pixText);
+
 
 public slots:
     void itemClicked(const QString &pixText);
@@ -126,10 +129,10 @@ public:
     void setIndex(int index);
     void setPenColor(bool yellow);
 
-    int page()
-    { return _page; }
-    int index()
-    { return _index; }
+    int page()  { return _page; }
+    int index() { return _index; }
+
+    QString getBgPix() { return _pixText;}
 
 signals:
     void mouseClicked(const QString &pixText);
@@ -156,6 +159,8 @@ private:
 
     QPixmap _pixmap;
     QString _pixText;
+
+    bool _selectPix;
 
 };
 #endif // SKINWIDGET_H

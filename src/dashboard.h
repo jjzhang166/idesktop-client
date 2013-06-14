@@ -21,6 +21,8 @@
 #include "localwidget.h"
 #include "vacwidget.h"
 #include "skinwidget.h"
+#include "movewidget.h"
+#include "dirwidget.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -38,7 +40,7 @@ class Dashboard : public QWidget
     Q_OBJECT
 public:
     Dashboard(QWidget * parent = NULL);
-    ~Dashboard() { delete _ldialog; }
+    ~Dashboard() { }//delete _ldialog; }
     QSize size;
 //vac
    void setInfo(QString smIP, QString sID)
@@ -81,6 +83,15 @@ public slots:
 
     void setVacServer();
     void updateVacServer();
+
+    void showBs(const QString &url);
+    void goDesktop();
+    void desktopOpenMove(int x, int y, int w, int h);
+    void desktopCloseMove(int x, int y, int w, int h);
+    void scrFinished();
+    void  openMinWidget(int x, int y, int w, int h);
+    void closeMinWidget(int x, int y, int w, int h);
+    void scrMinFinished();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -148,5 +159,15 @@ private:
     LocalShowWidget *_localShowWidget;
     VacShowWidget *_vacShowWidget;
     SkinWidget *_skinShowWidget;
+
+    QPropertyAnimation *_animationScreen;
+    QPropertyAnimation *_animationMinScreen;
+    MoveWidget *_mW;
+    MoveMinWidget *_minW;
+    DirShowWidget *_dirWidget;
+    bool _animationFinished;
+    QLabel *_minLabel;
+
+    QPushButton* _backBtn;
 };
 #endif

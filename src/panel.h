@@ -63,6 +63,10 @@ private:
     DynamicButton *_dirButton;
     DynamicButton *_personButton;
     DynamicButton *_quitButton;
+
+    bool _vacBtnHover;
+    bool _localBtnHover;
+    bool _skinBtnHover;
 };
 
 #endif

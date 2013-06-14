@@ -10,6 +10,7 @@
 #include <QAction>
 #include <QMouseEvent>
 #include <QScrollBar>
+#include <QUrl>
 
 #include "localapps.h"
 #include "hovericonitem.h"
@@ -31,6 +32,8 @@ public:
 
     void showApp(bool localApp);
 
+signals:
+    void addLocalApp(const QString &text, const QString &pix, const QString &url);
 public slots:
     void scrollBarValueChanged(int val);
 
@@ -43,14 +46,16 @@ private:
     int _width;
     int _height;
 
-    QPixmap _rightTopPix;
-    QPixmap _rightCenterPix;
-    QPixmap _rightBottomPix;
+//    QPixmap _rightTopPix;
+//    QPixmap _rightCenterPix;
+//    QPixmap _rightBottomPix;
+    QPixmap _bgPix;
 
     LocalWidget *_localWidget;
 
     QScrollBar *_scrollBar;
     QPropertyAnimation *_animation;
+
 
 };
 
@@ -63,7 +68,7 @@ public:
     ~LocalWidget();
 
 
-    int addIcon(const QString &text, const QString &icon, \
+    int addIcon(QString text, const QString &icon, \
                 int page, int index);
 
     QString addLocalApp(QString appPath);
@@ -74,16 +79,18 @@ public:
     int iconCount()             { return _nextIdx[_current]; }
     int currentPage()           { return _current; }
     int count()                 { return _count; }
-    int iconsPerPage()          {  return _iconsPerPage; }
+    int iconsPerPage()          { return _iconsPerPage; }
     QSize pageSize()            { return _pageSize; }
 
+signals:
+    void addLocalApp(const QString &text, const QString &pix, const QString &url);
 protected:
 //    void paintEvent(QPaintEvent *event);
 //    void resizeEvent(QResizeEvent *event);
     
 private:
 
-    LocalAppList *_local;
+//    LocalAppList *_local;
 
     QSize _pageSize;
 
@@ -110,6 +117,7 @@ private:
     int _iconsPerPage;
 
     QPropertyAnimation *_animation;
+    QString _url;
 
 };
 
@@ -149,10 +157,14 @@ public:
     int _icontype;/*³ÌÐòÍ¼±ê*/
 
     void setEqualIcon(bool equal);
+    void setUrl(const QString &url);
+    QString getUrl()            { return _url; }
+
 signals:
     void clicked();
-    void runItem(const QString &text);
+    void sendUrl(const QString &url);
     void delItem(const QString &text);
+    void addLocalApp(const QString &text, const QString &pix, const QString &url);
 
 public slots:
 //    void startTremble();
@@ -203,9 +215,11 @@ private:
 
     QAction *_openAction;
     QAction *_delAction;
-    HoverIconItem *_hoverLocalItem;
+//    HoverIconItem *_hoverLocalItem;
 
     bool _equal;
+    QString _url;
+    QString _pix;
 
 };
 

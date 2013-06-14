@@ -11,6 +11,10 @@
 #include "commuinication.h"
 #include "arrangewidget.h"
 #include "hovericonitem.h"
+#include "dirwidget.h"
+//#include "movewidget.h"
+#include "dirminwidget.h"
+
 
 class ArrangeWidget;
 
@@ -109,7 +113,7 @@ class VirtualDesktop : public QWidget
 public:
 
     enum iconStyle{
-        localIcon, vappIcon
+        localIcon, vappIcon, dirIcon, urlIcon
     };
 
     VirtualDesktop(QSize pageSize, QWidget *parent = NULL);
@@ -119,7 +123,7 @@ public:
     //void setMargin(int top, int bottom, int left, int right);
 
     int addIcon(const QString &text, const QString &icon, \
-                int page, int index, const iconStyle &iSt = localIcon);
+                int page, int index, int iSt = 0);
     int showAddIcon(int page, int index);
     IconItem *getIconByName(const QString &name);
 
@@ -154,12 +158,17 @@ public:
     void atExit();
     void moveItem(IconItem *item, int page);
 
+    void addDirItem();
+    int addDirIcon(int page, int index);
+    void setDirHide();
+
 public slots:
     void goPage(int page);
 
     void onProcessFinished(int, QProcess::ExitStatus);
     void delIcon(const QString &text);
-    int addIcon(const QString &text, const QString &icon, const iconStyle &iSt = localIcon);
+    void delIcon(IconItem *ic);
+    int addIcon(const QString &text, const QString &icon, int iSt = 0);
     void updateClicked();
     void itemHeld();
     void dragRight();
@@ -182,6 +191,15 @@ public slots:
 
     //void updateIconTimeOut();
 
+    void openDir(int id, int page, int index);
+    void closeDir(int page, int index);
+    void addLocalApp(const QString &text, const QString &pix, const QString &url);
+
+    void iconDragLeave();
+    void iconDragEnter();
+    void iconDragMove();
+    void iconDragDrop(int id, const QString &text, const QString &iconPath, const QString &url);
+
 signals:
     void pageChanged(int i);
     void pageIncreased();
@@ -190,6 +208,17 @@ signals:
     void trembleStarted();
     void trembleStoped();
     void reInitiate();
+
+//    void bgMove(int x, int y);
+    void sendUrl(const QString &url);
+
+//    void setDirIcon(const QString &text, const QString &iconPath, const QString &url);
+
+    void desktopOpenMove(int x, int y, int w, int h);
+    void desktopCloseMove(int x, int y, int w, int h);
+
+    void openMinWidget(int mx, int my, int mw, int mh);
+    void closeMinWidget(int mx, int my, int mw, int mh);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -220,7 +249,7 @@ private:
     int gm2v;
     QPropertyAnimation *_animation;
     LocalAppList *_local;
-    IconAddItem *g_addIcon;
+//    IconAddItem *g_addIcon;
 
     QMenu *_menu;
     QAction *_addAction;
@@ -244,12 +273,33 @@ private:
 
     ArrangeWidget *_arrangeWidget;
 
+    QPropertyAnimation *_animationScreen;
+    bool _animationScreenDown;
+//    MoveWidget *_mW;
+//    DirShowWidget *_dirWidget;
+    QDesktopWidget *_desktopWidget;
+    QRect _desktopRect;
+    QString _url;
+
+    //dirWidget
+    bool _iconDragEnter;
+
+    DirMinShowWidget *_dirMinShowWidget;
+
+    QList<QString> _dirMinList;
+    QList<DirShowWidget *> _dirList;
+
+    DirShowWidget *_dirShowWidget;
+    int _dirId;
+
+    void moveBackIcons(int page, int index);
+
 public:
     int _current;
-    int _count;
-    QList<int> _pages;
     QList<QList<IconItem*> > _iconTable;
     QList<QList<QRect> > _gridTable;
+    int _count;
+    QList<int> _pages;
     QList<int> _nextIdx;
     QMap<QString, IconItem*> _iconDict;
     int _width;
@@ -281,7 +331,7 @@ class IconItem : public QWidget
 {
     Q_OBJECT
 public:
-    IconItem(const QString &text, const VirtualDesktop::iconStyle &iSt = VirtualDesktop::localIcon, QWidget *parent = NULL);
+    IconItem(const QString &text, int iSt = 0, QWidget *parent = NULL);
     ~IconItem();
     void setPixmap(const QString &icon);
     void setText(const QString &text);
@@ -317,11 +367,27 @@ public:
     {
         return _isRemote;
     }
-    int _icontype;/*程序图标*/    
+    int _icontype;/*程序图标*/
+
+    void setUrl(const QString &url);
+    QString getUrl()            { return _url; }
+
+    void setId(int id)          { _id = id; }
+    int id()                    { return _id; }
+
+    int getStyle()              { return _style; }
 signals:
     void clicked();
     void runItem(const QString &text);
     void delItem(const QString &text);
+    void sendUrl(const QString &url);
+
+    void openDir(int id, int page, int index);
+    void iconLeave();
+    void iconEnter();
+    void iconMove();
+    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
+
 
 public slots:
     void startTremble(); 
@@ -331,6 +397,9 @@ public slots:
 
     void openClicked();
     void delClicked();
+
+    void openDirWidget();
+    void iconDropEvent(const QString &text, const QString &iconPath, const QString &url);
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
@@ -368,7 +437,12 @@ private:
     QAction *_delAction;
     HoverIconItem *_hoverIconItem;
 
-    const VirtualDesktop::iconStyle &_style;
+    int _style;
+    QString _url;
+    QString _pixText;
+
+    DirMinShowWidget *_dirMinShowWidget;
+    int _id;
 };
 
 /* #############################################

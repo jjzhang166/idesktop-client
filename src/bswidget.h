@@ -14,6 +14,8 @@
 #include <QPushButton>
 #include <QScrollBar>
 
+#include "dynamicbutton.h"
+
 class AxWidget;
 class LeftWebKit;
 class TabWidget;
@@ -76,8 +78,10 @@ public:
     explicit BsWidget(int width, int height, QWidget *parent = 0);
     ~BsWidget();
 
+    void setUrl(const QString &url);
+    void setPixmap(const QString &pix);
 signals:
-
+    void goBack();
 public slots:
     void startAssembly();
     void stopAssembly();
@@ -85,10 +89,10 @@ public slots:
     void rightFullScreen();
 
 protected:
-    void paintEvent(QPaintEvent *event);
+    //void paintEvent(QPaintEvent *event);
 
 private:
-    LeftWebKit *_leftWebKit;
+//    LeftWebKit *_leftWebKit;
     RightWidget *_rightWidget;
 
     int _width;
@@ -97,7 +101,8 @@ private:
     QPixmap _pixmap;
 
     bool _fullScreen;
-    QPushButton *_fullScreenBtn;
+//    QPushButton *_fullScreenBtn;
+//    DynamicButton *_backBtn;
 };
 
 class LeftWebKit : public QMainWindow
@@ -134,8 +139,10 @@ public:
     RightWidget(QWidget *parent = 0);
     ~RightWidget();
 
-public slots:
     void createTab(const QUrl &url);
+
+public slots:
+//    void createTab(const QUrl &url);
 
 protected:
     void paintEvent(QPaintEvent *event);

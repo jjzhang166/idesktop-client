@@ -78,6 +78,8 @@ public:
     QString getAppImage(QString appPath);
     QString getUninstExec(QString display);
 
+    bool addDirItem(int page, int index);
+
 signals:
     void appAdded(QString name, QString icon);
     void appRemoved(const QString &name);

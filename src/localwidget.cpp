@@ -8,34 +8,76 @@
 #include <QLibrary>
 #include <windows.h>
 #include <stdio.h>
+#include <QBitmap>
 
 #include <QtDebug>
 
 #include "localwidget.h"
 #include "config.h"
+//#include "appmessagebox.h"
 
 //#define KEY "\\Windows\\CurrentVersion\\App Paths\\"
 #define KEY "\\Windows\\CurrentVersion\\Uninstall\\"
 
 #define INDICATOR_ITEMSIZE QSize(14, 14)
-#define ICONWIDTH 96
-#define ICONHEIGHT 96
+#define ICONWIDTH 95
+#define ICONHEIGHT 95
 #define CLOSEWIDTH 30
 #define CLOSEHEIGHT 30
 #define FONTSIZE 10
 #define APPICON   0
 #define ADDICON 1
+#define ICONNUM 9
 
+double Screen_Scale = 1.0;
+
+
+double convertScale(const double &val)
+{
+    return val * Screen_Scale;
+}
 
 LocalShowWidget::LocalShowWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
 {
-    _rightTopPix.load(":/images/bs_rightbg_top.png");
-    _rightCenterPix.load(":/images/bs_rightbg_center.png");
-    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
+//    _rightTopPix.load(":/images/bs_rightbg_top.png");
+//    _rightCenterPix.load(":/images/bs_rightbg_center.png");
+//    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
 
-    _width = pageSize.width();
-    _height = pageSize.height();
+    _bgPix.load(":/images/local_bg.png");
+//    QImage normal = QImage(":/images/local_bg.png");
+
+//    for (int i = 0; i < normal.width(); i++) {
+//        for (int j = 0; j < normal.height(); j++) {
+//            QRgb pixel = normal.pixel(i,j);
+//            int a = qAlpha(pixel);
+//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//                                    qBlue(pixel), a * 1 / 255);
+//            normal.setPixel(i, j, lightPixel);
+//        }
+//    }
+//    _bgPix = QPixmap::fromImage(normal);
+
+//    setWindowFlags(Qt::FramelessWindowHint);
+
+    setWindowFlags(Qt::FramelessWindowHint);///去掉标题栏
+
+//    setAttribute(Qt::WA_TranslucentBackground, true);
+//    this->setStyleSheet("border-image:url(background.png) 10 10 10 10 stretch stretch;"); ///使用border-image可以实现背景的拉伸
+//    setStyleSheet("background-image:url(:/images/local_bg.png);"); ///使用标准的 background-image ,适用于固定窗体,PNG图片要与窗口尺寸相等
+//    setAutoFillBackground(true);
+////    setWindowOpacity(0.3);
+//    setAttribute(Qt::WA_TranslucentBackground);
+
+//    _width = pageSize.width();
+//    _height = pageSize.height();
+
+//    QPixmap mask(":images/message/bg.png");
+//    mask = mask.scaled(convertScale(_width), convertScale(_height), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+//    setMask(QBitmap(mask.mask()));
+//    QPalette p;
+//    p.setBrush(QPalette::Window, QBrush(mask));
+//    setPalette(p);
 
     resize(_width, _height);
 
@@ -45,19 +87,19 @@ LocalShowWidget::LocalShowWidget(QSize pageSize, QWidget *parent)
 
     _scrollBar = new QScrollBar(this);
 
-    _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}\
-                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 249px; background-image:url(:/images/bs_scrollbar.png);\
-                    background-position: left; background-repeat:none; border-style:flat;}\
-                    QScrollBar::handle:vertical::disabled{background:#232329;}\
-                    QScrollBar::handle:vertical:hover{background-image:url(:/images/bs_scrollbar.png);}\
-                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);\
-                                                  subcontrol-position: bottom; subcontrol-origin: margin;}\
-                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);\
-                                                  subcontrol-position: top; subcontrol-origin: margin;}\
-                    QScrollBar::add-page:vertical{background-color: rgba(255,255,255,0);}\
-                    QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}\
-                    QScrollBar::up-arrow:vertical{background-color: rgba(255,255,255,0);}\
-                    QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);}");
+//    _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}\
+//                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 249px; background-image:url(:/images/bs_scrollbar.png);\
+//                    background-position: left; background-repeat:none; border-style:flat;}\
+//                    QScrollBar::handle:vertical::disabled{background:#232329;}\
+//                    QScrollBar::handle:vertical:hover{background-image:url(:/images/bs_scrollbar.png);}\
+//                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);\
+//                                                  subcontrol-position: bottom; subcontrol-origin: margin;}\
+//                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);\
+//                                                  subcontrol-position: top; subcontrol-origin: margin;}\
+//                    QScrollBar::add-page:vertical{background-color: rgba(255,255,255,0);}\
+//                    QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}\
+//                    QScrollBar::up-arrow:vertical{background-color: rgba(255,255,255,0);}\
+//                    QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);}");
 
 
     _scrollBar->setSingleStep(_localWidget->pageSize().height());
@@ -71,6 +113,8 @@ LocalShowWidget::LocalShowWidget(QSize pageSize, QWidget *parent)
     _animation = new QPropertyAnimation(_localWidget, "geometry");
 
     connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
+    connect(_localWidget, SIGNAL(addLocalApp(const QString&,const QString&, const QString&)),
+            this, SIGNAL(addLocalApp(const QString&,const QString&, const QString&)));
 
 }
 
@@ -101,12 +145,13 @@ void LocalShowWidget::scrollBarValueChanged(int val)
 void LocalShowWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.drawPixmap(0, 0, _width, 9,\
-                       _rightTopPix.scaled(_width, 9));
-    painter.drawPixmap(0, 9, _width, _height - 18,\
-                       _rightCenterPix.scaled(_width, _height - 18));
-    painter.drawPixmap(0, _height - 9, _width, 9,\
-                       _rightBottomPix.scaled(_width, 9));
+//    painter.drawPixmap(0, 0, _width, 9,\
+//                       _rightTopPix.scaled(_width, 9));
+//    painter.drawPixmap(0, 9, _width, _height - 18,\
+//                       _rightCenterPix.scaled(_width, _height - 18));
+//    painter.drawPixmap(0, _height - 9, _width, 9,\
+//                       _rightBottomPix.scaled(_width, 9));
+    painter.drawPixmap(0, 0, _width, _height, _bgPix.scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
     QWidget::paintEvent(event);
 }
@@ -235,8 +280,8 @@ LocalItem::LocalItem(const QString &text, QWidget *parent)
 
     _icontype = APPICON;
 
-    _hoverLocalItem = new HoverIconItem(this->width(), this->height(), this);
-    _hoverLocalItem->setVisible(false);
+//    _hoverLocalItem = new HoverIconItem(this->width(), this->height(), this);
+//    _hoverLocalItem->setVisible(false);
 
 //    _openAction = new QAction(tr("运行"), this);
 //    connect(_openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
@@ -263,11 +308,16 @@ LocalItem::LocalItem(const QString &text, QWidget *parent)
 
 LocalItem::~LocalItem()
 {
-    delete _openAction;
-    delete _hoverLocalItem;
+ //   delete _openAction;
+//    delete _hoverLocalItem;
 
-    delete _timeline;
-    delete _animation;
+//    delete _timeline;
+//    delete _animation;
+}
+
+void LocalItem::setUrl(const QString &url)
+{
+    _url = url;
 }
 
 void LocalItem::setPage(int page)
@@ -359,9 +409,18 @@ void LocalItem::mousePressEvent(QMouseEvent *event)
 //        }
 //    }
 
-    if (event->button() == Qt::LeftButton && \
-            geometry().contains(event->pos())) {
-        dragStartPosition = event->pos();
+
+    if (event->button() == Qt::LeftButton) {
+        if (_equal)
+        {
+
+        }
+        else
+        {
+            _closePixmap.load(":/images/select_icon.png");
+            _equal = true;
+            emit addLocalApp(_text, _pix, _url);
+        }
     }
     event->ignore();
 
@@ -369,10 +428,10 @@ void LocalItem::mousePressEvent(QMouseEvent *event)
 
 void LocalItem::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    if ((event->button() == Qt::LeftButton))
-    {
-        openClicked();
-    }
+//    if ((event->button() == Qt::LeftButton))
+//    {
+//        openClicked();
+//    }
 }
 
 void LocalItem::mouseMoveEvent(QMouseEvent *event)
@@ -417,8 +476,8 @@ void LocalItem::mouseMoveEvent(QMouseEvent *event)
 
 void LocalItem::enterEvent(QEvent *event)
 {
-
-    _hoverLocalItem->setVisible(true);
+    _pixmap = darkPixmap();
+//    _hoverIconItem->setVisible(true);
     repaint();
 
     Q_UNUSED(event);
@@ -426,7 +485,13 @@ void LocalItem::enterEvent(QEvent *event)
 
 void LocalItem::leaveEvent(QEvent *event)
 {
-    _hoverLocalItem->setVisible(false);
+
+//    if (_timeline->state() == QTimeLine::Running)
+//        _pixmap = _closePixmap;
+//    else
+        _pixmap = _normalPixmap;
+
+//    _hoverIconItem->setVisible(false);
     repaint();
 
     Q_UNUSED(event);
@@ -439,6 +504,7 @@ const QPixmap& LocalItem::originPixmap()
 
 void LocalItem::setPixmap(const QString &icon)
 {
+    _pix = icon;
 //    int begin;
     QString text = _text;
     if (isUserType())
@@ -454,17 +520,18 @@ void LocalItem::setPixmap(const QString &icon)
     pt1.fillRect(normal.rect(), Qt::transparent);
     pt1.drawImage(CLOSEWIDTH/2 - 3, CLOSEHEIGHT/2, image);
 
-    QFont font("", FONTSIZE, QFont::Normal);
+//    QFont font("", FONTSIZE, QFont::Normal);
+    QFont font(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal);
     QFontMetrics fm(font);
     _textWidth_firstrow = fm.width(_texticon_firstrow);
     QString tx = _texticon_firstrow;
-    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_firstrow) / 2, height() - _textHeight * 3, _textWidth_firstrow, _textHeight), Qt::TextSingleLine, tx);
+    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_firstrow) / 2, height() - _textHeight * 3 - 8, _textWidth_firstrow, _textHeight), Qt::TextSingleLine, tx);
     _textWidth_secondrow = fm.width(_texticon_secondrow);
     tx = _texticon_secondrow;
-    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_secondrow) / 2, height() - _textHeight * 2, _textWidth_secondrow, _textHeight), Qt::TextSingleLine, tx);
+    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_secondrow) / 2, height() - _textHeight * 2 - 8, _textWidth_secondrow, _textHeight), Qt::TextSingleLine, tx);
     _textWidth_thirdrow = fm.width(_texticon_thirdrow);
     tx = _texticon_thirdrow;
-    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_thirdrow) / 2, height() - _textHeight , _textWidth_thirdrow, _textHeight), Qt::TextSingleLine, tx);
+    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_thirdrow) / 2, height() - _textHeight - 8, _textWidth_thirdrow, _textHeight), Qt::TextSingleLine, tx);
     pt1.end();
 
     QImage light = QImage(width(), height(), QImage::Format_ARGB32);
@@ -541,14 +608,15 @@ const QPixmap & LocalItem::grayPixmap()
 
 const QPixmap & LocalItem::darkPixmap()
 {
-    if (_timeline->state() == QTimeLine::Running)
-        return _closePixmap;
+//    if (_timeline->state() == QTimeLine::Running)
+//        return _closePixmap;
     return _darkPixmap;
 }
 
 void LocalItem::openClicked()
 {
-    emit runItem(_text);
+    if (!_url.isEmpty())
+        emit sendUrl(_url);
 }
 
 void LocalItem::delClicked()
@@ -558,8 +626,9 @@ void LocalItem::delClicked()
 
 void LocalItem::setEqualIcon(bool equal)
 {
+    _equal = equal;
     if (equal)
-        _closePixmap.load(":/images/close_icon.png");
+        _closePixmap.load(":/images/select_icon.png");
     else
         _closePixmap.load("");
 
@@ -584,7 +653,7 @@ LocalWidget::LocalWidget(QSize pageSize, QWidget *parent)
     _iconsPerPage = _col * _row;
     _current  = 0;
 
-    _local = LocalAppList::getList();
+//    _local = LocalAppList::getList();
 
     ////test   start  Classes //URLInfoAbout //InstallLocation //DisplayIcon
 //    QSettings reg(QSettings::NativeFormat, \
@@ -598,18 +667,18 @@ LocalWidget::LocalWidget(QSize pageSize, QWidget *parent)
 
 //    qDebug() <<"**********************************************************"<<reg.childGroups().count();
 
-    for (int i = 0; i < _local->count(); i++) {
-        if (_local->at(i)->hidden())
-            continue;
+//    for (int i = 0; i < _local->count(); i++) {
+//        if (_local->at(i)->hidden())
+//            continue;
 
-        if(!_local->at(i)->isRemote())
-        {
-            _localCount++;
-        }
-    }
+//        if(!_local->at(i)->isRemote())
+//        {
+//            _localCount++;
+//        }
+//    }
 
 
-    for (int i = 0; i < _localCount; i++)
+    for (int i = 0; i < ICONNUM; i++)
     {
         _count = i / _iconsPerPage + 1;
     }
@@ -654,15 +723,20 @@ LocalWidget::LocalWidget(QSize pageSize, QWidget *parent)
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
 
-    for (int i = 0; i < _local->count(); i++) {
-        if (_local->at(i)->hidden())
-            continue;
+//    for (int i = 0; i < _local->count(); i++) {
+//        if (_local->at(i)->hidden())
+//            continue;
 
-        if(!_local->at(i)->isRemote())
-        {
-            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                    _local->at(i)->page(), -1);
-        }
+//        if(!_local->at(i)->isRemote())
+//        {
+//            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+//                    _local->at(i)->page(), -1);
+//        }
+//    }
+
+    for (int i = 0; i < ICONNUM; i++) {
+        addIcon("", QString(":images/custom/z_%1.png").arg(i + 11),
+                -1, i);
     }
 
 //    for (int i = 0; i < reg.childGroups().count(); i++) {
@@ -680,11 +754,54 @@ LocalWidget::~LocalWidget()
 
 }
 
-int LocalWidget::addIcon(const QString &text, \
+int LocalWidget::addIcon(QString text, \
                             const QString &iconPath, \
                             int page, \
                             int index)
 {
+    switch (index)
+    {
+        case 0:
+            text = QString("WPP");
+            _url = QString("http://192.168.49.253/");
+            break;
+        case 1:
+            text = QString(" Word");
+            _url = QString("http://192.168.49.252:8080/idesktop");
+            break;
+        case 2:
+            text = QString("Excel ");
+            _url = QString("http://192.168.49.244/portal-1_0_0");
+            break;
+        case 3:
+            text = QString("金山手机助手");
+            _url = QString("http://192.168.49.244/uim-1_0_05");
+            break;
+        case 4:
+            text = QString(" QQ");
+            _url = QString("http://192.168.49.244/uim-1_0_0");
+            break;
+        case 5:
+            text = QString("Qt Creator ");
+            _url = QString("http://192.168.49.244/gwlz-1_0_0");
+            break;
+        case 6:
+            text = QString("McAfee");
+            _url = QString("http://192.168.49.252:8080/idesktop");
+            break;
+        case 7:
+            text = QString("UlEdit");
+            _url = QString("http://192.168.49.253");
+            break;
+        case 8:
+            text = QString("工行网银助手");
+            _url = QString("http://192.168.49.244/gwlz-1_0_0");
+            break;
+        default:
+            text = QString("Microsoft Visual Studio 2008");
+            _url = QString("http://hao123.com/");
+            break;
+    }
 
     LocalItem *icon = new LocalItem(text, this);
 
@@ -713,26 +830,28 @@ int LocalWidget::addIcon(const QString &text, \
         }
     }
 
-    for (int i = 0; i < _local->count(); i++)
-    {
-        if (_local->at(i)->name() == text)
-        {
-            icon->setEqualIcon(true);
-        }
-        else
-            icon->setEqualIcon(false);
-    }
+//    for (int i = 0; i < _local->count(); i++)
+//    {
+//        if (_local->at(i)->name() == text)
+//        {
+//            icon->setEqualIcon(true);
+//        }
+//        else
+//            icon->setEqualIcon(false);
+//    }
 
     icon->setPixmap(iconPath);
     icon->setGeometry(_gridTable[page][index].translated(SPACING, SPACING));
     icon->setPage(page);
     icon->setIndex(index);
+    icon->setUrl(_url);
     _iconDict.insert(text, icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
     icon->show();
 
-//    connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
+    connect(icon, SIGNAL(addLocalApp(const QString&,const QString&, const QString&)),
+            this, SIGNAL(addLocalApp(const QString&,const QString&, const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
 
 
@@ -801,31 +920,31 @@ QString LocalWidget::addLocalApp(QString appPath)
 
 void LocalWidget::showApp(bool localApp)
 {
-    if (localApp)
-    {
-        for (int i = 0; i < _local->count(); i++) {
-            if (_local->at(i)->hidden())
-                continue;
+//    if (localApp)
+//    {
+//        for (int i = 0; i < _local->count(); i++) {
+//            if (_local->at(i)->hidden())
+//                continue;
 
-            if(!_local->at(i)->isRemote())
-            {
-                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                        _local->at(i)->page(), -1);
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < _local->count(); i++) {
-            if (_local->at(i)->hidden())
-                continue;
+//            if(!_local->at(i)->isRemote())
+//            {
+//                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+//                        _local->at(i)->page(), -1);
+//            }
+//        }
+//    }
+//    else
+//    {
+//        for (int i = 0; i < _local->count(); i++) {
+//            if (_local->at(i)->hidden())
+//                continue;
 
-            if(_local->at(i)->isRemote())
-            {
-                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                        _local->at(i)->page(), -1);
-            }
-        }
-    }
+//            if(_local->at(i)->isRemote())
+//            {
+//                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+//                        _local->at(i)->page(), -1);
+//            }
+//        }
+//    }
 }
 

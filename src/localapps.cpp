@@ -66,8 +66,8 @@ LocalAppList * LocalAppList::getList()
 LocalAppList::LocalAppList(QObject *parent)
     :QObject(parent)
 {
-    updateQList();
-    updateAppList();
+//    updateQList();
+//    updateAppList();
 
 
 }
@@ -345,9 +345,9 @@ QString LocalAppList::getAppImage(QString appPath)
          QFileInfo info = QFileInfo(appPath);
          QString path(Config::get("IconDir"));
          path = path + "\\" + "USER_ADDED_" + info.baseName();
-         path += ".png";
-         QPixmap newicon =  picon.scaled(48,48,Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-         newicon.save(path, "PNG",-1);
+         path += ".ico"; //png
+         QPixmap newicon =  picon.scaled(95, 95, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+         newicon.save(path, "ICO",-1);
          return path;
     }
     return "";
@@ -360,7 +360,7 @@ void LocalAppList::addLocalApp(QString appPath)
     if (newApp.isEmpty())
         return;
 
-    QImage image = QImage(newApp).scaled(48, 48);
+    QImage image = QImage(newApp).scaled(95, 95);
     QImage normal = QImage(":images/app_bg.png");
     //setImgOpacity(normal, 0);
 
@@ -376,10 +376,10 @@ void LocalAppList::addLocalApp(QString appPath)
 
     QPainter pt1(&normal);
     pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    pt1.drawImage(17, 8, image);
+    pt1.drawImage(0, 0, image); // 19 2
     pt1.end();
     QPixmap pix = QPixmap::fromImage(normal);
-    pix.save(newApp, "PNG", -1);
+    pix.save(newApp, "ICO", -1);//
 
     QFileInfo info = QFileInfo(appPath);
     LocalApp *app = new LocalApp();
@@ -409,4 +409,38 @@ QString LocalAppList::getUninstExec(QString display)
         }
     }
     return QString("");
+}
+
+bool LocalAppList::addDirItem(int page, int index)
+{
+    QString dirName = QString("ÎÄ¼þ¼Ð_%1").arg(index);
+    QString dirIcon(":images/app_bg.png");
+
+    LocalApp *app = new LocalApp();
+    app->setName(dirName);
+    app->setIcon(dirIcon);
+    app->setId("222");
+    app->setExecname(dirIcon);
+
+    QString qstr = QString("insert into localapps ("\
+                           "name, version, execname, icon, uninstall, "\
+                           "lastupdate, page, idx, hidden, id, type, isRemote) values ( " \
+                           "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', "\
+                           "\'%6\', \'%7\', \'%8\', \'%9\',\'%10\',\'%11\',\'%12\');")\
+            .arg(dirName).arg(0)\
+            .arg(dirName).arg(dirIcon)\
+            .arg(dirName).arg(2)\
+            .arg(page).arg(index)\
+            .arg(0).arg(app->id())\
+            .arg("444").arg(2);
+
+    QSqlQuery query(QSqlDatabase::database("local"));
+    if(!query.exec(qstr)) {
+        qDebug() <<"query failed";
+        return false;
+    }
+    qDebug()<<"add Dir";
+    _list.append(app);
+    emit appAdded(app->name(), app->icon());
+    return true;
 }

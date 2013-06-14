@@ -17,7 +17,6 @@
 //#define KEY "\\Windows\\CurrentVersion\\App Paths\\"
 #define KEY "\\Windows\\CurrentVersion\\Uninstall\\"
 
-#define INDICATOR_ITEMSIZE QSize(14, 14)
 #define ICONWIDTH 96
 #define ICONHEIGHT 96
 #define CLOSEWIDTH 30
@@ -25,14 +24,17 @@
 #define FONTSIZE 10
 #define APPICON   0
 #define ADDICON 1
+#define ICONNUM 11
 
 
 VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
 {
-    _rightTopPix.load(":/images/bs_rightbg_top.png");
-    _rightCenterPix.load(":/images/bs_rightbg_center.png");
-    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
+//    _rightTopPix.load(":/images/bs_rightbg_top.png");
+//    _rightCenterPix.load(":/images/bs_rightbg_center.png");
+//    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
+    setAutoFillBackground(false);
+    _bgPix.load(":/images/vac_bg.png");
 
     _width = pageSize.width();
     _height = pageSize.height();
@@ -71,6 +73,8 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
     _animation = new QPropertyAnimation(_vacWidget, "geometry");
 
     connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
+    connect(_vacWidget, SIGNAL(addVacApp(const QString&,const QString&, const QString&)),
+            this, SIGNAL(addVacApp(const QString&,const QString&, const QString&)));
 }
 
 VacShowWidget::~VacShowWidget()
@@ -100,12 +104,15 @@ void VacShowWidget::scrollBarValueChanged(int val)
 void VacShowWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.drawPixmap(0, 0, _width, 9,\
-                       _rightTopPix.scaled(_width, 9));
-    painter.drawPixmap(0, 9, _width, _height - 18,\
-                       _rightCenterPix.scaled(_width, _height - 18));
-    painter.drawPixmap(0, _height - 9, _width, 9,\
-                       _rightBottomPix.scaled(_width, 9));
+//    painter.drawPixmap(0, 0, _width, 9,\
+//                       _rightTopPix.scaled(_width, 9));
+//    painter.drawPixmap(0, 9, _width, _height - 18,\
+//                       _rightCenterPix.scaled(_width, _height - 18));
+//    painter.drawPixmap(0, _height - 9, _width, 9,\
+//                       _rightBottomPix.scaled(_width, 9));
+
+    painter.drawPixmap(0, 0, _width, _height,\
+                       _bgPix.scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
     QWidget::paintEvent(event);
 }
@@ -234,8 +241,8 @@ VacItem::VacItem(const QString &text, QWidget *parent)
 
     _icontype = APPICON;
 
-    _hoverVacItem = new HoverIconItem(this->width(), this->height(), this);
-    _hoverVacItem->setVisible(false);
+//    _hoverVacItem = new HoverIconItem(this->width(), this->height(), this);
+//    _hoverVacItem->setVisible(false);
 
 //    _openAction = new QAction(tr("运行"), this);
 //    connect(_openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
@@ -262,11 +269,16 @@ VacItem::VacItem(const QString &text, QWidget *parent)
 
 VacItem::~VacItem()
 {
-    delete _openAction;
-    delete _hoverVacItem;
+//    delete _openAction;
+//    delete _hoverVacItem;
 
-    delete _timeline;
-    delete _animation;
+//    delete _timeline;
+//    delete _animation;
+}
+
+void VacItem::setUrl(const QString &url)
+{
+    _url = url;
 }
 
 void VacItem::setPage(int page)
@@ -351,16 +363,17 @@ void VacItem::paintEvent(QPaintEvent *event)
 
 void VacItem::mousePressEvent(QMouseEvent *event)
 {
-//    if (_timeline->state() == QTimeLine::Running) {
-//        if (QRect(0, 5, 30, 35).contains(event->pos())) {
-//            delClicked();
-//            return;
-//        }
-//    }
+    if (event->button() == Qt::LeftButton) {
+        if (_equal)
+        {
 
-    if (event->button() == Qt::LeftButton && \
-            geometry().contains(event->pos())) {
-        dragStartPosition = event->pos();
+        }
+        else
+        {
+            _closePixmap.load(":/images/select_icon.png");
+            _equal = true;
+            emit addVacApp(_text, _pix, _url);
+        }
     }
     event->ignore();
 
@@ -416,8 +429,8 @@ void VacItem::mouseMoveEvent(QMouseEvent *event)
 
 void VacItem::enterEvent(QEvent *event)
 {
-
-    _hoverVacItem->setVisible(true);
+    _pixmap = darkPixmap();
+//    _hoverIconItem->setVisible(true);
     repaint();
 
     Q_UNUSED(event);
@@ -425,7 +438,13 @@ void VacItem::enterEvent(QEvent *event)
 
 void VacItem::leaveEvent(QEvent *event)
 {
-    _hoverVacItem->setVisible(false);
+
+//    if (_timeline->state() == QTimeLine::Running)
+//        _pixmap = _closePixmap;
+//    else
+        _pixmap = _normalPixmap;
+
+//    _hoverIconItem->setVisible(false);
     repaint();
 
     Q_UNUSED(event);
@@ -438,6 +457,7 @@ const QPixmap& VacItem::originPixmap()
 
 void VacItem::setPixmap(const QString &icon)
 {
+    _pix = icon;
 //    int begin;
     QString text = _text;
     if (isUserType())
@@ -453,17 +473,18 @@ void VacItem::setPixmap(const QString &icon)
     pt1.fillRect(normal.rect(), Qt::transparent);
     pt1.drawImage(CLOSEWIDTH/2 - 3, CLOSEHEIGHT/2, image);
 
-    QFont font("", FONTSIZE, QFont::Normal);
+//    QFont font("", FONTSIZE, QFont::Normal);
+    QFont font(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal);
     QFontMetrics fm(font);
     _textWidth_firstrow = fm.width(_texticon_firstrow);
     QString tx = _texticon_firstrow;
-    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_firstrow) / 2, height() - _textHeight * 3, _textWidth_firstrow, _textHeight), Qt::TextSingleLine, tx);
+    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_firstrow) / 2 , height() - _textHeight * 3 - 8, _textWidth_firstrow, _textHeight), Qt::TextSingleLine, tx);
     _textWidth_secondrow = fm.width(_texticon_secondrow);
     tx = _texticon_secondrow;
-    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_secondrow) / 2, height() - _textHeight * 2, _textWidth_secondrow, _textHeight), Qt::TextSingleLine, tx);
+    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_secondrow) / 2, height() - _textHeight * 2 - 8, _textWidth_secondrow, _textHeight), Qt::TextSingleLine, tx);
     _textWidth_thirdrow = fm.width(_texticon_thirdrow);
     tx = _texticon_thirdrow;
-    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_thirdrow) / 2, height() - _textHeight , _textWidth_thirdrow, _textHeight), Qt::TextSingleLine, tx);
+    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_thirdrow) / 2 , height() - _textHeight - 8, _textWidth_thirdrow, _textHeight), Qt::TextSingleLine, tx);
     pt1.end();
 
     QImage light = QImage(width(), height(), QImage::Format_ARGB32);
@@ -540,8 +561,8 @@ const QPixmap & VacItem::grayPixmap()
 
 const QPixmap & VacItem::darkPixmap()
 {
-    if (_timeline->state() == QTimeLine::Running)
-        return _closePixmap;
+//    if (_timeline->state() == QTimeLine::Running)
+//        return _closePixmap;
     return _darkPixmap;
 }
 
@@ -558,7 +579,7 @@ void VacItem::delClicked()
 void VacItem::setEqualIcon(bool equal)
 {
     if (equal)
-        _closePixmap.load(":/images/close_icon.png");
+        _closePixmap.load(":/images/select_icon.png");
     else
         _closePixmap.load("");
 
@@ -583,7 +604,7 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
     _iconsPerPage = _col * _row;
     _current  = 0;
 
-    _local = LocalAppList::getList();
+//    _local = LocalAppList::getList();
 
     ////test   start  Classes //URLInfoAbout //InstallLocation //DisplayIcon
 //    QSettings reg(QSettings::NativeFormat, \
@@ -597,18 +618,18 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
 
 //    qDebug() <<"**********************************************************"<<reg.childGroups().count();
 
-    for (int i = 0; i < _local->count(); i++) {
-        if (_local->at(i)->hidden())
-            continue;
+//    for (int i = 0; i < _local->count(); i++) {
+//        if (_local->at(i)->hidden())
+//            continue;
 
-        if(_local->at(i)->isRemote())
-        {
-            _localCount++;
-        }
-    }
+//        if(_local->at(i)->isRemote())
+//        {
+//            _localCount++;
+//        }
+//    }
 
 
-    for (int i = 0; i < _localCount; i++)
+    for (int i = 0; i < ICONNUM; i++)
     {
         _count = i / _iconsPerPage + 1;
     }
@@ -653,16 +674,16 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
 
-    for (int i = 0; i < _local->count(); i++) {
-        if (_local->at(i)->hidden())
-            continue;
+//    for (int i = 0; i < _local->count(); i++) {
+//        if (_local->at(i)->hidden())
+//            continue;
 
-        if(_local->at(i)->isRemote())
-        {
-            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                    _local->at(i)->page(), -1);
-        }
-    }
+//        if(_local->at(i)->isRemote())
+//        {
+//            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+//                    _local->at(i)->page(), -1);
+//        }
+//    }
 
 //    for (int i = 0; i < reg.childGroups().count(); i++) {
 //        QSettings tmp(QSettings::NativeFormat, \
@@ -672,6 +693,12 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
 ////        addIcon(tmp.value("").toString(), addLocalApp(tmp.value("").toString()), -1, -1);
 //    }
 
+
+    for (int i = 0; i < ICONNUM; i++) {
+        addIcon("", QString(":images/custom/z_%1.png").arg(i),
+                -1, i);
+    }
+
 }
 
 VacWidget::~VacWidget()
@@ -679,12 +706,59 @@ VacWidget::~VacWidget()
 
 }
 
-int VacWidget::addIcon(const QString &text, \
+int VacWidget::addIcon(QString text, \
                             const QString &iconPath, \
                             int page, \
                             int index)
 {
 
+    switch (index)
+    {
+        case 0:
+            text = QString("普华i-VirtualApp");
+            _url = QString("http://192.168.49.253/");
+            break;
+        case 1:
+            text = QString("Firefox  ");
+            _url = QString("http://192.168.49.252:8080/idesktop");
+            break;
+        case 2:
+            text = QString("IE ");
+            _url = QString("http://192.168.49.244/portal-1_0_0");
+            break;
+        case 3:
+            text = QString(" Google");
+            _url = QString("http://192.168.49.244/uim-1_0_05");
+            break;
+        case 4:
+            text = QString("Evernote ");
+            _url = QString("http://192.168.49.244/uim-1_0_0");
+            break;
+        case 5:
+            text = QString("QQExternalEx ");
+            _url = QString("http://192.168.49.244/gwlz-1_0_0");
+            break;
+        case 6:
+            text = QString("人生日历");
+            _url = QString("http://192.168.49.252:8080/idesktop");
+            break;
+        case 7:
+            text = QString("迅雷7");
+            _url = QString("http://192.168.49.253");
+            break;
+        case 8:
+            text = QString("TeamViewer_Setup_zhcn");
+            _url = QString("http://192.168.49.244/gwlz-1_0_0");
+            break;
+        case 9:
+            text = QString("鲁大师");
+            _url = QString("http://192.168.49.244/uim-1_0_0");
+            break;
+        default:
+            text = QString("驱动精灵2013");
+            _url = QString("http://192.168.49.244/portal-1_0_0");
+            break;
+    }
     VacItem *icon = new VacItem(text, this);
 
     if (page == -1) {
@@ -712,24 +786,28 @@ int VacWidget::addIcon(const QString &text, \
         }
     }
 
-    for (int i = 0; i < _local->count(); i++)
-    {
-        if (_local->at(i)->name() == text)
-        {
-            icon->setEqualIcon(true);
-        }
-        else
-            icon->setEqualIcon(false);
-    }
+//    for (int i = 0; i < ICONNUM; i++)
+//    {
+//        if (_local->at(i)->name() == text)
+//        {
+//            icon->setEqualIcon(true);
+//        }
+//        else
+//            icon->setEqualIcon(false);
+//    }
 
     icon->setPixmap(iconPath);
     icon->setGeometry(_gridTable[page][index].translated(SPACING, SPACING));
     icon->setPage(page);
     icon->setIndex(index);
+    icon->setUrl(_url);
     _iconDict.insert(text, icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
     icon->show();
+
+    connect(icon, SIGNAL(addVacApp(const QString&,const QString&, const QString&)),
+            this, SIGNAL(addVacApp(const QString&,const QString&, const QString&)));
 
 //    connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
@@ -800,31 +878,31 @@ QString VacWidget::addLocalApp(QString appPath)
 
 void VacWidget::showApp(bool localApp)
 {
-    if (localApp)
-    {
-        for (int i = 0; i < _local->count(); i++) {
-            if (_local->at(i)->hidden())
-                continue;
+//    if (localApp)
+//    {
+//        for (int i = 0; i < _local->count(); i++) {
+//            if (_local->at(i)->hidden())
+//                continue;
 
-            if(!_local->at(i)->isRemote())
-            {
-                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                        _local->at(i)->page(), -1);
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < _local->count(); i++) {
-            if (_local->at(i)->hidden())
-                continue;
+//            if(!_local->at(i)->isRemote())
+//            {
+//                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+//                        _local->at(i)->page(), -1);
+//            }
+//        }
+//    }
+//    else
+//    {
+//        for (int i = 0; i < _local->count(); i++) {
+//            if (_local->at(i)->hidden())
+//                continue;
 
-            if(_local->at(i)->isRemote())
-            {
-                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                        _local->at(i)->page(), -1);
-            }
-        }
-    }
+//            if(_local->at(i)->isRemote())
+//            {
+//                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+//                        _local->at(i)->page(), -1);
+//            }
+//        }
+//    }
 }
 

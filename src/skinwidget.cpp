@@ -5,7 +5,6 @@
 #include <QtSql/QSqlQuery>
 
 #include "skinwidget.h"
-#include "appmessagebox.h"
 
 #define INDICATOR_ITEMSIZE QSize(14, 14)
 #define ICONWIDTH 96
@@ -27,7 +26,7 @@ SkinWidget::SkinWidget(QWidget *parent)
 
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
 
-    _pixWidget = new PixWidget(QSize(700, 400), this);
+    _pixWidget = new PixWidget(QSize(700, 484), this);
     _pixWidget->move(0,0);
     _pixWidget->setVisible(true);
 
@@ -56,9 +55,11 @@ SkinWidget::SkinWidget(QWidget *parent)
 
     _animation = new QPropertyAnimation(_pixWidget, "geometry");
 
-    _rightTopPix.load(":/images/bs_rightbg_top.png");
-    _rightCenterPix.load(":/images/bs_rightbg_center.png");
-    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
+//    _rightTopPix.load(":/images/bs_rightbg_top.png");
+//    _rightCenterPix.load(":/images/bs_rightbg_center.png");
+//    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
+
+    _bgPix.load(":/images/skin_bg.png");
 
     connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
     connect(_pixWidget, SIGNAL(setBgPixmap(QString)), this, SIGNAL(setBgPixmap(QString)));
@@ -90,10 +91,10 @@ void SkinWidget::resizeEvent(QResizeEvent *event)
     _height = height();
 
     int w = 15;
-    int x = width() - w;
+    int x = width() - 28;
     x = x < 0 ? 0: x;
     int h = height();
-    _scrollBar->setGeometry(x, 8, w, h - 16);
+    _scrollBar->setGeometry(x, 10, w, h - 20);
 
     _scrollBar->setRange(0, _pixWidget->count() * _pixWidget->pageSize().height() - h);
     update();
@@ -109,12 +110,13 @@ void SkinWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    painter.drawPixmap(0, 0, _width, 9,\
-                       _rightTopPix.scaled(_width, 9));
-    painter.drawPixmap(0, 9, _width, _height - 18,\
-                       _rightCenterPix.scaled(_width, _height - 18));
-    painter.drawPixmap(0, _height - 9, _width, 9,\
-                       _rightBottomPix.scaled(_width, 9));
+//    painter.drawPixmap(0, 0, _width, 9,\
+//                       _rightTopPix.scaled(_width, 9));
+//    painter.drawPixmap(0, 9, _width, _height - 18,\
+//                       _rightCenterPix.scaled(_width, _height - 18));
+//    painter.drawPixmap(0, _height - 9, _width, 9,\
+//                       _rightBottomPix.scaled(_width, 9));
+    painter.drawPixmap(0, 0, _width, _height, _bgPix.scaled(_width, _height));
 
 //    painter.setPen(QPen(QBrush(Qt::white), 1, Qt::DashLine));
 //    painter.drawLine(15, 40, _width - 25, 40);
@@ -125,6 +127,7 @@ void SkinWidget::paintEvent(QPaintEvent *event)
 //
 PixItem::PixItem(QWidget *parent)
     : QWidget(parent)
+    , _selectPix(false)
 {
     _color = QColor(Qt::white);
 }
@@ -166,12 +169,16 @@ void PixItem::setPixmap(const QString &icon)
 
 void PixItem::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton) {
-        AppMessageBox box(true, NULL);
-        box.setText("是否将选中的图片设置为桌面背景\n点击\"确定\"更换背景");
-        if (box.exec())
-            emit mouseClicked(_pixText);
+
+    emit mouseClicked(_pixText);
+
+    if (!_selectPix)
+    {
+        _selectPix = true;
     }
+
+
+
     event->ignore();
 }
 
@@ -224,7 +231,7 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
     gridWidth = ICONWIDTH + SPACING * 2;
     gridHeight = ICONHEIGHT + SPACING * 2;
     _col = _width / (gridWidth + SPACING);
-    _row = _height / (gridHeight + SPACING);
+    _row = _height / (gridHeight + SPACING + 21);
     _iconsPerPage = _col * _row;
     _current  = 0;
 
@@ -243,7 +250,7 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
 
             int x = (j % _col) * (gridWidth + SPACING);
             int y = _pageSize.height() * i \
-                    + (j / _col) * (gridHeight + SPACING);
+                    + (j / _col) * (gridHeight + SPACING + 21) + 21;
 
             newList.insert(j, \
                            QRect(x, y, gridWidth, gridHeight));
@@ -344,10 +351,20 @@ int PixWidget::addIcon(const QString &iconPath, \
 
 void PixWidget::itemClicked(const QString &pixText)
 {
-//    for (int i = 0; i < _iconDict.count(); i++)
-//    {
-//        _iconDict
-//    }
+
+    QSqlQuery query = QSqlDatabase::database("local").exec("select wallpaper from wallpapers where id=1;");
+    query.next();
+
+    for (int i = 0; i < _count - 1; i++)
+    {
+        for (int j = 0; j < _nextIdx[i]; j++)
+        {
+            if (_iconTable[i][j]->getBgPix() == query.value(0).toString())
+            {
+                _iconTable[i][j]->setPenColor(false);
+            }
+        }
+    }
 
     emit setBgPixmap(pixText);
 }

@@ -1,7 +1,7 @@
 #ifndef ARRANGEWIDGET_H
 #define ARRANGEWIDGET_H
 
-#include "virtualdesktop.h"
+//#include "virtualdesktop.h"
 
 #include <QWidget>
 #include <QMouseEvent>
