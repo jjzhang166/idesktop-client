@@ -69,7 +69,10 @@ HEADERS += src/config.h \
     src/hovericonitem.h \
     src/localwidget.h \
     src/vacwidget.h \
-    src/skinwidget.h
+    src/skinwidget.h \
+    src/dirwidget.h \
+    src/movewidget.h \
+    src/dirminwidget.h
 
 
 win32 {
@@ -117,7 +120,10 @@ SOURCES += src/config.cpp \
     src/hovericonitem.cpp \
     src/localwidget.cpp \
     src/vacwidget.cpp \
-    src/skinwidget.cpp
+    src/skinwidget.cpp \
+    src/dirwidget.cpp \
+    src/movewidget.cpp \
+    src/dirminwidget.cpp
 
 
 FORMS +=\
