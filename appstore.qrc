@@ -101,36 +101,6 @@
         <file>images/scroll_up.png</file>
         <file>images/appbutton_toolbox.png</file>
         <file>images/appbutton_toolbox_hover.png</file>
-        <file>images/wallpager/wp_0.jpg</file>
-        <file>images/wallpager/wp_1.jpg</file>
-        <file>images/wallpager/wp_2.jpg</file>
-        <file>images/wallpager/wp_3.jpg</file>
-        <file>images/wallpager/wp_4.jpg</file>
-        <file>images/wallpager/wp_5.jpg</file>
-        <file>images/wallpager/wp_6.jpg</file>
-        <file>images/wallpager/wp_7.jpg</file>
-        <file>images/wallpager/wp_8.jpg</file>
-        <file>images/wallpager/wp_9.jpg</file>
-        <file>images/wallpager/wp_10.jpg</file>
-        <file>images/wallpager/wp_12.jpg</file>
-        <file>images/wallpager/wp_13.jpg</file>
-        <file>images/wallpager/wp_14.jpg</file>
-        <file>images/wallpager/wp_15.jpg</file>
-        <file>images/wallpager/wp_16.jpg</file>
-        <file>images/wallpager/wp_17.jpg</file>
-        <file>images/wallpager/wp_18.jpg</file>
-        <file>images/wallpager/wp_19.jpg</file>
-        <file>images/wallpager/wp_20.jpg</file>
-        <file>images/wallpager/wp_21.jpg</file>
-        <file>images/wallpager/wp_22.jpg</file>
-        <file>images/wallpager/wp_23.jpg</file>
-        <file>images/wallpager/wp_24.jpg</file>
-        <file>images/wallpager/wp_25.jpg</file>
-        <file>images/wallpager/wp_26.jpg</file>
-        <file>images/wallpager/wp_27.jpg</file>
-        <file>images/wallpager/wp_28.jpg</file>
-        <file>images/wallpager/wp_29.jpg</file>
-        <file>images/wallpager/wp_11.jpg</file>
         <file>images/appbutton_store.png</file>
         <file>images/appbutton_store_hover.png</file>
         <file>images/appbutton_vapp.png</file>
@@ -192,55 +162,61 @@
         <file>images/bs_goback_hover.png</file>
         <file>images/select_icon.png</file>
         <file>images/local_bg.png</file>
-        <file>images/skin_bg.png</file>
         <file>images/vac_bg.png</file>
         <file>images/dir_bg.png</file>
         <file>images/dir_add_icon.png</file>
         <file>images/min_mask_icon.png</file>
-        <file>images/custom/z_0.ico</file>
         <file>images/custom/z_0.png</file>
-        <file>images/custom/z_1.ico</file>
         <file>images/custom/z_1.png</file>
-        <file>images/custom/z_2.ico</file>
         <file>images/custom/z_2.png</file>
-        <file>images/custom/z_3.ico</file>
         <file>images/custom/z_3.png</file>
-        <file>images/custom/z_4.ico</file>
         <file>images/custom/z_4.png</file>
-        <file>images/custom/z_5.ico</file>
         <file>images/custom/z_5.png</file>
-        <file>images/custom/z_6.ico</file>
         <file>images/custom/z_6.png</file>
-        <file>images/custom/z_7.ico</file>
         <file>images/custom/z_7.png</file>
-        <file>images/custom/z_8.ico</file>
         <file>images/custom/z_8.png</file>
-        <file>images/custom/z_9.ico</file>
         <file>images/custom/z_9.png</file>
-        <file>images/custom/z_10.ico</file>
         <file>images/custom/z_10.png</file>
-        <file>images/custom/z_11.ico</file>
         <file>images/custom/z_11.png</file>
-        <file>images/custom/z_12.ico</file>
-        <file>images/custom/z_12.png</file>
-        <file>images/custom/z_13.ico</file>
         <file>images/custom/z_13.png</file>
-        <file>images/custom/z_14.ico</file>
         <file>images/custom/z_14.png</file>
-        <file>images/custom/z_15.ico</file>
         <file>images/custom/z_15.png</file>
-        <file>images/custom/z_16.ico</file>
         <file>images/custom/z_16.png</file>
-        <file>images/custom/z_17.ico</file>
-        <file>images/custom/z_17.png</file>
-        <file>images/custom/z_18.ico</file>
-        <file>images/custom/z_18.png</file>
-        <file>images/custom/z_19.ico</file>
-        <file>images/custom/z_19.png</file>
-        <file>images/custom/z_20.ico</file>
-        <file>images/custom/z_20.png</file>
         <file>images/dir_edit_center.png</file>
         <file>images/dir_edit_left.png</file>
         <file>images/dir_edit_right.png</file>
+        <file>images/icon_shadow.png</file>
+        <file>images/custom/z_12.png</file>
+        <file>images/skin_bg.png</file>
+        <file>images/wallpager/wp_0.jpg</file>
+        <file>images/wallpager/wp_1.jpg</file>
+        <file>images/wallpager/wp_2.jpg</file>
+        <file>images/wallpager/wp_3.jpg</file>
+        <file>images/wallpager/wp_4.jpg</file>
+        <file>images/wallpager/wp_5.jpg</file>
+        <file>images/wallpager/wp_6.jpg</file>
+        <file>images/wallpager/wp_7.jpg</file>
+        <file>images/wallpager/wp_8.jpg</file>
+        <file>images/wallpager/wp_9.jpg</file>
+        <file>images/wallpager/wp_10.jpg</file>
+        <file>images/wallpager/wp_11.jpg</file>
+        <file>images/wallpager/wp_12.jpg</file>
+        <file>images/wallpager/wp_13.jpg</file>
+        <file>images/wallpager/wp_14.jpg</file>
+        <file>images/wallpager/wp_15.jpg</file>
+        <file>images/wallpager/wp_16.jpg</file>
+        <file>images/wallpager/wp_17.jpg</file>
+        <file>images/wallpager/wp_18.jpg</file>
+        <file>images/wallpager/wp_19.jpg</file>
+        <file>images/wallpager/wp_20.jpg</file>
+        <file>images/wallpager/wp_21.jpg</file>
+        <file>images/wallpager/wp_22.jpg</file>
+        <file>images/wallpager/wp_23.jpg</file>
+        <file>images/wallpager/wp_24.jpg</file>
+        <file>images/wallpager/wp_25.jpg</file>
+        <file>images/wallpager/wp_26.jpg</file>
+        <file>images/wallpager/wp_27.jpg</file>
+        <file>images/wallpager/wp_28.jpg</file>
+        <file>images/wallpager/wp_29.jpg</file>
     </qresource>
 </RCC>

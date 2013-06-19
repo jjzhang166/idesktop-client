@@ -126,8 +126,7 @@ SOURCES += src/config.cpp \
     src/dirminwidget.cpp
 
 
-FORMS +=\
-    dlgchangepassword.ui
+FORMS +=
 
 OTHER_FILES +=
 

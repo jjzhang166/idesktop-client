@@ -19,8 +19,8 @@ class LocalItem;
 class LocalWidget;
 
 #define SPACING 30
-#define ICONWIDTH 96
-#define ICONHEIGHT 96
+//#define ICONWIDTH 96
+//#define ICONHEIGHT 96
 
 class LocalShowWidget : public QWidget
 {

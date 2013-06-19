@@ -40,6 +40,7 @@ signals:
     void showPerDesktop();
 
     //void showStore();
+    void checkDirState();
 
 public slots:
     void runCenter();
@@ -51,8 +52,25 @@ public slots:
     void perBtnClicked();
 
 private:
+    QPixmap setTransparentPixmap(const QString &pix);
+
+private:
     bool autoHide;
     bool visible;
+
+    QPixmap _switcherPix;
+    QPixmap _switcherPixHover;
+    QPixmap _vacPix;
+    QPixmap _vacPixHover;
+//    QPixmap _localPix;
+//    QPixmap _localPixHover;
+    QPixmap _dirPix;
+    QPixmap _dirPixHover;
+    QPixmap _personPix;
+    QPixmap _personPixHover;
+    QPixmap _quitPix;
+    QPixmap _quitPixHover;
+
     QPropertyAnimation *animation;
 //    AppCenterWdg *_center;
 //    TestWidget* _center;

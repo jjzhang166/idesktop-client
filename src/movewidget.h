@@ -15,9 +15,14 @@ public:
     ~MoveWidget();
 
     void setPixmap(const QPixmap &pix);
+
+signals:
+    void mousePress();
+
 protected:
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
+    void mousePressEvent(QMouseEvent *);
     
 private:
     QPixmap _pixmap;

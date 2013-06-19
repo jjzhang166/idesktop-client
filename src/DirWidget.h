@@ -16,101 +16,6 @@
 class DirItem;
 class DirWidget;
 
-//class DirAddItem : public QWidget
-//{
-//    Q_OBJECT
-//public:
-//    DirAddItem(const QString &text, QWidget *parent = NULL);
-//    ~DirAddItem();
-//    void setPixmap(const QString &icon);
-//    void setText(const QString &text);
-//    const QString & text();
-//    const QPixmap & pixmap();
-//    const QPixmap & originPixmap();
-//    const QPixmap & grayPixmap();
-//    const QPixmap & darkPixmap();
-
-//    bool isUserType();
-
-//    void animationMove(const QRect &start, const QRect &end);
-//    void setPage(int page);
-//    void setIndex(int index);
-//    void setHidden(bool hide);
-//    void setIsRmote(bool isRemote);
-//    int page()
-//    {
-//        return _page;
-//    }
-//    int index()
-//    {
-//        return _index;
-//    }
-//    bool isRmote()
-//    {
-//        return _isRemote;
-//    }
-//    int _icontype;/*³ÌÐòÍ¼±ê*/
-//signals:
-//    void clicked();
-//    void openItem(int page, int index);
-
-//    void delItem(const QString &text);
-
-//public slots:
-//    void startTremble();
-//    void stopTremble();
-//    void doTremble(qreal);
-//    void addApp();
-
-//    void openClicked();
-//    void delClicked();
-
-//protected:
-//    void mouseDoubleClickEvent(QMouseEvent *event);
-//    void mousePressEvent(QMouseEvent *event);
-//    void mouseMoveEvent(QMouseEvent *event);
-//    void contextMenuEvent(QContextMenuEvent *event);
-//    void paintEvent(QPaintEvent *event);
-////    void dragEnterEvent(QDragEnterEvent *event);
-////    void dropEvent(QDropEvent *event);
-
-//    void enterEvent(QEvent *event);
-//    void leaveEvent(QEvent *event);
-
-//private:
-////    LocalApp *_app;
-//    QDrag *_drag;
-//    QTimeLine *_timeline;
-//    QPoint dragStartPosition;
-//    QPropertyAnimation *_animation;
-//    int _textWidth;
-//    QString _text;
-
-//    QString _texticon;
-//    QString _texticon_firstrow;
-//    QString _texticon_secondrow;
-//    QString _texticon_thirdrow;
-//    int _textWidth_firstrow;
-//    int _textWidth_secondrow;
-//    int _textWidth_thirdrow;
-
-//    int _textHeight;
-//    int _page;
-//    int _index;
-//    int _trembling;
-//    bool _isRemote;
-//    QPixmap _pixmap;
-//    QPixmap _normalPixmap;
-//    QPixmap _grayPixmap;
-//    QPixmap _closePixmap;
-//    QPixmap _darkPixmap;
-//    QPixmap _originPixmap;
-
-//    QAction *_openAction;
-//    QAction *_delAction;
-////    HoverIconItem *_hoverDirAddItem;
-//};
-
 class DirShowWidget : public QWidget
 {
     Q_OBJECT
@@ -121,20 +26,26 @@ public:
 
     void showApp(bool localApp);
 
-    void setId(int id)      { _id = id; }
-    int id()                { return _id; }
+    void setId(int id)              { _id = id; }
+    int id()                        { return _id; }
+
+    void setMaxRow(int row);
+    int getHeight()                 { return _height; }
+    int getRow();
 
 signals:
     void sendUrl(const QString &url);
 
 public slots:
-    void scrollBarValueChanged(int val);
+//    void scrollBarValueChanged(int val);
     void addDirIcon(const QString &text, const QString &iconPath, const QString &url);
+    void setSize();
 
 protected:
-    void resizeEvent(QResizeEvent *event);
-    void wheelEvent(QWheelEvent *event);
+//    void resizeEvent(QResizeEvent *event);
+//    void wheelEvent(QWheelEvent *event);
     void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *);
 
 private:
     int _width;
@@ -150,6 +61,7 @@ private:
     QPropertyAnimation *_animation;
 
     int _id;
+    int _bgHeight;
 
 };
 
@@ -173,16 +85,24 @@ public:
     int iconCount()             { return _nextIdx[_current]; }
     int currentPage()           { return _current; }
     int count()                 { return _count; }
-    int iconsPerPage()          {  return _iconsPerPage; }
+    int iconsPerPage()          { return _iconsPerPage; }
     QSize pageSize()            { return _pageSize; }
+    int row()                   { return _row; }
+    int getIconHeight()           { return gridHeight; }
     void setUrl(const QString &url)                 { _url = url; }
 
     void expand();
     void delPage(int page);
     void delIcon(const QString &text);
+
+    void setMaxPage(int page)   { _maxPage = page; }
 signals:
     void sendUrl(const QString &url);
     void pageChanged(int i);
+//    void sizeChanged();
+    void pageIncreased();
+    void pageDecreased();
+
 protected:
 //    void paintEvent(QPaintEvent *event);
 //    void resizeEvent(QResizeEvent *event);
@@ -221,6 +141,8 @@ private:
 
     int _iconNum;
     DirItem *_inDrag;
+
+    int _maxPage;
 
 };
 
@@ -273,7 +195,7 @@ signals:
 public slots:
 //    void startTremble();
 //    void stopTremble();
-//    void doTremble(qreal);
+   void doTremble(qreal);
 
     void openClicked();
     void delClicked();
@@ -323,6 +245,9 @@ private:
 
     bool _equal;
     QString _url;
+
+    int _width;
+    int _height;
 
 };
 

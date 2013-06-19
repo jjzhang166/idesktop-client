@@ -345,9 +345,9 @@ QString LocalAppList::getAppImage(QString appPath)
          QFileInfo info = QFileInfo(appPath);
          QString path(Config::get("IconDir"));
          path = path + "\\" + "USER_ADDED_" + info.baseName();
-         path += ".ico"; //png
-         QPixmap newicon =  picon.scaled(95, 95, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-         newicon.save(path, "ICO",-1);
+         path += ".png"; //png
+         QPixmap newicon =  picon.scaled(72, 72, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+         newicon.save(path, "PNG",-1);
          return path;
     }
     return "";
@@ -360,26 +360,26 @@ void LocalAppList::addLocalApp(QString appPath)
     if (newApp.isEmpty())
         return;
 
-    QImage image = QImage(newApp).scaled(95, 95);
-    QImage normal = QImage(":images/app_bg.png");
+    QImage image = QImage(newApp).scaled(72, 72);
+    QImage normal = QImage(":images/icon_shadow.png");
     //setImgOpacity(normal, 0);
 
-    for (int i = 0; i < normal.width(); i++) {
-        for (int j = 0; j < normal.height(); j++) {
-            QRgb pixel = normal.pixel(i,j);
-            int a = qAlpha(pixel);
-            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
-                                    qBlue(pixel), a * 0 / 255);
-            normal.setPixel(i, j, lightPixel);
-        }
-    }
+//    for (int i = 0; i < normal.width(); i++) {
+//        for (int j = 0; j < normal.height(); j++) {
+//            QRgb pixel = normal.pixel(i,j);
+//            int a = qAlpha(pixel);
+//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//                                    qBlue(pixel), a * 117 / 255);
+//            normal.setPixel(i, j, lightPixel);
+//        }
+//    }
 
     QPainter pt1(&normal);
     pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    pt1.drawImage(0, 0, image); // 19 2
+    pt1.drawImage(35, 36, image);
     pt1.end();
     QPixmap pix = QPixmap::fromImage(normal);
-    pix.save(newApp, "ICO", -1);//
+    pix.save(newApp, "PNG", -1);//
 
     QFileInfo info = QFileInfo(appPath);
     LocalApp *app = new LocalApp();

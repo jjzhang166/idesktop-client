@@ -11,8 +11,8 @@
 #include <QPainter>
 #include <QLabel>
 
-class PixmapWidget;
-class SkinPixWidget;
+//class PixmapWidget;
+//class SkinPixWidget;
 class PixItem;
 class PixWidget;
 
@@ -35,11 +35,11 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private:
-    PixmapWidget *_pixmapWidget;
+//    PixmapWidget *_pixmapWidget;
     PixWidget *_pixWidget;
     QScrollBar *_scrollBar;
 
-    SkinPixWidget *_skinPixWidget;
+//    SkinPixWidget *_skinPixWidget;
 
     QPropertyAnimation *_animation;
 

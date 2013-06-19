@@ -6,17 +6,10 @@
 
 #include "skinwidget.h"
 
-#define INDICATOR_ITEMSIZE QSize(14, 14)
-#define ICONWIDTH 96
-#define ICONHEIGHT 96
-#define CLOSEWIDTH 30
-#define CLOSEHEIGHT 30
-#define FONTSIZE 10
-#define APPICON   0
 #define ADDICON 1
-#define SPACING 30
-#define ICONWIDTH 76
-#define ICONHEIGHT 30
+#define SPACING 15
+#define ICONWIDTH 160
+#define ICONHEIGHT 85
 #define ICONNUM 30
 
 SkinWidget::SkinWidget(QWidget *parent)
@@ -26,7 +19,7 @@ SkinWidget::SkinWidget(QWidget *parent)
 
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
 
-    _pixWidget = new PixWidget(QSize(700, 484), this);
+    _pixWidget = new PixWidget(QSize(830, 484), this);
     _pixWidget->move(0,0);
     _pixWidget->setVisible(true);
 
@@ -61,6 +54,19 @@ SkinWidget::SkinWidget(QWidget *parent)
 
     _bgPix.load(":/images/skin_bg.png");
 
+//    QImage normal = QImage(":/images/skin_bg.png");
+
+//    for (int i = 0; i < normal.width(); i++) {
+//        for (int j = 0; j < normal.height(); j++) {
+//            QRgb pixel = normal.pixel(i,j);
+//            int a = qAlpha(pixel);
+//            QRgb lightPixel = qRgba(qRed(pixel) * 1, qGreen(pixel) * 1, \
+//                                    qBlue(pixel) * 1, a * 150 / 255);
+//            normal.setPixel(i, j, lightPixel);
+//        }
+//    }
+//    _bgPix = QPixmap::fromImage(normal);
+
     connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
     connect(_pixWidget, SIGNAL(setBgPixmap(QString)), this, SIGNAL(setBgPixmap(QString)));
 }
@@ -91,10 +97,10 @@ void SkinWidget::resizeEvent(QResizeEvent *event)
     _height = height();
 
     int w = 15;
-    int x = width() - 28;
+    int x = width() - 33;
     x = x < 0 ? 0: x;
     int h = height();
-    _scrollBar->setGeometry(x, 10, w, h - 20);
+    _scrollBar->setGeometry(x, 15, w, h - 30);
 
     _scrollBar->setRange(0, _pixWidget->count() * _pixWidget->pageSize().height() - h);
     update();
@@ -129,6 +135,7 @@ PixItem::PixItem(QWidget *parent)
     : QWidget(parent)
     , _selectPix(false)
 {
+    setFixedSize(ICONWIDTH, ICONHEIGHT);
     _color = QColor(Qt::white);
 }
 
@@ -174,7 +181,7 @@ void PixItem::mousePressEvent(QMouseEvent *event)
 
     if (!_selectPix)
     {
-        _selectPix = true;
+        setPenColor(true);
     }
 
 
@@ -184,7 +191,7 @@ void PixItem::mousePressEvent(QMouseEvent *event)
 
 void PixItem::mouseMoveEvent(QMouseEvent *event)
 {
-
+    Q_UNUSED(event);
 }
 
 void PixItem::enterEvent(QEvent *event)
@@ -209,10 +216,12 @@ void PixItem::setPenColor(bool yellow)
     if (yellow)
     {
         _color = QColor(Qt::yellow);
+        _selectPix = true;
     }
     else
     {
         _color = QColor(Qt::white);
+        _selectPix = false;
     }
     update();
 }
@@ -230,8 +239,8 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
 
     gridWidth = ICONWIDTH + SPACING * 2;
     gridHeight = ICONHEIGHT + SPACING * 2;
-    _col = _width / (gridWidth + SPACING);
-    _row = _height / (gridHeight + SPACING + 21);
+    _col = _width / gridWidth;
+    _row = _height / gridHeight;
     _iconsPerPage = _col * _row;
     _current  = 0;
 
@@ -248,9 +257,9 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
         QList<QRect> newList;
         for (int j = 0; j < _col * _row; j++) {
 
-            int x = (j % _col) * (gridWidth + SPACING);
+            int x = (j % _col) * gridWidth + SPACING + 10;
             int y = _pageSize.height() * i \
-                    + (j / _col) * (gridHeight + SPACING + 21) + 21;
+                    + (j / _col) * gridHeight + SPACING - 3;
 
             newList.insert(j, \
                            QRect(x, y, gridWidth, gridHeight));
@@ -351,11 +360,10 @@ int PixWidget::addIcon(const QString &iconPath, \
 
 void PixWidget::itemClicked(const QString &pixText)
 {
-
     QSqlQuery query = QSqlDatabase::database("local").exec("select wallpaper from wallpapers where id=1;");
     query.next();
 
-    for (int i = 0; i < _count - 1; i++)
+    for (int i = 0; i < _count; i++)
     {
         for (int j = 0; j < _nextIdx[i]; j++)
         {

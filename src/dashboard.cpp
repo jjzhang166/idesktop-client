@@ -57,6 +57,7 @@ Dashboard::Dashboard(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint | Qt::Tool)
     , _outOfScreen(false)
     , _animationFinished(false)
+    , _minUpward(false)
 {
 #ifdef Q_WS_WIN
 
@@ -88,6 +89,7 @@ Dashboard::Dashboard(QWidget *parent)
     if (!_ldialog->exec())
        exit(1);
 
+    setFocusPolicy(Qt::ClickFocus);
 //    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool);
 
     QDesktopWidget *d = QApplication::desktop();
@@ -98,8 +100,11 @@ Dashboard::Dashboard(QWidget *parent)
     setGeoProper();
 
     vdesktop = new VirtualDesktop(QSize(_width, _height), this);
+    _animationDesktop = new QPropertyAnimation(vdesktop, "pos");
+    connect(_animationDesktop, SIGNAL(valueChanged(QVariant)), this, SLOT(valueChanged(QVariant)));
+
     indicator = new Indicator(vdesktop, this);
-    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 20);
+    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
     //indicator->setGeometry((_width - indicator->width())/2, _height - indicator->height() - 28 , 20, 80);
     indicator->show();
 
@@ -108,7 +113,7 @@ Dashboard::Dashboard(QWidget *parent)
 //    switcher->show();
 
     panel = new Panel(this);
-    panel->setFixedSize(78, 484);
+    panel->setFixedSize(78, 406);
     //panel->setFixedSize(_width / 3, 40);
     panel->move(_width - panel->width(), (_height - panel->height()) / 2);
     panel->show();
@@ -169,20 +174,20 @@ Dashboard::Dashboard(QWidget *parent)
     _retryTimes = 3;
     _Isheartbeat=true;
 
-    _localShowWidget = new LocalShowWidget(QSize(700, 484), this);
-    _localShowWidget->move(_width - panel->width() - _localShowWidget->width() - 20, panel->pos().y());
+    _localShowWidget = new LocalShowWidget(QSize(820, 484), this);
+    _localShowWidget->move(_width - panel->width() - _localShowWidget->width(), panel->pos().y());
 //    _localShowWidget->showApp(true);
     _localShowWidget->setVisible(false);
 
 
-    _vacShowWidget = new VacShowWidget(QSize(700, 484), this);
-    _vacShowWidget->move(_width - panel->width() - _vacShowWidget->width() - 20, panel->pos().y());
+    _vacShowWidget = new VacShowWidget(QSize(820, 484), this);
+    _vacShowWidget->move(_width - panel->width() - _vacShowWidget->width() + 10, panel->pos().y());
 //    _localShowWidget->showApp(true);
     _vacShowWidget->setVisible(false);
 
     _skinShowWidget = new SkinWidget(this);
-    _skinShowWidget->resize(700, 484);
-    _skinShowWidget->move(_width - panel->width() - _skinShowWidget->width() - 20, panel->pos().y());
+    _skinShowWidget->resize(820, 484);
+    _skinShowWidget->move(_width - panel->width() - _skinShowWidget->width() + 10, panel->pos().y() - 78);
     _skinShowWidget->setVisible(false);
 
     QPixmap minPix(":/images/min_mask_icon.png");
@@ -203,6 +208,8 @@ Dashboard::Dashboard(QWidget *parent)
 
     _animationMinScreen = new QPropertyAnimation(_minW, "geometry");
 
+    connect(_mW, SIGNAL(mousePress()), vdesktop, SLOT(dirState()));
+
     connect(_vacServerWidget, SIGNAL(serverChanged()), this, SLOT(updateVacServer()));
     connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
     connect(_skinShowWidget, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
@@ -214,6 +221,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(panel, SIGNAL(showDirDesktop()), this, SLOT(onShowDirDesktop()));
     connect(panel, SIGNAL(showPerDesktop()), this, SLOT(onShowPerDesktop()));
     connect(panel, SIGNAL(pageChanged(int)), this, SLOT(goPage(int)));
+    connect(panel, SIGNAL(checkDirState()), vdesktop, SLOT(dirState()));
     connect(quitAction, SIGNAL(triggered()), this, SLOT(quit()));
     connect(showAction, SIGNAL(triggered()), this, SLOT(show()));
     connect(hideAction, SIGNAL(triggered()), this, SLOT(hide()));
@@ -239,13 +247,23 @@ Dashboard::Dashboard(QWidget *parent)
             vdesktop, SLOT(addLocalApp(const QString&,const QString&, const QString&))); //
     connect(vdesktop, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
 //    connect(_dirWidget, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
-//    connect(_bsWidget,SIGNAL(goBack()), this, SLOT(goDesktop()));
-    connect(vdesktop, SIGNAL(desktopOpenMove(int ,int ,int, int)), this, SLOT(desktopOpenMove(int ,int ,int, int)));
-    connect(vdesktop, SIGNAL(desktopCloseMove(int, int, int, int)), this, SLOT(desktopCloseMove(int ,int ,int, int)));
-    connect(vdesktop, SIGNAL(openMinWidget(int ,int ,int, int)), this, SLOT(openMinWidget(int ,int ,int, int)));
-    connect(vdesktop, SIGNAL(closeMinWidget(int, int, int, int)), this, SLOT(closeMinWidget(int ,int ,int, int)));
+    connect(_bsWidget,SIGNAL(goBack()), this, SLOT(goDesktop()));
+    connect(vdesktop, SIGNAL(desktopOpenMove(int ,int ,int, int, int, int)),
+            this, SLOT(desktopOpenMove(int ,int ,int, int, int, int)));
+    connect(vdesktop, SIGNAL(desktopCloseMove(int, int, int, int, int, int)),
+            this, SLOT(desktopCloseMove(int ,int ,int, int, int, int)));
+    connect(vdesktop, SIGNAL(openMinWidget(int ,int ,int, int, int)),
+            this, SLOT(openMinWidget(int ,int ,int, int, int)));
+    connect(vdesktop, SIGNAL(closeMinWidget(int, int, int, int, int)),
+            this, SLOT(closeMinWidget(int ,int ,int, int, int)));
+    connect(vdesktop, SIGNAL(desktopClicked()), this, SLOT(desktopClicked()));
+
+    connect(vdesktop, SIGNAL(desktopBgMove(int)), this, SLOT(desktopBgMove(int)));
+    connect(vdesktop, SIGNAL(desktopBgBack(int)), this, SLOT(desktopBgBack(int)));
+
     connect(_animationScreen,SIGNAL(finished()), this, SLOT(scrFinished()));
     connect(_animationMinScreen,SIGNAL(finished()), this, SLOT(scrMinFinished()));
+    connect(_animationMinScreen, SIGNAL(valueChanged(const QVariant&)), this, SLOT(valueChanged(const QVariant&)));
 //    connect(vdesktop, SIGNAL(setDirIcon(const QString&, const QString&, const QString&)),
 //            _dirWidget, SLOT(addDirIcon(const QString&, const QString&, const QString&)));
 
@@ -253,27 +271,38 @@ Dashboard::Dashboard(QWidget *parent)
 //    QPixmap backPix(":images/bs_goback.png");
 //    QPixmap backPixHover(":images/bs_goback_hove.png");
 //    _backBtn = new DynamicButton(backPix, backPixHover, this);
-    _backBtn = new QPushButton(this);
-    _backBtn->setStyleSheet\
-                    ("QPushButton{background-image:url(:images/bs_goback.png);\
-                       border-style:flat;background-color:transparent;}\
-                    QPushButton:hover:pressed{\
-                        background-image:url(:images/bs_goback_hover.png);border-style:flat;background-color:transparent;} \
-                    QPushButton:hover{\
-                        background-image:url(:images/bs_goback.png);border-style:flat;background-color:transparent;}");
 
-    _backBtn->setGeometry(60, r.height() / 2,\
-                                   50, 50);
-    _backBtn->setVisible(false);
-    connect(_backBtn, SIGNAL(clicked()), this, SLOT(goDesktop()));//
+//    _backBtn = new QPushButton(this);
+//    _backBtn->setStyleSheet\
+//                    ("QPushButton{background-image:url(:images/bs_goback.png);\
+//                       border-style:flat;background-color:transparent;}\
+//                    QPushButton:hover:pressed{\
+//                        background-image:url(:images/bs_goback_hover.png);border-style:flat;background-color:transparent;} \
+//                    QPushButton:hover{\
+//                        background-image:url(:images/bs_goback.png);border-style:flat;background-color:transparent;}");
+
+//    _backBtn->setGeometry(60, r.height() / 2,\
+//                                   50, 50);
+//    _backBtn->setVisible(false);
+//    connect(_backBtn, SIGNAL(clicked()), this, SLOT(goDesktop()));//
 }
 
-void Dashboard::desktopOpenMove(int x, int y, int w, int h)
+void Dashboard::desktopClicked()
+{
+    _vacShowWidget->setVisible(false);
+    _skinShowWidget->setVisible(false);
+}
+
+void Dashboard::desktopOpenMove(int x, int y, int w, int h, int distance, int desktopDistance)
 {
     if (_animationScreen->state() == QAbstractAnimation::Running)
     {
         return;
     }
+
+    panel->setVisible(false);
+    _vacShowWidget->setVisible(false);
+    _skinShowWidget->setVisible(false);
 
     indicator->setVisible(false);
 //    _dirWidget->move(x, y);
@@ -291,22 +320,23 @@ void Dashboard::desktopOpenMove(int x, int y, int w, int h)
 //    _animationScreen = new QPropertyAnimation(_mW, "geometry");
     _animationScreen->setDuration(500);
     _animationScreen->setStartValue(QRect(x, y, w, h));
-    _animationScreen->setEndValue(QRect(x, y + 290, w, h));
+    _animationScreen->setEndValue(QRect(x, y + distance, w, h));
     _animationScreen->start();
 }
 
-void Dashboard::desktopCloseMove(int x, int y, int w, int h)
+void Dashboard::desktopCloseMove(int x, int y, int w, int h, int distance, int desktopDistance)
 {
     if (_animationScreen->state() == QAbstractAnimation::Running)
     {
         return;
     }
 
+    qDebug() << desktopDistance;
+
     _animationScreen->setDuration(500);
     _animationScreen->setStartValue(QRect(x, y, w, h));
-    _animationScreen->setEndValue(QRect(x, y - 290, w, h));
+    _animationScreen->setEndValue(QRect(x, y - distance, w, h));
     _animationScreen->start();
-
     _animationFinished = true;
 
 }
@@ -322,15 +352,25 @@ void Dashboard::scrFinished()
         _animationFinished = false;
         indicator->setVisible(true);
         vdesktop->setDirHide();
+        panel->setVisible(true);
+        panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
+        panel->show();
+        panel->setAutoHide(true);
+        panel->animationHide();
+        vdesktop->setIconEnabled(true);
     }
 }
 
-void Dashboard::openMinWidget(int x, int y, int w, int h)
+void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
 {
     if (_animationMinScreen->state() == QAbstractAnimation::Running)
     {
         return;
     }
+
+    _distance = distance;
+    _minY = y;
+    _minUpward = false;
 
     _minLabel->setGeometry(x, y + 1, w, h);
     _minLabel->setVisible(true);
@@ -347,20 +387,25 @@ void Dashboard::openMinWidget(int x, int y, int w, int h)
 //    _animationScreen = new QPropertyAnimation(_mW, "geometry");
     _animationMinScreen->setDuration(500);
     _animationMinScreen->setStartValue(QRect(x, y, w, h));
-    _animationMinScreen->setEndValue(QRect(x, y + 290, w, h));
+    _animationMinScreen->setEndValue(QRect(x, y + distance, w, h));
     _animationMinScreen->start();
 }
 
-void Dashboard::closeMinWidget(int x, int y, int w, int h)
+void Dashboard::closeMinWidget(int x, int y, int w, int h, int distance)
 {
     if (_animationMinScreen->state() == QAbstractAnimation::Running)
     {
         return;
     }
+
+//    _distance = distance;
+    _minY = y;
+    _minUpward = true;
+
     _minW->setVisible(true);
     _animationMinScreen->setDuration(500);
     _animationMinScreen->setStartValue(QRect(x, y, w, h));
-    _animationMinScreen->setEndValue(QRect(x, y - 290, w, h));
+    _animationMinScreen->setEndValue(QRect(x, y - distance, w, h));
     _animationMinScreen->start();
 }
 
@@ -369,21 +414,86 @@ void Dashboard::scrMinFinished()
     _minW->setVisible(false);
 }
 
+void Dashboard::desktopBgMove(int distance)
+{
+    qDebug() << "*************!@#*********!@#*********@#$*******@#$*************$#$%*#$*%*********!!****** ";
+//    if (_animationDesktop->state() == QAbstractAnimation::Running)
+//    {
+//        return;
+//    }
+//    qDebug() <<"()()()()()()()()()()()()()()() "<< vdesktop->y();
+//    qDebug() <<"()()()()()()()()()()()()()()() "<< vdesktop->y() - distance;
+
+    _animationDesktop->setDuration(500);
+    _animationDesktop->setEasingCurve(QEasingCurve::InExpo);
+    _animationDesktop->setStartValue(QPoint(0, 0));
+    _animationDesktop->setEndValue(QPoint(0, vdesktop->y() - distance));
+    _animationDesktop->start();
+}
+
+void Dashboard::valueChanged(const QVariant &value)
+{
+    QRect rect = value.value<QRect>();
+    if (((rect.y() - _minY) > 0 ? rect.y() - _minY : _minY - rect.y()) >= _distance / 2)
+    {
+        qDebug() << rect.y() - _minY;
+        if (!_minUpward)
+        {
+            _minW->setVisible(false);
+        }
+        else
+        {
+            _minW->setVisible(true);
+        }
+    }
+    else
+    {
+        if (!_minUpward)
+        {
+            _minW->setVisible(true);
+        }
+        else
+        {
+            _minW->setVisible(false);
+        }
+    }
+
+}
+
+void Dashboard::desktopBgBack(int distance)
+{
+    qDebug() << "*********%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%^%^%%%%%$%%%%%^^^%%^%^%^%^%^%^%^%^%^%^%^%^%^***** ";
+//    if (_animationDesktop->state() == QAbstractAnimation::Running)
+//    {
+//        return;
+//    }
+//    qDebug() <<"()()()()()()()()()()()()()()() "<< vdesktop->y();
+//    qDebug() <<"()()()()()()()()()()()()()()() "<< vdesktop->y() + distance;
+
+    _animationDesktop->setDuration(500);
+    _animationDesktop->setStartValue(QPoint(0, -168));
+    _animationDesktop->setEndValue(QPoint(0, 0));
+    _animationDesktop->start();
+}
+
 void Dashboard::showBs(const QString &url)
 {
     qDebug() << "url"<< "url" << url;
     vdesktop->setVisible(false);
     _bsWidget->setUrl(url);
     _bsWidget->setVisible(true);
-    _backBtn->setVisible(true);
+//    _backBtn->setVisible(true);
+    panel->setVisible(false);
 
 }
 
 void Dashboard::goDesktop()
 {
-    _backBtn->setVisible(false);
+//    _backBtn->setVisible(false);
     vdesktop->setVisible(true);
     _bsWidget->setVisible(false);
+    panel->setVisible(true);
+
 
 }
 
@@ -547,7 +657,7 @@ void Dashboard::onShowPerDesktop()
 
 void Dashboard::moveIndicator()
 {
-    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 20);
+    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
 }
 
 void Dashboard::getIn()
@@ -580,7 +690,6 @@ void Dashboard::getIn()
 
 void Dashboard::getOut()
 {
-    qDebug() << "getOutgetOutgetOutgetOutgetOutgetOutgetOutgetOutgetOutgetOutgetOut";
     QPoint start;
     QPoint end;
     if (_animation->state() == QAbstractAnimation::Running) {

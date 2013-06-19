@@ -5,16 +5,43 @@
 #include <cassert>
 
 #include "virtualdesktop.h"
-#define SPACING 10
-#define ICONWIDTH 96
-#define ICONHEIGHT 96
 
+//#define ICONWIDTH 72
+//#define ICONHEIGHT 72
+//#define SELECTWIDTH 37
+//#define SELECTHEIGHT 37
+
+//#define SPACING 10
+//#define FONTSIZE 10
+
+//#define ICONITEMWIDTH (ICONWIDTH + SELECTWIDTH/2 + 8)
+//#define ICONITEMHEIGHT (ICONHEIGHT + 15 + FONTSIZE * 2)
+
+//#define APPICON   0
+//#define HSPACING (40 - (SELECTWIDTH / 2 + 8) / 2)
+//#define VSPACING 35
+
+
+#define ICONWIDTH 72            //72
+#define ICONHEIGHT 72           //72
+#define SELECTWIDTH 37
+#define SELECTHEIGHT 37
+
+#define SPACING 10
+#define FONTSIZE 10
+
+#define ICONITEMWIDTH 143                                 //(ICONWIDTH + SELECTWIDTH/2 + 8)
+#define ICONITEMHEIGHT 143                               //(ICONHEIGHT + 15 + FONTSIZE * 2)
+
+#define CLOSEWIDTH 30
+#define CLOSEHEIGHT 30
+
+#define APPICON   0
 
 IconMinItem::IconMinItem(QWidget *parent)
     : QWidget(parent)
 //    , _trembling(0)
 {
-
     _animation = new QPropertyAnimation(this, "geometry");
     _animation->setDuration(200);
     _animation->setEasingCurve(QEasingCurve::OutBack);
@@ -117,7 +144,8 @@ void IconMinItem::paintEvent(QPaintEvent *event)
 //    if (_trembling)
 //        painter.translate(-1*width()/2, -1*height()/2);
 
-    painter.drawPixmap(0, 0, width(), height(), _pixmap.scaled(width(), height()));
+    painter.drawPixmap(-1 * width() / 2, -1 * height() / 2,
+                       width() * 2, height() * 2, _pixmap.scaled(width() * 2, height() * 2));
     QWidget::paintEvent(event);
 }
 
@@ -151,8 +179,8 @@ void IconMinItem::setUrl(const QString &url)
 
 DirMinWidget::DirMinWidget(QWidget *parent)
     : QWidget(parent)
-    , _width(74)
-    , _height(74)
+    , _width(72)
+    , _height(72)
     , _gridWidth(21)
     , _gridHeight(21)
     , _col(2)
@@ -308,7 +336,7 @@ void DirMinWidget::dropEvent(QDropEvent *event)
         qDebug() << pixText;
         qDebug() << urlText;
 
-         pixText.replace(".png", ".ico");
+//         pixText.replace(".png", ".ico");
         qDebug() << pixText;
 
 //        if (event->source() == this) {
@@ -547,6 +575,11 @@ void DirMinWidget::delIcon(const QString &text)
 //    }
 }
 
+void DirMinWidget::mouseDoubleClickEvent(QMouseEvent *)
+{
+    return;
+}
+
 void DirMinWidget::mousePressEvent(QMouseEvent *)
 {
     emit mouseClicked();
@@ -554,21 +587,23 @@ void DirMinWidget::mousePressEvent(QMouseEvent *)
 
 DirLineEdit::DirLineEdit(QString hint, QWidget *parent)
     : QLineEdit(parent), _hint(hint), _color(Qt::white)
+    , _mousePress(false)
 {
+    setFocusPolicy(Qt::NoFocus);
+    setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:0px; color:white;");
+    setAlignment(Qt::AlignCenter);
+//    resize(95, 15);
 
-    setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:5px;");
-    resize(95, 15);
-
-    _editLeft = new QImage(":/images/dir_edit_left.png");
-    _editCenter = new QImage(":/images/dir_edit_center.png");
-    _editRight = new QImage(":/images/dir_edit_right.png");
+//    _editLeft = new QImage(":/images/dir_edit_left.png");
+//    _editCenter = new QImage(":/images/dir_edit_center.png");
+//    _editRight = new QImage(":/images/dir_edit_right.png");
 
 
-    setImgs(_editLeft, _editCenter, _editRight);
+//    setImgs(_editLeft, _editCenter, _editRight);
 
 //    _pixmap.load(":images/login_input.png");
 
-    connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(setHint(const QString&)));
+//    connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(setHint(const QString&)));
 
 }
 
@@ -577,80 +612,168 @@ void DirLineEdit::paintEvent(QPaintEvent* event)
     QLineEdit::paintEvent(event);
     QPainter painter(this);
 
-    *_left = _left->scaled(11, 15);
-    painter.drawImage(QRect(0, 0, 11, 15), *_left);
-    *_right = _right->scaled(10, 15);
-    painter.drawImage(QRect(width() - 10, 0, 10, 15), *_right);
-    *_center = _center->scaled(width() - 11 - 10, 15);
-    painter.drawImage(QRect(11, 0, 95 - 11 - 10, 15), *_center);
-    //if (hasFocus())
-    //    return;
+//    *_left = _left->scaled(11, 23);
+//    painter.drawImage(QRect(0, 0, _left->width(), _left->height()), *_left);
+//    *_right = _right->scaled(10, 23);
+//    painter.drawImage(QRect(_width - _right->width(), 0, _right->width(), _right->height()), *_right);
+//    *_center = _center->scaled(width() - 11 - 10, 23);
+//    painter.drawImage(QRect(_left->width(), 0, _width - _left->width() - _right->width(), _center->height()), *_center);
+    if (hasFocus())
+        return;
     if (!text().isEmpty())
     {
-        QRect rt = rect();
-    //    painter.setPen(Qt::gray);
-        painter.setPen(_color);
-        painter.drawText(rt.translated(23,1), Qt::AlignLeft | Qt::AlignVCenter | Qt::TextHideMnemonic, _hint);
         return;
     }
 
     QRect rt = rect();
-//    painter.setPen(Qt::gray);
-    painter.setPen(_color);
-    painter.drawText(rt.translated(3,1), Qt::AlignLeft | Qt::AlignVCenter | Qt::TextHideMnemonic, _hint);
+//    painter.setPen(QColor(Qt::white));
+    painter.drawText(rt.translated(0,1), Qt::AlignCenter | Qt::TextHideMnemonic, _hint);
+}
+
+void DirLineEdit::mousePressEvent(QMouseEvent *event)
+{
+//    emit focusIn();
+//    _mousePress = true;
+//            setEnabled(true);
+            if (!hasFocus())
+                setFocus();
+//            emit focusIn();
+
+    QLineEdit::mousePressEvent(event);
 }
 
 void DirLineEdit::focusInEvent(QFocusEvent *event)
 {
-    _color = QColor(Qt::white);
-    setImgs(_editLeft, _editCenter, _editRight);
+//    if (!_mousePress)
+//        clearFocus();
+//    else
+        emit focusIn();
 
     QLineEdit::focusInEvent(event);
 }
 
 void DirLineEdit::focusOutEvent(QFocusEvent *event)
 {
-    _color = QColor(Qt::white);
-    setImgs(_editLeft, _editCenter, _editRight);//
+    emit focusOut();
+//    setEnabled(false);
+//    _mousePress = false;
 
     QLineEdit::focusOutEvent(event);
 }
 
-void DirLineEdit::setImgs(QImage *strLeft, QImage *strCenter, QImage *strRight)
+void DirLineEdit::resizeEvent(QResizeEvent *event)
 {
-    _left = strLeft;
-    _center = strCenter;
-    _right = strRight;
+    _width = width();
+    _height = height();
 
-    repaint();
+    QLineEdit::resizeEvent(event);
 }
 
-DirMinShowWidget::DirMinShowWidget(QWidget *parent)
+//void DirLineEdit::setImgs(QImage *strLeft, QImage *strCenter, QImage *strRight)
+//{
+//    _left = strLeft;
+//    _center = strCenter;
+//    _right = strRight;
+
+//    repaint();
+//}
+
+DirMWidget::DirMWidget(QWidget *parent)
     : QWidget(parent)
 {
-    resize(95, 95);
-    _dirMinWidget = new DirMinWidget(this);
-    _dirMinWidget->move(11, 0);
-    _dirMinWidget->setVisible(true);
+    _width = ICONWIDTH;
+    _height = ICONHEIGHT;
+    setFixedSize(_width, _height);
 
-    _dirLineEdit = new DirLineEdit(QString("输入文件夹名称"), this);
-    _dirLineEdit->move(0, height() - 15);
+    _dirMinWidget = new DirMinWidget(this);
+    _dirMinWidget->move(0, 0);
+    _dirMinWidget->setVisible(true);
 
     connect(_dirMinWidget, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
     connect(_dirMinWidget, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
     connect(_dirMinWidget, SIGNAL(iconLeave()), this, SIGNAL(iconLeave()));
     connect(_dirMinWidget, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
+    connect(_dirMinWidget, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)),
+            this, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)));
+    connect(_dirMinWidget, SIGNAL(mouseClicked()), this, SIGNAL(mouseClicked()));
+}
+
+DirMWidget::~DirMWidget()
+{
+
+}
+
+DirMinShowWidget::DirMinShowWidget(QWidget *parent)
+    : QWidget(parent)
+{
+
+    setFocusPolicy(Qt::ClickFocus);
+
+    _width = ICONITEMWIDTH;
+    _height = ICONITEMHEIGHT;
+    setFixedSize(_width, _height);
+
+    _dirMWidget = new DirMWidget(this);
+    _dirMWidget->move(36, 36);          //((SELECTWIDTH / 2  + 8) / 2, 0)
+    _dirMWidget->setVisible(true);
+
+    _dirLineEdit = new DirLineEdit(QString("输入文件夹名称"), this);
+    _dirLineEdit->setGeometry((_width - (72 + 37 / 2 + 8)) / 2, _height - 26, 72 + 37 / 2 + 8, 23);
+
+//    _dirLineEdit->setTextMargins(3, 5, 2, 5);
+
+//    _editLeft = new QImage(":/images/dir_edit_left.png");
+//    _editCenter = new QImage(":/images/dir_edit_center.png");
+//    _editRight = new QImage(":/images/dir_edit_right.png");
+
+//    _editLeftNormal = new QImage("");
+//    _editCenterNormal = new QImage("");
+//    _editRightNormal = new QImage("");
+
+    _editLeft = setTransparentPixmap(":/images/dir_edit_left.png");
+    _editCenter = setTransparentPixmap(":/images/dir_edit_center.png");
+    _editRight = setTransparentPixmap(":/images/dir_edit_right.png");
+    _editLeftNormal.load("");
+    _editCenterNormal.load("");
+    _editRightNormal.load("");
+
+    setImgs(_editLeftNormal, _editCenterNormal, _editRightNormal);
+
+    connect(_dirMWidget, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
+    connect(_dirMWidget, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
+    connect(_dirMWidget, SIGNAL(iconLeave()), this, SIGNAL(iconLeave()));
+    connect(_dirMWidget, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
 //    connect(_dirMinWidget, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)),
 //            this, SLOT(iconDropEvent(const QString&, const QString& ,const QString&)));
 //    connect(_dirMinWidget, SIGNAL(mouseClicked()), this, SLOT(mouseClicked()));
-    connect(_dirMinWidget, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)),
+    connect(_dirMWidget, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)),
             this, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)));
-    connect(_dirMinWidget, SIGNAL(mouseClicked()), this, SIGNAL(openItem()));
+    connect(_dirMWidget, SIGNAL(mouseClicked()), this, SIGNAL(openItem()));
+    connect(_dirLineEdit, SIGNAL(focusIn()), this, SLOT(editFocusIn()));
+    connect(_dirLineEdit, SIGNAL(focusOut()), this, SLOT(editFocusOut()));
 }
 
 DirMinShowWidget::~DirMinShowWidget()
 {
 
+}
+
+void DirMinShowWidget::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+    QPainter painter(this);
+    //_width - (72 + 37 / 2 + 8)) / 2, _height - 26, 72 + 37 / 2 + 8, 23
+    painter.drawPixmap(0, 0, QPixmap(":/images/icon_shadow.png"));
+
+    painter.drawPixmap((_width - (72 + 37 / 2 + 8)) / 2, _height - 26, \
+                      _left.width(), _left.height(),
+                      _left);
+    painter.drawPixmap((_width + (72 + 37 / 2 + 8)) / 2 - _right.width(), _height - 26, \
+                      _right.width(), _right.height(),
+                      _right);
+    painter.drawPixmap((_width - (72 + 37 / 2 + 8)) / 2 + _left.width(), _height - 26, \
+                      (72 + 37 / 2 + 8) - _left.width() - _right.width(), _center.height(),
+                      _center);
 }
 
 void DirMinShowWidget::mouseClicked()
@@ -661,5 +784,56 @@ void DirMinShowWidget::mouseClicked()
 
 void DirMinShowWidget::iconDropEvent(const QString &text, const QString &iconPath, const QString &url)
 {
+    Q_UNUSED(text);
+    Q_UNUSED(iconPath);
+    Q_UNUSED(url);
     //emit iconDrop(_id, text, iconPath, url);
+}
+
+void DirMinShowWidget::editFocusIn()
+{
+    qDebug() << "IIIIIIIIIIIIIIIIIIIINnnnnNNnnnnnnnnnnnnnnnnnnnnnnnnn";
+
+    setImgs(_editLeft, _editCenter, _editRight);
+}
+
+void DirMinShowWidget::editFocusOut()
+{
+    qDebug() << "OOOOOOOOOOOOOOOOOOUUUUUUUUUUUUUUUUUUUUUUTTTTTTTTTTTTTTT";
+
+    setImgs(_editLeftNormal, _editCenterNormal, _editRightNormal);
+}
+
+//void DirMinShowWidget::setImgs(QImage *strLeft, QImage *strCenter, QImage *strRight)
+//{
+//    _left = strLeft;
+//    _center = strCenter;
+//    _right = strRight;
+
+//    repaint();
+//}
+
+void DirMinShowWidget::setImgs(QPixmap strLeft, QPixmap strCenter, QPixmap strRight)
+{
+    _left = strLeft;
+    _center = strCenter;
+    _right = strRight;
+
+    repaint();
+}
+
+QPixmap DirMinShowWidget::setTransparentPixmap(const QString &pix)
+{
+    QImage normal = QImage(pix);
+
+    for (int i = 0; i < normal.width(); i++) {
+        for (int j = 0; j < normal.height(); j++) {
+            QRgb pixel = normal.pixel(i,j);
+            int a = qAlpha(pixel);
+            QRgb lightPixel = qRgba(qRed(pixel) * 1, qGreen(pixel) * 1, \
+                                    qBlue(pixel) * 1, a * 180 / 255);
+            normal.setPixel(i, j, lightPixel);
+        }
+    }
+    return QPixmap::fromImage(normal);
 }

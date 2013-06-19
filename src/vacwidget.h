@@ -17,9 +17,6 @@
 class VacItem;
 class VacWidget;
 
-#define SPACING 30
-#define ICONWIDTH 96
-#define ICONHEIGHT 96
 
 class VacShowWidget : public QWidget
 {
@@ -83,6 +80,9 @@ public:
     QSize pageSize()            { return _pageSize; }
 signals:
     void addVacApp(const QString &text, const QString &pix, const QString &url);
+
+public slots:
+    void initIcon();
 
 protected:
 //    void paintEvent(QPaintEvent *event);
@@ -212,6 +212,7 @@ private:
     QPixmap _closePixmap;
     QPixmap _darkPixmap;
     QPixmap _originPixmap;
+    QPixmap _selectPixmap;
 
     QAction *_openAction;
     QAction *_delAction;
@@ -220,6 +221,9 @@ private:
     bool _equal;
     QString _url;
     QString _pix;
+
+    int _width;
+    int _height;
 
 };
 

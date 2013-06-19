@@ -88,9 +88,9 @@ class QPoint;
 class IconAddItem;
 class HoverIconItem;
 
-#define SPACING 30 
-#define ICONWIDTH 96
-#define ICONHEIGHT 96
+//#define SPACING 30
+//#define ICONWIDTH 96
+//#define ICONHEIGHT 96
 
 
 /* ####################################################
@@ -162,6 +162,8 @@ public:
     int addDirIcon(int page, int index);
     void setDirHide();
 
+    void setIconEnabled(bool enabled);
+
 public slots:
     void goPage(int page);
 
@@ -200,6 +202,8 @@ public slots:
     void iconDragMove();
     void iconDragDrop(int id, const QString &text, const QString &iconPath, const QString &url);
 
+    void dirState();
+
 signals:
     void pageChanged(int i);
     void pageIncreased();
@@ -214,11 +218,18 @@ signals:
 
 //    void setDirIcon(const QString &text, const QString &iconPath, const QString &url);
 
-    void desktopOpenMove(int x, int y, int w, int h);
-    void desktopCloseMove(int x, int y, int w, int h);
+    void desktopOpenMove(int x, int y, int w, int h, int distance, int desktopDistance);
+    void desktopCloseMove(int x, int y, int w, int h, int distance, int desktopDistance);
 
-    void openMinWidget(int mx, int my, int mw, int mh);
-    void closeMinWidget(int mx, int my, int mw, int mh);
+    void openMinWidget(int mx, int my, int mw, int mh, int distance);
+    void closeMinWidget(int mx, int my, int mw, int mh, int distance);
+
+    void desktopBgMove(int distance);
+    void desktopBgBack(int distance);
+
+    int rowsNum(int row);
+
+    void desktopClicked();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -249,7 +260,7 @@ private:
     int gm2v;
     QPropertyAnimation *_animation;
     LocalAppList *_local;
-//    IconAddItem *g_addIcon;
+    IconAddItem *g_addIcon;
 
     QMenu *_menu;
     QAction *_addAction;
@@ -293,6 +304,14 @@ private:
     int _dirId;
 
     void moveBackIcons(int page, int index);
+    int _iconNum;
+
+    int _desktopDistance;
+    int _distance;
+
+    int _dirPage;
+    int _dirIndex;
+    bool _openDir;
 
 public:
     int _current;
@@ -376,6 +395,11 @@ public:
     int id()                    { return _id; }
 
     int getStyle()              { return _style; }
+
+//    int getWidth()             { return _width; }
+//    int getHeight()            { return _height; }
+
+//    void setEnabled(bool);
 signals:
     void clicked();
     void runItem(const QString &text);
@@ -432,6 +456,7 @@ private:
     QPixmap _closePixmap;
     QPixmap _darkPixmap;
     QPixmap _originPixmap;
+    QPixmap _shadowPixmap;
 
     QAction *_openAction;
     QAction *_delAction;
@@ -443,6 +468,9 @@ private:
 
     DirMinShowWidget *_dirMinShowWidget;
     int _id;
+
+    int _width;
+    int _height;
 };
 
 /* #############################################
@@ -484,7 +512,18 @@ public:
     int index()
     {
         return _index;
-    } 
+    }
+
+    void setGrayPixmap()
+    {
+        _pixmap = _grayPixmap;
+    }
+
+    void setNormalPixmap()
+    {
+        _pixmap = _normalPixmap;
+    }
+
 signals:
     //void clicked();
     void addApp();

@@ -86,12 +86,17 @@ public slots:
 
     void showBs(const QString &url);
     void goDesktop();
-    void desktopOpenMove(int x, int y, int w, int h);
-    void desktopCloseMove(int x, int y, int w, int h);
+    void desktopOpenMove(int x, int y, int w, int h, int distance, int desktopDistance);
+    void desktopCloseMove(int x, int y, int w, int h, int distance, int desktopDistance);
     void scrFinished();
-    void  openMinWidget(int x, int y, int w, int h);
-    void closeMinWidget(int x, int y, int w, int h);
+    void openMinWidget(int x, int y, int w, int h, int distance);
+    void closeMinWidget(int x, int y, int w, int h, int distance);
     void scrMinFinished();
+    void desktopBgMove(int distance);
+    void desktopBgBack(int distance);
+
+    void valueChanged(const QVariant &value);
+    void desktopClicked();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -160,6 +165,7 @@ private:
     VacShowWidget *_vacShowWidget;
     SkinWidget *_skinShowWidget;
 
+    QPropertyAnimation *_animationDesktop;
     QPropertyAnimation *_animationScreen;
     QPropertyAnimation *_animationMinScreen;
     MoveWidget *_mW;
@@ -169,5 +175,8 @@ private:
     QLabel *_minLabel;
 
     QPushButton* _backBtn;
+    int _distance;
+    int _minY;
+    bool _minUpward;
 };
 #endif

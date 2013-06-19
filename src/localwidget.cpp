@@ -43,24 +43,28 @@ LocalShowWidget::LocalShowWidget(QSize pageSize, QWidget *parent)
 //    _rightTopPix.load(":/images/bs_rightbg_top.png");
 //    _rightCenterPix.load(":/images/bs_rightbg_center.png");
 //    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
+//    setAutoFillBackground(false);
+//    _bgPix.load(":/images/local_bg.png");
 
-    _bgPix.load(":/images/local_bg.png");
-//    QImage normal = QImage(":/images/local_bg.png");
+    _width = pageSize.width();
+    _height = pageSize.height();
 
-//    for (int i = 0; i < normal.width(); i++) {
-//        for (int j = 0; j < normal.height(); j++) {
-//            QRgb pixel = normal.pixel(i,j);
-//            int a = qAlpha(pixel);
-//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
-//                                    qBlue(pixel), a * 1 / 255);
-//            normal.setPixel(i, j, lightPixel);
-//        }
-//    }
-//    _bgPix = QPixmap::fromImage(normal);
+    resize(_width, _height);
+
+    QImage normal = QImage(":/images/local_bg.png");
+
+    for (int i = 0; i < normal.width(); i++) {
+        for (int j = 0; j < normal.height(); j++) {
+            QRgb pixel = normal.pixel(i,j);
+            int a = qAlpha(pixel);
+            QRgb lightPixel = qRgba(qRed(pixel) * 0.3, qGreen(pixel) * 0.3, \
+                                    qBlue(pixel) * 0.3, a * 230 / 255);
+            normal.setPixel(i, j, lightPixel);
+        }
+    }
+    _bgPix = QPixmap::fromImage(normal);
 
 //    setWindowFlags(Qt::FramelessWindowHint);
-
-    setWindowFlags(Qt::FramelessWindowHint);///去掉标题栏
 
 //    setAttribute(Qt::WA_TranslucentBackground, true);
 //    this->setStyleSheet("border-image:url(background.png) 10 10 10 10 stretch stretch;"); ///使用border-image可以实现背景的拉伸
@@ -145,12 +149,7 @@ void LocalShowWidget::scrollBarValueChanged(int val)
 void LocalShowWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-//    painter.drawPixmap(0, 0, _width, 9,\
-//                       _rightTopPix.scaled(_width, 9));
-//    painter.drawPixmap(0, 9, _width, _height - 18,\
-//                       _rightCenterPix.scaled(_width, _height - 18));
-//    painter.drawPixmap(0, _height - 9, _width, 9,\
-//                       _rightBottomPix.scaled(_width, 9));
+
     painter.drawPixmap(0, 0, _width, _height, _bgPix.scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
     QWidget::paintEvent(event);
@@ -332,6 +331,7 @@ void LocalItem::setIndex(int index)
 }
 void LocalItem::setHidden(bool hide)
 {
+    Q_UNUSED(hide);
 //    _app->setHidden(hide);
 }
 
@@ -428,6 +428,7 @@ void LocalItem::mousePressEvent(QMouseEvent *event)
 
 void LocalItem::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
 //    if ((event->button() == Qt::LeftButton))
 //    {
 //        openClicked();
@@ -920,6 +921,7 @@ QString LocalWidget::addLocalApp(QString appPath)
 
 void LocalWidget::showApp(bool localApp)
 {
+    Q_UNUSED(localApp);
 //    if (localApp)
 //    {
 //        for (int i = 0; i < _local->count(); i++) {

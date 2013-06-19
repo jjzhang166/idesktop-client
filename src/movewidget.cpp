@@ -38,6 +38,11 @@ void MoveWidget::setPixmap(const QPixmap &pix)
     update();
 }
 
+void MoveWidget::mousePressEvent(QMouseEvent *)
+{
+    emit mousePress();
+}
+
 MoveMinWidget::MoveMinWidget(QWidget *parent)
     : QWidget(parent)
     , _width(0)

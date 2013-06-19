@@ -7,6 +7,7 @@
 #include <QFileInfoList>
 #include <QLibrary>
 #include <windows.h>
+#include <QTimer>
 #include <stdio.h>
 
 #include <QtDebug>
@@ -17,24 +18,68 @@
 //#define KEY "\\Windows\\CurrentVersion\\App Paths\\"
 #define KEY "\\Windows\\CurrentVersion\\Uninstall\\"
 
-#define ICONWIDTH 96
-#define ICONHEIGHT 96
+
+//#define ICONWIDTH 72
+//#define ICONHEIGHT 72
+//#define SELECTWIDTH 37
+//#define SELECTHEIGHT 37
+
+//#define SPACING 30
+//#define FONTSIZE 10
+
+//#define ICONITEMWIDTH (ICONWIDTH + SELECTWIDTH/2 + 8)
+//#define ICONITEMHEIGHT (ICONHEIGHT + 15 + FONTSIZE * 2)
+
+//#define CLOSEWIDTH 30
+//#define CLOSEHEIGHT 30
+
+//#define APPICON   0
+//#define ADDICON 1
+//#define HSPACING (40 - (SELECTWIDTH / 2 + 8) / 2)
+//#define VSPACING 25
+
+#define ICONNUM 17
+
+#define ICONWIDTH 143
+#define ICONHEIGHT 143
+#define SELECTWIDTH 37
+#define SELECTHEIGHT 37
+
+#define SPACING 30
+#define FONTSIZE 10
+
+#define ICONITEMWIDTH 143
+#define ICONITEMHEIGHT 143
+
 #define CLOSEWIDTH 30
 #define CLOSEHEIGHT 30
-#define FONTSIZE 10
-#define APPICON   0
-#define ADDICON 1
-#define ICONNUM 11
+
+#define APPICON 0
+#define HSPACING 4
+#define VSPACING 0
+#define BOTTOMSPACING 4
+
+#define ICONHSPACING (70 - 40)
+#define ICONVSPACING (45 - 36)
 
 
 VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
 {
-//    _rightTopPix.load(":/images/bs_rightbg_top.png");
-//    _rightCenterPix.load(":/images/bs_rightbg_center.png");
-//    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
-    setAutoFillBackground(false);
     _bgPix.load(":/images/vac_bg.png");
+//    QImage normal = QImage(":/images/skin_bg.png");
+
+//    for (int i = 0; i < normal.width(); i++) {
+//        for (int j = 0; j < normal.height(); j++) {
+//            QRgb pixel = normal.pixel(i,j);
+//            int a = qAlpha(pixel);
+//            QRgb lightPixel = qRgba(qRed(pixel) * 1, qGreen(pixel) * 1, \
+//                                    qBlue(pixel) * 1, a * 180 / 255);
+//            normal.setPixel(i, j, lightPixel);
+//        }
+//    }
+//    _bgPix = QPixmap::fromImage(normal);
+
 
     _width = pageSize.width();
     _height = pageSize.height();
@@ -103,14 +148,7 @@ void VacShowWidget::scrollBarValueChanged(int val)
 
 void VacShowWidget::paintEvent(QPaintEvent *event)
 {
-    QPainter painter(this);
-//    painter.drawPixmap(0, 0, _width, 9,\
-//                       _rightTopPix.scaled(_width, 9));
-//    painter.drawPixmap(0, 9, _width, _height - 18,\
-//                       _rightCenterPix.scaled(_width, _height - 18));
-//    painter.drawPixmap(0, _height - 9, _width, 9,\
-//                       _rightBottomPix.scaled(_width, 9));
-
+    QPainter painter(this);;
     painter.drawPixmap(0, 0, _width, _height,\
                        _bgPix.scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
@@ -124,10 +162,10 @@ void VacShowWidget::resizeEvent(QResizeEvent *event)
     _height = height();
 
     int w = 15;
-    int x = width() - w;
+    int x = width() - 33;
     x = x < 0 ? 0: x;
     int h = height();
-    _scrollBar->setGeometry(x, 8, w, h - 16);
+    _scrollBar->setGeometry(x, 15, w, h - 30);
 
     _scrollBar->setRange(0, _vacWidget->count() * _vacWidget->pageSize().height() - h);
 
@@ -157,12 +195,13 @@ VacItem::VacItem(const QString &text, QWidget *parent)
     , _trembling(0)
     ,_equal(false)
 {
-    int width, height;
+//    int width, height;
     QFontMetrics fm(QFont("", FONTSIZE, QFont::Black));
 
-    width = ICONWIDTH + CLOSEWIDTH/2 + 8;
-    height = ICONHEIGHT + CLOSEHEIGHT/2 + fm.height() * 2;
-    setFixedSize(width, height);
+    _width = ICONITEMWIDTH;
+    _height = ICONITEMHEIGHT;
+
+    setFixedSize(_width, _height);
     _textWidth = fm.width(_text);
 
     if (_text.startsWith("/")) {
@@ -171,7 +210,7 @@ VacItem::VacItem(const QString &text, QWidget *parent)
     }
     else
         _texticon = _text;
-
+/*
 //    _texticon = _text;
     _texticon_firstrow = _texticon;
     _texticon_secondrow = _texticon;
@@ -223,6 +262,26 @@ VacItem::VacItem(const QString &text, QWidget *parent)
             }else{
                 _texticon_thirdrow.chop(3);
                 _texticon_thirdrow.append("...");
+                break;
+            }
+        }
+    }
+
+    _textHeight = fm.height();
+*/
+    int i;
+
+    if (_textWidth > _width)
+    {
+        for (i = 0; i < _textWidth; i++)
+        {
+            _textWidth_firstrow = fm.width(_texticon);
+            if (_textWidth_firstrow > _width)
+            {
+                _texticon.chop(1);
+            }else{
+                _texticon.chop(3);
+                _texticon.append("...");
                 break;
             }
         }
@@ -293,6 +352,7 @@ void VacItem::setIndex(int index)
 }
 void VacItem::setHidden(bool hide)
 {
+    Q_UNUSED(hide);
 //    _app->setHidden(hide);
 }
 
@@ -356,23 +416,24 @@ void VacItem::paintEvent(QPaintEvent *event)
 
     painter.drawPixmap(3, 0, _pixmap);
 
-    painter.drawPixmap(width() - 50, height() - 80, _closePixmap);
+    painter.drawPixmap(_width - ICONWIDTH / 4 - SELECTWIDTH / 2, height() - 25 - SELECTHEIGHT, _selectPixmap);
 
     QWidget::paintEvent(event);
 }
 
 void VacItem::mousePressEvent(QMouseEvent *event)
 {
+    qDebug()  << event->pos();
     if (event->button() == Qt::LeftButton) {
-        if (_equal)
-        {
+        if (QRect(35, 36, 72, 72).contains(event->pos())) {
 
-        }
-        else
-        {
-            _closePixmap.load(":/images/select_icon.png");
-            _equal = true;
-            emit addVacApp(_text, _pix, _url);
+            if (!_equal)
+            {
+                _selectPixmap.load(":/images/select_icon.png");
+                update();
+                _equal = true;
+                emit addVacApp(_text, _pix, _url);
+            }
         }
     }
     event->ignore();
@@ -457,13 +518,15 @@ const QPixmap& VacItem::originPixmap()
 
 void VacItem::setPixmap(const QString &icon)
 {
+
     _pix = icon;
 //    int begin;
     QString text = _text;
     if (isUserType())
         text = _text.right(_text.length() - 1);
     _originPixmap = QPixmap(icon);
-    QImage image = QImage(icon).scaled(ICONWIDTH, ICONHEIGHT);
+    //QImage image = QImage(icon).scaled(ICONWIDTH, ICONHEIGHT);
+    QImage image = QImage(icon);
     QImage normal(width(), height(), QImage::Format_ARGB32_Premultiplied);
     QPainter pt1(&normal);
     pt1.setPen(Qt::white);
@@ -471,21 +534,28 @@ void VacItem::setPixmap(const QString &icon)
     pt1.setRenderHint(QPainter::HighQualityAntialiasing);
     pt1.setCompositionMode(QPainter::CompositionMode_Source);
     pt1.fillRect(normal.rect(), Qt::transparent);
-    pt1.drawImage(CLOSEWIDTH/2 - 3, CLOSEHEIGHT/2, image);
+//    pt1.drawImage((SELECTWIDTH / 2  + 8) / 2, 0, image);
+    pt1.drawImage(0, 0, image);
 
-//    QFont font("", FONTSIZE, QFont::Normal);
-    QFont font(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal);
-    QFontMetrics fm(font);
-    _textWidth_firstrow = fm.width(_texticon_firstrow);
-    QString tx = _texticon_firstrow;
-    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_firstrow) / 2 , height() - _textHeight * 3 - 8, _textWidth_firstrow, _textHeight), Qt::TextSingleLine, tx);
-    _textWidth_secondrow = fm.width(_texticon_secondrow);
-    tx = _texticon_secondrow;
-    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_secondrow) / 2, height() - _textHeight * 2 - 8, _textWidth_secondrow, _textHeight), Qt::TextSingleLine, tx);
-    _textWidth_thirdrow = fm.width(_texticon_thirdrow);
-    tx = _texticon_thirdrow;
-    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_thirdrow) / 2 , height() - _textHeight - 8, _textWidth_thirdrow, _textHeight), Qt::TextSingleLine, tx);
-    pt1.end();
+    //    QFont font("", FONTSIZE, QFont::Normal);
+        QFont font(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal);
+
+        QFontMetrics fm(font);
+        _textWidth_firstrow = fm.width(_texticon);
+        pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  ICONHEIGHT - FONTSIZE * 2,\
+                            _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
+
+    //    QFontMetrics fm(font);
+    //    _textWidth_firstrow = fm.width(_texticon_firstrow);
+    //    QString tx = _texticon_firstrow;
+    //    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_firstrow) / 2 , height() - _textHeight * 3 - 8, _textWidth_firstrow, _textHeight), Qt::TextSingleLine, tx);
+    //    _textWidth_secondrow = fm.width(_texticon_secondrow);
+    //    tx = _texticon_secondrow;
+    //    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_secondrow) / 2, height() - _textHeight * 2 - 8, _textWidth_secondrow, _textHeight), Qt::TextSingleLine, tx);
+    //    _textWidth_thirdrow = fm.width(_texticon_thirdrow);
+    //    tx = _texticon_thirdrow;
+    //    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_thirdrow) / 2 , height() - _textHeight - 8, _textWidth_thirdrow, _textHeight), Qt::TextSingleLine, tx);
+        pt1.end();
 
     QImage light = QImage(width(), height(), QImage::Format_ARGB32);
     QImage dark =  QImage(width(), height(), QImage::Format_ARGB32);
@@ -579,11 +649,18 @@ void VacItem::delClicked()
 void VacItem::setEqualIcon(bool equal)
 {
     if (equal)
-        _closePixmap.load(":/images/select_icon.png");
+    {
+        _equal = true;
+        _selectPixmap.load(":/images/select_icon.png");
+//        emit addVacApp(_text, _pix, _url);
+    }
     else
-        _closePixmap.load("");
+    {
+        _equal = false;
+        _selectPixmap.load("");
+    }
 
-    update();
+    repaint();
 }
 
 //
@@ -597,10 +674,11 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
     _width = _pageSize.width();
     _height = _pageSize.height();
 
-    gridWidth = ICONWIDTH + SPACING * 2;
-    gridHeight = ICONHEIGHT + SPACING * 2;
-    _col = _width / gridWidth;
-    _row = _height / gridHeight;
+    gridWidth = ICONITEMWIDTH + HSPACING * 2;
+    gridHeight = ICONITEMWIDTH + BOTTOMSPACING;
+
+    _col = (_width - ICONHSPACING) / gridWidth;
+    _row = (_height - ICONVSPACING) / gridHeight;
     _iconsPerPage = _col * _row;
     _current  = 0;
 
@@ -641,9 +719,9 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
         QList<QRect> newList;
         for (int j = 0; j < _col * _row; j++) {
 
-            int x = (j % _col) * gridWidth;
+            int x = (j % _col) * gridWidth +  ICONHSPACING;
             int y = _pageSize.height() * i \
-                    + (j / _col) * gridHeight;
+                    + (j / _col) * gridHeight + ICONVSPACING;
 
             newList.insert(j, \
                            QRect(x, y, gridWidth, gridHeight));
@@ -699,6 +777,8 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
                 -1, i);
     }
 
+//    QTimer::singleShot(200, this, SLOT(initIcon()));
+
 }
 
 VacWidget::~VacWidget()
@@ -706,6 +786,13 @@ VacWidget::~VacWidget()
 
 }
 
+void VacWidget::initIcon()
+{
+//    for (int i = 0; i < ICONNUM; i++) {
+//        addIcon("", QString(":images/custom/z_%1.png").arg(i),
+//                -1, i);
+//    }
+}
 int VacWidget::addIcon(QString text, \
                             const QString &iconPath, \
                             int page, \
@@ -715,48 +802,72 @@ int VacWidget::addIcon(QString text, \
     switch (index)
     {
         case 0:
-            text = QString("普华i-VirtualApp");
-            _url = QString("http://192.168.49.253/");
+            text = QString("XX的虚拟机");
+            _url = QString("http://www.baidu.com/");
             break;
         case 1:
             text = QString("Firefox  ");
-            _url = QString("http://192.168.49.252:8080/idesktop");
+            _url = QString("http://www.baidu.com/");
             break;
         case 2:
             text = QString("IE ");
-            _url = QString("http://192.168.49.244/portal-1_0_0");
+            _url = QString("http://www.baidu.com/");
             break;
         case 3:
             text = QString(" Google");
-            _url = QString("http://192.168.49.244/uim-1_0_05");
+            _url = QString("http://www.baidu.com/");
             break;
         case 4:
             text = QString("Evernote ");
-            _url = QString("http://192.168.49.244/uim-1_0_0");
+            _url = QString("http://www.baidu.com/");
             break;
         case 5:
-            text = QString("QQExternalEx ");
-            _url = QString("http://192.168.49.244/gwlz-1_0_0");
+            text = QString("Microsoft Visual Studio 2008");
+            _url = QString("http://www.baidu.com/");
             break;
         case 6:
             text = QString("人生日历");
-            _url = QString("http://192.168.49.252:8080/idesktop");
+            _url = QString("http://www.baidu.com/");
             break;
         case 7:
             text = QString("迅雷7");
-            _url = QString("http://192.168.49.253");
+            _url = QString("http://www.baidu.com/");
             break;
         case 8:
-            text = QString("TeamViewer_Setup_zhcn");
-            _url = QString("http://192.168.49.244/gwlz-1_0_0");
+            text = QString("UlEdit");
+            _url = QString("http://www.baidu.com/");
             break;
         case 9:
             text = QString("鲁大师");
-            _url = QString("http://192.168.49.244/uim-1_0_0");
+            _url = QString("http://www.baidu.com/");
+            break;
+        case 10:
+            text = QString("驱动精灵2013");
+            _url = QString("http://www.baidu.com/");
+            break;
+        case 11:
+            text = QString("WPP");
+            _url = QString("http://www.baidu.com/");
+            break;
+        case 12:
+            text = QString(" Word");
+            _url = QString("http://www.baidu.com/");
+            break;
+        case 13:
+            text = QString("Excel ");
+            _url = QString("http://www.baidu.com/");
+            break;
+        case 14:
+            text = QString("McAfee");
+            _url = QString("http://www.baidu.com/");
+            break;
+        case 15:
+            text = QString(" QQ");
+            _url = QString("http://www.baidu.com/");
             break;
         default:
-            text = QString("驱动精灵2013");
-            _url = QString("http://192.168.49.244/portal-1_0_0");
+            text = QString("Qt Creator ");
+            _url = QString("http://www.baidu.com/");
             break;
     }
     VacItem *icon = new VacItem(text, this);
@@ -797,7 +908,7 @@ int VacWidget::addIcon(QString text, \
 //    }
 
     icon->setPixmap(iconPath);
-    icon->setGeometry(_gridTable[page][index].translated(SPACING, SPACING));
+    icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
     icon->setPage(page);
     icon->setIndex(index);
     icon->setUrl(_url);
@@ -808,6 +919,14 @@ int VacWidget::addIcon(QString text, \
 
     connect(icon, SIGNAL(addVacApp(const QString&,const QString&, const QString&)),
             this, SIGNAL(addVacApp(const QString&,const QString&, const QString&)));
+    qDebug() << index;
+    qDebug() << text;
+    if (text == "XX的虚拟机" || text == "IE " || text == "WPP" || text == " Word")
+    {
+//        qDebug() << text << iconPath << _url;
+        icon->setEqualIcon(true);
+//        emit addVacApp(text, iconPath, _url);
+    }
 
 //    connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
@@ -878,6 +997,7 @@ QString VacWidget::addLocalApp(QString appPath)
 
 void VacWidget::showApp(bool localApp)
 {
+        Q_UNUSED(localApp);
 //    if (localApp)
 //    {
 //        for (int i = 0; i < _local->count(); i++) {

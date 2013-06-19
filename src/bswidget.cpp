@@ -50,7 +50,8 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
     , _height(height)
     , _fullScreen(false)
 {
-//    this->setStyleSheet("border: 0px solid gray;background:rgba(255,255,255,0);");
+//    setFocusPolicy(Qt::ClickFocus);
+    setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0);");
     resize(_width, _height);
     QSqlQuery query = QSqlDatabase::database("local").exec("select wallpaper from wallpapers where id=1;");
     query.next();
@@ -89,6 +90,12 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
 //    //_backBtn->setStyleSheet("QPushButton{background-image:url(:images/handle_left.png);border-style:flat;}");//
 
 //    connect(_backBtn, SIGNAL(clicked()), this, SIGNAL(goBack()));//
+
+    _btnLabel = new BtnLabel(this);
+    _btnLabel->setGeometry(60, _rightWidget->pos().y() + _rightWidget->height() / 2,\
+                                   50, 50);
+
+    connect(_btnLabel, SIGNAL(goBack()), this, SIGNAL(goBack()));
 
 }
 
@@ -250,6 +257,9 @@ void RightWidget::resizeEvent(QResizeEvent *event)
 
 void RightWidget::createTab(const QUrl &url)
 {
+    if (url.isEmpty())
+        return;
+
     _tabWidget->createTab(url);
 }
 
@@ -922,3 +932,25 @@ void AxWidget::scrollBarValueChanged(int value)
 //    QWidget::mouseReleaseEvent(event);
 //}
 
+BtnLabel::BtnLabel(QWidget *parent)
+    : QLabel(parent)
+{
+    resize(50, 50);
+    setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,255);");
+
+//    QPalette pal = this->palette();
+//    pal.setBrush(QPalette::Window, QBrush(QColor(Qt::white)));
+//    setPalette(pal);
+
+    _backPix.load(":images/bs_goback.png");
+    _backPixHover.load(":images/bs_goback_hover.png");
+    _backBtn = new DynamicButton(_backPix, _backPixHover, this);
+
+    connect(_backBtn, SIGNAL(clicked()), this, SIGNAL(goBack()));//
+
+}
+
+BtnLabel::~BtnLabel()
+{
+
+}

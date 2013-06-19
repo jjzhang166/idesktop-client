@@ -114,7 +114,7 @@ LoginDialog::LoginDialog(QWidget *parent)
                            89, 34);
 
     remoteAuth = new QCheckBox(this);
-    remoteAuth->setChecked(true);  //true
+    remoteAuth->setChecked(false);  //true
     remoteAuth->setText("Ô¶³ÌÑéÖ¤");
     remoteAuth->setGeometry(181, 230, 80, 35);
     remoteAuth->setVisible(false);

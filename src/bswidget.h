@@ -16,6 +16,7 @@
 
 #include "dynamicbutton.h"
 
+class BtnLabel;
 class AxWidget;
 class LeftWebKit;
 class TabWidget;
@@ -103,6 +104,7 @@ private:
     bool _fullScreen;
 //    QPushButton *_fullScreenBtn;
 //    DynamicButton *_backBtn;
+    BtnLabel *_btnLabel;
 };
 
 class LeftWebKit : public QMainWindow
@@ -268,6 +270,22 @@ private:
 
 //    double xScale;
 //    double yScale;
+};
+
+class BtnLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    BtnLabel(QWidget *parent = 0);
+    ~BtnLabel();
+
+signals:
+    void goBack();
+
+private:
+    DynamicButton *_backBtn;
+    QPixmap _backPix;
+    QPixmap _backPixHover;
 };
 
 #endif // BSWIDGET_H
