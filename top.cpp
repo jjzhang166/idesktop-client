@@ -8,6 +8,8 @@ TopWidget::TopWidget(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint )
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
+    setAttribute(Qt::WA_NoSystemBackground, true);
+
     //setWindowOpacity(0.7);
     QPalette pal = palette();
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
