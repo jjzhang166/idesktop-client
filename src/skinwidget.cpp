@@ -18,6 +18,8 @@ SkinWidget::SkinWidget(QWidget *parent)
     //resize(20, 20);
 
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
+    setAttribute(Qt::WA_TranslucentBackground, true);
+    setAttribute(Qt::WA_NoSystemBackground, true);
 
     _pixWidget = new PixWidget(QSize(830, 484), this);
     _pixWidget->move(0,0);
