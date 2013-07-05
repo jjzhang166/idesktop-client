@@ -51,14 +51,16 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
     , _fullScreen(false)
 {
 //    setFocusPolicy(Qt::ClickFocus);
-    setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0);");
+    setStyleSheet("QWidget{border: 0px solid gray; background:rgba(255,255,255,0);}");
+
     resize(_width, _height);
     QSqlQuery query = QSqlDatabase::database("local").exec("select wallpaper from wallpapers where id=1;");
     query.next();
 
-    QPalette pal = this->palette();
-    pal.setBrush(QPalette::Window, QBrush(QPixmap(query.value(0).toString())));
-    this->setPalette(pal);
+//    QPalette pal = this->palette();
+//    pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
+//    pal.setBrush(QPalette::Window, QBrush(QPixmap(query.value(0).toString())));
+//    setPalette(pal);
 //    _pixmap.load(query.value(0).toString());
 
 //    _leftWebKit = new LeftWebKit(this);//
@@ -92,7 +94,7 @@ BsWidget::BsWidget(int width, int height, QWidget *parent)
 //    connect(_backBtn, SIGNAL(clicked()), this, SIGNAL(goBack()));//
 
     _btnLabel = new BtnLabel(this);
-    _btnLabel->setGeometry(60, _rightWidget->pos().y() + _rightWidget->height() / 2,\
+    _btnLabel->setGeometry(20, _rightWidget->pos().y() + _rightWidget->height() / 2,\
                                    50, 50);
 
     connect(_btnLabel, SIGNAL(goBack()), this, SIGNAL(goBack()));
@@ -148,14 +150,14 @@ void BsWidget::stopAssembly()
 //    _fullScreenBtn->setVisible(true);//
 }
 
-//void BsWidget::paintEvent(QPaintEvent *event)
-//{
-//    QPainter painter(this);
-//    painter.drawPixmap(0, 0, _width, _height, _pixmap);
+void BsWidget::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    painter.drawPixmap(0, 0, _width, _height, _pixmap);
 
-//    QWidget::paintEvent(event);
+    QWidget::paintEvent(event);
 
-//}
+}
 
 void BsWidget::setUrl(const QString &url)
 {
@@ -609,6 +611,16 @@ void AxWidget::wheelEvent(QWheelEvent *event)
 //    _scrollBar->event(event);
 }
 
+void AxWidget::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton)
+    {
+        return;
+    }
+
+    event->accept();
+}
+
 void AxWidget::setUrl(const QUrl &url)
 {
     _ax->dynamicCall("Navigate(const QString&)", url);
@@ -659,9 +671,9 @@ void AxWidget::readyStateChanged (tagREADYSTATE ReadyState)
 {
 //    if (_ax->dynamicCall("ReadyState()").toInt() == READYSTATE_COMPLETE)
 //    {
-    Q_UNUSED(ReadyState);
+//    Q_UNUSED(ReadyState);
 
-    emit iconChanged(_id, icon(_ax->property("LocationURL").toString()));
+//    emit iconChanged(_id, icon(_ax->property("LocationURL").toString()));
 //    }
 }
 
@@ -938,8 +950,12 @@ BtnLabel::BtnLabel(QWidget *parent)
     resize(50, 50);
     setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,255);");
 
+    QPalette pal = this->palette();
+    pal.setBrush(QPalette::Window, QBrush(QColor(Qt::white)));
+    setPalette(pal);
+
 //    QPalette pal = this->palette();
-//    pal.setBrush(QPalette::Window, QBrush(QColor(Qt::white)));
+//    pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
 //    setPalette(pal);
 
     _backPix.load(":images/bs_goback.png");

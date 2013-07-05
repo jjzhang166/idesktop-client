@@ -89,7 +89,7 @@ Panel::Panel(QWidget *parent)
 //    connect(_localButton, SIGNAL(clicked()), this, SLOT(localBtnClicked()));
     connect(_dirButton, SIGNAL(clicked()), this, SLOT(dirBtnClicked()));
     connect(_personButton, SIGNAL(clicked()), this, SLOT(perBtnClicked()));
-    connect(_quitButton, SIGNAL(clicked()), this, SIGNAL(quit()));
+    connect(_quitButton, SIGNAL(clicked()), this, SLOT(quitBtnClicked()));
 }
 
 
@@ -318,6 +318,20 @@ void Panel::perBtnClicked()
        _personButton->setCurrentPixmap(_personPix);
        _skinBtnHover = true;
     }
+//    _quitButton->setCurrentPixmap(_quitPix);
+
+}
+
+void Panel::quitBtnClicked()
+{
+    emit quit();
+
+//    _switcherButton->setCurrentPixmap(_switcherPix);
+    _vacButton->setCurrentPixmap(_vacPix);
+//    _localButton->setCurrentPixmap(_localPix);
+    _dirButton->setCurrentPixmap(_dirPix);
+    _personButton->setCurrentPixmap(_personPix);
+
 //    _quitButton->setCurrentPixmap(_quitPix);
 
 }

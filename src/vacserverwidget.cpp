@@ -66,7 +66,7 @@ VacServerWidget::~VacServerWidget()
 
 void VacServerWidget::saveServer()
 {
-    qDebug() << "1232132312321";
+    //qDebug() << "1232132312321";
     QSqlQuery query(QSqlDatabase::database("local"));
 
     QString qstr = QString("update vacservers "\

@@ -18,7 +18,6 @@
 #include "bswidget.h"
 #include "logindialog.h"
 #include "vacserverwidget.h"
-#include "localwidget.h"
 #include "vacwidget.h"
 #include "skinwidget.h"
 #include "movewidget.h"
@@ -98,9 +97,14 @@ public slots:
     void valueChanged(const QVariant &value);
     void desktopClicked();
 
+    void largeIcon();
+    void mediumIcon();
+    void smallIcon();
+
 protected:
     void closeEvent(QCloseEvent *event);
     void resizeEvent(QResizeEvent * event);
+    void paintEvent(QPaintEvent *event);
 private:
     void refreshDesktop();
     void modify();
@@ -161,7 +165,7 @@ private:
     LoginDialog *_ldialog;
     VacServerWidget *_vacServerWidget;
 
-    LocalShowWidget *_localShowWidget;
+//    LocalShowWidget *_localShowWidget;
     VacShowWidget *_vacShowWidget;
     SkinWidget *_skinShowWidget;
 

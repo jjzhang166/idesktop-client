@@ -40,6 +40,8 @@ public:
     void setType(QString type)              { _type = type; }
     bool isRemote()                         { return _isRemote; }
     void setIsRemote(bool isRemote)         { _isRemote = isRemote; }
+    QString url()                      { return _url; }
+    void setUrl(QString url)           { _url = url; }
 
 private:
     QString _name;
@@ -54,6 +56,7 @@ private:
     int _index;
     bool _hidden;
     bool _isRemote;
+    QString _url;
 };
 
 class LocalAppList : public QObject
@@ -78,10 +81,8 @@ public:
     QString getAppImage(QString appPath);
     QString getUninstExec(QString display);
 
-    bool addDirItem(int page, int index);
-
 signals:
-    void appAdded(QString name, QString icon);
+    void appAdded(QString name, QString icon, QString url);
     void appRemoved(const QString &name);
 
 private:

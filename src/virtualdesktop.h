@@ -11,10 +11,11 @@
 #include "commuinication.h"
 #include "arrangewidget.h"
 #include "hovericonitem.h"
-#include "dirwidget.h"
 //#include "movewidget.h"
+#include "iconitem.h"
+#include "dirwidget.h"
 #include "dirminwidget.h"
-
+#include "contextmenuwidget.h"
 
 class ArrangeWidget;
 
@@ -81,11 +82,11 @@ class MovingDialog;
 class QPropertyAnimation;
 class QTimeLine;
 class QDrag;
-class IconItem;
+//class IconDesktopItem;
 class QLabel;
 class QPoint;
 
-class IconAddItem;
+//class IconAddItem;
 class HoverIconItem;
 
 //#define SPACING 30
@@ -112,8 +113,9 @@ class VirtualDesktop : public QWidget
     Q_OBJECT
 public:
 
-    enum iconStyle{
-        localIcon, vappIcon, dirIcon, urlIcon
+    enum iconStyle
+    {
+        localIcon = 0, vacIcon, paasIcon, dirIcon
     };
 
     VirtualDesktop(QSize pageSize, QWidget *parent = NULL);
@@ -123,7 +125,7 @@ public:
     //void setMargin(int top, int bottom, int left, int right);
 
     int addIcon(const QString &text, const QString &icon, \
-                int page, int index, int iSt = 0);
+                int page, int index, const QString &url, int iSt = 0);
     int showAddIcon(int page, int index);
     IconItem *getIconByName(const QString &name);
 
@@ -137,7 +139,7 @@ public:
 
     void reload();
     void delPage(int page);
-    void deleteAllIconItem();
+//    void deleteAllIconItem();
     void movetoFist();
     void reloadApplist();
     int iconCount()             { return _nextIdx[_current]; }
@@ -158,19 +160,24 @@ public:
     void atExit();
     void moveItem(IconItem *item, int page);
 
-    void addDirItem();
     int addDirIcon(int page, int index);
     void setDirHide();
 
     void setIconEnabled(bool enabled);
+
+    void refresh(QSize size);
+
+    void movetoFirst();
+    void deleteAllIconItem();
+    void reloadApplist(QSize size);
 
 public slots:
     void goPage(int page);
 
     void onProcessFinished(int, QProcess::ExitStatus);
     void delIcon(const QString &text);
-    void delIcon(IconItem *ic);
-    int addIcon(const QString &text, const QString &icon, int iSt = 0);
+//    void delIcon(IconItem *ic);
+    int addIcon(const QString &text, const QString &icon, const QString &url, int iSt = 0);
     void updateClicked();
     void itemHeld();
     void dragRight();
@@ -195,14 +202,28 @@ public slots:
 
     void openDir(int id, int page, int index);
     void closeDir(int page, int index);
-    void addLocalApp(const QString &text, const QString &pix, const QString &url);
+    void addDesktopApp(const QString &text, const QString &pix, const QString &url, int type);
 
     void iconDragLeave();
     void iconDragEnter();
     void iconDragMove();
     void iconDragDrop(int id, const QString &text, const QString &iconPath, const QString &url);
 
-    void dirState();
+    void hideDirWidget();
+    //normalMenu
+
+    void menuChanged(int value);
+    void hideMenuWidget();
+
+    void setLargeIcon();
+    void setMediumIcon();
+    void setSmallIcon();
+
+    void addDirItem();
+
+    void showIconContextMenu(QPoint pos, const QString &text);
+    void iconMenuRunClicked();
+    void iconMenuDelClicked();
 
 signals:
     void pageChanged(int i);
@@ -230,6 +251,24 @@ signals:
     int rowsNum(int row);
 
     void desktopClicked();
+
+    //normalMenu
+    void changeSkin();
+    void desktopTheme();
+    void del();
+    void refresh();
+    //showIconMenu
+    void largeIcon();
+    void mediumIcon();
+    void smallIcon();
+    //createMenu
+    void createDir();
+    void createLink();
+    void createDOC();
+    void createEXCEL();
+    void createPPT();
+
+    void desktopDelIcon(const QString &text);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -260,7 +299,7 @@ private:
     int gm2v;
     QPropertyAnimation *_animation;
     LocalAppList *_local;
-    IconAddItem *g_addIcon;
+//    IconAddItem *g_addIcon;
 
     QMenu *_menu;
     QAction *_addAction;
@@ -313,6 +352,18 @@ private:
     int _dirIndex;
     bool _openDir;
 
+    int _iconSize;
+    int _iconHSpacing;
+    int _iconVSpacing;
+
+    void changeSpacing();
+
+    bool _dragEnterMinWidget;
+
+    QString _currentIconItem;
+
+    MenuWidget *_iconMenu;
+
 public:
     int _current;
     QList<QList<IconItem*> > _iconTable;
@@ -340,138 +391,54 @@ public:
 
     //QTimer *_updateIconTimer;
 
+    MenuWidget *_normalMenu;
+    MenuWidget *_showIconMenu;
+    MenuWidget *_createMenu;
+
+    QPoint _mousePos;
+    int _menuValue;
+
+//    QList<IconItem*> _iconLists;
+//    QList<IconItem*> _tempLists;
+
+
+
 };
 
 /* #############################################
  * Declaration of IconItem
  */
 
-class IconItem : public QWidget
-{
-    Q_OBJECT
-public:
-    IconItem(const QString &text, int iSt = 0, QWidget *parent = NULL);
-    ~IconItem();
-    void setPixmap(const QString &icon);
-    void setText(const QString &text);
-    const QString & text();
-    const QPixmap & pixmap();
-    const QPixmap & originPixmap();
-    const QPixmap & grayPixmap();
-    const QPixmap & darkPixmap();
+//class IconDesktopItem : public IconItem
+//{
+//    Q_OBJECT
+//public:
+//    IconDesktopItem(QWidget *parent = 0);
+//    ~IconDesktopItem();
 
-    bool isUserType();
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void contextMenuEvent(QContextMenuEvent *event);
-    void paintEvent(QPaintEvent *event);
+//    void addMinWidget();
+//    QString getDirText()    { _dirMinShowWidget->getDirText(); }
 
-    void enterEvent(QEvent *event);
-    void leaveEvent(QEvent *event);
+//signals:
+//    void iconLeave();
+//    void iconEnter();
+//    void iconMove();
+//    void openDir(int id, int page, int index);
+//    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
+//    void dragEnterMinWidget();
 
-    void animationMove(const QRect &start, const QRect &end);
-    void setPage(int page);
-    void setIndex(int index);
-    void setHidden(bool hide);
-    void setIsRmote(bool isRemote);
-    int page()
-    {
-        return _page;
-    }
-    int index()
-    {
-        return _index;
-    }
-    bool isRmote()
-    {
-        return _isRemote;
-    }
-    int _icontype;/*³ÌÐòÍ¼±ê*/
+//public slots:
 
-    void setUrl(const QString &url);
-    QString getUrl()            { return _url; }
+//    void openDirWidget();
+//    void iconDropEvent(const QString &text, const QString &iconPath, const QString &url);
 
-    void setId(int id)          { _id = id; }
-    int id()                    { return _id; }
+//protected:
 
-    int getStyle()              { return _style; }
+//private:
+////    LocalApp *_app;
 
-//    int getWidth()             { return _width; }
-//    int getHeight()            { return _height; }
-
-//    void setEnabled(bool);
-signals:
-    void clicked();
-    void runItem(const QString &text);
-    void delItem(const QString &text);
-    void sendUrl(const QString &url);
-
-    void openDir(int id, int page, int index);
-    void iconLeave();
-    void iconEnter();
-    void iconMove();
-    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
-
-
-public slots:
-    void startTremble(); 
-    void stopTremble();
-    void doTremble(qreal);
-    void addApp();
-
-    void openClicked();
-    void delClicked();
-
-    void openDirWidget();
-    void iconDropEvent(const QString &text, const QString &iconPath, const QString &url);
-
-protected:
-    void mouseDoubleClickEvent(QMouseEvent *event);
-
-private:
-    LocalApp *_app;
-    QDrag *_drag;
-    QTimeLine *_timeline;
-    QPoint dragStartPosition;
-    QPropertyAnimation *_animation;
-    int _textWidth;        
-    QString _text;
-
-    QString _texticon;
-    QString _texticon_firstrow;
-    QString _texticon_secondrow;
-    QString _texticon_thirdrow;
-    int _textWidth_firstrow;
-    int _textWidth_secondrow;
-    int _textWidth_thirdrow;
-
-    int _textHeight;
-    int _page;
-    int _index;
-    int _trembling;
-    bool _isRemote;
-    QPixmap _pixmap;
-    QPixmap _normalPixmap;
-    QPixmap _grayPixmap;
-    QPixmap _closePixmap;
-    QPixmap _darkPixmap;
-    QPixmap _originPixmap;
-    QPixmap _shadowPixmap;
-
-    QAction *_openAction;
-    QAction *_delAction;
-    HoverIconItem *_hoverIconItem;
-
-    int _style;
-    QString _url;
-    QString _pixText;
-
-    DirMinShowWidget *_dirMinShowWidget;
-    int _id;
-
-    int _width;
-    int _height;
-};
+//    DirMinShowWidget *_dirMinShowWidget;
+//};
 
 /* #############################################
  * Declaration of IconAddItem

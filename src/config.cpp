@@ -37,7 +37,7 @@ void Config::initiate()
     set("CommonProgramDir", GET_VALUE(commonReg, "Common Programs"));
     set("UserProgramDir", GET_VALUE(userReg, "Programs"));
     set("LocalDb", get("AppDir").append("\\data"));
-    set("IconDir", get("AppDir").append("\\icons"));
+    set("IconDir", get("AppDir").append("\\Licons"));
     set("InstDir", get("AppDir").append("\\downloads"));
     set("Profile", get("UserDir").append("\\profile"));
     set("Wallpaper", ":images/shadow.png");

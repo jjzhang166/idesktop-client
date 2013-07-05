@@ -90,7 +90,7 @@ public slots:
     void rightFullScreen();
 
 protected:
-    //void paintEvent(QPaintEvent *event);
+    void paintEvent(QPaintEvent *event);
 
 private:
 //    LeftWebKit *_leftWebKit;
@@ -250,7 +250,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void wheelEvent(QWheelEvent *event);
 
-//    void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
 //    void mouseMoveEvent(QMouseEvent *event);
 //    void mouseReleaseEvent(QMouseEvent *event);
 

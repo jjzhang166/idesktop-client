@@ -50,6 +50,7 @@ public slots:
     void localBtnClicked();
     void dirBtnClicked();
     void perBtnClicked();
+    void quitBtnClicked();
 
 private:
     QPixmap setTransparentPixmap(const QString &pix);

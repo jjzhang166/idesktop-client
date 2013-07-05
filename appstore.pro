@@ -19,6 +19,7 @@ QT += webkit
 QT += network
 #Qt += QAxContainer
 #Qt += QAxServer
+QT += script
 
 #vac
 QT += core gui
@@ -61,18 +62,20 @@ HEADERS += src/config.h \
     src/qtipaddressedit/qipaddressedit.h \
     src/qtipaddressedit/qipaddressedititem.h \
     src/bswidget.h \
-    src/personalizationwidget.h \
     src/commuinication.h \
     src/common.h \
     src/arrangewidget.h \
     src/vacserverwidget.h \
     src/hovericonitem.h \
-    src/localwidget.h \
     src/vacwidget.h \
     src/skinwidget.h \
     src/dirwidget.h \
     src/movewidget.h \
-    src/dirminwidget.h
+    src/dirminwidget.h \
+    src/graphicsloginitem.h \
+    src/paascommuinication.h \
+    src/iconitem.h \
+    src/contextmenuwidget.h
 
 
 win32 {
@@ -113,17 +116,19 @@ SOURCES += src/config.cpp \
     src/qtipaddressedit/qipaddressedititem.cpp \
     src/bswidget.cpp \
     src/main.cpp \
-    src/personalizationwidget.cpp \
     src/commuinication.cpp \
     src/arrangewidget.cpp \
     src/vacserverwidget.cpp \
     src/hovericonitem.cpp \
-    src/localwidget.cpp \
     src/vacwidget.cpp \
     src/skinwidget.cpp \
     src/dirwidget.cpp \
     src/movewidget.cpp \
-    src/dirminwidget.cpp
+    src/dirminwidget.cpp \
+    src/graphicsloginitem.cpp \
+    src/paascommuinication.cpp \
+    src/iconitem.cpp \
+    src/contextmenuwidget.cpp
 
 
 FORMS +=

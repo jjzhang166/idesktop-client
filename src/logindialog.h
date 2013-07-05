@@ -8,10 +8,18 @@
 #include <QMessageBox>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
+#include <QSystemTrayIcon>
+#include <QMenu>
+#include <QTimeLine>
+#include <QPainter>
+
 #include "qtipaddressedit/qipaddressedit.h"
 #include "qtipaddressedit/qipaddressedititem.h"
 //vac
 #include "commuinication.h"
+//paas
+#include "paascommuinication.h"
+
 #define CLOSE_WIDTH 10
 #define CLOSE_HEIGHT 10
 
@@ -22,34 +30,72 @@ extern QString VacPassword;
 
 extern QString xmlPath;
 extern QString iconDirPath;
+extern QString WIN_LOCAL_IconPath;
 extern QString WIN_VAPP_IconPath;
+extern QString WIN_PAAS_IconPath;
 extern QString WIN_TtempPath;
 
 class HintLineEdit;
 class QCheckBox;
 class DynamicButton;
+extern QList<LOCAL_LIST> g_RemotelocalList;
 extern QList<APP_LIST> g_RemoteappList;
+extern QList<PAAS_LIST> g_RemotepaasList;
+
+extern int ICON_TYPE;
+
 class LoginDialog : public QDialog
 {
     Q_OBJECT
 public:
     LoginDialog(QWidget *parent);
     ~LoginDialog() {}
-    void paintEvent(QPaintEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+//    void paintEvent(QPaintEvent *event);
+//    void mousePressEvent(QMouseEvent *event);
+//    void mouseReleaseEvent(QMouseEvent *event);
+//    void mouseMoveEvent(QMouseEvent *event);
 
     QString GetSystemInfo();
     void debugPrintVariant (QVariant const& v);
 
     void updateVacServer();
+    void getIconType();
+
+    QAction *_dHideAction;
+    QAction *_dShowAction;
+
+signals:
+    void dQuit();
+    void dShow();
+    void dHide();
+    void pShow();
+    void pHide();
+
+//    connect(showAction, SIGNAL(triggered()), panel, SLOT(show()));
+//    connect(hideAction, SIGNAL(triggered()), panel, SLOT(hide()));
+    void dVacServer();
+    void dActivated(QSystemTrayIcon::ActivationReason);
 public slots:
     void auth();
     void onLoginFinished(QNetworkReply *reply);
 	//vac
 //    void heartbeat();
     void onDone();
+    void dialogAccepted();
+
+    //paas
+    void onPaasDone();
+
+    void minimized();
+    void normal();
+    void updateFlip(qreal val);
+    void flip();
+
+protected:
+    void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
 private:
     void userError(QString text);
@@ -79,5 +125,31 @@ private:
 //    QTimer *heartbeat_timer;  //heart beat.
 //    bool _Isheartbeat;    // check if send the heart beat packet
     bool _vacfinished;
+    //paas
+    PaasCommuinication *_paasCommui;
+    bool _paasFinished;
 
+    QSystemTrayIcon *_tray;
+    QAction *_lShowAction;
+    QAction *_lQuitAction;
+
+    QAction *_dQuitAction;
+//    QAction *_dHideAction;
+//    QAction *_dShowAction;
+    QAction *_dVacServer;
+
+    QMenu *_loginMenu;
+    QMenu *_dashboardMenu;
+
+    QTimeLine *_timeLine;
+    QPainter painter;
+
+    bool _flip;
+    QTransform _tran;
+    QTransform _t;
+    qreal _finalyrot;
+
+    void setIcon(const QString &dirPath, const QString &iconPath);
+
+    QString getLocalIcon(QString localPath);
 };

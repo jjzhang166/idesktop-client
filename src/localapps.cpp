@@ -41,6 +41,7 @@
 #define ID      9
 #define TYPE    10
 #define ISREMOTE 11
+#define URL     12
 extern QList<APP_LIST> g_RemoteappList;
 LocalAppList * LocalAppList::_l = NULL;
 
@@ -66,7 +67,7 @@ LocalAppList * LocalAppList::getList()
 LocalAppList::LocalAppList(QObject *parent)
     :QObject(parent)
 {
-//    updateQList();
+    updateQList();
 //    updateAppList();
 
 
@@ -95,6 +96,7 @@ void LocalAppList::updateQList()
         app->setId(query.value(ID).toString());
         app->setType(query.value(TYPE).toString());
         app->setIsRemote(query.value(ISREMOTE).toBool());
+        app->setUrl(query.value(URL).toString());
 //        qDebug()<<"index"<<query.value(IDX).toInt();
 //        qDebug()<<"name:"<<query.value(NAME).toString();
 //        qDebug()<<"isRemote"<<query.value(ISREMOTE).toInt();
@@ -226,15 +228,15 @@ bool LocalAppList::addRemoteApp(LocalApp *app)
 
     QString qstr = QString("insert into localapps ("\
                            "name, version, execname, icon, uninstall, "\
-                           "lastupdate, page, idx, hidden, id, type, isRemote) values ( " \
+                           "lastupdate, page, idx, hidden, id, type, isRemote, url) values ( " \
                            "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', "\
-                           "\'%6\', \'%7\', \'%8\', \'%9\',\'%10\',\'%11\',\'%12\');")\
+                           "\'%6\', \'%7\', \'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\');")\
             .arg(app->name()).arg("1.0")\
             .arg(app->name()).arg(app->icon())\
             .arg(app->name()).arg(1)\
             .arg(app->page()).arg(app->index())\
             .arg(int(false)).arg(app->id())\
-            .arg(app->type()).arg(int(true));
+            .arg(app->type()).arg(int(true)).arg(app->url());
     qDebug()<<"query:"<<qstr;
     QSqlQuery query(QSqlDatabase::database("local"));
     if(!query.exec(qstr)) {
@@ -252,15 +254,16 @@ bool LocalAppList::addApp(LocalApp *app)
 
     QString qstr = QString("insert into localapps ("\
                            "name, version, execname, icon, uninstall, "\
-                           "lastupdate, page, idx, hidden, id, type, isRemote) values ( " \
+                           "lastupdate, page, idx, hidden, id, type, isRemote, url) values ( " \
                            "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', "\
-                           "\'%6\', \'%7\', \'%8\', \'%9\',\'%10\',\'%11\',\'%12\');")\
+                           "\'%6\', \'%7\', \'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\');")\
             .arg(app->name()).arg(app->version())\
             .arg(app->execname()).arg(app->icon())\
             .arg(app->uninstName()).arg(app->date())\
             .arg(app->page()).arg(app->index())\
             .arg(int(app->hidden())).arg("111")\
-            .arg("333").arg(int(false));
+            .arg(app->type()).arg(int(false))\
+            .arg(app->url());
     QSqlQuery query(QSqlDatabase::database("local"));
     if(!query.exec(qstr)) {
         qDebug() <<"query failed";
@@ -268,7 +271,7 @@ bool LocalAppList::addApp(LocalApp *app)
     }
     qDebug()<<"add APP";
     _list.append(app);
-    emit appAdded(app->name(), app->icon());
+    emit appAdded(app->name(), app->icon(), app->url());
     return true;
 }
 
@@ -409,38 +412,4 @@ QString LocalAppList::getUninstExec(QString display)
         }
     }
     return QString("");
-}
-
-bool LocalAppList::addDirItem(int page, int index)
-{
-    QString dirName = QString("ÎÄ¼þ¼Ð_%1").arg(index);
-    QString dirIcon(":images/app_bg.png");
-
-    LocalApp *app = new LocalApp();
-    app->setName(dirName);
-    app->setIcon(dirIcon);
-    app->setId("222");
-    app->setExecname(dirIcon);
-
-    QString qstr = QString("insert into localapps ("\
-                           "name, version, execname, icon, uninstall, "\
-                           "lastupdate, page, idx, hidden, id, type, isRemote) values ( " \
-                           "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', "\
-                           "\'%6\', \'%7\', \'%8\', \'%9\',\'%10\',\'%11\',\'%12\');")\
-            .arg(dirName).arg(0)\
-            .arg(dirName).arg(dirIcon)\
-            .arg(dirName).arg(2)\
-            .arg(page).arg(index)\
-            .arg(0).arg(app->id())\
-            .arg("444").arg(2);
-
-    QSqlQuery query(QSqlDatabase::database("local"));
-    if(!query.exec(qstr)) {
-        qDebug() <<"query failed";
-        return false;
-    }
-    qDebug()<<"add Dir";
-    _list.append(app);
-    emit appAdded(app->name(), app->icon());
-    return true;
 }

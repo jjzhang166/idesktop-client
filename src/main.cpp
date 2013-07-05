@@ -67,7 +67,7 @@ int main(int argc, char **argv)
         " QLineEdit{border:1px solid #515151;border-radius: 3px;}");
     */
 
-    QTextCodec *codec = QTextCodec::codecForName("System");
+    QTextCodec *codec = QTextCodec::codecForName("System"); //utf-8
     QTextCodec::setCodecForLocale(codec);
     QTextCodec::setCodecForCStrings(codec);
     QTextCodec::setCodecForTr(codec);
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     if (!iInfo.exists() || !iInfo.isDir())
     {
         QDir appDir(Config::get("AppDir"));
-        appDir.mkdir("icons");
+        appDir.mkdir("Licons");
     }
 
 //    QFileInfo dInfo(Config::get("InstDir"));
@@ -120,7 +120,8 @@ int main(int argc, char **argv)
                       "hidden int not null default 0, " \
                       "id nvarchar not null," \
                       "type nvarchar not null," \
-                      "isRemote int not null default 0);";
+                      "isRemote int not null default 0, " \
+                      "url nvarchar not null);";
        QString createUserTable = \
                       "CREATE TABLE users " \
                       "(name nvarchar not null primary key, " \
@@ -140,12 +141,17 @@ int main(int argc, char **argv)
                       "port int not null, " \
                       "name nvarchar not null, " \
                       "password nvarchar not null);";
+       QString createIconSizeTable = \
+                      "CREATE TABLE sizetype " \
+                      "(id int not null primary key, " \
+                      "type int not null);";
 
        QSqlDatabase::database("local").exec(createAppTable);
        QSqlDatabase::database("local").exec(createUserTable);
        QSqlDatabase::database("local").exec(createAddrTable);
        QSqlDatabase::database("local").exec(createWallpaperTable);
        QSqlDatabase::database("local").exec(createVacServerTable);
+       QSqlDatabase::database("local").exec(createIconSizeTable);
 
        QString qstrWp = QString("insert into wallpapers ("\
                               "id, wallpaper) values ( "\
@@ -155,12 +161,19 @@ int main(int argc, char **argv)
         if(!query.exec(qstrWp)) {
             qDebug() <<"query failed";
         }
-
+        //192.168.49.253    //test    //1357.com
         QString qstrVacS = QString("insert into vacservers ("\
                                   "id, server, port, name, password) values ("\
                                   "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\');")\
                                   .arg(1).arg("192.168.49.253").arg(80).arg("test").arg("1357.com");
          if(!query.exec(qstrVacS)) {
+             qDebug() <<"query failed";
+         }
+         QString qstrSizeType = QString("insert into sizetype ("\
+                                        "id, type) values ( "\
+                                        "\'%1\', \'%2\');")\
+                                        .arg(1).arg(0);
+         if(!query.exec(qstrSizeType)) {
              qDebug() <<"query failed";
          }
     }

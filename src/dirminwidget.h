@@ -24,7 +24,9 @@ public:
     void expand();
     void delPage(int page);
     void delIcon(const QString &text);
-//    void animationMove(const QRect &start, const QRect &end);
+    void animationMove(const QRect &start, const QRect &end);
+
+    void changeSize();
 
 signals:
     void pageIncreased();
@@ -72,69 +74,88 @@ private:
     QList<int> _nextIdx;
     QMap<QString, IconMinItem*> _iconDict;
 
+    int _spacing;
+
 //    QPropertyAnimation *_animation;
 
 };
 
+
+//
 class IconMinItem : public QWidget
 {
     Q_OBJECT
 public:
-    IconMinItem(QWidget *parent = NULL);
+    IconMinItem(QWidget *parent = 0);
     ~IconMinItem();
 
-    void animationMove(const QRect &start, const QRect &end);
     void setPixmap(const QString &icon);
-    void setText(const QString &text);
-    const QString & text();
-    const QPixmap & pixmap();
-
-//    void animationMove(const QRect &start, const QRect &end);
+//    void setText(const QString &text);
     void setPage(int page);
     void setIndex(int index);
+    void setHidden(bool hide);
+    void setIsRmote(bool isRemote);
+    void setUrl(const QString &url);
+    void setId(int id);
+    void setType(int type);
 
+    void setSLargeSize();
+    void setSMediumSize();
+    void setSSmallSize();
 
-    int page() { return _page; }
-    int index() { return _index; }
+    int page()                  { return _page; }
+    int index()                 { return _index; }
+    int id()                    { return _id; }
+    int type()                  { return _type; }
+    int getWidth()              { return _width; }
+    int getHeight()             { return _height; }
+    bool isRmote()              { return _isRemote; }
+    QString url()               { return _url; }
+    QString pix()               { return _pixText; }
+
+//    const QString & text();
+    const QPixmap & pixmap()    { return _pixmap;}
 
     int _icontype;/*³ÌÐòÍ¼±ê*/
 
-    void setUrl(const QString &url);
-    QString getUrl() { return _url; }
+    void animationMove(const QRect &start, const QRect &end);
 
-signals:
-    void clicked();
-    void sendUrl(const QString &url);
-
-public slots:
-//    void startTremble();
-//    void stopTremble();
-//    void doTremble(qreal);
 protected:
     void paintEvent(QPaintEvent *event);
 
 private:
+    QPropertyAnimation *_animation;
 
-//    QTimeLine *_timeline;
-//    QPropertyAnimation *_animation;
-//    int _trembling;
+    QString _text;
+    QString _url;
+    QString _pixText;
+
+    QPixmap _pixmap;
+
+    int _type;
+
 
     int _page;
     int _index;
 
-    QPixmap _pixmap;
-    QString _url;
-    QString _pixText;
-    QString _text;
-    QPropertyAnimation *_animation;
+    int _id;
+
+    int _width;
+    int _height;
+    int _iconWidth;
+    int _iconHeight;
+
+    bool _isRemote;
 };
 
+
+//
 class DirLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    DirLineEdit(QString hint = QString(""), \
-                 QWidget *parent = NULL); // QString pixmap = QString(""), \
+    DirLineEdit(QString hint = QString(""),
+                 QWidget *parent = NULL); // QString pixmap = QString(""),
     ~DirLineEdit() {}
 
 signals:
@@ -208,6 +229,15 @@ signals:
 //    void mouseClicked(int id, int page, int index);
     void mouseClicked();
 
+protected:
+//    void dragEnterEvent(QDragEnterEvent *event);
+//    void dragMoveEvent(QDragMoveEvent *event);
+//    void dragLeaveEvent(QDragLeaveEvent *event);
+//    void dropEvent(QDropEvent *event);
+//    void mousePressEvent(QMouseEvent *);
+//    void mouseDoubleClickEvent(QMouseEvent *);
+
+
 private:
     DirMinWidget *_dirMinWidget;
 
@@ -235,6 +265,7 @@ public:
     int index()                 { return _index; }
     int id()                    { return _id; }
 
+    QString getDirText()       { _dirLineEdit->text(); }
 
 signals:
     void sendUrl(const QString &url);
@@ -247,7 +278,7 @@ signals:
 
 //    void openItem(int id, int page, int index);
     void openItem();
-
+    void dragEnterMinWidget();
 
 public slots:
     void mouseClicked();
@@ -258,6 +289,12 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *event);
+
+    void dragEnterEvent(QDragEnterEvent *event);
+//    void dragMoveEvent(QDragMoveEvent *event);
+//    void dragLeaveEvent(QDragLeaveEvent *event);
+//    void dropEvent(QDropEvent *event);
+
 
 private:
     DirMWidget *_dirMWidget;
@@ -301,6 +338,9 @@ private:
     void setImgs(QPixmap strLeft, QPixmap strCenter, QPixmap strRight);
 //    QImage setTransparentPixmap(const QString &pix);
     QPixmap setTransparentPixmap(const QString &pix);
+
+    int _iconWidth;
+    int _iconHeight;
 
 };
 #endif // DIRMINWIDGET_H
