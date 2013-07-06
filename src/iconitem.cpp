@@ -137,7 +137,7 @@ void IconItem::setText(const QString &text)
             {
                 _texticon.chop(1);
             }else{
-                _texticon.chop(3);
+                _texticon.chop(4);
                 _texticon.append("...");
                 break;
             }
@@ -494,6 +494,37 @@ void IconItem::setPixmap(const QString &icon)
 
     normal.scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
+    QFont font(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
+    QFontMetrics fm(font);
+    int textflags = Qt::AlignLeft | Qt::TextExpandTabs;
+    QSize textsize = fm.size(textflags, _texticon);
+
+    int margin = 8;
+    _textWidth_firstrow = fm.width(_texticon);
+    int x = (_width - _textWidth_firstrow) / 2;
+    int y = _height - FONTSIZE * 2;
+    textsize.setWidth(textsize.width() + 2 * margin);
+    textsize.setHeight(textsize.height() + 2 * margin);
+
+    QPainterPath pp(QPointF(x, y));
+    qreal px = x, py = y + fm.ascent();
+    //    foreach(const QString& line, text_lines) {
+     pp.addText(px, py, font, _texticon);
+    //        py += fm2.lineSpacing();
+    //    }
+
+    QPainterPathStroker pps;
+    pps.setCapStyle(Qt::RoundCap);
+    pps.setJoinStyle(Qt::MiterJoin);
+    pps.setWidth(2);
+    QPainterPath path = pps.createStroke(pp).united(pp).simplified();
+
+    QColor glow_color = QColor(50,50,50).lighter(180);
+
+    QPixmap textpixmap(textsize);
+    textpixmap.fill(QColor(0, 0, 0, 0));
+
+
     QPainter pt1(&normal);
     pt1.setPen(Qt::white);
 //    pt1.drawRect(1, 1, _width - 1, _height - 1);
@@ -502,15 +533,24 @@ void IconItem::setPixmap(const QString &icon)
     pt1.drawImage(QRect(0, 0, _width, _height), image);
 
 //    QFont font("", FONTSIZE, QFont::Normal);
-    QFont font(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
-    QFontMetrics fm(font);
+//    QFont font(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
+//    QFontMetrics fm(font);
     font.setStyleHint(QFont::Cursive, QFont::PreferBitmap);
     font.setStyleStrategy(QFont::PreferAntialias);
     pt1.setFont(font);
     pt1.setRenderHint(QPainter::HighQualityAntialiasing);
-    _textWidth_firstrow = fm.width(_texticon);
-    pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
-                        _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
+//    pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
+//                        _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
+
+    pt1.fillPath(path, glow_color);
+
+    pt1.setPen(glow_color.lighter(66));
+    pt1.drawPath(path);
+
+    pt1.setPen(QPen(QColor(Qt::white)));
+    pt1.drawText(x, y
+                 , textpixmap.width(), textpixmap.height()
+                 , textflags, _texticon);
     pt1.end();
 
 
@@ -535,7 +575,7 @@ void IconItem::setPixmap(const QString &icon)
             else
             {
                 darkPixel = qRgba(0, 0, \
-                                    0, a);
+                                    0, 0);
             }
             dark.setPixel(i, j, darkPixel);
 
@@ -545,13 +585,68 @@ void IconItem::setPixmap(const QString &icon)
         }
     }
 
+//    QPainter pt2(&dark);
+
+//    QFont font2(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
+//    font2.setStyleStrategy(QFont::PreferOutline);
+//    pt2.setFont(font2);
+//    // ÏÈ»æÖÆµ×²ãÎÄ×Ö£¬×÷ÎªÒõÓ°£¬ÕâÑù»áÊ¹ÏÔÊ¾Ð§¹û¸ü¼ÓÇåÎú£¬ÇÒ¸üÓÐÖÊ¸Ð
+//        pt2.setPen(QColor(0, 0, 0, 10));
+//        pt2.drawText(QRect((_width - _textWidth_firstrow) / 2 + 1,  _height - FONTSIZE * 2 + 1,\
+//                           _textWidth_firstrow, _textHeight), Qt::AlignLeft, _texticon);//×ó¶ÔÆë
+
+//        pt2.setPen(Qt::white);
+//        pt2.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Light));
+//        pt2.setRenderHint(QPainter::HighQualityAntialiasing);
+//        pt2.drawText(QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
+//                            _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
+//        pt2.end();
+
+//    QStringList text_lines = _texticon;
+//    QString text = _texticon.join("n");
+//   QFont font2(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
+//    QFontMetrics fm2(font2);
+//    int textflags = Qt::AlignLeft | Qt::TextExpandTabs;
+//    QSize textsize = fm2.size(textflags, _texticon);
+
+//    int margin = 8;
+//    int x = (_width - _textWidth_firstrow) / 2;
+//    int y = _height - FONTSIZE * 2;
+//    textsize.setWidth(textsize.width() + 2*margin);
+//    textsize.setHeight(textsize.height() + 2*margin);
+
+//    QPainterPath pp(QPointF(x, y));
+//    qreal px = x, py = y + fm2.ascent();
+////    foreach(const QString& line, text_lines) {
+//        pp.addText(px, py, font2, _texticon);
+//        py += fm2.lineSpacing();
+//    }
+
+//    QPainterPathStroker pps;
+//    pps.setCapStyle(Qt::RoundCap);
+//    //pps.setJoinStyle(Qt::MiterJoin);
+//    pps.setWidth(2);
+//    QPainterPath path = pps.createStroke(pp).united(pp).simplified();
+
+//    QColor glow_color = QColor(50,50,50).lighter(180);
+
+//    QPixmap textpixmap(textsize);
+//    textpixmap.fill(QColor(0, 0, 0, 0));
+
     QPainter pt2(&dark);
-    pt2.setPen(Qt::white);
-    pt2.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
-    pt2.setRenderHint(QPainter::HighQualityAntialiasing);
-    pt2.drawText(QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
-                        _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
+    pt2.setFont(font);
+
+    pt2.fillPath(path, glow_color);
+
+    pt2.setPen(glow_color.lighter(66));
+    pt2.drawPath(path);
+
+    pt2.setPen(QPen(QColor(Qt::white)));
+    pt2.drawText(x, y, textpixmap.width(), textpixmap.height()
+                       , textflags, _texticon);
     pt2.end();
+
+
 
     _grayPixmap = QPixmap::fromImage(light).scaled(width() * 1.0, height() * 1.0);
     _darkPixmap = QPixmap::fromImage(dark);
