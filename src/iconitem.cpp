@@ -49,6 +49,8 @@ IconItem::IconItem(QWidget *parent)
     , _text("")
     , _page(-1)
     , _index(-1)
+    , _dirId(-1)
+    , _dirMinShowWidget(NULL)
 {
     _shadowPixmap.load(":/images/icon_shadow.png");
     _selectPixmap.load("");
@@ -77,17 +79,27 @@ void IconItem::setId(int id)
 
 void IconItem::setPage(int page)
 {
-    qDebug() << page;
     _page = page;
+
     if (_saveDataBool)
         _app->setPage(page);
 }
+
 void IconItem::setIndex(int index)
 {
-    _index= index;
+    _index = index;
     if (_saveDataBool)
         _app->setIndex(index);
 }
+
+void IconItem::setDirId(int dirId)
+{
+    _dirId = dirId;
+
+    if (_saveDataBool)
+        _app->setDirId(_dirId);
+}
+
 void IconItem::setHidden(bool hide)
 {
 //    _app->setHidden(hide);
@@ -110,10 +122,9 @@ void IconItem::setIsRmote(bool isRemote)
 
 void IconItem::setText(const QString &text)
 {
-    _text = text;
-
-    if (_text.isEmpty())
+    if (text.isEmpty())
         return;
+    _text = text;
 
     _app = LocalAppList::getList()->getAppByName(_text);
 
@@ -137,7 +148,7 @@ void IconItem::setText(const QString &text)
             {
                 _texticon.chop(1);
             }else{
-                _texticon.chop(4);
+                _texticon.chop(3);
                 _texticon.append("...");
                 break;
             }
@@ -750,6 +761,9 @@ void IconItem::addMinWidget()
     _dirMinShowWidget = new DirMinShowWidget(this);
     _dirMinShowWidget->move(0,0);
 
+    _dirMinShowWidget->setId(_dirMinShowWidgets.count());
+    _dirMinShowWidgets.append(_dirMinShowWidget);
+
     connect(_dirMinShowWidget, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
     connect(_dirMinShowWidget, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
     connect(_dirMinShowWidget, SIGNAL(iconLeave()), this, SIGNAL(iconLeave()));
@@ -760,4 +774,29 @@ void IconItem::addMinWidget()
             this, SLOT(iconDropEvent(const QString &, const QString &, const QString &)));
     connect(_dirMinShowWidget, SIGNAL(openItem()), this, SLOT(openDirWidget()));
     connect(_dirMinShowWidget, SIGNAL(dragEnterMinWidget()), SIGNAL(dragEnterMinWidget()));
+}
+
+void IconItem::setMinWidgetDragEnable(bool enable)
+{
+    if (_dirMinShowWidget == NULL)
+        return;
+
+    if (enable)
+    {
+        _dirMinShowWidget->setAcceptDrops(true);
+        _dirMinShowWidget->setMinDragEnable(true);
+    }
+    else
+    {
+        _dirMinShowWidget->setAcceptDrops(false);
+        _dirMinShowWidget->setMinDragEnable(false);
+    }
+}
+
+void IconItem::removeDirMinItem(const QString &text)
+{
+    if (_dirMinShowWidget == NULL)
+        return;
+
+        _dirMinShowWidget->removeDirMinItem(text);
 }

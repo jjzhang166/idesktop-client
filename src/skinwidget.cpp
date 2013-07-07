@@ -188,7 +188,7 @@ void PixItem::mousePressEvent(QMouseEvent *event)
 
 
 
-    event->ignore();
+//    event->ignore();
 }
 
 void PixItem::mouseMoveEvent(QMouseEvent *event)

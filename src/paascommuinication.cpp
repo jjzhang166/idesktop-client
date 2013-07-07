@@ -1,4 +1,4 @@
-#include <QDebug>
+#include <QtDebug>
 #include <QFile>
 #include <QDomDocument>
 #include <QTime>
@@ -256,7 +256,9 @@ void PaasCommuinication::login(const QString &url)
 //    else
 //        url = QUrl(u);
 
-    _url = url;
+    _url = QUrl(url);
+
+    qDebug() << url;
 
     myPost(_url, inputStr);
 

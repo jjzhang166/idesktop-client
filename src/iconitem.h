@@ -32,16 +32,17 @@ public:
     IconItem(QWidget *parent = 0);
     ~IconItem();
 
-    virtual void setPixmap(const QString &icon);
-    virtual void setText(const QString &text);
-    virtual void setPage(int page);
-    virtual void setIndex(int index);
-    virtual void setHidden(bool hide);
-    virtual void setIsRmote(bool isRemote);
-    virtual void setUrl(const QString &url);
-    virtual void setEqualIcon(bool equal);
-    virtual void setId(int id);
-    virtual void setType(int type);
+    void setPixmap(const QString &icon);
+    void setText(const QString &text);
+    void setPage(int page);
+    void setIndex(int index);
+    void setHidden(bool hide);
+    void setIsRmote(bool isRemote);
+    void setUrl(const QString &url);
+    void setEqualIcon(bool equal);
+    void setId(int id);
+    void setType(int type);
+    void setDirId(int dirId);
 
     void setTimeLine(bool timeLine);
     void setPropertyAnimation(bool propertyAnimation);
@@ -75,6 +76,7 @@ public:
     bool isRmote()              { return _isRemote; }
     QString url()               { return _url; }
     virtual QString pix()       { return _pixText; }
+    int dirId()                 { return _dirId; }
 
     const QString & text();
     virtual const QPixmap & pixmap();
@@ -91,6 +93,10 @@ public:
     void animationMove(const QRect &start, const QRect &end);
 
     void addMinWidget();
+    void setMinWidgetDragEnable(bool enable);
+
+    //dirMin
+    void removeDirMinItem(const QString &text);
 
 signals:
 //    void clicked();
@@ -171,6 +177,7 @@ private:
 
     int _page;
     int _index;
+    int _dirId;
 
     int _trembling;
 
@@ -200,6 +207,7 @@ private:
     bool _saveDataBool;
 
     DirMinShowWidget *_dirMinShowWidget;
+    QList<DirMinShowWidget*> _dirMinShowWidgets;
 
 };
 

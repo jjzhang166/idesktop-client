@@ -125,7 +125,7 @@ public:
     //void setMargin(int top, int bottom, int left, int right);
 
     int addIcon(const QString &text, const QString &icon, \
-                int page, int index, const QString &url, int iSt = 0);
+                int page, int index, const QString &url, int type = 0);
     int showAddIcon(int page, int index);
     IconItem *getIconByName(const QString &name);
 
@@ -171,13 +171,15 @@ public:
     void deleteAllIconItem();
     void reloadApplist(QSize size);
 
+    void setIconMove(bool isIconMove) { _isIconMove = isIconMove; }
+
 public slots:
     void goPage(int page);
 
     void onProcessFinished(int, QProcess::ExitStatus);
     void delIcon(const QString &text);
 //    void delIcon(IconItem *ic);
-    int addIcon(const QString &text, const QString &icon, const QString &url, int iSt = 0);
+    int addIcon(const QString &text, const QString &icon, const QString &url, int type = 0);
     void updateClicked();
     void itemHeld();
     void dragRight();
@@ -363,6 +365,12 @@ private:
     QString _currentIconItem;
 
     MenuWidget *_iconMenu;
+//DirWidget object to this
+    bool _isIconMove;
+    bool _isDirWidgetObject;
+    QPoint _dragStartPosition;
+
+    IconItem *_dragItem;
 
 public:
     int _current;

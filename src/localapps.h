@@ -42,6 +42,8 @@ public:
     void setIsRemote(bool isRemote)         { _isRemote = isRemote; }
     QString url()                      { return _url; }
     void setUrl(QString url)           { _url = url; }
+    int dirId()                      { return _dirId; }
+    void setDirId(int dirId)           { _dirId = dirId; }
 
 private:
     QString _name;
@@ -57,6 +59,7 @@ private:
     bool _hidden;
     bool _isRemote;
     QString _url;
+    int _dirId;
 };
 
 class LocalAppList : public QObject

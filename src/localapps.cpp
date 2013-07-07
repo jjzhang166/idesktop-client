@@ -42,6 +42,7 @@
 #define TYPE    10
 #define ISREMOTE 11
 #define URL     12
+#define DIRID   13
 extern QList<APP_LIST> g_RemoteappList;
 LocalAppList * LocalAppList::_l = NULL;
 
@@ -97,6 +98,7 @@ void LocalAppList::updateQList()
         app->setType(query.value(TYPE).toString());
         app->setIsRemote(query.value(ISREMOTE).toBool());
         app->setUrl(query.value(URL).toString());
+        app->setDirId(query.value(DIRID).toInt());
 //        qDebug()<<"index"<<query.value(IDX).toInt();
 //        qDebug()<<"name:"<<query.value(NAME).toString();
 //        qDebug()<<"isRemote"<<query.value(ISREMOTE).toInt();
@@ -228,15 +230,16 @@ bool LocalAppList::addRemoteApp(LocalApp *app)
 
     QString qstr = QString("insert into localapps ("\
                            "name, version, execname, icon, uninstall, "\
-                           "lastupdate, page, idx, hidden, id, type, isRemote, url) values ( " \
-                           "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', "\
-                           "\'%6\', \'%7\', \'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\');")\
+                           "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId) values ( " \
+                           "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
+                           "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\');")\
             .arg(app->name()).arg("1.0")\
             .arg(app->name()).arg(app->icon())\
             .arg(app->name()).arg(1)\
             .arg(app->page()).arg(app->index())\
             .arg(int(false)).arg(app->id())\
-            .arg(app->type()).arg(int(true)).arg(app->url());
+            .arg(app->type()).arg(int(true))\
+            .arg(app->url()).arg(app->dirId());
     qDebug()<<"query:"<<qstr;
     QSqlQuery query(QSqlDatabase::database("local"));
     if(!query.exec(qstr)) {
@@ -254,16 +257,16 @@ bool LocalAppList::addApp(LocalApp *app)
 
     QString qstr = QString("insert into localapps ("\
                            "name, version, execname, icon, uninstall, "\
-                           "lastupdate, page, idx, hidden, id, type, isRemote, url) values ( " \
-                           "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', "\
-                           "\'%6\', \'%7\', \'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\');")\
+                           "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId) values ( " \
+                           "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
+                           "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\');")\
             .arg(app->name()).arg(app->version())\
             .arg(app->execname()).arg(app->icon())\
             .arg(app->uninstName()).arg(app->date())\
             .arg(app->page()).arg(app->index())\
             .arg(int(app->hidden())).arg("111")\
             .arg(app->type()).arg(int(false))\
-            .arg(app->url());
+            .arg(app->url()).arg(app->dirId());
     QSqlQuery query(QSqlDatabase::database("local"));
     if(!query.exec(qstr)) {
         qDebug() <<"query failed";
@@ -313,14 +316,16 @@ int LocalAppList::count()
 void LocalAppList::save()
 {
     for (int i = 0; i < _list.count(); i++) {
-        qDebug() << _list.at(i)->name() << " -- " << _list.at(i)->page() << " : " << _list.at(i)->index();
+        qDebug() << _list.at(i)->name() << " -- " << _list.at(i)->page() << " : " << _list.at(i)->index()
+                 << "--" << _list.at(i)->dirId();
     }
     QSqlQuery query(QSqlDatabase::database("local"));
     for (int i = 0; i < _list.count(); i++) {
         QString qstr = QString("update localapps "\
-                               "set page=%1, idx=%2 where name=\'%3\';")\
+                               "set page=%1, idx=%2, dirId=%3 where name=\'%4\';")\
                 .arg(_list.at(i)->page())\
                 .arg(_list.at(i)->index())\
+                .arg(_list.at(i)->dirId())\
                 .arg(_list.at(i)->name());
         if(!query.exec(qstr)) {
             qDebug() <<"query failed";

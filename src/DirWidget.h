@@ -27,15 +27,20 @@ public:
 
     void showApp(bool localApp);
 
-    void setId(int id)              { _id = id; }
+    void setId(int id);
     int id()                        { return _id; }
 
     void setMaxRow(int row);
     int getHeight()                 { return _height; }
     int getRow();
+    int iconCount();
+    int currentPage();
+    int count();
+
+    void removeIcon(const QString &text);
 
 signals:
-    void sendUrl(const QString &url);
+
 
 public slots:
 //    void scrollBarValueChanged(int val);
@@ -68,6 +73,10 @@ private:
     int _id;
     int _bgHeight;
 
+    int _iconCount;
+    int _currentPage;
+    int _count;
+
 };
 
 class DirWidget : public QWidget
@@ -96,6 +105,9 @@ public:
     int getIconHeight()                 { return gridHeight; }
     void setUrl(const QString &url)     { _url = url; }
 
+    void setId(int id)                  { _id = id; }
+    int id()                            { return _id; }
+
     void expand();
     void delPage(int page);
     void delIcon(const QString &text);
@@ -113,12 +125,17 @@ public:
     void reloadApplist(QSize size);
     int getNearestIndex(const QRect &rect);
 
+    void removeIcon(const QString &text);
+    void moveBackIcons(int page, int index);
+
 signals:
-    void sendUrl(const QString &url);
+//    void sendUrl(const QString &url);
     void pageChanged(int i);
 //    void sizeChanged();
     void pageIncreased();
     void pageDecreased();
+
+    void dragLeave();
 
 protected:
 
@@ -176,6 +193,8 @@ private:
     bool _dragEvent;
     int m2v;
     int gm2v;
+
+    int _id;
 
 };
 

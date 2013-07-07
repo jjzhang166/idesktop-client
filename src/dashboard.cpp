@@ -361,7 +361,7 @@ void Dashboard::scrFinished()
     {
 //        _dirWidget->setVisible(false);
         _mW->setVisible(false);
-//        _minW->setVisible(false);
+        _minW->setVisible(false);
         _minLabel->setVisible(false);
         _animationFinished = false;
         indicator->setVisible(true);
@@ -372,6 +372,7 @@ void Dashboard::scrFinished()
         panel->setAutoHide(true);
         panel->animationHide();
         vdesktop->setIconEnabled(true);
+        vdesktop->setIconMove(true);
     }
 }
 
@@ -396,7 +397,7 @@ void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
                                  x, y, \
                                  w, h); //抓取当前屏幕的图片
     _minW->setPixmap(result);
-    _minW->setVisible(true);
+//    _minW->setVisible(true);
 
 //    _animationScreen = new QPropertyAnimation(_mW, "geometry");
     _animationMinScreen->setDuration(500);
@@ -416,7 +417,7 @@ void Dashboard::closeMinWidget(int x, int y, int w, int h, int distance)
     _minY = y;
     _minUpward = true;
 
-    _minW->setVisible(true);
+//    _minW->setVisible(true);
     _animationMinScreen->setDuration(500);
     _animationMinScreen->setStartValue(QRect(x, y, w, h));
     _animationMinScreen->setEndValue(QRect(x, y - distance, w, h));
@@ -430,13 +431,10 @@ void Dashboard::scrMinFinished()
 
 void Dashboard::desktopBgMove(int distance)
 {
- //   qDebug() << "*************!@#*********!@#*********@#$*******@#$*************$#$%*#$*%*********!!****** ";
 //    if (_animationDesktop->state() == QAbstractAnimation::Running)
 //    {
 //        return;
 //    }
-//    qDebug() <<"()()()()()()()()()()()()()()() "<< vdesktop->y();
-//    qDebug() <<"()()()()()()()()()()()()()()() "<< vdesktop->y() - distance;
 
     _animationDesktop->setDuration(500);
     _animationDesktop->setEasingCurve(QEasingCurve::InExpo);
@@ -448,9 +446,10 @@ void Dashboard::desktopBgMove(int distance)
 void Dashboard::valueChanged(const QVariant &value)
 {
     QRect rect = value.value<QRect>();
+
     if (((rect.y() - _minY) > 0 ? rect.y() - _minY : _minY - rect.y()) >= _distance / 2)
     {
-        qDebug() << rect.y() - _minY;
+        //qDebug() << rect.y() - _minY;
         if (!_minUpward)
         {
             _minW->setVisible(false);
@@ -476,13 +475,10 @@ void Dashboard::valueChanged(const QVariant &value)
 
 void Dashboard::desktopBgBack(int distance)
 {
-    qDebug() << "*********%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%^%^%%%%%$%%%%%^^^%%^%^%^%^%^%^%^%^%^%^%^%^%^***** ";
 //    if (_animationDesktop->state() == QAbstractAnimation::Running)
 //    {
 //        return;
 //    }
-//    qDebug() <<"()()()()()()()()()()()()()()() "<< vdesktop->y();
-//    qDebug() <<"()()()()()()()()()()()()()()() "<< vdesktop->y() + distance;
 
     _animationDesktop->setDuration(500);
     _animationDesktop->setStartValue(QPoint(0, -168));
@@ -492,7 +488,7 @@ void Dashboard::desktopBgBack(int distance)
 
 void Dashboard::showBs(const QString &url)
 {
-    qDebug() << "url"<< "url" << url;
+//    qDebug() << "url"<< "url" << url;
     vdesktop->setVisible(false);
     _bsWidget->setUrl(url);
     _bsWidget->setVisible(true);
@@ -569,12 +565,10 @@ void Dashboard::goPage(int page)
 //{
 ////    if (_outOfScreen)
 ////        getIn();
-//    qDebug() << " 11111111111111";
 //}
 
 void Dashboard::onShowVacDesktop()
 {
-//    qDebug() << "onShowVacDesktoponShowVacDesktoponShowVacDesktoponShowVacDesktoponShowVacDesktop";
 //    _perWidget->setVisible(false);
 
 //    vdesktop->setVisible(false);

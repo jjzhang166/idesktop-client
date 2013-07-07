@@ -954,6 +954,7 @@ int VacWidget::addIcon(QString text, \
     icon->setIndex(index);
     icon->setUrl(_url);
     icon->setType(type);
+    icon->setDirId(0);
     _iconDict.insert(text, icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;

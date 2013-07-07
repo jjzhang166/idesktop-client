@@ -35,6 +35,9 @@ extern int ICON_TYPE;
 IconMinItem::IconMinItem(QWidget *parent)
     : QWidget(parent)
 {
+    _animation = new QPropertyAnimation(this, "geometry");
+    _animation->setDuration(200);
+    _animation->setEasingCurve(QEasingCurve::OutBack);
 }
 
 IconMinItem::~IconMinItem()
@@ -70,6 +73,12 @@ void IconMinItem::setPage(int page)
 //    if (_saveDataBool)
 //        _app->setPage(page);
 }
+
+void IconMinItem::setText(const QString &text)
+{
+    _text = text;
+}
+
 void IconMinItem::setIndex(int index)
 {
     _index= index;
@@ -148,6 +157,7 @@ DirMinWidget::DirMinWidget(QWidget *parent)
     , _count(1)
     , _current(0)
     , _iconNum(0)
+    , _dragEnable(true)
 //    , _pageSize(_width, _height)
 {
     setAcceptDrops(true);
@@ -169,9 +179,6 @@ DirMinWidget::DirMinWidget(QWidget *parent)
             int x =  _pageSize.width() * i \
                     + (j % _col) * (_gridWidth + _spacing);
             int y = (j / _col) * (_gridHeight + _spacing);
-
-            qDebug() << x<< x<< x<< x<< x<< x<< x<< x;
-            qDebug() << y<< y<< y<< y<< y<< y<< y;
 
             newList.insert(j, \
                            QRect(x, y, _gridWidth, _gridHeight));
@@ -264,9 +271,6 @@ void DirMinWidget::paintEvent(QPaintEvent *)
 
 void DirMinWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-//    IconDesktopItem *icon = qobject_cast<IconDesktopItem*>(event->source());
-//    if (icon && icon->type() == VirtualDesktop::dirIcon)
-//        return;
 
     if (event->mimeData()->hasFormat("image/x-iconitem")) {
 //        if (event->source() == this) {
@@ -281,18 +285,18 @@ void DirMinWidget::dragEnterEvent(QDragEnterEvent *event)
                 event->setDropAction(Qt::MoveAction);
                 event->accept();
 //       }
+
+        emit iconEnter();
     } else {
-        qDebug() << "DirMinWidget***************************************************dragEnter";
+
         event->ignore();
     }
-    emit iconEnter();
+//        qDebug() << "DirMinWidget***************************************************dragEnter";
 
 }
 
 void DirMinWidget::dragMoveEvent(QDragMoveEvent *event)
 {
-//qDebug() << "dragMoveEvent******************";
-
 //        qDebug() << "DirMinWidget*******dragMoveEvent******************";
 
     event->setDropAction(Qt::MoveAction);
@@ -394,7 +398,7 @@ void DirMinWidget::delPage(int page)
             if (icon != NULL) {
                 icon->setPage(i);
                 icon->setIndex(j);
-                icon->setGeometry(_gridTable[i][j].translated(_spacing, _spacing));
+                icon->setGeometry(_gridTable[i][j].translated(_spacing / 2, 1));
             }
         }
     }
@@ -440,7 +444,7 @@ int DirMinWidget::addIcon(const QString &text, \
             icon->setSSmallSize();
             break;
     }
-//    icon->setText(text);
+
 //    icon->setTimeLine(false);
 //    icon->setPropertyAnimation(true);
 //    icon->setRunAction(false);
@@ -482,7 +486,7 @@ int DirMinWidget::addIcon(const QString &text, \
             }
         }
     }
-
+    icon->setText(text);
     icon->setPixmap(iconPath);
 
 //    if (IconMinItem::large_size == ICON_TYPE)
@@ -508,9 +512,6 @@ int DirMinWidget::addIcon(const QString &text, \
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
     icon->show();
-    qDebug() << icon->index();
-    qDebug() << icon->page();
-    qDebug() << icon->url();
 
 //    connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
@@ -532,58 +533,60 @@ void DirMinWidget::delIcon(const QString &text)
     //icon->setIndex(-1);
     delete _iconTable[p][s];
 
-    _iconNum--;
+    moveBackIcons(p, s);
 
-    for(int i = p; i < _count; i++)
-    {
-        if (i == p)
-        {
-            int k;
-            for (k = s + 1; k < _nextIdx[p]; k++) {
-                QRect start = _gridTable[p][k].translated(_spacing, _spacing);
-                QRect end = _gridTable[p][k-1].translated(_spacing, _spacing);
-                _iconTable[p][k]->animationMove(start, end);
-                _iconTable[p][k]->setIndex(k-1);
-                _iconTable[p][k - 1] = _iconTable[p][k];
-            }
-        }
-        else {
-            for (int j = 0; j < _nextIdx[i]; j++)
-            {
-                if (j == 0)
-                {
+//    _iconNum--;
 
-                    QRect start = _gridTable[i][j].translated(_spacing, _spacing);
-                    QRect end = _gridTable[i-1][_nextIdx[i-1] - 1].translated(_spacing, _spacing);
-                    _iconTable[i][j]->animationMove(start, end);
-                    _iconTable[i][j]->setPage(i-1);
-                    _iconTable[i][j]->setIndex(_nextIdx[i-1] - 1);
-                    _iconTable[i-1][_nextIdx[i-1] - 1] = _iconTable[i][j];
-                }
-                else {
+//    for(int i = p; i < _count; i++)
+//    {
+//        if (i == p)
+//        {
+//            int k;
+//            for (k = s + 1; k < _nextIdx[p]; k++) {
+//                QRect start = _gridTable[p][k].translated(_spacing, _spacing);
+//                QRect end = _gridTable[p][k-1].translated(_spacing, _spacing);
+//                _iconTable[p][k]->animationMove(start, end);
+//                _iconTable[p][k]->setIndex(k-1);
+//                _iconTable[p][k - 1] = _iconTable[p][k];
+//            }
+//        }
+//        else {
+//            for (int j = 0; j < _nextIdx[i]; j++)
+//            {
+//                if (j == 0)
+//                {
 
-                    QRect start = _gridTable[i][j].translated(_spacing, _spacing);
-                    QRect end = _gridTable[i][j-1].translated(_spacing, _spacing);
-                    _iconTable[i][j]->animationMove(start, end);
-                    _iconTable[i][j]->setIndex(j-1);
-                    _iconTable[i][j - 1] = _iconTable[i][j];
-                }
-            }
-        }
-    }
+//                    QRect start = _gridTable[i][j].translated(_spacing, _spacing);
+//                    QRect end = _gridTable[i-1][_nextIdx[i-1] - 1].translated(_spacing, _spacing);
+//                    _iconTable[i][j]->animationMove(start, end);
+//                    _iconTable[i][j]->setPage(i-1);
+//                    _iconTable[i][j]->setIndex(_nextIdx[i-1] - 1);
+//                    _iconTable[i-1][_nextIdx[i-1] - 1] = _iconTable[i][j];
+//                }
+//                else {
 
-    if (_nextIdx[_count - 1] == 0)
-    {
-        _iconTable[_count - 1 - 1][_nextIdx[_count - 1 - 1] - 1] = NULL;
-        _nextIdx[_count - 1 - 1]--;
-    }else
-    {
-        _iconTable[_count - 1][_nextIdx[_count - 1] - 1] = NULL;
-        _nextIdx[_count - 1]--;
-    }
+//                    QRect start = _gridTable[i][j].translated(_spacing, _spacing);
+//                    QRect end = _gridTable[i][j-1].translated(_spacing, _spacing);
+//                    _iconTable[i][j]->animationMove(start, end);
+//                    _iconTable[i][j]->setIndex(j-1);
+//                    _iconTable[i][j - 1] = _iconTable[i][j];
+//                }
+//            }
+//        }
+//    }
 
-    if ((_count > 1) && (_iconNum == _iconsPerPage * (_count - 1)))
-        delPage(_count - 1);
+//    if (_nextIdx[_count - 1] == 0)
+//    {
+//        _iconTable[_count - 1 - 1][_nextIdx[_count - 1 - 1] - 1] = NULL;
+//        _nextIdx[_count - 1 - 1]--;
+//    }else
+//    {
+//        _iconTable[_count - 1][_nextIdx[_count - 1] - 1] = NULL;
+//        _nextIdx[_count - 1]--;
+//    }
+
+//    if ((_count > 1) && (_iconNum == _iconsPerPage * (_count - 1)))
+//        delPage(_count - 1);
 
 
 //    if (_iconNum == 0) {
@@ -604,6 +607,64 @@ void DirMinWidget::delIcon(const QString &text)
 //    if (trembling) {
 //        appCancel();
 //    }
+}
+
+void DirMinWidget::removeDirMinItem(const QString &text)
+{
+    //moveBackIcons(_iconDict.value(text)->page(), _iconDict.value(text)->index());
+    delIcon(text);
+}
+
+void DirMinWidget::moveBackIcons(int page, int index)
+{
+    int p = page;
+    int s = index;
+
+    for(int i = p; i < _count; i++)
+    {
+       if (i == p)
+       {
+           int k;
+           for (k = s + 1; k < _nextIdx[p]; k++) {
+               QRect start = _gridTable[p][k].translated(_spacing / 2, 1);
+               QRect end = _gridTable[p][k-1].translated(_spacing / 2, 1);
+               _iconTable[p][k]->animationMove(start, end);
+               _iconTable[p][k]->setIndex(k-1);
+               _iconTable[p][k - 1] = _iconTable[p][k];
+           }
+       }
+       else {
+           for (int j = 0; j < _nextIdx[i]; j++)
+           {
+               if (j == 0)
+               {
+
+                   QRect start = _gridTable[i][j].translated(_spacing / 2, 1);
+                   QRect end = _gridTable[i-1][_nextIdx[i-1] - 1].translated(_spacing / 2, 1);
+                   _iconTable[i][j]->animationMove(start, end);
+                   _iconTable[i][j]->setPage(i-1);
+                   _iconTable[i][j]->setIndex(_nextIdx[i-1] - 1);
+                   _iconTable[i-1][_nextIdx[i-1] - 1] = _iconTable[i][j];
+               }
+               else {
+
+                   QRect start = _gridTable[i][j].translated(_spacing / 2, 1);
+                   QRect end = _gridTable[i][j-1].translated(_spacing / 2, 1);
+                   _iconTable[i][j]->animationMove(start, end);
+                   _iconTable[i][j]->setIndex(j-1);
+                   _iconTable[i][j - 1] = _iconTable[i][j];
+               }
+           }
+       }
+    }
+
+    _iconTable[_count - 1][_nextIdx[_count - 1] - 1] = NULL;
+    _nextIdx[_count - 1]--;
+
+    if (_nextIdx[_count - 1] == 0)
+        delPage(_count - 1);
+
+    _iconNum--;
 }
 
 void DirMinWidget::mouseDoubleClickEvent(QMouseEvent *)
@@ -704,8 +765,8 @@ void DirLineEdit::paintEvent(QPaintEvent* event)
     }
 
     QRect rt = rect();
-//    painter.setPen(QColor(Qt::white));
     painter.drawText(rt.translated(0,1), Qt::AlignCenter | Qt::TextHideMnemonic, _hint);
+
 }
 
 void DirLineEdit::mousePressEvent(QMouseEvent *event)
@@ -759,7 +820,7 @@ void DirLineEdit::resizeEvent(QResizeEvent *event)
 DirMWidget::DirMWidget(QWidget *parent)
     : QWidget(parent)
 {
-    setAcceptDrops(true);
+//    setAcceptDrops(true);
 
     switch(ICON_TYPE)
     {
@@ -790,18 +851,38 @@ DirMWidget::DirMWidget(QWidget *parent)
     _dirMinWidget->move(0, 0);
     _dirMinWidget->setVisible(true);
 
-    connect(_dirMinWidget, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
+//    connect(_dirMinWidget, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
     connect(_dirMinWidget, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
     connect(_dirMinWidget, SIGNAL(iconLeave()), this, SIGNAL(iconLeave()));
     connect(_dirMinWidget, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
     connect(_dirMinWidget, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)),
             this, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)));
     connect(_dirMinWidget, SIGNAL(mouseClicked()), this, SIGNAL(mouseClicked()));
+
 }
 
 DirMWidget::~DirMWidget()
 {
 
+}
+
+void DirMWidget::setMinDragEnable(bool dragEnable)
+{
+    if (dragEnable)
+    {
+        _dirMinWidget->setAcceptDrops(true);
+        _dirMinWidget->setDragEnable(true);
+    }
+    else
+    {
+        _dirMinWidget->setAcceptDrops(false);
+        _dirMinWidget->setDragEnable(false);
+    }
+}
+
+void DirMWidget::removeDirMinItem(const QString &text)
+{
+    _dirMinWidget->removeDirMinItem(text);
 }
 
 DirMinShowWidget::DirMinShowWidget(QWidget *parent)
@@ -1003,5 +1084,32 @@ QPixmap DirMinShowWidget::setTransparentPixmap(const QString &pix)
 void DirMinShowWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     Q_UNUSED(event);
+
     emit dragEnterMinWidget();
+}
+
+void DirMinShowWidget::setMinDragEnable(bool dragEnable)
+{
+    if (dragEnable)
+    {
+        _dirMWidget->setMinDragEnable(true);
+        _dirMWidget->setAcceptDrops(false);
+    }
+    else
+    {
+        _dirMWidget->setMinDragEnable(false);
+        _dirMWidget->setAcceptDrops(false);
+    }
+
+}
+
+void DirMinShowWidget::removeDirMinItem(const QString &text)
+{
+
+        _dirMWidget->removeDirMinItem(text);
+}
+
+const QString & DirMinShowWidget::getDirText()
+{
+    _dirLineEdit->text();
 }
