@@ -457,7 +457,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     , _iconDragEnter(false)
     , _dirId(-1)
 //    , _iconNum(-1)
-    , _desktopDistance(0)
+    , _upDistance(0)
     , _distance(0)
     , _openDir(false)
     , _iconSize(ICON_TYPE)
@@ -465,6 +465,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     , _isIconMove(true)
     , _isDirWidgetObject(false)
     , _dragItem(NULL)
+    , _localIconNum(0)
 //    , _vappCount(0)
 
 {
@@ -517,7 +518,17 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
 
     _local = LocalAppList::getList();
 
-    for (int i = 0; i < _local->count(); i++)
+    for (int i = 0; i < _local->count(); i++) {
+        if (_local->at(i)->hidden())
+            continue;
+
+        if (_local->at(i)->dirId() == -1)
+        {
+            _localIconNum ++;
+        }
+    }
+
+    for (int i = 0; i < _localIconNum; i++)   //_local->count()
     {
         _count = i / _iconsPerPage + 1;
     }
@@ -569,7 +580,8 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     pal.setColor(QPalette::Background, QColor(255,255,255,0));
     setPalette(pal);
 
-
+    _desktopWidget = QApplication::desktop();
+    _desktopRect = _desktopWidget->availableGeometry();
     /*for local desktop add addbutton*/
 //    g_addIcon = new IconAddItem(tr(""),this);
 //    g_addIcon->setVisible(false);
@@ -577,37 +589,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
 //    if (_local->count() == 0)
 //        g_addIcon->setGeometry(_gridTable[0][0].translated(HSPACING, VSPACING));
 
-    for (int i = 0; i < _local->count(); i++) {
-        if (_local->at(i)->hidden())
-            continue;
-
-        if(_local->at(i)->type().toInt() == localIcon)
-        {
-            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                    _local->at(i)->page(), _local->at(i)->index(),
-                    _local->at(i)->url(), 0);
-        }
-        else if (_local->at(i)->type().toInt() == vacIcon)
-        {
-            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                    _local->at(i)->page(), _local->at(i)->index(),
-                    _local->at(i)->url(), 1);
-        }
-        else if (_local->at(i)->type().toInt() == paasIcon)
-        {
-            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                    _local->at(i)->page(), _local->at(i)->index(),
-                    _local->at(i)->url(), 2);
-        }
-        else if (_local->at(i)->type().toInt() == dirIcon)
-        {
-            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-                    _local->at(i)->page(), _local->at(i)->index(),
-                    _local->at(i)->url(), 3);
-        }
-    }
-
-
+    initIconItem();
 
     dragLeftTimer = new QTimer(this);
     dragLeftTimer->setInterval(500);
@@ -625,9 +607,6 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     _arrangeWidget->move(200,200);
     _arrangeWidget->setVisible(false);
 
-    _desktopWidget = QApplication::desktop();
-    _desktopRect = _desktopWidget->availableGeometry();
-
     _normalMenu = new MenuWidget(MenuWidget::normal, this);
     _normalMenu->setVisible(false);
 
@@ -643,6 +622,8 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
 //    connect(_iconMenu, SIGNAL(rename()), this, SLOT(rename));
 
     connect(_normalMenu, SIGNAL(menuChanged(int)), this, SLOT(menuChanged(int)));
+    connect(_normalMenu, SIGNAL(createDir()), this, SLOT(addDirItem()));
+    connect(_normalMenu, SIGNAL(refresh()), this, SLOT(refreshMenu()));
     connect(_showIconMenu, SIGNAL(largeIcon()), this, SLOT(setLargeIcon()));
     connect(_showIconMenu, SIGNAL(mediumIcon()), this, SLOT(setMediumIcon()));
     connect(_showIconMenu, SIGNAL(smallIcon()), this, SLOT(setSmallIcon()));
@@ -668,8 +649,8 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     connect(dragLeftTimer, SIGNAL(timeout()), this, SLOT(dragLeft()));
     connect(dragRightTimer, SIGNAL(timeout()), this, SLOT(dragRight()));
 
-    connect(_local, SIGNAL(appAdded(const QString&, const QString&, const QString &))
-            , this, SLOT(addIcon(const QString&, const QString&, const QString &)));
+    connect(_local, SIGNAL(appAdded(const QString&, const QString&, const QString &, int))
+            , this, SLOT(addIcon(const QString&, const QString&, const QString &, int)));
     connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
 
     connect(&_communi, SIGNAL(appRun()), this, SLOT(runServerApp()));//
@@ -734,7 +715,9 @@ void VirtualDesktop::iconDragLeave()
         qDebug() << "DirWidget*************************iconDragLeave";
 }
 
-void VirtualDesktop::iconDragDrop(int id, const QString &text, const QString &iconPath, const QString &url)
+void VirtualDesktop::iconDragDrop(int id, const QString &text,
+                                  const QString &iconPath, int page,
+                                  int index, const QString &url, int type)
 {
     _iconDragEnter = false;
 //    _dragEnterMinWidget = false;
@@ -745,7 +728,7 @@ void VirtualDesktop::iconDragDrop(int id, const QString &text, const QString &ic
 
 ////    emit setDirIcon(text, icoText, url);
 //    _dirList.at(id)->addDirIcon(text, icoText, url);
-   _dirList.at(id)->addDirIcon(text, iconPath, url);
+   _dirList.at(id)->addDirIcon(text, iconPath, -1, index, url, type);
 
     if (!_inDrag)
         return;
@@ -1550,6 +1533,8 @@ void VirtualDesktop::dragLeaveEvent(QDragLeaveEvent *event)
     _iconDragEnter = false;
     qDebug() << "*********************************dragLeaveEventdragLeaveEvent";
     _itemHeld = false;
+
+    hideDirWidget();
 //    _inDrag->show();
 //    int p = _inDrag->page();
 //    int s = _inDrag->index();
@@ -1759,7 +1744,10 @@ int VirtualDesktop::addIcon(const QString &text, \
                             const QString &url,\
                             int type)
 {
-    int expandPageCount = (_local->count() - 1) / _iconsPerPage + 1;
+    _localIconNum ++;
+//    qDebug() << "_local->count() - 1 : " << _local->count() - 1;
+//    qDebug() << "_iconsPerPage : " << _iconsPerPage;
+    int expandPageCount = (_localIconNum - 1) / _iconsPerPage + 1;    //_local->count()
     if (expandPageCount > _count)
         expand();
 //test
@@ -1794,7 +1782,13 @@ int VirtualDesktop::addIcon(const QString &text, \
 
     if(type == dirIcon)
     {
+//        qDebug() << "icon->addMinWidget()icon->addMinWidget()icon->addMinWidget()";
         icon->addMinWidget();
+        icon->setContextMenuBool(false);
+    }
+    else
+    {
+            icon->setContextMenuBool(true);
     }
     if (type != dirIcon)
         icon->setRunAction(true);
@@ -1803,16 +1797,16 @@ int VirtualDesktop::addIcon(const QString &text, \
     icon->setClosePixBool(false);
     icon->setSelectPixBool(false);
     icon->setDoubleClickBool(true);
-    icon->setContextMenuBool(true);
+//    icon->setContextMenuBool(true);
     icon->setTrembleBool(false);
     icon->setDragEventBool(true);
     icon->setEnterEventBool(true);
     icon->setLeaveEventBool(true);
     icon->setEqualIcon(false);
-    if (dirIcon != type)
+//    if (dirIcon != type)
         icon->setSaveDataBool(true);
-    else
-        icon->setSaveDataBool(false);
+//    else
+//        icon->setSaveDataBool(false);
 
     /* TODO deal with the icon is full */
     if (page == -1) {
@@ -1824,7 +1818,7 @@ int VirtualDesktop::addIcon(const QString &text, \
             }
         }
     } else {
-//        if (index == -1) {
+        if (index == -1) {
             if ((page > 0) && (_nextIdx[page - 1] == _iconsPerPage) && (_nextIdx[page] < _iconsPerPage)) {
                 index = _nextIdx[page];
             }
@@ -1855,16 +1849,15 @@ int VirtualDesktop::addIcon(const QString &text, \
 //                    }
 //                }
 //            }
-//        }
+       }
     }
 
     icon->setPixmap(iconPath);
     icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
-    qDebug() << "VirtualDesktop::addIcon() --> setPage(page)" << page;
+//    qDebug() << "VirtualDesktop::addIcon() --> setPage(page)" << page;
     icon->setPage(page);
     icon->setIndex(index);
     icon->setUrl(url);
-    icon->setDirId(-1);
     _iconDict.insert(text, icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
@@ -1877,6 +1870,7 @@ int VirtualDesktop::addIcon(const QString &text, \
         _inDrag = icon;
         icon->hide();
     }
+    icon->setDirId(-1);
 
     connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
@@ -1886,26 +1880,30 @@ int VirtualDesktop::addIcon(const QString &text, \
     connect(icon, SIGNAL(iconEnter()), this, SLOT(iconDragEnter()));
     connect(icon, SIGNAL(iconMove()), this, SLOT(iconDragMove()));
     connect(icon, SIGNAL(iconLeave()), this, SLOT(iconDragLeave()));
-    connect(icon, SIGNAL(iconDrop(int, const QString &, const QString &, const QString &)),
-            this, SLOT(iconDragDrop(int, const QString &, const QString &, const QString &)));
+    connect(icon, SIGNAL(iconDrop(int, const QString &, const QString &, int, int, const QString &, int)),
+            this, SLOT(iconDragDrop(int, const QString &, const QString &, int, int, const QString &, int)));
     connect(icon, SIGNAL(openDir(int, int, int)), this, SLOT(openDir(int, int, int)));
     connect(icon, SIGNAL(dragEnterMinWidget()), this, SLOT(iconDragEnter()));
-    connect(icon, SIGNAL(showContextMenu(QPoint,const QString &))
-            , this, SLOT(showIconContextMenu(QPoint,const QString &)));
+    connect(icon, SIGNAL(showContextMenu(QPoint, QPoint,const QString &))
+            , this, SLOT(showIconContextMenu(QPoint, QPoint,const QString &)));
 
-    if (type == dirIcon)
+    if (dirIcon == type)
     {
         icon->setId(_dirMinList.count());
         _dirMinList.append(text);
 
-
         _dirShowWidget = new DirShowWidget(QSize(_desktopRect.width(), 290), this);
-    //    _dirShowWidget->raise();
+
+        //    _dirShowWidget->raise();
         _dirShowWidget->setVisible(false);
         _dirShowWidget->setMaxRow(_row);
         _dirShowWidget->setId(_dirList.count());
         _dirList.append(_dirShowWidget);
 
+        qDebug() << "_dirList.count()" << _dirList.count();
+
+        connect(_dirShowWidget, SIGNAL(dirWidgetDragLeave()), this, SLOT(hideDirWidget()));
+        connect(_dirShowWidget, SIGNAL(dirWidgetDelIcon(int, const QString &)), this, SLOT(dirWidgetDelIcon(int, const QString &)));
     }
     else
     {
@@ -1962,6 +1960,9 @@ int VirtualDesktop::showAddIcon(int page, int index)
 
 void VirtualDesktop::delIcon(const QString &text)
 {
+    if (_iconDict.value(text) == NULL)
+        return;
+
     IconItem *icon = _iconDict.take(text);
     //icon->setHidden(true);
     qDebug() << icon->page();
@@ -2108,12 +2109,22 @@ void VirtualDesktop::moveBackIcons(int page, int index)
     if (_nextIdx[_count - 1] == 0)
         delPage(_count - 1);
 
+    _localIconNum--;
+
 }
 
 void VirtualDesktop::runApp(const QString &text)
 {
     QString tmp;
     QString pram;
+
+    if (!_iconDict.value(text)->url().isEmpty())
+    {
+
+        QDesktopServices::openUrl(QUrl(_iconDict.value(text)->url()));
+        return;
+    }
+
     bool isRmote = false;
     for (int i = 0; i < g_myVappList.count(); i++)
     {
@@ -2531,7 +2542,7 @@ void VirtualDesktop::reloadApplist()
 {
     //we need check the page. because we only have one page now;
 
-    int expandPageCount = _local->count() / _iconsPerPage + 1;
+    int expandPageCount =  _localIconNum / _iconsPerPage + 1;  //_local->count()
     for(int i = _count; i < expandPageCount; i++)
     {
         expand();
@@ -2604,18 +2615,26 @@ void VirtualDesktop::addDirItem()
 {
     hideMenuWidget();
 
-    addIcon(QString("ÎÄ¼þ¼Ð_%1").arg(_nextIdx[_count - 1]), "", -1, _nextIdx[_count - 1], "", dirIcon);
+    addDesktopApp(QString("_%1").arg(_dirMinList.count()), "", "", 3);
+
 }
 
 void VirtualDesktop::openDir(int id, int page, int index)
 {
+    hideMenuWidget();
+
+//    setContextMenuPolicy(Qt::NoContextMenu);
+
     _openDir = true;
     _isIconMove = false;
 
     _dirPage = page;
     _dirIndex = index;
 
-    setIconEnabled(false);
+    qDebug() << "VirtualDesktop::openDir() ------>_dirPage" << _dirPage;
+    qDebug() << "VirtualDesktop::openDir() ------>_dirIndex" << _dirIndex;
+
+//    setIconEnabled(false);
 
     if (_animationScreenDown)
     {
@@ -2629,12 +2648,14 @@ void VirtualDesktop::openDir(int id, int page, int index)
     int x = page * _desktopRect.width();
     int y = _gridTable[page][index].y() + gridHeight;
     int w = _desktopRect.width();
-    int h = _desktopRect.height() - _gridTable[page][index].y() - gridHeight - 30;
+    int upH = _gridTable[page][index].y() + gridHeight;
+//    int downH = _desktopRect.height() - upH;
+    int downH = _desktopRect.height() - _gridTable[page][index].y() - gridHeight - 30;
 //    int h = _dirShowWidget->getHeight();
 
-    _dirList.at(_dirId)->move(x, y);
-    _dirList.at(_dirId)->setVisible(true);
-    _dirList.at(_dirId)->raise();
+//    _dirList.at(_dirId)->move(x, y);
+//    _dirList.at(_dirId)->setVisible(true);
+//    _dirList.at(_dirId)->raise();
 
     int mx = _gridTable[page][index].x() + (gridWidth - SMALLSLIDERWIDTH) / 2 + x;  // 39
     int my = y - 15;                            //_gridTable[page][index].y() + gridHeight + 21;
@@ -2642,19 +2663,32 @@ void VirtualDesktop::openDir(int id, int page, int index)
     int mh = 15;                                //40;
 
 
-//    int _desktopDistance;
+//    int _upDistance;
     int row = (_gridTable[page][index].y() + gridHeight) / gridHeight;
 
     if (row + _dirList.at(_dirId)->getRow() > _row)
-        _desktopDistance = (row + _dirList.at(_dirId)->getRow() - _row) * gridHeight;
+    {
+        _upDistance = (row + _dirList.at(_dirId)->getRow() - _row) * gridHeight;
+    }
     else
-        _desktopDistance = 0;
+    {
+        _upDistance = 0;
+    }
 
+    _dirList.at(_dirId)->move(x, y - _upDistance);
 
-    emit desktopOpenMove(x, y, w, h, _distance, _desktopDistance);
+    emit upMove(0, 0, x + w, upH, _upDistance);
+    emit desktopOpenMove(x, y, w, downH, _distance);
     emit openMinWidget(mx, my, mw, mh, _distance);
-//    if (_desktopDistance > 0)
+    emit upMinMove(mx, my, mw, mh, _upDistance);
+//    if (_upDistance > 0)
 //        emit desktopBgMove(gridHeight);
+    qDebug() << "before" ;
+    _dirList.at(_dirId)->raise();
+    _dirList.at(_dirId)->setVisible(true);
+
+    qDebug() << "after";
+
     _animationScreenDown = true;
 
 }
@@ -2666,7 +2700,9 @@ void VirtualDesktop::closeDir(int page, int index)
     int x = page * _desktopRect.width();
     int y = _gridTable[page][index].y() + gridHeight + _distance;
     int w = _desktopRect.width();
-    int h = _desktopRect.height() - _gridTable[page][index].y() - gridHeight - 30;
+    int upH = _gridTable[page][index].y() + gridHeight;
+//    int downH = _desktopRect.height() - upH;
+    int downH = _desktopRect.height() - _gridTable[page][index].y() - gridHeight - 30;
 
     int mx = _gridTable[page][index].x() + (gridWidth - SMALLSLIDERWIDTH) / 2 + x; // 39
     int my = y - 15;              //_gridTable[page][index].y() + gridHeight + 249
@@ -2674,12 +2710,15 @@ void VirtualDesktop::closeDir(int page, int index)
     int mh = 15;                       //40
 
     emit closeMinWidget(mx, my, mw, mh, _distance);
-    emit desktopCloseMove(x, y, w, h, _distance, _desktopDistance);
-//    if (_desktopDistance > 0)
+    emit desktopCloseMove(x, y, w, downH, _distance);
+    emit upBackMove(0, -_upDistance, x + w, upH, _upDistance);
+    emit upMinBackMove(mx, my - _distance - _upDistance, mw, mh, _upDistance);
+//    if (_upDistance > 0)
 //        emit desktopBgBack(gridHeight);
     _openDir = false;
     _animationScreenDown = false;
 
+//    setContextMenuPolicy(Qt::DefaultContextMenu);
 }
 
 void VirtualDesktop::setDirHide()
@@ -2701,6 +2740,8 @@ void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, cons
             app->setUrl(url);
             app->setPage(_count - 1);
             app->setIndex(_nextIdx[_count - 1]);
+            app->setDirId(-1);
+            app->setId("111");
 
             for (int i = 0; i < g_RemotelocalList.count(); i++)
             {
@@ -2739,6 +2780,8 @@ void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, cons
                     RemoteApp->setType(QString("%1").arg(type));
                     RemoteApp->setIsRemote(true);
                     RemoteApp->setUrl(url);
+                    RemoteApp->setDirId(-1);
+                    RemoteApp->setId("111");
                     break;
                 }
             }
@@ -2759,6 +2802,8 @@ void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, cons
         app->setPage(_count - 1);
         app->setIndex(_nextIdx[_count - 1]);
         app->setExecname(url);
+        app->setDirId(-1);
+        app->setId("111");
 
 
         if (LocalAppList::getList()->getAppByName(app->name())) {
@@ -2772,6 +2817,19 @@ void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, cons
     }
     else if (dirIcon == type)
     {
+        LocalApp *app = new LocalApp();
+        app->setName(text);
+        app->setIcon(pix);
+        app->setType(QString("%1").arg(type));
+        app->setUrl(url);
+        app->setPage(_count - 1);
+        app->setIndex(_nextIdx[_count - 1]);
+        app->setExecname("");
+        app->setDirId(-1);
+        app->setId(QString("%1").arg(_dirMinList.count()));
+
+        LocalAppList::getList()->addApp(app);
+
     }
 
 
@@ -2837,16 +2895,6 @@ void VirtualDesktop::menuChanged(int value)
 
         break;
 
-    case 2 :
-        if (_showIconMenu->isVisible())
-            _showIconMenu->setVisible(false);
-
-        _createMenu->move(_mousePos.x() + 162 - 25, _mousePos.y() + 20 + 19 + 19 - 10);
-        _createMenu->raise();
-        _createMenu->setVisible(true);
-
-        break;
-
     default:
         if (_createMenu->isVisible())
             _createMenu->setVisible(false);
@@ -2855,6 +2903,16 @@ void VirtualDesktop::menuChanged(int value)
             _showIconMenu->setVisible(false);
         break;
     }
+
+    //    case 2 :
+    //        if (_showIconMenu->isVisible())
+    //            _showIconMenu->setVisible(false);
+
+    //        _createMenu->move(_mousePos.x() + 162 - 25, _mousePos.y() + 20 + 19 + 19 - 10);
+    //        _createMenu->raise();
+    //        _createMenu->setVisible(true);
+
+    //        break;
 }
 
 void VirtualDesktop::hideMenuWidget()
@@ -2867,6 +2925,9 @@ void VirtualDesktop::hideMenuWidget()
 
     if (_showIconMenu->isVisible())
         _showIconMenu->setVisible(false);
+
+    if (_iconMenu->isVisible())
+        _iconMenu->setVisible(false);
 }
 
 void VirtualDesktop::setLargeIcon()
@@ -2886,12 +2947,13 @@ void VirtualDesktop::setLargeIcon()
 
     emit largeIcon();
 
-    for (int i = 0; i < _local->count(); i++)
-    {
-        addIcon(_local->at(i)->name(), _local->at(i)->icon()
-                , _local->at(i)->page(),_local->at(i)->index()
-                , _local->at(i)->url(), _local->at(i)->type().toInt());
-    }
+//    for (int i = 0; i < _local->count(); i++)
+//    {
+//        addIcon(_local->at(i)->name(), _local->at(i)->icon()
+//                , _local->at(i)->page(),_local->at(i)->index()
+//                , _local->at(i)->url(), _local->at(i)->type().toInt());
+//    }
+    initIconItem();
 }
 
 void VirtualDesktop::setMediumIcon()
@@ -2909,12 +2971,14 @@ void VirtualDesktop::setMediumIcon()
 
     emit mediumIcon();
 
-    for (int i = 0; i < _local->count(); i++)
-    {
-        addIcon(_local->at(i)->name(), _local->at(i)->icon()
-                , _local->at(i)->page(),_local->at(i)->index()
-                , _local->at(i)->url(), _local->at(i)->type().toInt());
-    }
+//    for (int i = 0; i < _local->count(); i++)
+//    {
+//        addIcon(_local->at(i)->name(), _local->at(i)->icon()
+//                , _local->at(i)->page(),_local->at(i)->index()
+//                , _local->at(i)->url(), _local->at(i)->type().toInt());
+//    }
+
+    initIconItem();
 }
 
 void VirtualDesktop::setSmallIcon()
@@ -2933,18 +2997,26 @@ void VirtualDesktop::setSmallIcon()
 
     emit smallIcon();
 
-    for (int i = 0; i < _local->count(); i++)
-    {
-        addIcon(_local->at(i)->name(), _local->at(i)->icon()
-                , _local->at(i)->page(),_local->at(i)->index()
-                , _local->at(i)->url(), _local->at(i)->type().toInt());
-    }
+//    for (int i = 0; i < _local->count(); i++)
+//    {
+//        addIcon(_local->at(i)->name(), _local->at(i)->icon()
+//                , _local->at(i)->page(),_local->at(i)->index()
+//                , _local->at(i)->url(), _local->at(i)->type().toInt());
+//    }
+
+    initIconItem();
 }
 
 void VirtualDesktop::refresh(QSize size)
 {
     movetoFirst();
     deleteAllIconItem();
+
+    for(int i = _count; i > 1; i--)
+    {
+        delPage(i-1);
+    }
+
     reloadApplist(size);
 
 //    getLocalIcon();
@@ -3002,6 +3074,8 @@ void VirtualDesktop::reloadApplist(QSize size)
     for (int i = 0; i < _count; i++)
         _nextIdx.insert(i, 0);
 
+    _localIconNum= 0;
+
 //    for(int i = 0; i < _iconLists.count(); i++)
 //    {
 //        _tempLists[i] = _iconLists[i];
@@ -3058,6 +3132,8 @@ void VirtualDesktop::deleteAllIconItem()
     _nextIdx.clear();
     _iconDict.clear();
     _gridTable.clear();
+    _dirList.clear();
+    _dirMinList.clear();
 }
 
 void VirtualDesktop::changeSpacing()
@@ -3094,11 +3170,12 @@ void VirtualDesktop::changeSpacing()
     }
 }
 
-void VirtualDesktop::showIconContextMenu(QPoint pos, const QString &text)
+void VirtualDesktop::showIconContextMenu(QPoint pos, QPoint mPos, const QString &text)
 {
+    Q_UNUSED(pos);
     _currentIconItem = text;
 
-    _iconMenu->move(pos);
+    _iconMenu->move(mPos);
     _iconMenu->raise();
     _iconMenu->setVisible(true);
 }
@@ -3118,4 +3195,101 @@ void VirtualDesktop::iconMenuDelClicked()
     LocalAppList::getList()->delApp(_currentIconItem);
 
     emit desktopDelIcon(_currentIconItem);
+}
+
+void VirtualDesktop::refreshMenu()
+{
+    switch(ICON_TYPE)
+    {
+        case IconItem::large_size :
+            setLargeIcon();
+            break;
+
+        case IconItem::medium_size :
+            setMediumIcon();
+            break;
+
+        default:
+            setSmallIcon();
+            break;
+    }
+}
+
+void VirtualDesktop::dirWidgetDelIcon(int id, const QString &text)
+{
+    qDebug() <<"VirtualDesktop::dirWidgetDelIcon"<<id;
+    _iconDict.value(_dirMinList.at(id))->removeDirMinItem(text);
+
+    emit desktopDelIcon(text);
+}
+
+void VirtualDesktop::moveWidgetDrop(IconItem *iconItem)
+{
+    if (!iconItem)
+        return;
+
+    addIcon(iconItem->text(), iconItem->pix()
+            , _count - 1, _nextIdx[_count - 1]
+            , iconItem->url(), iconItem->type());
+
+
+    _dirList.at(iconItem->dirId())->removeIcon(iconItem->text());
+
+    _iconDict.value(_dirMinList.at(iconItem->dirId()))->removeDirMinItem(iconItem->text());
+
+}
+
+void VirtualDesktop::initIconItem()
+{
+    for (int i = 0; i < _local->count(); i++) { //_localIconNum
+        if (_local->at(i)->hidden())
+            continue;
+
+        if (_local->at(i)->dirId() == -1)
+        {
+
+            if(_local->at(i)->type().toInt() == localIcon)
+            {
+                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+                        _local->at(i)->page(), _local->at(i)->index(),
+                        _local->at(i)->url(), 0);
+            }
+            else if (_local->at(i)->type().toInt() == vacIcon)
+            {
+                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+                        _local->at(i)->page(), _local->at(i)->index(),
+                        _local->at(i)->url(), 1);
+            }
+            else if (_local->at(i)->type().toInt() == paasIcon)
+            {
+                addIcon(_local->at(i)->name(), _local->at(i)->icon(),
+                        _local->at(i)->page(), _local->at(i)->index(),
+                        _local->at(i)->url(), 2);
+            }
+            else if (_local->at(i)->type().toInt() == dirIcon)
+            {
+                addIcon(_local->at(i)->name(), "",
+                        _local->at(i)->page(), _local->at(i)->index(),
+                        "", 3);
+            }
+        }
+    }
+
+    for (int i = 0; i < _dirList.count(); i++)
+    {
+        for (int j = 0; j < _local->count(); j++) {
+            if (_local->at(j)->hidden())
+                continue;
+            if (_local->at(j)->dirId() == i)
+            {
+                _iconDict.value(_dirMinList.at(_local->at(j)->dirId()))->addDirMinItem(_local->at(j)->name(), _local->at(j)->icon(),
+                                                                      _local->at(j)->page(), _local->at(j)->index(),
+                                                                      _local->at(j)->url());
+
+                _dirList.at(i)->addDirIcon(_local->at(j)->name(), _local->at(j)->icon(),
+                                           _local->at(j)->page(), _local->at(j)->index(),
+                                           _local->at(j)->url(), _local->at(j)->type().toInt());
+            }
+        }
+    }
 }

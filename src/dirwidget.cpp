@@ -13,13 +13,19 @@
 #include <QLibrary>
 #include <windows.h>
 #include <stdio.h>
+#include <QMessageBox>
 
 #include <QtDebug>
 #include <QDrag>
+#include <QDesktopServices>
 
 #include "DirWidget.h"
 #include "config.h"
 #include "dirwidget.h"
+#include "appmessagebox.h"
+#include "paascommuinication.h"
+#include "strings.h"
+#include <string.h>
 
 //#define KEY "\\Windows\\CurrentVersion\\App Paths\\"
 #define KEY "\\Windows\\CurrentVersion\\Uninstall\\"
@@ -61,6 +67,11 @@
 #define ICONVSPACING (36 - 36)
 
 extern int ICON_TYPE;
+extern QString WIN_VAPP_IconPath;
+extern QList<APP_LIST> g_myVappList;
+extern QList<LOCAL_LIST> g_RemotelocalList;
+extern QList<APP_LIST> g_RemoteappList;
+extern QList<PAAS_LIST> g_RemotepaasList;
 
 static QPoint gap;
 
@@ -70,6 +81,7 @@ DirShowWidget::DirShowWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
     , _id(0)
 {
+//    setContextMenuPolicy(Qt::NoContextMenu);
 //    _rightTopPix.load(":/images/bs_rightbg_top.png");
 //    _rightCenterPix.load(":/images/bs_rightbg_center.png");
 //    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
@@ -77,7 +89,7 @@ DirShowWidget::DirShowWidget(QSize pageSize, QWidget *parent)
     _width = pageSize.width();
 
     _dirWidget = new DirWidget(pageSize, this);
-    _dirWidget->setGeometry(0,0, _width - 5, _height);
+    _dirWidget->setGeometry(0,0, _dirWidget->width() - 5, _dirWidget->height());
 //    _dirWidget->setMaxPage(_maxRow);
     _dirWidget->setVisible(true);
 
@@ -117,6 +129,8 @@ DirShowWidget::DirShowWidget(QSize pageSize, QWidget *parent)
  //   connect(_dirWidget, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
     connect(_dirWidget, SIGNAL(pageIncreased()), this, SLOT(setSize()));
     connect(_dirWidget, SIGNAL(pageDecreased()), this, SLOT(setSize()));
+    connect(_dirWidget, SIGNAL(dirWidgetDragLeave()), this, SIGNAL(dirWidgetDragLeave()));
+    connect(_dirWidget, SIGNAL(dirWidgetDelIcon(int, const QString &)), this, SIGNAL(dirWidgetDelIcon(int, const QString &)));
 }
 
 DirShowWidget::~DirShowWidget()
@@ -164,9 +178,10 @@ void DirShowWidget::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 }
 
-void DirShowWidget::mousePressEvent(QMouseEvent *)
+void DirShowWidget::mousePressEvent(QMouseEvent *event)
 {
-
+    if (Qt::RightButton == event->button())
+        return;
 }
 
 //void DirShowWidget::resizeEvent(QResizeEvent *event)
@@ -193,6 +208,7 @@ void DirShowWidget::mousePressEvent(QMouseEvent *)
 
 void DirShowWidget::setSize()
 {
+    qDebug() << "DirShowWidget::setSize() : ";
     _width = _dirWidget->width();
     _height = _dirWidget->height();
 
@@ -217,10 +233,10 @@ void DirShowWidget::showApp(bool localApp)
         _dirWidget->showApp(false);
 }
 
-void DirShowWidget::addDirIcon(const QString &text, const QString &iconPath, const QString &url)
+void DirShowWidget::addDirIcon(const QString &text, const QString &iconPath, int page, int index, const QString &url, int type)
 {
     _dirWidget->setUrl(url);
-    _dirWidget->addIcon(text, iconPath, -1, -1);
+    _dirWidget->addIcon(text, iconPath, page, index, url, type);
 }
 
 void DirShowWidget::setMaxRow(int row)
@@ -739,10 +755,10 @@ DirWidget::DirWidget(QSize pageSize, QWidget *parent)
     , _iconSize(ICON_TYPE)
     , _dragEvent(false)
 {
+//    setContextMenuPolicy(Qt::NoContextMenu);
     _count = 1;
     _pageSize = pageSize;
     _width = _pageSize.width();
-//    _height = ICONITEMWIDTH + VSPACING + BOTTOMSPACING;
 
     changeSpacing();
 //    gridWidth = ICONITEMWIDTH + HSPACING * 2;
@@ -754,17 +770,6 @@ DirWidget::DirWidget(QSize pageSize, QWidget *parent)
     _iconsPerPage = _col * _row;
     _current  = 0;
 
-//    _local = LocalAppList::getList();
-
-    ////test   start  Classes //URLInfoAbout //InstallLocation //DisplayIcon
-//    QSettings reg(QSettings::NativeFormat, \
-//            QSettings::SystemScope, "Microsoft", KEY);
-//    for (int i = 0; i < reg.childGroups().count(); i++) {
-//        QSettings tmp(QSettings::NativeFormat, \
-//            QSettings::SystemScope, "Microsoft", \
-//            KEY + reg.childGroups().at(i));
-
-////        addIcon(tmp.value("").toString(), addLocalApp(tmp.value("").toString()), -1, -1);
 
 
 
@@ -783,6 +788,10 @@ DirWidget::DirWidget(QSize pageSize, QWidget *parent)
 //    {
 //        _count = i / _iconsPerPage + 1;
 //    }
+
+    _local = LocalAppList::getList();
+    connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
+    connect(&_communi, SIGNAL(appRun()), this, SLOT(runServerApp()));//
 
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _height));
@@ -835,18 +844,16 @@ DirWidget::DirWidget(QSize pageSize, QWidget *parent)
 //        }
 //    }
 
-//    for (int i = 0; i < reg.childGroups().count(); i++) {
-//        QSettings tmp(QSettings::NativeFormat, \
-//            QSettings::SystemScope, "Microsoft", \
-//            KEY + reg.childGroups().at(i));
-
-////        addIcon(tmp.value("").toString(), addLocalApp(tmp.value("").toString()), -1, -1);
-//    }
-
 //    for (int i = 0; i < ICONNUM; i++) {
 //        addIcon("", QString(":images/custom/z_%1.png").arg(i + 15),
 //                -1, i);
 //    }
+//    initIconItem();
+    _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
+    _iconMenu->setVisible(false);
+
+    connect(_iconMenu, SIGNAL(run()), this, SLOT(iconMenuRunClicked()));
+    connect(_iconMenu, SIGNAL(del()), this, SLOT(iconMenuDelClicked()));
 }
 
 DirWidget::~DirWidget()
@@ -854,13 +861,17 @@ DirWidget::~DirWidget()
 
 }
 
-int DirWidget::addIcon(QString text,
+int DirWidget::addIcon(const QString &text,
                        const QString &iconPath,
                        int page,
-                       int index)
+                       int index,
+                       const QString &url,
+                       int type)
 {
-
+        qDebug() <<  "DirWidget::addIcon() -->_iconNum" << _iconNum;
     int expandPageCount = _iconNum / _iconsPerPage + 1;
+
+
 
     if (expandPageCount > _count)
         expand();
@@ -937,9 +948,10 @@ int DirWidget::addIcon(QString text,
     icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
     icon->setPage(page);
     icon->setIndex(index);
-    icon->setUrl(_url);
+    icon->setUrl(url);
     icon->setDirId(_id);
     icon->setId(_id);
+    icon->setType(type);
     _iconDict.insert(text, icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
@@ -950,6 +962,8 @@ int DirWidget::addIcon(QString text,
 //   connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(delIcon(const QString&)));
+    connect(icon, SIGNAL(showContextMenu(QPoint, QPoint,const QString &))
+            , this, SLOT(showIconContextMenu(QPoint, QPoint,const QString &)));
 
     _url = QString("");
      return page;
@@ -1031,6 +1045,9 @@ void DirWidget::delPage(int page)
 
 void DirWidget::delIcon(const QString &text)
 {
+    if (!_iconDict.value(text))
+        return;
+
     qDebug() << text;
     IconItem *icon = _iconDict.take(text);
     //icon->setHidden(true);
@@ -1098,8 +1115,17 @@ void DirWidget::moveBackIcons(int page, int index)
     _iconTable[_count - 1][_nextIdx[_count - 1] - 1] = NULL;
     _nextIdx[_count - 1]--;
 
+    qDebug() << "_nextIdx[_count - 1] : " << _nextIdx[_count - 1];
     if (_nextIdx[_count - 1] == 0)
+    {
+        if (_count - 1 == 0)
+        {
+            qDebug() << "_nextIdx[_count - 1] : " << _nextIdx[_count - 1];
+            return;
+        }
+
         delPage(_count - 1);
+    }
 
     _iconNum--;
 }
@@ -1196,18 +1222,40 @@ void DirWidget::largeIcon()
 {
     _iconSize = IconItem::large_size;
     refresh(LARGESIZE);
+
+    _iconNum = 0;
+
+//    initIconItem();
+
+
 }
+
+//void DirWidget::initIconItem()
+//{
+//    for (int j = 0; j < _local->count(); j++) {
+//        if (_local->at(j)->hidden())
+//            continue;
+//        if (_local->at(j)->dirId() == _id)
+//        {
+//            addIcon(_local->at(j)->name(), _local->at(j)->icon(),
+//                    _local->at(j)->page(), _local->at(j)->index(),
+//                    _local->at(j)->url(), _local->at(j)->type().toInt());
+//        }
+//    }
+//}
 
 void DirWidget::mediumIcon()
 {
     _iconSize = IconItem::medium_size;
     refresh(MEDIUMSIZE);
+    _iconNum = 0;
 }
 
 void DirWidget::smallIcon()
 {
     _iconSize = IconItem::small_size;
     refresh(SMALLSIZE);
+    _iconNum = 0;
 }
 
 void DirWidget::refresh(QSize size)
@@ -1416,6 +1464,8 @@ void DirWidget::dragMoveEvent(QDragMoveEvent *event)
 void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
     _dragEvent = false;
+    qDebug() << "DirWidget::dragLeaveEvent(QDragLeaveEvent *event)";
+    emit dirWidgetDragLeave();
 
     Q_UNUSED(event);
 }
@@ -1460,17 +1510,356 @@ int DirWidget::getNearestIndex(const QRect &rect)
     return index;
 }
 
-void DirWidget::mousePressEvent(QMouseEvent *)
+void DirWidget::mousePressEvent(QMouseEvent *event)
 {
+    _iconMenu->setVisible(false);
+    event->accept();
 
+    if (Qt::RightButton == event->button())
+        return;
 }
 
-void DirWidget::mouseMoveEvent(QMouseEvent *)
+void DirWidget::mouseMoveEvent(QMouseEvent *event)
 {
-
+    qDebug() << event->pos();
 }
 
 void DirWidget::mouseReleaseEvent(QMouseEvent *)
 {
 
+}
+
+void DirWidget::showIconContextMenu(QPoint pos, QPoint mPos, const QString &text)
+{
+    qDebug() << "void DirWidget::showIconContextMenu(QPoint pos, const QString &text)" << pos << text;
+    Q_UNUSED(mPos);
+    _currentIconItem = text;
+
+    _iconMenu->move(pos.x() + _iconDict.value(text)->pos().x(), pos.y() + _iconDict.value(text)->pos().y());
+    _iconMenu->raise();
+    _iconMenu->setVisible(true);
+}
+
+void DirWidget::iconMenuRunClicked()
+{
+    _iconMenu->setVisible(false);
+
+    runApp(_currentIconItem);
+}
+
+void DirWidget::iconMenuDelClicked()
+{
+    _iconMenu->setVisible(false);
+    qDebug() << _currentIconItem;
+//    delIcon(_currentIconItem);
+//    emit delApp(_currentIconItem);
+    LocalAppList::getList()->delApp(_currentIconItem);
+    emit dirWidgetDelIcon(_id, _currentIconItem);
+
+}
+
+void DirWidget::runApp(const QString &text)
+{
+    QString tmp;
+    QString pram;
+
+    if (!_iconDict.value(text)->url().isEmpty())
+    {
+
+        QDesktopServices::openUrl(QUrl(_iconDict.value(text)->url()));
+        return;
+    }
+
+    bool isRmote = false;
+    for (int i = 0; i < g_myVappList.count(); i++)
+    {
+        qDebug() << "g_myVappList.at(i).name" << g_myVappList.at(i).name;
+        qDebug() << "text" << text;
+        if(g_myVappList.at(i).name == text)
+        {
+         qDebug() << "g_myVappList.at(i).name == text ---  >" << text;
+            _appid = g_myVappList.at(i).id;
+            Commui._type = g_myVappList.at(i).type;
+            isRmote = true;
+        }
+    }
+    if(isRmote)
+    {
+                qDebug() << "if(isRmote)" << text;
+        appText = text;
+        _communi.loadBalance(Commui._name,_appid);
+        if(_communi._isNetError)
+        {
+            QMessageBox::warning(this, tr("Get load balance info failed"), _communi.errInfo, tr("OK"));
+        }
+        return;
+    }
+
+    LocalApp *la = _local->getAppByName(text);
+    if (!la)
+        return;
+
+    char command[2048];
+    if (la->type().toInt() == 0) {
+        QFileInfo link(la->execname());
+
+        qDebug() << "la->execname():" << la->execname();
+        if (!link.exists()) {
+            AppMessageBox box(true, NULL);
+            box.setText("指向的应用或快捷方式已不存在\n点击\"确定\"删除图标");
+            if (box.exec())
+                LocalAppList::getList()->delApp(la->name());
+            return;
+        }
+        sprintf(command, "\"%s\"", la->execname().toLocal8Bit().data());
+    } else {
+        QFileInfo link(la->execname());
+        //   QString exec = AppDataReadExe::Instance()->getExec(la->execname());
+        if (!link.exists()) {
+//            QString msg = QString("%1没有被正确安装, 请在\n软件商店中重新安装, 是否删除图标?").arg(text);
+//            AppMessageBox box(true, NULL);
+//            box.setText(msg);
+//            if (box.exec())
+//                LocalAppList::getList()->delApp(la->name());
+
+            QMessageBox::information(NULL,"NO","Linke to Function is not OK!!!!");
+            return;
+        }
+        sprintf(command, "\"%s\"", la->execname().toLocal8Bit().data());
+    }
+    ShellExecute(NULL, "open", command, "", "", SW_SHOW);
+
+}
+
+void DirWidget::runServerApp()
+{
+
+    QString tmp;
+    QString pram;
+    QString _appid;
+
+    qDebug()<<appText;
+    for (int i = 0; i < g_myVappList.count(); i++)
+    {
+        if(g_myVappList.at(i).name == appText)
+        {
+            qDebug() << g_myVappList.at(i).name;
+
+            _appid = g_myVappList.at(i).id;
+            Commui._type = g_myVappList.at(i).type;
+        }
+    }
+
+
+    if(_communi.errID == "10000")
+    {
+        if (m_dllInitClass && m_dllCloseClass && m_dllCloseAppAll && m_dllStartAppEx )                  //??????? add() ??
+        {
+            char buf[100];
+            DWORD len = GetLogicalDriveStringsA(sizeof(buf)/sizeof(char),buf);
+            //
+            //
+            string strDiskVolume;
+            string strFixed;
+            string strCDROM;
+            string strRemovable;
+
+            for (char* s=buf; *s; s+=strlen(s)+1)
+            {
+                string strDrivePath = s;
+                // GetDriveType
+                //
+                UINT uDriveType;
+                uDriveType = GetDriveTypeA(strDrivePath.c_str());
+                strDiskVolume.append(strDrivePath);
+
+                if (uDriveType == DRIVE_CDROM)
+                {
+                    strCDROM.append(strDrivePath);
+                    //qDebug() << "cdrom : " << strDrivePath.c_str();
+                }
+                else if (uDriveType == DRIVE_REMOVABLE)//mass storage
+                {
+                    strRemovable.append(strDrivePath);
+                    //qDebug() << "removable : " << strDrivePath.c_str();
+                }
+                else if (uDriveType == DRIVE_FIXED)
+                {
+                    strFixed.append(strDrivePath);
+                    //qDebug() << "fixed : " << strDrivePath.c_str();
+                }
+            }
+
+            qDebug()<<"string:"<<QString::fromLocal8Bit(strDiskVolume.c_str())<<endl;
+            QString diskpath;
+            //            if(Commui._driver_loadClientDriverOnLogin == "1")
+            //            {
+            //                diskpath = QString::fromLocal8Bit(strDiskVolume.c_str());
+            //            }
+            //            else
+            //            {
+            //                if(Commui._driver_mapClientStorageOnLogin_check_harddisk == 0)
+            //                    diskpath = QString::fromLocal8Bit(strFixed.c_str());
+            //                if(Commui._driver_mapClientStorageOnLogin_check_CD == 0)
+            //                    diskpath = diskpath + QString::fromLocal8Bit(strCDROM.c_str());
+            //            }
+            if(Commui._driver_mapClientStorageOnLogin_check_harddisk == "1")
+            {
+                diskpath = QString::fromLocal8Bit(strFixed.c_str());
+                //qDebug() << "fixed : " << strFixed.c_str();
+            }
+            if(Commui._driver_mapClientStorageOnLogin_check_CD == "1")
+            {
+                diskpath = diskpath + QString::fromLocal8Bit(strCDROM.c_str());
+                //qDebug() << "CDROM : " << strCDROM.c_str();
+            }
+            if(Commui._driver_mapClientStorageOnLogin_check_floppy == "1")
+            {
+                diskpath = diskpath + QString::fromLocal8Bit(strRemovable.c_str());
+                //qDebug() << "Removable : " << strRemovable.c_str();
+            }
+            if(Commui._driver_mapClientStorageOnLogin_check_shareStorage == "1")
+            {
+                //diskpath = diskpath + QString::fromLocal8Bit(strRemovable.c_str());
+            }
+
+            qDebug()<<"diskpath:"<<diskpath;
+            diskpath.replace("\\" , ",");
+            qDebug()<<"count:"<<diskpath.count();
+            diskpath.remove((diskpath.count() - 1),1);
+            qDebug()<<"diskPath:"<<diskpath;
+            qDebug()<<"cdrom:"<<QString::fromLocal8Bit(strCDROM.c_str());
+
+            tmp = Commui._path;
+            pram= Commui._param;
+            const wchar_t* _param=reinterpret_cast<const wchar_t*>(pram.utf16());
+            const wchar_t* ty = reinterpret_cast<const wchar_t*>(tmp.utf16());
+            qDebug() << "passwd::" << Commui._pswd;
+            //Commui._pswd = decryptRsa();
+            qDebug() << "passwd::" << Commui._pswd;
+            const wchar_t* pswd = reinterpret_cast<const wchar_t*>(Commui._pswd.utf16());
+            const wchar_t* localime = reinterpret_cast<const wchar_t*>(Commui._redirect_inputMethodRedirect.utf16());
+
+            if(Commui._userType == "1" || Commui._userType == "2")
+            {
+                Commui._applogin = Commui._domain +  "\\" + Commui._name;
+            }
+            else
+            {
+                Commui._applogin = Commui._name;
+            }
+            const wchar_t* name = reinterpret_cast<const wchar_t*>(Commui._applogin.utf16());
+            const wchar_t* appName = reinterpret_cast<const wchar_t*>(appText.utf16());
+            const wchar_t* ipPort = reinterpret_cast<const wchar_t*>(Commui._rdpIpPort.utf16());
+            const wchar_t* audio = reinterpret_cast<const wchar_t*>(Commui._audio_clientAudioOutput.utf16());
+            const wchar_t* _diskpath = reinterpret_cast<const wchar_t*>(diskpath.utf16());
+            qDebug()<<"name:"<<Commui._name;
+            qDebug()<<"ipPort:"<<Commui._rdpIpPort<<endl;
+            bool tray;
+            if("1" == Commui._type)
+            {
+                tray = true;
+            }
+            else
+            {
+                tray = false;
+            }
+
+            bool ok;
+            m_dllInitClass(L"", L"");
+            qDebug()<<"audio::"<<Commui._audio_clientAudioOutput.toULong(&ok,10);
+            int _audio;
+            if(Commui._audio_clientAudioOutput.toULong(&ok,10)==1)
+            {
+                _audio = 3;
+            }
+            else
+            {
+                _audio = 1;
+            }
+
+
+            DWORD colorDepth=24;
+            switch (Commui._viewLimited_colorDepth.toUInt(&ok,10))
+            {
+            case 8:
+                colorDepth = 8;
+                break;
+            case 16:
+                colorDepth = 16;
+                break;
+            case 24:
+                colorDepth = 24;
+                break;
+            case 32:
+                colorDepth = 32;
+                break;
+            default:
+                colorDepth = 24;
+                break;
+            }
+
+            //    qDebug()<<"_param"<<pram;
+            BOOL FontSmooth;
+            if(Commui._FontSmooth=="1")
+                FontSmooth=true;
+            else
+                FontSmooth=false;
+
+
+            int _DesktopWidth,_DesktopHeight;
+            /*if(Commui._viewLimited_resolution_width=="0")
+             {
+                 _DesktopWidth=qApp->desktop()->rect().width();
+                 _DesktopHeight=qApp->desktop()->rect().height();
+             }
+            else
+            {*/
+            _DesktopWidth=Commui._DesktopWidth.toULong(&ok,10);
+            _DesktopHeight=Commui._DesktopHeight.toULong(&ok,10);
+            //}
+
+            DWORD dwForbidApps = 0x00;
+            if(Commui._applicationForbid_cmd == "1")
+            {
+                dwForbidApps |= 0x0001;
+            }
+            if(Commui._applicationForbid_explorer == "1")
+            {
+                dwForbidApps |= 0x0002;
+            }
+            if(Commui._applicationForbid_SysManage == "1")
+            {
+                dwForbidApps |= 0x0004;
+            }
+            if(Commui._applicationForbid_help == "1")
+            {
+                dwForbidApps |= 0x0008;
+            }
+
+            if(tray)
+                qDebug()<<"tray program";
+            else
+                qDebug()<<"no tray program.";
+
+            qDebug()<<"-----dwForbidApps-" << dwForbidApps;
+            m_dllStartAppEx(0, 0, Commui._redirect_inputMethodRedirect.toULong(&ok,10), _audio, \
+                            colorDepth, 0, Commui._type.toULong(&ok, 10), 0, L"{123654789}",pswd, \
+                            name, ipPort, appName, ty,\
+                            L"", _diskpath, _param , Commui._interface_COM.toULong(&ok,10),\
+                            Commui._printer_supportVirtualPrint.toULong(&ok,10) , tray,\
+                            _DesktopHeight ,_DesktopWidth,Commui._other_closeClipboard.toULong(&ok,10),\
+                            FontSmooth,Commui._RdpPort.toULong(&ok,10),dwForbidApps);
+        }
+        else
+        {
+            QMessageBox::information(NULL,"NO","Linke to Function is not OK!!!!");
+            return;  //???????
+        }
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Get load balance info failed"), _communi.errInfo, tr("OK"));
+        return;
+    }
 }

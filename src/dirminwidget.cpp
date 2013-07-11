@@ -1,8 +1,10 @@
-#include "dirminwidget.h"
-
 #include <QtDebug>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
 #include <QPainter>
 #include <cassert>
+
+#include "dirminwidget.h"
 
 #define ICONWIDTH 72            //72
 #define ICONHEIGHT 72           //72
@@ -321,11 +323,10 @@ void DirMinWidget::dropEvent(QDropEvent *event)
         QString nameText;
         QString pixText;
         QString urlText;
-        dataStream >> nameText >> pixText >> urlText;
-
-//        qDebug() << nameText;
-//        qDebug() << pixText;
-//        qDebug() << urlText;
+        int page;
+        int index;
+        int type;
+        dataStream >> nameText >> pixText >> page >> index >> urlText >> type;
 
 //         pixText.replace(".png", ".ico");
 //        qDebug() << pixText;
@@ -344,7 +345,7 @@ void DirMinWidget::dropEvent(QDropEvent *event)
 //    }
 
     addIcon(nameText, pixText, -1, -1, urlText);
-    emit iconDrop(nameText ,pixText, urlText);
+    emit iconDrop(nameText ,pixText, page, index, urlText, type);
     } else {
         event->ignore();
     }
@@ -427,7 +428,6 @@ int DirMinWidget::addIcon(const QString &text, \
     int expandPageCount = _iconNum / _iconsPerPage + 1;
     if (expandPageCount > _count)
         expand();
-
 
     IconMinItem *icon = new IconMinItem(this);
     switch(ICON_TYPE)
@@ -667,14 +667,15 @@ void DirMinWidget::moveBackIcons(int page, int index)
     _iconNum--;
 }
 
-void DirMinWidget::mouseDoubleClickEvent(QMouseEvent *)
+void DirMinWidget::mousePressEvent(QMouseEvent *event)
 {
-    return;
+    QWidget::mousePressEvent(event);
 }
 
-void DirMinWidget::mousePressEvent(QMouseEvent *)
+void DirMinWidget::mouseReleaseEvent(QMouseEvent * event)
 {
-    emit mouseClicked();
+    if (event->button() == Qt::LeftButton)
+        emit mouseClicked();
 }
 
 void DirMinWidget::changeSize()
@@ -855,8 +856,10 @@ DirMWidget::DirMWidget(QWidget *parent)
     connect(_dirMinWidget, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
     connect(_dirMinWidget, SIGNAL(iconLeave()), this, SIGNAL(iconLeave()));
     connect(_dirMinWidget, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
-    connect(_dirMinWidget, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)),
-            this, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)));
+    connect(_dirMinWidget, SIGNAL(iconDrop(const QString&, const QString&, int,
+                                  int, const QString&, int)),
+            this, SIGNAL(iconDrop(const QString&, const QString&, int,
+                         int, const QString&, int)));
     connect(_dirMinWidget, SIGNAL(mouseClicked()), this, SIGNAL(mouseClicked()));
 
 }
@@ -883,6 +886,12 @@ void DirMWidget::setMinDragEnable(bool dragEnable)
 void DirMWidget::removeDirMinItem(const QString &text)
 {
     _dirMinWidget->removeDirMinItem(text);
+}
+
+void DirMWidget::addDirMinItem(const QString &text, const QString &icon, \
+                   int page, int index, const QString &url)
+{
+    _dirMinWidget->addIcon(text, icon, page, index, url);
 }
 
 DirMinShowWidget::DirMinShowWidget(QWidget *parent)
@@ -967,8 +976,10 @@ DirMinShowWidget::DirMinShowWidget(QWidget *parent)
 //    connect(_dirMinWidget, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)),
 //            this, SLOT(iconDropEvent(const QString&, const QString& ,const QString&)));
 //    connect(_dirMinWidget, SIGNAL(mouseClicked()), this, SLOT(mouseClicked()));
-    connect(_dirMWidget, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)),
-            this, SIGNAL(iconDrop(const QString&, const QString& ,const QString&)));
+    connect(_dirMWidget, SIGNAL(iconDrop(const QString&, const QString&, int,
+                                         int, const QString&, int)),
+            this, SIGNAL(iconDrop(const QString&, const QString&, int,
+                                  int, const QString&, int)));
     connect(_dirMWidget, SIGNAL(mouseClicked()), this, SIGNAL(openItem()));
     connect(_dirLineEdit, SIGNAL(focusIn()), this, SLOT(editFocusIn()));
     connect(_dirLineEdit, SIGNAL(focusOut()), this, SLOT(editFocusOut()));
@@ -1043,6 +1054,12 @@ void DirMinShowWidget::editFocusIn()
 
 void DirMinShowWidget::editFocusOut()
 {
+    QSqlQuery query(QSqlDatabase::database("local"));
+    QString qstr = QString("update localapps set name=\'%1\' where id=\'%2\'").arg(_dirLineEdit->text()).arg(_id);
+    if(!query.exec(qstr)) {
+        qDebug() <<"query failed";
+        return;
+    }
 
     setImgs(_editLeftNormal, _editCenterNormal, _editRightNormal);
 }
@@ -1105,8 +1122,13 @@ void DirMinShowWidget::setMinDragEnable(bool dragEnable)
 
 void DirMinShowWidget::removeDirMinItem(const QString &text)
 {
+    _dirMWidget->removeDirMinItem(text);
+}
 
-        _dirMWidget->removeDirMinItem(text);
+void DirMinShowWidget::addDirMinItem(const QString &text, const QString &icon, \
+                   int page, int index, const QString &url)
+{
+    _dirMWidget->addDirMinItem(text, icon, page, index, url);
 }
 
 const QString & DirMinShowWidget::getDirText()

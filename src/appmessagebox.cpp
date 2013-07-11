@@ -1,7 +1,7 @@
 #include "appmessagebox.h"
 #include "dynamicbutton.h"
 
-#define WIDTH 350
+#define WIDTH 280
 #define HEIGHT 200
 
 AppMessageBox::AppMessageBox(bool hasCancel, QWidget *parent)
@@ -38,8 +38,8 @@ AppMessageBox::AppMessageBox(bool hasCancel, QWidget *parent)
         QPixmap clPixHover(":images/message/message_cancel_hover.png");
         DynamicButton *clButton = new DynamicButton(clPix, clPixHover, this);
         connect(clButton, SIGNAL(clicked()), this, SLOT(reject()));
-        okButton->move(70, 140);        //64 140
-        clButton->move(213, 140);       //190 140
+        okButton->move(52, 140);        //64 140
+        clButton->move(163, 140);       //190 140
     }
     connect(b, SIGNAL(clicked()), this, SLOT(reject()));
 }
@@ -48,7 +48,7 @@ AppMessageBox::AppMessageBox(bool hasCancel, QWidget *parent)
 void AppMessageBox::setText(const QString &text)
 {
     label->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), 10, QFont::Normal));
-    label->setStyleSheet("color:white");
+    label->setStyleSheet("color:white;");
     label->setText(text);
 }
 

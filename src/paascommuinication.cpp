@@ -139,6 +139,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     jsonResult.replace(QString("[{"), QString("{"));
     jsonResult.replace(QString("}]"), QString("}"));
     QStringList jsonSections = jsonResult.split(QString("},{"), QString::SkipEmptyParts);
+    qDebug() << "jsonSections---->" << jsonSections;
 
     for (int i = 0; i < jsonSections.size(); i++)
     {
@@ -259,6 +260,8 @@ void PaasCommuinication::login(const QString &url)
     _url = QUrl(url);
 
     qDebug() << url;
+    if (url.isEmpty())
+        return;
 
     myPost(_url, inputStr);
 

@@ -9,10 +9,72 @@
 #include <QMenu>
 #include <QScrollBar>
 #include <cassert>
+using namespace std;
 
 #include "hovericonitem.h"
 #include "localapps.h"
 #include "iconitem.h"
+#include "contextmenuwidget.h"
+#include "commuinication.h"
+
+#ifdef Q_WS_WIN
+#include <QLibrary>
+#include <cstdlib>
+#include <cstdio>
+#include <cassert>
+#include <windows.h>
+#include <shellapi.h>
+#include <QApplication>
+#include <QDesktopWidget>
+#include <QtNetwork>
+#include <QTimer>
+#include <QPoint>
+
+typedef  unsigned long DWORD;
+
+//typedef  wchar_t * LPCWSTR;
+//#define WINAPI __stdcall
+/*typedef struct _GUID {
+    unsigned long  Data1;
+    unsigned short Data2;
+    unsigned short Data3;
+    unsigned char  Data4[ 8 ];
+} GUID;
+*/
+
+extern QString _icontext;
+
+typedef long (*Dll_InitClass)(LPCWSTR, LPCWSTR);
+typedef void (*Dll_CloseClass)();
+typedef void (*Dll_CloseAppAll)();
+typedef long (*Dll_StartAppEx)(DWORD windowstyle,				//8
+                DWORD printer,					//
+                DWORD localime,					//
+                DWORD AudioRedirectionMode,		//
+                DWORD ColorDepth,				//
+                DWORD WindowHandle,				//28
+                DWORD AppStyle,					//32
+                GUID* guidSessionKey, 			//?
+                LPCWSTR szSessionId,	//		SM_Id,
+                LPCWSTR szPassword,		//password
+                LPCWSTR szUsername,		//username
+                LPCWSTR szServerIp,		//server address
+                LPCWSTR szAppname,		//application name to be open
+                LPCWSTR szApppath,		//application location
+                LPCWSTR szDomainname,	//
+                LPCWSTR szDriverList,	//
+                LPCWSTR szAppParam,
+                DWORD RedirectPorts,
+                DWORD RedirectPrinters,//1:local printer, 0: don't take
+                BOOL  IsTray,
+                DWORD DesktopHeight,
+                DWORD DesktopWidth,
+                DWORD RedirectClipboard,  //clipboard 1:enable 0: disable
+                BOOL  IsSmoothFont, //1: enable 0:disable
+                DWORD dwRDPPort,   //rdp port
+                DWORD dwForbidApps
+                );
+#endif
 
 //class DirItem;
 class DirWidget;
@@ -40,11 +102,13 @@ public:
     void removeIcon(const QString &text);
 
 signals:
-
+    void dirWidgetDragLeave();
+    void dirWidgetDelIcon(int id, const QString &text);
+    void delApp(const QString &text);
 
 public slots:
 //    void scrollBarValueChanged(int val);
-    void addDirIcon(const QString &text, const QString &iconPath, const QString &url);
+    void addDirIcon(const QString &text, const QString &iconPath, int page, int index, const QString &url, int type);
     void setSize();
 
     void largeIcon();
@@ -88,8 +152,9 @@ public:
     ~DirWidget();
 
 
-    int addIcon(QString text, const QString &icon, \
-                int page, int index);
+    int addIcon(const QString &text, const QString &iconPath,
+                int page, int index,
+                const QString &url, int type);
 
     QString addLocalApp(QString appPath);
     QString getAppImage(QString appPath);
@@ -110,7 +175,6 @@ public:
 
     void expand();
     void delPage(int page);
-    void delIcon(const QString &text);
 
     void setMaxPage(int page)   { _maxPage = page; }
 
@@ -128,6 +192,8 @@ public:
     void removeIcon(const QString &text);
     void moveBackIcons(int page, int index);
 
+//    void initIconItem();
+
 signals:
 //    void sendUrl(const QString &url);
     void pageChanged(int i);
@@ -135,7 +201,16 @@ signals:
     void pageIncreased();
     void pageDecreased();
 
-    void dragLeave();
+    void dirWidgetDragLeave();
+    void dirWidgetDelIcon(int id, const QString &text);
+
+public slots:
+    void showIconContextMenu(QPoint pos, QPoint mPos, const QString &text);
+    void iconMenuRunClicked();
+    void iconMenuDelClicked();
+    void runApp(const QString &text);
+    void runServerApp();
+    void delIcon(const QString &text);
 
 protected:
 
@@ -195,6 +270,20 @@ private:
     int gm2v;
 
     int _id;
+
+    LocalAppList *_local;
+    MenuWidget *_iconMenu;
+
+    //app
+    commuinication _communi;
+    QString appText;
+    QString _appid;
+    QString _currentIconItem;
+
+    Dll_InitClass m_dllInitClass;
+    Dll_CloseClass m_dllCloseClass;
+    Dll_CloseAppAll m_dllCloseAppAll;
+    Dll_StartAppEx m_dllStartAppEx;
 
 };
 

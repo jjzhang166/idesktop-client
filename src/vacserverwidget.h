@@ -28,11 +28,13 @@ private:
     QLabel *_portLabel;
     QLabel *_nameLabel;
     QLabel *_pwdLabel;
+    QLabel *_paasLabel;
 
     QLineEdit *_vacEdit;
     QLineEdit *_portEdit;
     QLineEdit *_nameEdit;
     QLineEdit *_pwdEdit;
+    QLineEdit *_paasEdit;
 
     QPushButton *_saveBtn;
     QPushButton *_cancelBtn;

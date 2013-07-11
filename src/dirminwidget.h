@@ -36,6 +36,8 @@ public:
     void setMinDragEnable( bool dragEnable);
 
     void removeDirMinItem(const QString &text);
+    void addDirMinItem(const QString &text, const QString &icon, \
+                       int page, int index, const QString &url);
 
 signals:
 //    void sendUrl(const QString &url);
@@ -44,7 +46,8 @@ signals:
     void iconLeave();
     void iconMove();
 //    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
-    void iconDrop(const QString &text, const QString &iconPath, const QString &url);
+    void iconDrop(const QString &text, const QString &iconPath, int page, int index,
+                  const QString &url, int type);
 
 //    void openItem(int id, int page, int index);
     void openItem();
@@ -138,6 +141,8 @@ public:
     void setMinDragEnable( bool dragEnable);
 
     void removeDirMinItem(const QString &text);
+    void addDirMinItem(const QString &text, const QString &icon, \
+                       int page, int index, const QString &url);
 
 
 signals:
@@ -147,7 +152,9 @@ signals:
     void iconLeave();
     void iconMove();
 //    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
-    void iconDrop(const QString &text, const QString &iconPath, const QString &url);
+    void iconDrop(const QString &text, const QString &iconPath,
+                  int page, int index,
+                  const QString &url, int type);
 
 //    void mouseClicked(int id, int page, int index);
     void mouseClicked();
@@ -203,7 +210,8 @@ signals:
     void iconEnter();
     void iconLeave();
     void iconMove();
-    void iconDrop(const QString &text, const QString &iconPath, const QString &url);
+    void iconDrop(const QString &text, const QString &iconPath, int page, int index,
+                  const QString &url, int type);
 
     void mouseClicked();
 
@@ -213,8 +221,9 @@ protected:
     void dragMoveEvent(QDragMoveEvent *event);
     void dragLeaveEvent(QDragLeaveEvent *event);
     void dropEvent(QDropEvent *event);
-    void mousePressEvent(QMouseEvent *);
-    void mouseDoubleClickEvent(QMouseEvent *);
+    void mousePressEvent(QMouseEvent *event);
+//    void mouseDoubleClickEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     int _width;

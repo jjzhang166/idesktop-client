@@ -94,11 +94,11 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         _refreshBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                      tr("刷新"), this, false);
         _createBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                    tr("新建"), this, true);
-        _changeSkinBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                        tr("更换壁纸"), this, false);
-        _themeBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                   tr("桌面主题"), this, false);
+                                    tr("新建文件夹"), this, false);
+//        _changeSkinBtn = new MenuButton("", ":images/menu_btn_hover.png",
+//                                        tr("更换壁纸"), this, false);
+//        _themeBtn = new MenuButton("", ":images/menu_btn_hover.png",
+//                                   tr("桌面主题"), this, false);
 //        QLabel *l1 = new QLabel(this);
 //        l1->setPixmap(QPixmap(":images/menu_line.png"));
 
@@ -106,25 +106,27 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         _showBtn->setGeometry(14, 20 + 2, ICON_W, BTN_H);
         _refreshBtn->setGeometry(14, 39 + 2 * 2, ICON_W, BTN_H);
         _createBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
-        _changeSkinBtn->setGeometry(14, 77 + 2 * 4, ICON_W, BTN_H);
-        _themeBtn->setGeometry(14, 96 + 2 * 5, ICON_W, BTN_H);
+//        _changeSkinBtn->setGeometry(14, 77 + 2 * 4, ICON_W, BTN_H);
+//        _themeBtn->setGeometry(14, 96 + 2 * 5, ICON_W, BTN_H);
 
         _showBtn->setValue(0);
         _refreshBtn->setValue(1);
         _createBtn->setValue(2);
-        _changeSkinBtn->setValue(3);
-        _themeBtn->setValue(4);
+        //_changeSkinBtn->setValue(3);
+        //_themeBtn->setValue(4);
 
-        setFixedSize(ICON_W, 115 + 2 * 5 + 20);
+//        setFixedSize(ICON_W, 115 + 2 * 5 + 20);
+        setFixedSize(ICON_W, 77 + 2 * 3 + 20);
 
         connect(_showBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
-        connect(_createBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
-        connect(_changeSkinBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
-        connect(_themeBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
+//        connect(_createBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
+       connect(_createBtn, SIGNAL(clicked()), this, SIGNAL(createDir()));
+//        connect(_changeSkinBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
+//        connect(_themeBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
         //connect(_delBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
         connect(_refreshBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
-        connect(_changeSkinBtn, SIGNAL(clicked()), this, SIGNAL(changeSkin()));
-        connect(_themeBtn, SIGNAL(clicked()), this, SIGNAL(desktopTheme()));
+//        connect(_changeSkinBtn, SIGNAL(clicked()), this, SIGNAL(changeSkin()));
+//        connect(_themeBtn, SIGNAL(clicked()), this, SIGNAL(desktopTheme()));
 //        connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
         connect(_refreshBtn, SIGNAL(clicked()), this, SIGNAL(refresh()));
 
@@ -193,22 +195,23 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
                                  tr("打开"), this, false);
         _delBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                   tr("删除"), this, false);
-        _renameBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                 tr("重命名"), this, false);
+//        _renameBtn = new MenuButton("", ":images/menu_btn_hover.png",
+//                                 tr("重命名"), this, false);
 
         _openBtn->setGeometry(14, 20, ICON_W, BTN_H);
         _delBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
-        _renameBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
+//        _renameBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
 
         _openBtn->setValue(0);
         _delBtn->setValue(1);
-        _renameBtn->setValue(2);
+//        _renameBtn->setValue(2);
 
-        setFixedSize(ICON_W, 78 + 2 * 2 + 20);
+//        setFixedSize(ICON_W, 78 + 2 * 2 + 20);
+        setFixedSize(ICON_W, 58 + 2 + 20);
 
         connect(_openBtn, SIGNAL(clicked()), this, SIGNAL(run()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
-        connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
+ //       connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
         break;
 
     default:
@@ -232,7 +235,7 @@ void MenuWidget::paintEvent(QPaintEvent *event)
     if (_type == MenuWidget::normal)
     {
         painter.drawPixmap(0, 20 + 19, QPixmap(":images/menu_line.png"));
-        painter.drawPixmap(0, 20 + 19 * 3 + 2 * 2, QPixmap(":images/menu_line.png"));
+//        painter.drawPixmap(0, 20 + 19 * 3 + 2 * 2, QPixmap(":images/menu_line.png"));
     }
     else if (_type == MenuWidget::create)
     {
@@ -342,7 +345,7 @@ void MenuButton::mouseReleaseEvent(QMouseEvent *event)
     if (!_subMenu)
     {
         emit clicked();
-        emit valueClicked(_value);
+//        emit valueClicked(_value);
     }
     Q_UNUSED(event);
 }

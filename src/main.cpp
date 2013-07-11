@@ -28,7 +28,7 @@ HANDLE handle;
 QString serverip;
 /****************************************************************/
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     serverip = "in put server ip";
 
@@ -142,6 +142,10 @@ int main(int argc, char **argv)
                       "port int not null, " \
                       "name nvarchar not null, " \
                       "password nvarchar not null);";
+       QString createPaasServerTable = \
+                      "CREATE TABLE paasservers " \
+                      "(id int not null primary key, " \
+                      "server nvarchar not null);";
        QString createIconSizeTable = \
                       "CREATE TABLE sizetype " \
                       "(id int not null primary key, " \
@@ -152,6 +156,7 @@ int main(int argc, char **argv)
        QSqlDatabase::database("local").exec(createAddrTable);
        QSqlDatabase::database("local").exec(createWallpaperTable);
        QSqlDatabase::database("local").exec(createVacServerTable);
+       QSqlDatabase::database("local").exec(createPaasServerTable);
        QSqlDatabase::database("local").exec(createIconSizeTable);
 
        QString qstrWp = QString("insert into wallpapers ("\
@@ -166,10 +171,19 @@ int main(int argc, char **argv)
         QString qstrVacS = QString("insert into vacservers ("\
                                   "id, server, port, name, password) values ("\
                                   "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\');")\
-                                  .arg(1).arg("192.168.31.151").arg(80).arg("demo").arg("abc_123");
+                                     .arg(1).arg("192.168.31.151").arg(80).arg("demo").arg("abc_123");
+   //                               .arg(1).arg("192.168.49.253").arg(80).arg("test").arg("1357.com");
          if(!query.exec(qstrVacS)) {
              qDebug() <<"query failed";
          }
+         QString qstrPaasS = QString("insert into paasservers ("\
+                                   "id, server) values ("\
+                                   "\'%1\', \'%2\');")\
+                                   .arg(1).arg("http://192.168.49.243:8080/CloudManage/rest/service/getUserAllService");
+          if(!query.exec(qstrPaasS)) {
+              qDebug() <<"query failed";
+          }
+
          QString qstrSizeType = QString("insert into sizetype ("\
                                         "id, type) values ( "\
                                         "\'%1\', \'%2\');")\

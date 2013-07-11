@@ -97,6 +97,8 @@ public:
 
     //dirMin
     void removeDirMinItem(const QString &text);
+    void addDirMinItem(const QString &text, const QString &icon, \
+                       int page, int index, const QString &url);
 
 signals:
 //    void clicked();
@@ -107,10 +109,10 @@ signals:
     void iconEnter();
     void iconMove();
     void openDir(int id, int page, int index);
-    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
+    void iconDrop(int id, const QString &text, const QString &iconPath, int page, int index, const QString &url, int type);
     void addApp(const QString &text, const QString &pix, const QString &url, int type);
 
-    void showContextMenu(QPoint pos, const QString &text);
+    void showContextMenu(QPoint pos, QPoint mPos, const QString &text);
 
     void dragEnterMinWidget();
 
@@ -123,12 +125,14 @@ public slots:
     void delClicked();
 
     void openDirWidget();
-    void iconDropEvent(const QString &text, const QString &iconPath, const QString &url);
+    void iconDropEvent(const QString &text, const QString &iconPath, int page, int index,
+                       const QString &url, int type);
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+//    void mouseReleaseEvent(QMouseEvent *);
 
     void contextMenuEvent(QContextMenuEvent *event);
 

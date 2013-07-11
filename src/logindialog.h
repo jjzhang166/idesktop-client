@@ -28,6 +28,8 @@ extern QString VacPort;
 extern QString VacUser;
 extern QString VacPassword;
 
+extern QString PaasServer;
+
 extern QString xmlPath;
 extern QString iconDirPath;
 extern QString WIN_LOCAL_IconPath;
@@ -35,6 +37,7 @@ extern QString WIN_VAPP_IconPath;
 extern QString WIN_PAAS_IconPath;
 extern QString WIN_TtempPath;
 
+extern QString USERNAME;
 class HintLineEdit;
 class QCheckBox;
 class DynamicButton;
@@ -63,6 +66,9 @@ public:
 
     QAction *_dHideAction;
     QAction *_dShowAction;
+
+    void getPaas(bool isLogin);
+        void setIcon(const QString &dirPath, const QString &iconPath);
 
 signals:
     void dQuit();
@@ -149,7 +155,7 @@ private:
     QTransform _t;
     qreal _finalyrot;
 
-    void setIcon(const QString &dirPath, const QString &iconPath);
+//    void setIcon(const QString &dirPath, const QString &iconPath);
 
     QString getLocalIcon(QString localPath);
 };

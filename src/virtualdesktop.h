@@ -174,6 +174,8 @@ public:
 
     void setIconMove(bool isIconMove) { _isIconMove = isIconMove; }
 
+    void initIconItem();
+
 public slots:
     void goPage(int page);
 
@@ -210,7 +212,9 @@ public slots:
     void iconDragLeave();
     void iconDragEnter();
     void iconDragMove();
-    void iconDragDrop(int id, const QString &text, const QString &iconPath, const QString &url);
+    void iconDragDrop(int id, const QString &text, const QString &iconPath,
+                      int page, int index,
+                      const QString &url, int type);
 
     void hideDirWidget();
     //normalMenu
@@ -224,9 +228,14 @@ public slots:
 
     void addDirItem();
 
-    void showIconContextMenu(QPoint pos, const QString &text);
+    void showIconContextMenu(QPoint pos, QPoint mPos, const QString &text);
     void iconMenuRunClicked();
     void iconMenuDelClicked();
+
+    void refreshMenu();
+    void dirWidgetDelIcon(int id, const QString &text);
+
+    void moveWidgetDrop(IconItem *iconItem);
 
 signals:
     void pageChanged(int i);
@@ -242,11 +251,17 @@ signals:
 
 //    void setDirIcon(const QString &text, const QString &iconPath, const QString &url);
 
-    void desktopOpenMove(int x, int y, int w, int h, int distance, int desktopDistance);
-    void desktopCloseMove(int x, int y, int w, int h, int distance, int desktopDistance);
+    void upMove(int x, int y, int w, int h, int distance);
+    void upBackMove(int x, int y, int w, int h, int distance);
+
+    void desktopOpenMove(int x, int y, int w, int h, int distance);
+    void desktopCloseMove(int x, int y, int w, int h, int distance);
 
     void openMinWidget(int mx, int my, int mw, int mh, int distance);
     void closeMinWidget(int mx, int my, int mw, int mh, int distance);
+
+    void upMinMove(int mx, int my, int mw, int mh, int distance);
+    void upMinBackMove(int mx, int my, int mw, int mh, int distance);
 
     void desktopBgMove(int distance);
     void desktopBgBack(int distance);
@@ -259,7 +274,7 @@ signals:
     void changeSkin();
     void desktopTheme();
     void del();
-    void refresh();
+//    void refresh();
     //showIconMenu
     void largeIcon();
     void mediumIcon();
@@ -329,7 +344,6 @@ private:
     QPropertyAnimation *_animationScreen;
     bool _animationScreenDown;
 //    MoveWidget *_mW;
-//    DirShowWidget *_dirWidget;
     QDesktopWidget *_desktopWidget;
     QRect _desktopRect;
     QString _url;
@@ -348,7 +362,7 @@ private:
     void moveBackIcons(int page, int index);
     int _iconNum;
 
-    int _desktopDistance;
+    int _upDistance;
     int _distance;
 
     int _dirPage;
@@ -372,6 +386,8 @@ private:
     QPoint _dragStartPosition;
 
     IconItem *_dragItem;
+
+    int _localIconNum;
 
 public:
     int _current;

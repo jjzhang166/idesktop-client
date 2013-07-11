@@ -85,7 +85,7 @@ public:
     QString getUninstExec(QString display);
 
 signals:
-    void appAdded(QString name, QString icon, QString url);
+    void appAdded(QString name, QString icon, QString url, int type);
     void appRemoved(const QString &name);
 
 private:

@@ -264,7 +264,7 @@ bool LocalAppList::addApp(LocalApp *app)
             .arg(app->execname()).arg(app->icon())\
             .arg(app->uninstName()).arg(app->date())\
             .arg(app->page()).arg(app->index())\
-            .arg(int(app->hidden())).arg("111")\
+            .arg(int(app->hidden())).arg(QString("%1").arg(app->id()))\
             .arg(app->type()).arg(int(false))\
             .arg(app->url()).arg(app->dirId());
     QSqlQuery query(QSqlDatabase::database("local"));
@@ -274,7 +274,7 @@ bool LocalAppList::addApp(LocalApp *app)
     }
     qDebug()<<"add APP";
     _list.append(app);
-    emit appAdded(app->name(), app->icon(), app->url());
+    emit appAdded(app->name(), app->icon(), app->url(), app->type().toInt());
     return true;
 }
 
@@ -397,7 +397,7 @@ void LocalAppList::addLocalApp(QString appPath)
     if (LocalAppList::getList()->getAppByName(app->name())) {
         QApplication::processEvents();
         AppMessageBox box(false, NULL);
-        box.setText("    已添加该图标");
+        box.setText("已添加该图标"); //    已添加该图标
         box.exec();
     } else {
         addApp(app);

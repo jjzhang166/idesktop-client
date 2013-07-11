@@ -34,6 +34,8 @@
 #include <shellapi.h>
 #include "ShlObj.h "
 
+#include "public.h"
+
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValueIterator>
 #include <QtScript/QScriptValue>
@@ -57,6 +59,10 @@ QString VacPort;
 QString VacUser;
 QString VacPassword;
 
+QString PaasServer;
+
+QString USERNAME;
+
 QList<APP_LIST> g_myVappList;
 QList<PAAS_LIST> g_myPaasList;
 
@@ -70,6 +76,13 @@ QString WIN_PAAS_IconPath;
 QString iconDirPath;
 QString WIN_TtempPath;
 QString xmlPath;
+
+
+typedef MY_APP_StructList (*DLL_getApp2)();
+DLL_getApp2 my_getApp2 = NULL;
+
+typedef void (*DLL_getApp)(MY_APP_StructList*);
+DLL_getApp my_getApp = NULL;
 
 int ICON_TYPE;
 
@@ -357,7 +370,7 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
 
     if(sc.isObject())
     {
-        result = sc.property("data").toVariant().toString();
+        result = sc.property("status").toVariant().toString();  //1
         qDebug() << result;
 
     }
@@ -367,23 +380,81 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
 		// fatal error
     }
 
-    if (result == "APPSTORE SUCCESS")
+    if (result == "1")   //  APPSTORE SUCCESS
     {
         _authSuccess = true;
     }
-    else if (result == "USER NOT EXISTS")
+    else if (result == "-1")//USER NOT EXISTS
     {
-        userError(tr("该用户不存在"));
-    }
-    else if (result == "WRONG PASSWORD")
-    {
-        passError(tr("密码验证失败"));
+        userError(tr("用户名或密码错误"));  //
     }
     else
     {
         connError(tr("连接服务器失败..."));
 
     }
+
+//    else if (result == "WRONG PASSWORD")
+//    {
+//        passError(tr("密码验证失败"));
+//    }
+}
+
+void GetAppList()
+{
+    #if 0
+    QLibrary dllLib("GetApp.dll");
+            if(!dllLib.load())
+            {
+                qDebug()<<"load failed!";
+                 return;
+            }
+            else
+            {
+                qDebug()<<"load succeed!";
+                 my_getApp = (DLL_getApp)dllLib.resolve("GetApp");
+                 my_getApp2 = (DLL_getApp2)dllLib.resolve("GetApp2");
+                 if(my_getApp == NULL)
+                 {
+                     qDebug()<<"resolve failed!";
+                       return;
+                 }
+                 else
+                 {
+                     qDebug()<<"resolve succeed!";
+                     MY_APP_StructList* mylist = new MY_APP_StructList;
+                     char p[20];
+                     sprintf(p, "list add:%x", mylist);
+                     qDebug()<<"before my_getApp"<< p;
+    #if 1
+                     *mylist = my_getApp2();
+    #else
+                     my_getApp(mylist);
+    #endif
+                     sprintf(p, "list add:%x", mylist);
+                     qDebug()<<"after my_getApp"<< p;
+                     FILE* hf = NULL;
+                     hf = fopen("c:\\Temp\\log.txt", "wb");
+                     fputs("hello..", hf);
+                     fclose(hf);
+                        hf = NULL;
+                     for(MY_APP_StructIter it = mylist->begin(); it != mylist->end(); ++it)
+                     {
+                            hf = fopen("c:\\Temp\\log.txt", "a");
+                            //qDebug()<< "app name:" << (char*)it->strAppName;
+                             fputs("app name:", hf);
+                             fputs(it->strAppName, hf);
+                             fputs("\n", hf);
+                             fputs("app path:", hf);
+                             fputs(it->strExePath, hf);
+                             fputs("\n", hf);
+
+                             fclose(hf);
+                     }
+
+                 }
+            }
+#endif
 }
 
 void LoginDialog::auth()
@@ -428,9 +499,9 @@ void LoginDialog::auth()
         _finished = false;
         _authSuccess = false;
         //QString loginUrl = "http://" + serverAddr->currentText() + "/api/login";
-        QString loginUrl = Config::get("Server") + ":8080/idesktop/platform/service/ClientServiceLogin.action";
+        QString loginUrl = Config::get("Server") + ":8080/idesktop/login.action"; //platform/service/ClientServiceLogin.action
         qDebug() <<"loginUrl"<<loginUrl;
-        QString data = "name=" + userEdit->text() + "&password=" + md5;
+        QString data = "username=" + userEdit->text() + "&password=" + passEdit->text() + "&tenant=0";
         _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toAscii());
         connMsg(tr("正在连接服务器..."));
         serverAddr->setEnabled(false);
@@ -442,22 +513,45 @@ void LoginDialog::auth()
             QApplication::processEvents();
         if (!_authSuccess)
             return;
+
         QString replaceNamePwd = QString("REPLACE INTO users(name, password) values('%1', '%2');")\
-                                .arg(userEdit->text()).arg(md5);
+                                        .arg(userEdit->text()).arg(passEdit->text());
         localDb.exec(replaceNamePwd);
+
+        USERNAME = userEdit->text();
+
+//        QString statement = QString("select name from users");
+//        QSqlDatabase localDb = QSqlDatabase::database("local");
+
+//        QSqlQuery query = localDb.exec(statement);
+//        if (!query.next()) {
+//            QString replaceNamePwd = QString("insert into users ("\
+//                                             "name, password) values ( " \
+//                                             "\'%1\', \'%2\');")
+//                                    .arg(userEdit->text()).arg(passEdit->text());
+//            localDb.exec(replaceNamePwd);
+//        }
+//        else            // if(query.value(0).toString() != userEdit->text())
+//        {
+//            QString replaceNamePwd = QString("update users set name=%1, password=%2;")
+//                                    .arg(userEdit->text()).arg(passEdit->text());
+//            localDb.exec(replaceNamePwd);
+//        }
+
+
         /* TODO: check the return value */
-    }
-    else {
-        QSqlQuery query = localDb.exec(statement);
-        if (!query.next()) {
-            userError(tr("该用户不存在"));
-            return;
         }
-        if (query.value(0).toString() != md5) {
-            passError(tr("密码验证失败"));
-            return;
+        else {
+            QSqlQuery query = localDb.exec(statement);
+            if (!query.next()) {
+                userError(tr("该用户不存在"));
+                return;
+            }
+            if (query.value(0).toString() != passEdit->text()) {
+                passError(tr("密码验证失败"));
+                return;
+            }
         }
-    }
 
 //    _tray->setVisible(false);
 
@@ -485,10 +579,17 @@ void LoginDialog::auth()
     qDebug()<<"icon path:"<<WIN_VAPP_IconPath;
 
     getIconType();
-
+    qDebug()<<"after getIconType";
     //local
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
+//   GetAppList();
+
+
+    ///////////////////////////////////////////////////
+#if 1
     QSettings reg(QSettings::NativeFormat, \
         QSettings::SystemScope, "Microsoft", KEY);
     for (int i = 0; i < reg.childGroups().count(); i++) {
@@ -555,7 +656,7 @@ void LoginDialog::auth()
         g_RemotelocalList.append(tempLocalList);
 
     }
-
+#endif
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//vac
@@ -605,6 +706,8 @@ void LoginDialog::auth()
                     .arg(iconDirPath)
                     .arg(g_myVappList[i].id);
 
+            g_myVappList[i].icon = iconPath;
+
             g_RemoteappList.insert(i, g_myVappList[i]);
             g_RemoteappList[i].icon = iconPath;
 
@@ -632,8 +735,10 @@ void LoginDialog::auth()
 //        return;
     }
 
+    getPaas(true);
+
+#if 0
 //paas
-    qDebug() << "!#@$!@#$@#^%*(&)(*%^$#%@#$!@#$#@!$#";
 //    g_myPaasList.clear();
 
 //    QString::SectionFlag flag = QString::SectionSkipEmpty;
@@ -708,6 +813,7 @@ void LoginDialog::auth()
 
         setIcon(iconDirPath, tempPath);
     }
+#endif
 }
 
 void LoginDialog::onDone()
@@ -805,6 +911,13 @@ void LoginDialog::updateVacServer()
         VacUser = query.value(2).toString();
         VacPassword = query.value(3).toString();
     }
+    QSqlQuery query2 = \
+                QSqlDatabase::database("local").exec(QString("SELECT server FROM paasservers where id=1;"));
+        while (query2.next())
+        {
+            PaasServer = query2.value(0).toString();
+
+        }
 }
 
 
@@ -919,4 +1032,89 @@ void LoginDialog::setIcon(const QString &dirPath, const QString &iconPath)
         pix.save(newApp, "PNG", -1);
     }
 
+}
+
+void LoginDialog::getPaas(bool isLogin)
+{
+
+    //paas
+    qDebug() << "void LoginDialog::getPaas(bool isLogin)--->" << PaasServer;
+    //    g_myPaasList.clear();
+
+    //    QString::SectionFlag flag = QString::SectionSkipEmpty;
+    //    QString url("");
+
+        //get paas list
+        _paasCommui->login(PaasServer);
+        while (!_paasFinished)
+            QApplication::processEvents();
+        _paasFinished = false;
+
+        g_myPaasList = _paasCommui->getList();
+        qDebug() << "********" << g_myPaasList.count();
+
+        if (g_myPaasList.count() == 0)
+            return;
+
+
+        QString iconDirPath = WIN_PAAS_IconPath ;
+
+
+        QDir iconDir(iconDirPath);
+        if(!iconDir.exists())
+        {
+            iconDir.mkdir(iconDirPath);
+        }
+        //store ico file locally
+        for(int i = 0; i < g_myPaasList.count(); i++)
+        {
+            QString iconPath = QString("%1%2.png")
+                    .arg(iconDirPath)
+                    .arg(g_myPaasList[i].cnName);
+            QString tempPath = QString("%1%2.ico")
+                    .arg(iconDirPath)
+                    .arg(g_myPaasList[i].cnName);
+    //        qDebug()<<"iconPath="<<iconPath;
+            g_myPaasList[i].iconPath = iconPath;
+
+            if (isLogin)
+            {
+                g_RemotepaasList.insert(i, g_myPaasList[i]);
+                g_RemotepaasList[i].iconPath = iconPath;
+            }
+            //check if ico file is existed, or dont donwload
+
+            QFile chkFile(iconPath);
+            if(chkFile.exists())
+            {
+                chkFile.close();
+                continue;
+            }
+            chkFile.close();
+
+            //qDebug()<<"iconPath"<<iconPath;
+            if (g_myPaasList[i].logoURL.isEmpty())
+            {
+                //url = g_myPaasList.at(i).urls.section('/', 1, 1, flag);
+                //url = QString("http://" + url + "/Favicon.ico");
+
+                //_paasCommui->downloadIcon(QUrl(url), tempPath);
+
+
+               QPixmap pix(":images/url_normal.png");
+               pix.save(iconPath, "PNG", -1);
+
+               continue;
+            }
+            else
+            {
+                _paasCommui->downloadIcon(QUrl(g_myPaasList[i].logoURL), tempPath);
+
+                while (!_paasFinished)
+                    QApplication::processEvents();
+                _paasFinished = false;
+            }
+
+            setIcon(iconDirPath, tempPath);
+        }
 }

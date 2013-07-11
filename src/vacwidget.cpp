@@ -34,6 +34,8 @@ extern QString WIN_PAAS_IconPath;
 extern QList<LOCAL_LIST> g_RemotelocalList;
 extern QList<APP_LIST> g_RemoteappList;
 extern QList<PAAS_LIST> g_RemotepaasList;
+extern QList<APP_LIST> g_myVappList;
+extern QList<PAAS_LIST> g_myPaasList;
 
 extern int ICON_TYPE;
 
@@ -130,7 +132,8 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
                                                   subcontrol-position: bottom; subcontrol-origin: margin;}\
                     QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);\
                                                   subcontrol-position: top; subcontrol-origin: margin;}\
-                    QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}\
+                    QScrollBar::add-page:vertical{background:#454551;}\
+                    QScrollBar::sub-page:vertical{background:#FFFFFF;}\
                     QScrollBar::up-arrow:vertical{subcontrol-origin: margin; background-color: rgba(255,255,255,0);}\
                     QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);}");
 
@@ -862,7 +865,7 @@ int VacWidget::addIcon(QString text, \
                        int type)
 {
     int expandPageCount;
-    int iconNum = g_RemotelocalList.count() + g_RemotepaasList.count() + g_RemoteappList.count();
+    int iconNum = g_RemotelocalList.count() + g_myPaasList.count() + g_myVappList.count();
     if (iconNum % _iconsPerPage == 0)
         expandPageCount = iconNum / _iconsPerPage;
     else
@@ -899,7 +902,8 @@ int VacWidget::addIcon(QString text, \
     icon->setDoubleClickBool(false);
     icon->setContextMenuBool(false);
     icon->setTrembleBool(false);
-    icon->setDragEventBool(true);
+    icon->setDragEventBool(false);
+    icon->setAcceptDrops(false);
     icon->setEnterEventBool(true);
     icon->setLeaveEventBool(true);
 
@@ -1216,7 +1220,6 @@ QString VacWidget::getAppImage(QString appPath)
 
 void VacWidget::expand()
 {
-//    qDebug() << "asdlkfjalksjdflkajsdflkjal;sdjf;lkajsdfljasldkfjalk;sjdflasdfas";
     _count++;
     setFixedSize(_pageSize.width(), _count * _height);
     _pages.append(-(_count-1) * _height);
@@ -1421,6 +1424,12 @@ void VacWidget::refresh(QSize size)
 {
     movetoFirst();
     deleteAllIconItem();
+
+    for(int i = _count; i > 1; i--)
+    {
+        delPage(i-1);
+    }
+
     reloadApplist(size);
 
     getLocalIcon();
@@ -1541,6 +1550,10 @@ void VacWidget::changeSpacing()
 
 void VacWidget::unChecked(const QString &text)
 {
-//    qDebug() << text;
+    qDebug() << "void VacWidget::unChecked(const QString &text) : " <<text;
+
+    if (!_iconDict.value(text))
+        return;
+
     _iconDict.value(text)->setEqualIcon(false);
 }

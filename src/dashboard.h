@@ -22,6 +22,7 @@
 #include "skinwidget.h"
 #include "movewidget.h"
 #include "dirwidget.h"
+#include "blurpicker.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -85,12 +86,17 @@ public slots:
 
     void showBs(const QString &url);
     void goDesktop();
-    void desktopOpenMove(int x, int y, int w, int h, int distance, int desktopDistance);
-    void desktopCloseMove(int x, int y, int w, int h, int distance, int desktopDistance);
-    void scrFinished();
+    void upMove(int x, int y, int w, int h, int distance);
+    void upBackMove(int x, int y, int w, int h, int distance);
+    void downMove(int x, int y, int w, int h, int distance);
+    void downBackMove(int x, int y, int w, int h, int distance);
+    void animationUpFinished();
+    void animationDownFinished();
     void openMinWidget(int x, int y, int w, int h, int distance);
     void closeMinWidget(int x, int y, int w, int h, int distance);
-    void scrMinFinished();
+    void upMinMove(int x, int y, int w, int h, int distance);
+    void upMinBackMove(int x, int y, int w, int h, int distance);
+    void animationMinDownFinished();
     void desktopBgMove(int distance);
     void desktopBgBack(int distance);
 
@@ -101,13 +107,19 @@ public slots:
     void mediumIcon();
     void smallIcon();
 
+//    void onOutFinished(QNetworkReply *reply);
+
 protected:
     void closeEvent(QCloseEvent *event);
     void resizeEvent(QResizeEvent * event);
     void paintEvent(QPaintEvent *event);
 private:
-    void refreshDesktop();
+    void refreshVapp();
     void modify();
+
+    void refreshPaas();
+    void paasModify();
+
 private:
 	//vac 
     int ind_height;
@@ -169,18 +181,26 @@ private:
     VacShowWidget *_vacShowWidget;
     SkinWidget *_skinShowWidget;
 
-    QPropertyAnimation *_animationDesktop;
-    QPropertyAnimation *_animationScreen;
-    QPropertyAnimation *_animationMinScreen;
-    MoveWidget *_mW;
-    MoveMinWidget *_minW;
+    QPropertyAnimation *_animationUp;
+    QPropertyAnimation *_animationDown;
+    QPropertyAnimation *_animationDownMin;
+    QPropertyAnimation *_animationUpMin;
+    MoveWidget *_upMoveWidget;
+    MoveWidget *_downMoveWidget;
+    MoveMinWidget *_downMinW;
+
+//    MoveMinWidget *_minW;
     DirShowWidget *_dirWidget;
-    bool _animationFinished;
+    bool _animationDownFinished;
+    bool _animationUpFinished;
     QLabel *_minLabel;
 
     QPushButton* _backBtn;
     int _distance;
     int _minY;
     bool _minUpward;
+    BlurPicker *_blurPicker;
+
+    QNetworkAccessManager *_nam;
 };
 #endif

@@ -1,13 +1,15 @@
 #include <QPainter>
+#include <QtDebug>
 
 #include "movewidget.h"
 
+class IconItem;
 MoveWidget::MoveWidget(QWidget *parent)
     : QWidget(parent)
     , _width(0)
     , _height(0)
 {
-
+    setAcceptDrops(true);
 }
 
 MoveWidget::~MoveWidget()
@@ -42,6 +44,53 @@ void MoveWidget::mousePressEvent(QMouseEvent *)
 {
     emit mousePress();
 }
+
+//void MoveWidget::mouseMoveEvent(QMouseEvent *event)
+//{
+//    qDebug() << event->pos().x();
+//    qDebug() << event->pos().y();
+//}
+#if 1
+void MoveWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+    _dragEvent = true;
+
+    event->acceptProposedAction();
+
+    emit moveWidgetDragEnter();
+}
+
+
+void MoveWidget::dragMoveEvent(QDragMoveEvent *event)
+{
+    _dragEvent = true;
+
+    event->acceptProposedAction();
+
+    emit moveWidgetDragMove();
+}
+
+void MoveWidget::dragLeaveEvent(QDragLeaveEvent *event)
+{
+    _dragEvent = false;
+
+    emit moveWidgetDragLeave();
+
+    Q_UNUSED(event);
+}
+
+void MoveWidget::dropEvent(QDropEvent *event)
+{
+
+    event->acceptProposedAction();
+
+    IconItem *icon = qobject_cast<IconItem*> (event->source());
+    if (icon)
+        emit moveWidgetDrop(icon);
+
+    _dragEvent = false;
+}
+#endif
 
 MoveMinWidget::MoveMinWidget(QWidget *parent)
     : QWidget(parent)

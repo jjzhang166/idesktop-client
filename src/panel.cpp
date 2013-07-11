@@ -63,6 +63,8 @@ Panel::Panel(QWidget *parent)
     _dirPixHover.load(":images/appbutton_add_hover.png");
     _dirButton = new DynamicButton(_dirPix, _dirPixHover, this);
     _dirButton->setGeometry(0, 164, 85, 78);
+    _dirButton->setVisible(false);
+
 //    addButton->setFixedSize(58, 58);
 //    layout->addWidget(_addButton);
 
@@ -72,14 +74,16 @@ Panel::Panel(QWidget *parent)
     _personPix.load(":images/appbutton_toolbox.png");
     _personPixHover.load(":images/appbutton_toolbox_hover.png");
     _personButton = new DynamicButton(_personPix, _personPixHover, this);
-    _personButton->setGeometry(0, 242, 85, 78);
+    //_personButton->setGeometry(0, 242, 85, 78);
+    _personButton->setGeometry(0, 164, 85, 78);
 //    configButton->setFixedSize(109, 36);
 //    layout->addWidget(configButton);
 
     _quitPix.load(":images/appbutton_store.png");
     _quitPixHover.load(":images/appbutton_store_hover.png");
     _quitButton = new DynamicButton(_quitPix, _quitPixHover, this);
-    _quitButton->setGeometry(0, 320, 85, 86);
+//    _quitButton->setGeometry(0, 320, 85, 86);
+    _quitButton->setGeometry(0, 242, 85, 86);
 
 //    quitButton->setFixedSize(69, 36);
 //    layout->addWidget(quitButton);
