@@ -1084,6 +1084,13 @@ void VirtualDesktop::mousePressEvent(QMouseEvent *event)
 //        closeDir(_dirPage, _dirIndex);
 //        return;
 //    }
+
+    if (event->modifiers() == Qt::ControlModifier)
+	{
+	    event->ignore();
+        return;
+	}
+
     emit desktopClicked();
     _iconMenu->setVisible(false);
     hideDirWidget();
@@ -1413,6 +1420,13 @@ void VirtualDesktop::dragEnterEvent(QDragEnterEvent *event)
     _dragEvent = true;
 
     _itemHeld = false;
+	
+    if (event->keyboardModifiers()==Qt::ControlModifier)
+	{
+	    event->ignore();
+        return;
+
+	}
 
     IconItem *icon = qobject_cast<IconItem*> (event->source());
     if (icon->parent() == this)
@@ -1458,6 +1472,12 @@ void VirtualDesktop::dragMoveEvent(QDragMoveEvent *event)
         return;
     if (_iconDragEnter)
         return;
+
+    if (event->keyboardModifiers() == Qt::ControlModifier)
+	{
+	    event->ignore();
+        return;
+	}
 
 
     _dragEvent = true;
@@ -1547,7 +1567,14 @@ void VirtualDesktop::dragLeaveEvent(QDragLeaveEvent *event)
 void VirtualDesktop::dropEvent(QDropEvent *event)
 {
     qDebug() << "111111111111111111111111111111111111111";
-    event->setDropAction(Qt::MoveAction);
+
+    if (event->keyboardModifiers() == Qt::ControlModifier)
+	{
+	    event->ignore();
+        return;
+	}
+
+	event->setDropAction(Qt::MoveAction);
     event->accept();
     qDebug() << "222222222222222222222222222222222222222";
     _itemHeld = false;
@@ -1606,7 +1633,14 @@ void VirtualDesktop::dropEvent(QDropEvent *event)
 void VirtualDesktop::mouseReleaseEvent(QMouseEvent *event)
 {
     _itemHeld = false;
-    if (_animation->state() == QAbstractAnimation::Running) {
+
+    if (event->modifiers() == Qt::ControlModifier)
+	{
+	    event->ignore();
+        return;
+	}
+
+	if (_animation->state() == QAbstractAnimation::Running) {
         _animation->stop();
     }
 
@@ -1646,6 +1680,12 @@ void VirtualDesktop::mouseReleaseEvent(QMouseEvent *event)
 
 void VirtualDesktop::mouseMoveEvent(QMouseEvent *event)
 {
+    if (event->modifiers() == Qt::ControlModifier)
+	{
+	    event->ignore();
+        return;
+	}
+
     if (_animation->state() == QAbstractAnimation::Running)
         _animation->stop();
 
@@ -1660,6 +1700,20 @@ void VirtualDesktop::mouseMoveEvent(QMouseEvent *event)
         move(to, y());
         event->accept();
 //    }
+}
+
+void VirtualDesktop::keyPressEvent(QKeyEvent *event)
+{
+	qDebug() << "\nkey event in board:" << event->key();
+    if (event->modifiers()==Qt::ControlModifier)
+	{
+	  //做选中效果操作
+	  //如果是ctrl+点击控件，实现IconItem::enterEvent相同的动作
+        qDebug() <<  "VirtualDesktop::keyPressEvent to do\r\n";
+        QWidget::enterEvent(event);
+	}
+    update();
+    event->accept();
 }
 
 void VirtualDesktop::goPage(int page)
