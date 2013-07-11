@@ -512,36 +512,36 @@ void IconItem::setPixmap(const QString &icon)
     normal.scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     QFont font(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
-//    QFontMetrics fm(font);
-//    int textflags = Qt::AlignLeft | Qt::TextExpandTabs;
-//    QSize textsize = fm.size(textflags, _texticon);
+    QFontMetrics fm(font);
+    int textflags = Qt::AlignLeft | Qt::TextExpandTabs;
+    QSize textsize = fm.size(textflags, _texticon);
 
-//    int margin = 8;
-//    _textWidth_firstrow = fm.width(_texticon);
-//    int x = (_width - _textWidth_firstrow) / 2;
-//    int y = _height - FONTSIZE * 2;
-//    textsize.setWidth(textsize.width() + 2 * margin);
-//    textsize.setHeight(textsize.height() + 2 * margin);
+    int margin = 8;
+    _textWidth_firstrow = fm.width(_texticon);
+    int x = (_width - _textWidth_firstrow) / 2;
+    int y = _height - FONTSIZE * 2;
+    textsize.setWidth(textsize.width() + 2 * margin);
+    textsize.setHeight(textsize.height() + 2 * margin);
 
-//    QPainterPath pp(QPointF(x, y));
-//    qreal px = x, py = y + fm.ascent();
+    QPainterPath pp(QPointF(x, y));
+    qreal px = x, py = y + fm.ascent();
 //    //    foreach(const QString& line, text_lines) {
-//     pp.addText(px, py, font, _texticon);
+     pp.addText(px, py, font, _texticon);
 //    //        py += fm2.lineSpacing();
 //    //    }
 
-//    QPainterPathStroker pps;
-//    pps.setCapStyle(Qt::RoundCap);
-//    pps.setJoinStyle(Qt::MiterJoin);
-//    pps.setWidth(-1);
-//    QPainterPath path = pps.createStroke(pp).united(pp).simplified();
+    QPainterPathStroker pps;
+    pps.setCapStyle(Qt::RoundCap);
+    pps.setJoinStyle(Qt::MiterJoin);
+    pps.setWidth(2);
+    QPainterPath path = pps.createStroke(pp).united(pp).simplified();
 
-//    QColor glow_color = QColor(50,50,50).lighter(180);
+    QColor glow_color = QColor(50,50,50).lighter(180);
 
-//    QPixmap textpixmap(textsize);
-//    textpixmap.fill(QColor(0, 0, 0, 0));
+    QPixmap textpixmap(textsize);
+    textpixmap.fill(QColor(0, 0, 0, 0));
 
-#if 0
+
     QPainter pt1(&normal);
     pt1.setPen(Qt::white);
 //    pt1.drawRect(1, 1, _width - 1, _height - 1);
@@ -554,10 +554,6 @@ void IconItem::setPixmap(const QString &icon)
 //    QFontMetrics fm(font);
 //    font.setStyleHint(QFont::Cursive, QFont::PreferBitmap);
 //    font.setStyleStrategy(QFont::PreferAntialias);
-    pt1.setFont(font);
-    pt1.setRenderHint(QPainter::HighQualityAntialiasing);
-    pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
-                        _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
 
 //    pt1.fillPath(path, glow_color);
 
@@ -568,26 +564,24 @@ void IconItem::setPixmap(const QString &icon)
 //    pt1.drawText(x, y
 //                 , textpixmap.width(), textpixmap.height()
 //                 , textflags, _texticon);
-    pt1.end();
-#endif
 
-    QPainter pt1(&normal);
-       pt1.setPen(Qt::white);
    //    pt1.drawRect(1, 1, _width - 1, _height - 1);
-       pt1.setCompositionMode(QPainter::CompositionMode_Source);
-       pt1.fillRect(normal.rect(), Qt::transparent);
-       pt1.drawImage(QRect(0, 0, _width, _height), image);
 
    //    QFont font("", FONTSIZE, QFont::Normal);
 //       QFont font(QString::fromLocal8Bit("?¡é¨¨¨ª??o¨²"), FONTSIZE, QFont::Normal);
-       QFontMetrics fm(font);
        font.setStyleHint(QFont::Cursive, QFont::PreferBitmap);
        font.setStyleStrategy(QFont::PreferAntialias);
        pt1.setFont(font);
        pt1.setRenderHint(QPainter::HighQualityAntialiasing);
-       _textWidth_firstrow = fm.width(_texticon);
-       pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
-                           _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
+//    pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
+//                        _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
+    pt1.fillPath(path, glow_color);
+    pt1.setPen(glow_color.lighter(66));
+    pt1.drawPath(path);
+    pt1.setPen(QPen(QColor(Qt::white)));
+    pt1.drawText(x, y
+                 , textpixmap.width(), textpixmap.height()
+                 , textflags, _texticon);
        pt1.end();
 
     QImage light = QImage(_width, _height, QImage::Format_ARGB32);
@@ -603,15 +597,16 @@ void IconItem::setPixmap(const QString &icon)
             light.setPixel(i, j, lightPixel);
 
             QRgb darkPixel;
-            if (j < height() - 25)
+            if (j < height() - FONTSIZE * 2)
             {
                 darkPixel = qRgba(qRed(pixel) * 0.8, qGreen(pixel)* 0.8, \
                                        qBlue(pixel)* 0.8, a);
             }
             else
             {
-                darkPixel = qRgba(0, 0, \
-                                    0, 0);
+                //darkPixel = qRgba(0, 0, \
+                //                    0, 0);
+				 darkPixel = pixel;                
             }
             dark.setPixel(i, j, darkPixel);
 
@@ -634,13 +629,12 @@ void IconItem::setPixmap(const QString &icon)
                             _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
         pt2.end();
 #endif
-    QPainter pt2(&dark);
-    pt2.setPen(Qt::white);
-    pt2.setFont(font);
-    pt2.setRenderHint(QPainter::HighQualityAntialiasing);
-    pt2.drawText(QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
-                       _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
-    pt2.end();
+//        pt2.setPen(Qt::white);
+//        pt2.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Light));
+//        pt2.setRenderHint(QPainter::HighQualityAntialiasing);
+//        pt2.drawText(QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
+//                            _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
+//        pt2.end();
 //    QStringList text_lines = _texticon;
 //    QString text = _texticon.join("n");
 //   QFont font2(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
@@ -672,18 +666,18 @@ void IconItem::setPixmap(const QString &icon)
 //    QPixmap textpixmap(textsize);
 //    textpixmap.fill(QColor(0, 0, 0, 0));
 
-//    QPainter pt2(&dark);
-//    pt2.setFont(font);
+    QPainter pt2(&dark);
+    pt2.setFont(font);
 
-//    pt2.fillPath(path, glow_color);
+    pt2.fillPath(path, glow_color);
 
-//    pt2.setPen(glow_color.lighter(66));
-//    pt2.drawPath(path);
+    pt2.setPen(glow_color.lighter(66));
+    pt2.drawPath(path);
 
-//    pt2.setPen(QPen(QColor(Qt::white)));
-//    pt2.drawText(x, y, textpixmap.width(), textpixmap.height()
-//                       , textflags, _texticon);
-//    pt2.end();
+    pt2.setPen(QPen(QColor(Qt::white)));
+    pt2.drawText(x, y, textpixmap.width(), textpixmap.height()
+                       , textflags, _texticon);
+    pt2.end();
 
 
 
