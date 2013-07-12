@@ -532,7 +532,7 @@ void IconItem::setPixmap(const QString &icon)
 
     QPainterPathStroker pps;
     pps.setCapStyle(Qt::RoundCap);
-    pps.setJoinStyle(Qt::MiterJoin);
+    pps.setJoinStyle(Qt::RoundJoin);
     pps.setWidth(2);
     QPainterPath path = pps.createStroke(pp).united(pp).simplified();
 

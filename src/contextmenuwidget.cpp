@@ -288,7 +288,11 @@ void MenuButton::paintEvent(QPaintEvent *)
         painter.drawPixmap(0, 0, QPixmap(_hover));
     else
         painter.drawPixmap(0, 0, QPixmap(_normal));
-    painter.setPen(QPen(QColor(Qt::white)));
+
+    if (!isEnabled())
+        painter.setPen(QPen(QColor(Qt::gray)));
+    else
+        painter.setPen(QPen(QColor(Qt::white)));
 
 //    if (_value == 0)
 //    {
@@ -313,6 +317,14 @@ void MenuButton::paintEvent(QPaintEvent *)
 
 void MenuButton::enterEvent(QEvent *event)
 {
+    if (!isEnabled())
+    {
+        _entered = false;
+        _pixmap.load(_normal);
+        repaint();
+        return;
+    }
+
     _entered = true;
     _pixmap.load(_hover);
     repaint();

@@ -93,7 +93,9 @@ Dashboard::Dashboard(QWidget *parent)
 
     _ldialog = new LoginDialog(this);
     if (!_ldialog->exec())
-       exit(1);
+        exit(1);
+
+
 
  //   setFocusPolicy(Qt::ClickFocus);
 //    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool);
@@ -293,12 +295,10 @@ Dashboard::Dashboard(QWidget *parent)
             this, SLOT(upMinBackMove(int ,int ,int, int, int)));
 
     connect(vdesktop, SIGNAL(desktopClicked()), this, SLOT(desktopClicked()));
-    connect(vdesktop, SIGNAL(desktopBgMove(int)), this, SLOT(desktopBgMove(int)));
-    connect(vdesktop, SIGNAL(desktopBgBack(int)), this, SLOT(desktopBgBack(int)));
 
-    connect(_animationDown,SIGNAL(finished()), this, SLOT(animationDownFinished()));
+    connect(_animationDown,SIGNAL(finished()), this, SLOT(animationFinished()));
     connect(_animationDownMin,SIGNAL(finished()), this, SLOT(animationMinDownFinished()));
-    connect(_animationUp,SIGNAL(finished()), this, SLOT(animationUpFinished()));
+    connect(_animationUp,SIGNAL(finished()), this, SLOT(animationFinished()));
 
     connect(_animationDownMin, SIGNAL(valueChanged(const QVariant&)), this, SLOT(valueChanged(const QVariant&)));
 //    connect(vdesktop, SIGNAL(setDirIcon(const QString&, const QString&, const QString&)),
@@ -386,25 +386,27 @@ void Dashboard::upBackMove(int x, int y, int w, int h, int distance)
     _animationUp->setEndValue(QRect(x, y + distance, w, h));
     _animationUp->start();
 
-    if (distance > 5)
-        _animationUpFinished = true;
+
+    _animationUpFinished = true;
 
 }
 
-void Dashboard::animationUpFinished()
+void Dashboard::animationFinished()
 {
-    if (_animationDownFinished)
-        return;
-
-    if (_animationUpFinished)
+    if ((!_animationDownFinished) && (!_animationUpFinished))
     {
-//        _dirWidget->setVisible(false);
+        vdesktop->dirMovingFinished();
+    }
+
+    if (_animationDownFinished && _animationUpFinished)
+    {
+        //        _dirWidget->setVisible(false);
         vdesktop->setDirHide();
         _downMinW->setVisible(false);
         _minLabel->setVisible(false);
         _upMoveWidget->setVisible(false);
         _downMoveWidget->setVisible(false);
-        _animationUpFinished = false;
+
         indicator->setVisible(true);
 
         if (!panel->isVisible())
@@ -415,8 +417,14 @@ void Dashboard::animationUpFinished()
             panel->setAutoHide(true);
             panel->animationHide();
         }
+
+        _animationUpFinished = false;
+        _animationUpFinished = false;
+
         vdesktop->setIconEnabled(true);
         vdesktop->setIconMove(true);
+
+        vdesktop->dirMovingFinished();
     }
 }
 
@@ -462,11 +470,11 @@ void Dashboard::downBackMove(int x, int y, int w, int h, int distance)
     _animationDown->setStartValue(QRect(x, y, w, h));
     _animationDown->setEndValue(QRect(x, y - distance, w, h));
     _animationDown->start();
-    if (distance > 5)
-        _animationDownFinished = true;
+
+    _animationDownFinished = true;
 
 }
-
+/*
 void Dashboard::animationDownFinished()
 {
     if (_animationDownFinished)
@@ -490,7 +498,7 @@ void Dashboard::animationDownFinished()
         vdesktop->setIconMove(true);
     }
 }
-
+*/
 void Dashboard::upMinMove(int x, int y, int w, int h, int distance)
 {
     if (_animationUpMin->state() == QAbstractAnimation::Running)
@@ -574,20 +582,6 @@ void Dashboard::animationMinDownFinished()
     _downMinW->setVisible(false);
 }
 
-void Dashboard::desktopBgMove(int distance)
-{
-//    if (_animationDesktop->state() == QAbstractAnimation::Running)
-//    {
-//        return;
-//    }
-
-//    _animationDesktop->setDuration(500);
-//    _animationDesktop->setEasingCurve(QEasingCurve::InExpo);
-//    _animationDesktop->setStartValue(QPoint(0, 0));
-//    _animationDesktop->setEndValue(QPoint(0, vdesktop->y() - distance));
-//    _animationDesktop->start();
-}
-
 void Dashboard::valueChanged(const QVariant &value)
 {
     QRect rect = value.value<QRect>();
@@ -618,18 +612,7 @@ void Dashboard::valueChanged(const QVariant &value)
 
 }
 
-void Dashboard::desktopBgBack(int distance)
-{
-//    if (_animationDesktop->state() == QAbstractAnimation::Running)
-//    {
-//        return;
-//    }
 
-//    _animationDesktop->setDuration(500);
-//    _animationDesktop->setStartValue(QPoint(0, -168));
-//    _animationDesktop->setEndValue(QPoint(0, 0));
-//    _animationDesktop->start();
-}
 
 void Dashboard::showBs(const QString &url)
 {

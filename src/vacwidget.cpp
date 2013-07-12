@@ -1253,12 +1253,14 @@ void VacWidget::delPage(int page)
 {
     if (_count == 1)
         return;
+
     if (_iconTable[page][0] != NULL) {
         assert("Error while delete page");
     }
     /* start from page, end before the last page
      * move the icon backward
      */
+
     for (int i = page; i < (_count - 1); i++) {
         for (int j = 0; j < _col * _row; j++) {
             _iconTable[i][j] = _iconTable[i+1][j];
@@ -1266,7 +1268,7 @@ void VacWidget::delPage(int page)
             if (icon != NULL) {
                 icon->setPage(i);
                 icon->setIndex(j);
-                icon->setGeometry(_gridTable[i][j].translated(SPACING, SPACING));
+                icon->setGeometry(_gridTable[i][j].translated(HSPACING, VSPACING));
             }
         }
     }
@@ -1281,7 +1283,7 @@ void VacWidget::delPage(int page)
 //            _inDrag->setPage(_inDrag->page() - 1);
 //        emit pageChanged(_current);
     }
-    setFixedSize( _count * _pageSize.width(), _pageSize.height());
+    setFixedSize(_pageSize.width(), _count * _pageSize.height());
     move(_pages[_current], y());
     emit pageDecreased();
 }
@@ -1424,11 +1426,16 @@ void VacWidget::refresh(QSize size)
 {
     movetoFirst();
     deleteAllIconItem();
-
     for(int i = _count; i > 1; i--)
     {
         delPage(i-1);
     }
+
+    _pages.clear();
+    _iconTable.clear();
+    _nextIdx.clear();
+    _iconDict.clear();
+    _gridTable.clear();
 
     reloadApplist(size);
 
@@ -1487,7 +1494,7 @@ void VacWidget::reloadApplist(QSize size)
     for (int i = 0; i < _count; i++)
         _nextIdx.insert(i, 0);
 
-    qDebug()<<"reload all.";
+    qDebug()<<" VacWidget reload all.";
 }
 
 void VacWidget::deleteAllIconItem()
@@ -1506,12 +1513,6 @@ void VacWidget::deleteAllIconItem()
         }
         _nextIdx[i]=0;
     }
-
-    _pages.clear();
-    _iconTable.clear();
-    _nextIdx.clear();
-    _iconDict.clear();
-    _gridTable.clear();
 }
 
 void VacWidget::changeSpacing()

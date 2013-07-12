@@ -3,6 +3,7 @@
 #include <QtSql/QSqlQuery>
 #include <QPainter>
 #include <cassert>
+#include <QTimer>
 
 #include "dirminwidget.h"
 
@@ -160,6 +161,7 @@ DirMinWidget::DirMinWidget(QWidget *parent)
     , _current(0)
     , _iconNum(0)
     , _dragEnable(true)
+    , _isMouseMove(false)
 //    , _pageSize(_width, _height)
 {
     setAcceptDrops(true);
@@ -425,6 +427,8 @@ int DirMinWidget::addIcon(const QString &text, \
                             int index,\
                             const QString &url)
 {
+
+    qDebug() << _iconNum;
     int expandPageCount = _iconNum / _iconsPerPage + 1;
     if (expandPageCount > _count)
         expand();
@@ -667,16 +671,45 @@ void DirMinWidget::moveBackIcons(int page, int index)
     _iconNum--;
 }
 
-void DirMinWidget::mousePressEvent(QMouseEvent *event)
+void DirMinWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    QWidget::mousePressEvent(event);
+    qDebug() << "void DirMinWidget::mouseMoveEvent(QMouseEvent *event)";
+    _isMouseMove = true;
+
+    event->ignore();
 }
 
-void DirMinWidget::mouseReleaseEvent(QMouseEvent * event)
+void DirMinWidget::mousePressEvent(QMouseEvent *event)
 {
+//    QWidget::mousePressEvent(event);
     if (event->button() == Qt::LeftButton)
-        emit mouseClicked();
+    {
+        QTimer::singleShot(300, this, SLOT(mouseStatus()));
+    }
 }
+
+void DirMinWidget::mouseStatus()
+{
+    if (_isMouseMove)
+    {
+        _isMouseMove = false;
+        return;
+    }
+    else
+    {
+        emit mouseClicked();
+    }
+}
+
+//void DirMinWidget::mouseReleaseEvent(QMouseEvent * event)
+//{
+//    if (event->button() == Qt::LeftButton)
+//    {
+//        QTimer::singleShot(1000, this, SLOT(mouseStatus()));
+//        emit mouseClicked();
+//    }
+
+//}
 
 void DirMinWidget::changeSize()
 {
@@ -894,6 +927,11 @@ void DirMWidget::addDirMinItem(const QString &text, const QString &icon, \
     _dirMinWidget->addIcon(text, icon, page, index, url);
 }
 
+int DirMWidget::getMinIconNum()
+{
+    return _dirMinWidget->getIconNum();
+}
+
 DirMinShowWidget::DirMinShowWidget(QWidget *parent)
     : QWidget(parent)
 {
@@ -1100,7 +1138,6 @@ QPixmap DirMinShowWidget::setTransparentPixmap(const QString &pix)
 
 void DirMinShowWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-    Q_UNUSED(event);
 
     emit dragEnterMinWidget();
 }
@@ -1134,4 +1171,9 @@ void DirMinShowWidget::addDirMinItem(const QString &text, const QString &icon, \
 const QString & DirMinShowWidget::getDirText()
 {
     _dirLineEdit->text();
+}
+
+int DirMinShowWidget::getMinIconNum()
+{
+    return _dirMWidget->getMinIconNum();
 }

@@ -68,6 +68,10 @@ public:
                         QWidget *parent = 0);
     ~MenuWidget();
 
+    MenuButton *_openBtn;
+    MenuButton *_delBtn;
+    MenuButton *_renameBtn;
+
 signals:
     //normal
     void menuChanged(int value);
@@ -112,9 +116,9 @@ private:
     MenuButton *_excelBtn;
     MenuButton *_pptBtn;
     //
-    MenuButton *_openBtn;
-    MenuButton *_delBtn;
-    MenuButton *_renameBtn;
+//    MenuButton *_openBtn;
+//    MenuButton *_delBtn;
+//    MenuButton *_renameBtn;
 
 };
 

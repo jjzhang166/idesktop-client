@@ -39,6 +39,8 @@ public:
     void addDirMinItem(const QString &text, const QString &icon, \
                        int page, int index, const QString &url);
 
+    int getMinIconNum();
+
 signals:
 //    void sendUrl(const QString &url);
 
@@ -144,6 +146,8 @@ public:
     void addDirMinItem(const QString &text, const QString &icon, \
                        int page, int index, const QString &url);
 
+    int getMinIconNum();
+
 
 signals:
 //    void sendUrl(const QString &url);
@@ -197,6 +201,7 @@ public:
 
     void changeSize();
     void setDragEnable(bool dragEnable)  { _dragEnable = dragEnable; }
+    int getIconNum()                    { return _iconNum; }
 
     void removeDirMinItem(const QString &text);
     void moveBackIcons(int page, int index);
@@ -215,6 +220,9 @@ signals:
 
     void mouseClicked();
 
+public slots:
+    void mouseStatus();
+
 protected:
     void paintEvent(QPaintEvent *);
     void dragEnterEvent(QDragEnterEvent *event);
@@ -222,8 +230,9 @@ protected:
     void dragLeaveEvent(QDragLeaveEvent *event);
     void dropEvent(QDropEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 //    void mouseDoubleClickEvent(QMouseEvent *);
-    void mouseReleaseEvent(QMouseEvent *event);
+//    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     int _width;
@@ -254,6 +263,7 @@ private:
     bool _dragEnable;
 
 //    QPropertyAnimation *_animation;
+    bool _isMouseMove;
 
 };
 

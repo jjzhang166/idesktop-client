@@ -42,6 +42,7 @@ void MoveWidget::setPixmap(const QPixmap &pix)
 
 void MoveWidget::mousePressEvent(QMouseEvent *)
 {
+    qDebug() << "void MoveWidget::mousePressEvent(QMouseEvent *)void MoveWidget::mousePressEvent(QMouseEvent *)";
     emit mousePress();
 }
 

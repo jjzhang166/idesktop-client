@@ -90,15 +90,14 @@ public slots:
     void upBackMove(int x, int y, int w, int h, int distance);
     void downMove(int x, int y, int w, int h, int distance);
     void downBackMove(int x, int y, int w, int h, int distance);
-    void animationUpFinished();
-    void animationDownFinished();
+//    void animationUpFinished();
+//    void animationDownFinished();
+    void animationFinished();
     void openMinWidget(int x, int y, int w, int h, int distance);
     void closeMinWidget(int x, int y, int w, int h, int distance);
     void upMinMove(int x, int y, int w, int h, int distance);
     void upMinBackMove(int x, int y, int w, int h, int distance);
     void animationMinDownFinished();
-    void desktopBgMove(int distance);
-    void desktopBgBack(int distance);
 
     void valueChanged(const QVariant &value);
     void desktopClicked();

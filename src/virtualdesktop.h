@@ -175,6 +175,7 @@ public:
     void setIconMove(bool isIconMove) { _isIconMove = isIconMove; }
 
     void initIconItem();
+    void dirMovingFinished();
 
 public slots:
     void goPage(int page);
@@ -388,6 +389,8 @@ private:
     IconItem *_dragItem;
 
     int _localIconNum;
+
+    bool _dirMovingFinished;
 
 public:
     int _current;

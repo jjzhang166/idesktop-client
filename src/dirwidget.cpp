@@ -1262,6 +1262,12 @@ void DirWidget::refresh(QSize size)
 {
     movetoFirst();
     deleteAllIconItem();
+
+    for(int i = _count; i > 1; i--)
+    {
+        delPage(i-1);
+    }
+
     reloadApplist(size);
 
 //    getLocalIcon();
@@ -1319,7 +1325,7 @@ void DirWidget::reloadApplist(QSize size)
     for (int i = 0; i < _count; i++)
         _nextIdx.insert(i, 0);
 
-    qDebug()<<"reload all.";
+    qDebug()<<" DirWidget reload all.";
 }
 
 void DirWidget::deleteAllIconItem()
@@ -1545,6 +1551,7 @@ void DirWidget::iconMenuRunClicked()
     _iconMenu->setVisible(false);
 
     runApp(_currentIconItem);
+
 }
 
 void DirWidget::iconMenuDelClicked()

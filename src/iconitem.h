@@ -100,6 +100,8 @@ public:
     void addDirMinItem(const QString &text, const QString &icon, \
                        int page, int index, const QString &url);
 
+    int getMinIconNum()                 { _dirMinShowWidget->getMinIconNum(); }
+
 signals:
 //    void clicked();
     void runItem(const QString &text);
