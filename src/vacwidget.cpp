@@ -132,8 +132,8 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
                                                   subcontrol-position: bottom; subcontrol-origin: margin;}\
                     QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);\
                                                   subcontrol-position: top; subcontrol-origin: margin;}\
-                    QScrollBar::add-page:vertical{background:#454551;}\
-                    QScrollBar::sub-page:vertical{background:#FFFFFF;}\
+                    QScrollBar::add-page:vertical{background-color: rgba(255,255,255,0);}\
+                    QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}\
                     QScrollBar::up-arrow:vertical{subcontrol-origin: margin; background-color: rgba(255,255,255,0);}\
                     QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);}");
 

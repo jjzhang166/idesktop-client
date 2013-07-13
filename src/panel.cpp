@@ -22,9 +22,9 @@
 Panel::Panel(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint | Qt::Tool), \
       autoHide(true), visible(false), animation(NULL)//, _center(NULL)
-    , _vacBtnHover(true)
-    , _localBtnHover(true)
-    , _skinBtnHover(true)
+//    , _vacBtnHover(true)
+//    , _localBtnHover(true)
+//    , _skinBtnHover(true)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAutoFillBackground(true);
@@ -34,7 +34,7 @@ Panel::Panel(QWidget *parent)
 
     animation = new QPropertyAnimation(this, "pos");
     animation->setDuration(300);
-
+#if 0
     //QHBoxLayout *layout = new QHBoxLayout(this);
     //QPixmap desktopPix(":images/appbutton_localapp.png");
 
@@ -42,6 +42,7 @@ Panel::Panel(QWidget *parent)
     _switcherPixHover.load(":images/appbutton_desktop_hover.png");
     _switcherButton = new DynamicButton(_switcherPix, _switcherPixHover, this);
     _switcherButton->setGeometry(0, 0, 85, 86);
+
 
     _vacPix.load(":images/appbutton_vapp.png");
     _vacPixHover.load(":images/appbutton_vapp_hover.png");
@@ -94,6 +95,36 @@ Panel::Panel(QWidget *parent)
     connect(_dirButton, SIGNAL(clicked()), this, SLOT(dirBtnClicked()));
     connect(_personButton, SIGNAL(clicked()), this, SLOT(perBtnClicked()));
     connect(_quitButton, SIGNAL(clicked()), this, SLOT(quitBtnClicked()));
+#endif
+
+
+    QDesktopWidget *desktop = QApplication::desktop();
+    QRect rect = desktop->availableGeometry();
+
+    _switcherQuit = new Switcher(this);
+    _switcherQuit->setParent(this);
+    _switcherQuit->setPixmap(QString(":images/panel_quit_normal.png"));
+    _switcherQuit->setGeometry(rect.width() - _switcherQuit->width(), 0
+                               , _switcherQuit->width(), _switcherQuit->height());
+    _switcherQuit->setVisible(true);
+
+
+    _switcherSoftware = new Switcher(this);
+    _switcherSoftware->setPixmap(QString(":images/panel_software_normal.png"));
+    _switcherSoftware->setGeometry(rect.width() - _switcherQuit->width() - _switcherSoftware->width(), 0
+                                   , _switcherSoftware->width(), _switcherSoftware->height());
+    _switcherSoftware->setVisible(true);
+
+    _switcherSkin = new Switcher(this);
+    _switcherSkin->setPixmap(QString(":images/panel_skin_normal.png"));
+    _switcherSkin->setGeometry(rect.width() - _switcherQuit->width() - _switcherSoftware->width() - _switcherSkin->width(), 0
+                               , _switcherSkin->width(), _switcherSkin->height());
+    _switcherSkin->setVisible(true);
+
+
+    connect(_switcherSkin, SIGNAL(switcherActivated()), this, SLOT(skinClicked()));
+    connect(_switcherSoftware, SIGNAL(switcherActivated()), this, SLOT(softwareClicked()));
+    connect(_switcherQuit, SIGNAL(switcherActivated()), this, SLOT(quitClicked()));
 }
 
 
@@ -123,13 +154,13 @@ void Panel::runCenter()
     //emit showStore();
 }
 
-//void Panel::paintEvent(QPaintEvent *event)
-//{
-//    QPainter painter(this);
-//    painter.drawPixmap(0, 0, 7, 41, QPixmap(":images/topNav_left.png"));
-//    painter.drawPixmap(width() - 7, 0, 7, 41, QPixmap(":images/topNav_right.png"));
-//    painter.drawPixmap(7, 0, QPixmap(":images/topNav_bg_center.png").scaled(width() - 14, 41));
-//}
+void Panel::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    painter.drawPixmap(0, 0, width(), 28, QPixmap(":images/panel_bg.png"));
+
+    QWidget::paintEvent(event);
+}
 
 void Panel::enterEvent(QEvent *event)
 {
@@ -154,10 +185,10 @@ void Panel::animationShow()
         animation->stop();
     }
 
-    QDesktopWidget *desktop = QApplication::desktop();
-    QRect rect = desktop->availableGeometry();
+//    QDesktopWidget *desktop = QApplication::desktop();
+//    QRect rect = desktop->availableGeometry();
 
-    QPoint end(rect.width() - width(), y());
+    QPoint end(0, 0);
     animation->setStartValue(pos());
     animation->setEndValue(end);
     animation->start();
@@ -169,10 +200,10 @@ void Panel::animationHide()
     if (animation->state() == QAbstractAnimation::Running) {
         animation->stop();
     }
-    QDesktopWidget *desktop = QApplication::desktop();
-    QRect rect = desktop->availableGeometry();
+//    QDesktopWidget *desktop = QApplication::desktop();
+//    QRect rect = desktop->availableGeometry();
 
-    QPoint end(rect.width() - 9, y());
+    QPoint end(0, -27);
     animation->setStartValue(pos());
     animation->setEndValue(end);
     animation->start();
@@ -204,6 +235,7 @@ void Panel::addApp()
 }
 #endif
 
+#if 0
 void Panel::switcherBtnClicked()
 {
 //    typedef void (*tempFuc)(void);
@@ -307,7 +339,7 @@ void Panel::dirBtnClicked()
 void Panel::perBtnClicked()
 {
     emit showPerDesktop();
-
+#if 0
 //    _switcherButton->setCurrentPixmap(_switcherPix);
     _vacButton->setCurrentPixmap(_vacPix);
 //    _localButton->setCurrentPixmap(_localPix);
@@ -323,13 +355,13 @@ void Panel::perBtnClicked()
        _skinBtnHover = true;
     }
 //    _quitButton->setCurrentPixmap(_quitPix);
-
+#endif
 }
 
 void Panel::quitBtnClicked()
 {
     emit quit();
-
+#if 0
 //    _switcherButton->setCurrentPixmap(_switcherPix);
     _vacButton->setCurrentPixmap(_vacPix);
 //    _localButton->setCurrentPixmap(_localPix);
@@ -337,7 +369,7 @@ void Panel::quitBtnClicked()
     _personButton->setCurrentPixmap(_personPix);
 
 //    _quitButton->setCurrentPixmap(_quitPix);
-
+#endif
 }
 
 /*
@@ -350,6 +382,24 @@ void Panel::showToolDesktop()
 //{
 //    emit pageChanged(2);
 //}
+
+#endif
+
+void Panel::skinClicked()
+{
+    emit showSkinWidget();
+}
+
+void Panel::softwareClicked()
+{
+    emit showSoftwareWidget();
+}
+
+void Panel::quitClicked()
+{
+    emit quit();
+}
+
 QPixmap Panel::setTransparentPixmap(const QString &pix)
 {
     QImage normal = QImage(pix);

@@ -156,6 +156,7 @@ public:
     bool trembleState()         { return _trembling; }
     bool dragEventState()       { return _dragEvent; }
     bool addAppState()          { return _addAppState; }
+    bool iconDragState()        { return _iconDragEnter; }
 
     //void runApp(const QString &text);
     void atExit();

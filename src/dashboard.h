@@ -51,6 +51,8 @@ public:
 public slots:
     void quit();
     void switchBetween();
+    void outOfScreen();
+    void inOfScreen();
     void iconActivated(QSystemTrayIcon::ActivationReason);
     void moveIndicator();
 	//vac
@@ -161,7 +163,8 @@ private:
     QAction *showAction;
     QAction *_setVacServer;
     VirtualDesktop *vdesktop;
-    Switcher *switcher;
+    Switcher *_switcherLeft;
+    Switcher *_switcherRight;
     Panel *panel;
     Indicator *indicator;
     QVBoxLayout *layout;

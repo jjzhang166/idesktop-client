@@ -75,7 +75,10 @@ HEADERS += src/config.h \
     src/graphicsloginitem.h \
     src/paascommuinication.h \
     src/iconitem.h \
-    src/contextmenuwidget.h
+    src/contextmenuwidget.h \
+    src/public.h \
+    src/blurpicker.h \
+    src/blureffect.h
 
 
 win32 {
@@ -128,7 +131,9 @@ SOURCES += src/config.cpp \
     src/graphicsloginitem.cpp \
     src/paascommuinication.cpp \
     src/iconitem.cpp \
-    src/contextmenuwidget.cpp
+    src/contextmenuwidget.cpp \
+    src/blurpicker.cpp \
+    src/blureffect.cpp
 
 
 FORMS +=

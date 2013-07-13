@@ -3251,11 +3251,18 @@ void VirtualDesktop::iconMenuRunClicked()
 void VirtualDesktop::iconMenuDelClicked()
 {
     _iconMenu->setVisible(false);
-    qDebug() << _currentIconItem;
+ //   qDebug() << _currentIconItem;
 //    delIcon(_currentIconItem);
+    qDebug() << "    if (_iconDict.value(_currentIconItem)->getMinIconNum() != 0)" << _iconDict.value(_currentIconItem)->getMinIconNum();
+//    if (_iconDict.value(_currentIconItem)->getMinIconNum() != 0)
+//    {
+//        return;
+//    }
+
     if ( _iconDict.value(_currentIconItem)->type() == dirIcon)
     {
         int index = _iconDict.value(_currentIconItem)->id();
+
         QList<DirShowWidget*>::iterator iter = _dirList.begin() + index;
         _dirList.at(index)->setParent(NULL);
         _dirList.at(index)->deleteLater();
@@ -3263,14 +3270,18 @@ void VirtualDesktop::iconMenuDelClicked()
 
         _dirMinList.removeAt(index);
 
-        for (int i = index + 1; i <= _dirList.last()->id(); i++)
+        for (int i = index; i < _dirList.count(); i++)//error
         {
+            _dirList.at(i)->setId(i);
+
+            _iconDict.value(_dirMinList.at(i))->setId(i);
+
             for (int j = 0; j < _local->count(); j++) {
                 if (_local->at(j)->hidden())
                     continue;
-                if (_local->at(j)->dirId() == i)
+                if (_local->at(j)->dirId() == i + 1)
                 {
-                    _local->at(j)->setDirId(i - 1);
+                    _local->at(j)->setDirId(i);
                 }
             }
         }

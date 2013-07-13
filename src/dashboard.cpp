@@ -116,24 +116,36 @@ Dashboard::Dashboard(QWidget *parent)
     //indicator->setGeometry((_width - indicator->width())/2, _height - indicator->height() - 28 , 20, 80);
     indicator->show();
 
-//    switcher = new Switcher(this);
-//    switcher->setGeometry(_width - switcher->width(), (_height - switcher->height())/2, 20, 80);
-//    switcher->show();
-
     panel = new Panel(this);
-    panel->setFixedSize(78, 320); // 406
-    //panel->setFixedSize(_width / 3, 40);
-    panel->move(_width - panel->width(), (_height - panel->height()) / 2);
+//    panel->setFixedSize(_width, 28); // 406
+//    panel->move(0,0);
+    panel->setGeometry(0, 0, _width, 28);
+
+//    panel->animationShow();
+
+    _switcherLeft = new Switcher(this);
+    _switcherLeft->setPixmap(QString(":images/win_normal.png"));
+    _switcherLeft->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
+    _switcherLeft->setGeometry(_width / 2 - _switcherLeft->width(), 0, _switcherLeft->width(), _switcherLeft->height());
+    _switcherLeft->show();
+
+    _switcherRight = new Switcher(this);
+    _switcherRight->setPixmap(QString(":images/isoft_normal.png"));
+    _switcherRight->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
+    _switcherRight->setGeometry(_switcherLeft->pos().x() + _switcherLeft->width(), 0, _switcherRight->width(), _switcherRight->height());
+    _switcherRight->show();
+
+    panel->setVisible(true);
+    panel->animationHide();
 
     _vacShowWidget = new VacShowWidget(QSize(820, 484), this);
-    _vacShowWidget->move(_width - panel->width() - 820 + 10, panel->pos().y());
+    _vacShowWidget->move((_width - _vacShowWidget->width()) / 2, (_height - _vacShowWidget->height()) / 2);
+ //   _vacShowWidget->move(_width - panel->width() - 820 + 10, panel->pos().y());
 //    _localShowWidget->showApp(true);
     _vacShowWidget->setVisible(false);
 //    _vacShowWidget->getIcon();
 
-    panel->show();
-    panel->animationHide();
-//    panel->animationShow();
+
 
     //vdesktop->setGeometry(QRect(0, 20, _width * vdesktop->count(), _height - indicator->height() - panel->height()));
     vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height));
@@ -173,8 +185,8 @@ Dashboard::Dashboard(QWidget *parent)
         _pixmap = QPixmap(query.value(0).toString());
 
     _refreshTimer = new QTimer(this);
-    connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(timeOut()));
-    _refreshTimer->start(1000 * 60);
+//    connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(timeOut()));
+//    _refreshTimer->start(1000 * 60);
 
     _vacServerWidget = new VacServerWidget();
     _vacServerWidget->setVisible(false);
@@ -184,8 +196,8 @@ Dashboard::Dashboard(QWidget *parent)
 
     // heart beat.5s timer
     heartbeat_timer = new QTimer(this);
-    connect( heartbeat_timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
-    heartbeat_timer->start(5000);
+//    connect( heartbeat_timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
+//    heartbeat_timer->start(5000);
     _retryTimes = 3;
     _Isheartbeat=true;
 
@@ -240,15 +252,21 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_vacServerWidget, SIGNAL(serverChanged()), this, SLOT(updateVacServer()));
     connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
     connect(_skinShowWidget, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
+    connect(_switcherLeft, SIGNAL(switcherActivated()), this, SLOT(outOfScreen()));
+    connect(_switcherRight, SIGNAL(switcherActivated()), this, SLOT(inOfScreen()));
+    connect(_switcherLeft, SIGNAL(switcherHover()), panel, SLOT(animationShow()));
+    connect(_switcherRight, SIGNAL(switcherHover()), panel, SLOT(animationHide()));
+    connect(_switcherLeft, SIGNAL(switcherLeave()), panel, SLOT(animationShow()));
+    connect(_switcherRight, SIGNAL(switcherLeave()), panel, SLOT(animationHide()));
+
     connect(panel, SIGNAL(quit()), this, SLOT(quit()));
 //    connect(panel, SIGNAL(showSwitcherDesktop()), this, SLOT(onShowSwitcherDesktop()));
-    connect(panel, SIGNAL(showSwitcherDesktop()), this, SLOT(switchBetween()));
-    connect(panel, SIGNAL(showVacDesktop()), this, SLOT(onShowVacDesktop()));
-    connect(panel, SIGNAL(showLocalDesktop()), this, SLOT(onShowLocalDesktop()));
+//    connect(panel, SIGNAL(showSwitcherDesktop()), this, SLOT(switchBetween()));
+    connect(panel, SIGNAL(showSoftwareWidget()), this, SLOT(onShowVacDesktop()));
+//    connect(panel, SIGNAL(showLocalDesktop()), this, SLOT(onShowLocalDesktop()));
  //   connect(panel, SIGNAL(showDirDesktop()), this, SLOT(onShowDirDesktop()));
-    connect(panel, SIGNAL(showPerDesktop()), this, SLOT(onShowPerDesktop()));
-    connect(panel, SIGNAL(pageChanged(int)), this, SLOT(goPage(int)));
-    connect(panel, SIGNAL(checkDirState()), vdesktop, SLOT(hideDirWidget()));
+    connect(panel, SIGNAL(showSkinWidget()), this, SLOT(onShowPerDesktop()));
+//    connect(panel, SIGNAL(pageChanged(int)), this, SLOT(goPage(int)));
     connect(panel, SIGNAL(checkDirState()), vdesktop, SLOT(hideMenuWidget()));
     connect(_ldialog, SIGNAL(dQuit()), this, SLOT(quit()));
     connect(_ldialog, SIGNAL(dShow()), this, SLOT(show()));
@@ -264,7 +282,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(vdesktop, SIGNAL(smallIcon()), this, SLOT(smallIcon()));
     connect(vdesktop, SIGNAL(desktopDelIcon(const QString &)), _vacShowWidget, SLOT(desktopDelIcon(const QString &)));
 //    connect(vdesktop, SIGNAL(bgMove(int, int)), this, SLOT(bgMove(int, int)));
-//    connect(vdesktop, SIGNAL(toOrigin()), switcher, SLOT(changed()));
+//    connect(vdesktop, SIGNAL(toOrigin()), switcher, SLOT(changed()));////////
     connect(panel, SIGNAL(setEqual(int)), vdesktop, SLOT(arrangeEqually(int)));
     connect(panel, SIGNAL(setMini()), vdesktop, SLOT(arrangeMinimum()));
     connect(indicator, SIGNAL(iNeedMove()), this, SLOT(moveIndicator()));
@@ -335,7 +353,7 @@ void Dashboard::desktopClicked()
 {
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
-    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
+//    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
     panel->show();
     panel->setAutoHide(true);
     panel->animationHide();
@@ -412,7 +430,7 @@ void Dashboard::animationFinished()
         if (!panel->isVisible())
         {
             panel->setVisible(true);
-            panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
+//            panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
             panel->show();
             panel->setAutoHide(true);
             panel->animationHide();
@@ -643,6 +661,26 @@ void Dashboard::onDone()
 
 void Dashboard::heartbeat()
 {
+//    if (vdesktop->dragEventState())
+//    {
+//        return;
+//    }
+
+//    if (vdesktop->trembleState())
+//    {
+//        return;
+//    }
+
+//    if (vdesktop->addAppState())
+//    {
+//        return;
+//    }
+
+//    if (vdesktop->iconDragState())
+//    {
+//        return;
+//    }
+
     if(!_Isheartbeat)
         return;
     _commui->heartBeat();
@@ -713,7 +751,7 @@ void Dashboard::onShowVacDesktop()
     else
     {
         _vacShowWidget->setVisible(true);
-        panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
+//        panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
         panel->show();
         panel->setAutoHide(false);
         panel->animationShow();
@@ -774,7 +812,7 @@ void Dashboard::onShowPerDesktop()
     else
     {
         _skinShowWidget->setVisible(true);
-        panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
+//        panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
         panel->show();
         panel->setAutoHide(false);
         panel->animationShow();
@@ -809,7 +847,7 @@ void Dashboard::getIn()
 //    panel->show();
 //    panel->setAutoHide(false);
 //    panel->animationShow();
-    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
+//    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
     panel->show();
     panel->setAutoHide(true);
     panel->animationHide();
@@ -833,7 +871,7 @@ void Dashboard::getOut()
     end = QPoint(_width, 0);
     _animation->setDuration(900);
     _animation->setEasingCurve(QEasingCurve::OutElastic);
-    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
+//    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
     panel->show();
     panel->setAutoHide(true);
     panel->animationHide();
@@ -871,6 +909,44 @@ void Dashboard::switchBetween()
         getOut();
 }
 
+void Dashboard::inOfScreen()
+{
+    if (_vacShowWidget->isVisible())
+    {
+        _vacShowWidget->setVisible(false);
+//        return;
+    }
+
+    if (_skinShowWidget->isVisible())
+    {
+        _skinShowWidget->setVisible(false);
+//        return;
+    }
+
+//    vdesktop->goPage(0);
+
+    if (_outOfScreen)
+        getIn();
+}
+
+void Dashboard::outOfScreen()
+{
+    if (_vacShowWidget->isVisible())
+    {
+        _vacShowWidget->setVisible(false);
+//        return;
+    }
+
+    if (_skinShowWidget->isVisible())
+    {
+        _skinShowWidget->setVisible(false);
+//        return;
+    }
+
+    if (!_outOfScreen)
+        getOut();
+}
+
 void Dashboard::setGeoProper()
 {
     setGeometry(0, 0, _width, _height);
@@ -894,7 +970,7 @@ void Dashboard::quit()
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
 
-    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
+//    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
     panel->show();
     panel->setAutoHide(true);
     panel->animationHide();
@@ -1085,6 +1161,26 @@ void Dashboard::refreshVapp()
 
 void Dashboard::timeOut()
 {
+    if (vdesktop->dragEventState())
+    {
+        return;
+    }
+
+    if (vdesktop->trembleState())
+    {
+        return;
+    }
+
+    if (vdesktop->addAppState())
+    {
+        return;
+    }
+
+    if (vdesktop->iconDragState())
+    {
+        return;
+    }
+
     refreshVapp();
 
     refreshPaas();

@@ -132,7 +132,6 @@
         <file>images/bs_tab_close_normal.png</file>
         <file>images/bs_tab_normal.png</file>
         <file>images/bs_tab_selected.png</file>
-        <file>images/win_hover.png</file>
         <file>images/win_normal.png</file>
         <file>images/isoft_hover.png</file>
         <file>images/isoft_normal.png</file>
@@ -213,5 +212,9 @@
         <file>images/menu_line.png</file>
         <file>images/sub_menu.png</file>
         <file>images/url_normal.png</file>
+        <file>images/panel_software_normal.png</file>
+        <file>images/panel_quit_normal.png</file>
+        <file>images/panel_skin_normal.png</file>
+        <file>images/panel_bg.png</file>
     </qresource>
 </RCC>

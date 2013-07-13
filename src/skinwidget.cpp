@@ -186,8 +186,6 @@ void PixItem::mousePressEvent(QMouseEvent *event)
         setPenColor(true);
     }
 
-
-
 //    event->ignore();
 }
 

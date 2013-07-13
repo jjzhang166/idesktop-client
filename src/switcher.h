@@ -18,19 +18,27 @@ public:
     void paintEvent(QPaintEvent *event);
     void enterEvent(QEvent *event);
     void leaveEvent(QEvent *event);
+
+    void setPixmap(const QString &pix);
 signals:
-    void activated();
+    void switcherActivated();
+
+    void switcherHover();
+    void switcherLeave();
+
 public slots:
     void changed();
 private:
     QPixmap _pixmap;
+//    QPixmap _pixmapLeft;
+    QPixmap _pixmapRight;
     QPixmap _normalRight;
-    QPixmap _normalLeft;
+//    QPixmap _normalLeft;
     QPixmap _transRight;
-    QPixmap _transLeft;
+//    QPixmap _transLeft;
     QPixmap _darkRight;
-    QPixmap _darkLeft;
-    int _direction;
+//    QPixmap _darkLeft;
+//    int _direction;
 };
 
 #endif

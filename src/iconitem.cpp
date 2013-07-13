@@ -615,6 +615,16 @@ void IconItem::setPixmap(const QString &icon)
             transparent.setPixel(i, j, transparentPixel);
         }
     }
+
+#if 0
+    //ÒõÓ°Ð§¹û
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(this);
+        effect->setBlurRadius(7);
+        effect->setColor(QColor(19,29,31));
+        effect->setOffset(1,1);
+        ui->label->setGraphicsEffect(effect)
+#endif
+
 #if 0
     QPainter pt2(&dark);
 

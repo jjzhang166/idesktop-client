@@ -275,8 +275,7 @@ void DirMinWidget::paintEvent(QPaintEvent *)
 
 void DirMinWidget::dragEnterEvent(QDragEnterEvent *event)
 {
-
-    if (event->mimeData()->hasFormat("image/x-iconitem")) {
+    if (event->source() != this && event->mimeData()->hasFormat("image/x-iconitem")) {
 //        if (event->source() == this) {
 //            event->setDropAction(Qt::MoveAction);
 //            event->accept();
@@ -428,7 +427,7 @@ int DirMinWidget::addIcon(const QString &text, \
                             const QString &url)
 {
 
-    qDebug() << _iconNum;
+    qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
     int expandPageCount = _iconNum / _iconsPerPage + 1;
     if (expandPageCount > _count)
         expand();
@@ -521,7 +520,8 @@ int DirMinWidget::addIcon(const QString &text, \
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
 //    connect(icon, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
 
-    _iconNum++;
+    ++_iconNum;
+    qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
 
      return page;
 }
@@ -754,6 +754,16 @@ void DirMinWidget::changeSize()
 
             break;
     }
+}
+
+void DirMinWidget::setDragEnable(bool dragEnable)
+{
+    _dragEnable = dragEnable;
+}
+
+int DirMinWidget::getIconNum()
+{
+    return _iconNum;
 }
 
 DirLineEdit::DirLineEdit(QString hint, QWidget *parent)
@@ -1138,6 +1148,8 @@ QPixmap DirMinShowWidget::setTransparentPixmap(const QString &pix)
 
 void DirMinShowWidget::dragEnterEvent(QDragEnterEvent *event)
 {
+    if (event->source() == this)
+        return;
 
     emit dragEnterMinWidget();
 }

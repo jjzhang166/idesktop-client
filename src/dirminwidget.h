@@ -200,8 +200,8 @@ public:
     void animationMove(const QRect &start, const QRect &end);
 
     void changeSize();
-    void setDragEnable(bool dragEnable)  { _dragEnable = dragEnable; }
-    int getIconNum()                    { return _iconNum; }
+    void setDragEnable(bool dragEnable);
+    int getIconNum();
 
     void removeDirMinItem(const QString &text);
     void moveBackIcons(int page, int index);

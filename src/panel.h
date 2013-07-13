@@ -4,6 +4,7 @@
 #include <QWidget>
 //#include "iconarrangedlg.h"
 #include "dynamicbutton.h"
+#include "switcher.h"
 
 class QPropertyAnimation;
 class AppCenter;
@@ -20,37 +21,50 @@ public:
     void leaveEvent(QEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void paintEvent(QPaintEvent *event);
     void setAutoHide(bool hide)
     {
         autoHide = hide;
     }
-    void animationShow();
-    void animationHide();
+//    void animationShow();
+//    void animationHide();
 signals:
     void quit();
     void desktop();
     void setEqual(int);
     void setMini();
     void pageChanged(int);    
-
+#if 0
     void showSwitcherDesktop();
     void showVacDesktop();
     void showLocalDesktop();
     void showDirDesktop();
     void showPerDesktop();
+# endif
+
+    void showSkinWidget();
+    void showSoftwareWidget();
 
     //void showStore();
     void checkDirState();
 
 public slots:
     void runCenter();
-
+#if 0
     void switcherBtnClicked();
     void vacBtnClicked();
     void localBtnClicked();
     void dirBtnClicked();
     void perBtnClicked();
     void quitBtnClicked();
+#endif
+
+    void skinClicked();
+    void softwareClicked();
+    void quitClicked();
+
+    void animationShow();
+    void animationHide();
 
 private:
     QPixmap setTransparentPixmap(const QString &pix);
@@ -58,7 +72,7 @@ private:
 private:
     bool autoHide;
     bool visible;
-
+#if 0
     QPixmap _switcherPix;
     QPixmap _switcherPixHover;
     QPixmap _vacPix;
@@ -71,11 +85,11 @@ private:
     QPixmap _personPixHover;
     QPixmap _quitPix;
     QPixmap _quitPixHover;
-
+#endif
     QPropertyAnimation *animation;
 //    AppCenterWdg *_center;
 //    TestWidget* _center;
-
+#if 0
     DynamicButton *_switcherButton;
     DynamicButton *_vacButton;
     DynamicButton *_localButton;
@@ -86,6 +100,13 @@ private:
     bool _vacBtnHover;
     bool _localBtnHover;
     bool _skinBtnHover;
+#endif
+    Switcher *_switcherSkin;
+    Switcher *_switcherSoftware;
+    Switcher *_switcherQuit;
+        DynamicButton *_quitButton;
+        QPixmap _quitPix;
+        QPixmap _quitPixHover;
 };
 
 #endif

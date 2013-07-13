@@ -171,8 +171,7 @@ int main(int argc, char *argv[])
         QString qstrVacS = QString("insert into vacservers ("\
                                   "id, server, port, name, password) values ("\
                                   "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\');")\
-                                     .arg(1).arg("192.168.31.151").arg(80).arg("demo").arg("abc_123");
-   //                               .arg(1).arg("192.168.49.253").arg(80).arg("test").arg("1357.com");
+                                  .arg(1).arg("192.168.49.253").arg(80).arg("test").arg("1357.com");
          if(!query.exec(qstrVacS)) {
              qDebug() <<"query failed";
          }

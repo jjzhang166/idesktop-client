@@ -136,8 +136,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
     passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
-    userEdit->setText(QString("admin"));
-    passEdit->setText(QString("root"));
+//    userEdit->setText(QString("admin"));
+//    passEdit->setText(QString("root"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -664,9 +664,11 @@ void LoginDialog::auth()
 
     updateVacServer();
     _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
+    qDebug() << "_commui->login";
     while (!_vacfinished)
         QApplication::processEvents();
     _vacfinished = false;
+    qDebug() << "commui->login end!!!!";
 
 
     if(_commui->errID == "10000")
