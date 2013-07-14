@@ -38,7 +38,7 @@ void commuinication::myPost(const QUrl url, const QByteArray postData)
     QNetworkRequest* request=new QNetworkRequest(url);
     _reply = _nam->post(*request,postData);
 
-
+    qDebug() << "post slotError";
     connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
     connect(_reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64,qint64)));
 
@@ -60,7 +60,7 @@ void commuinication::myGet(const QUrl url, const QString path)
     _dest = path;
     QNetworkRequest* request=new QNetworkRequest(url);
     _reply = _nam->get(*request);
-
+    qDebug() << "get : slotError";
     connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
 
     timeOut->start(5000);
@@ -251,7 +251,7 @@ void commuinication::replyFinished(QNetworkReply*) /* download finished */
 
 void commuinication::slotError(QNetworkReply::NetworkError)
 {
-    qDebug()<<"slotError:"<<_reply->error()<<endl;
+    qDebug()<<"post slotError:"<<_reply->error()<<endl;
     timeOut->stop();
     qEvent->exit();
 }
@@ -328,7 +328,7 @@ void commuinication::login(const QString ip, const QString name, const QString p
     qDebug()<<"inputStr:"<<url.toString()<<"\n";
     _url = url;
     _type = LOGIN;
-
+    qDebug()<<"login";
     myPost(url, inputStr);
 
     return;
@@ -348,6 +348,7 @@ void commuinication::logoff()
     qDebug()<<"url:"<<url.toString()<<"\n";
 
     _type = LOGOFF;
+    qDebug()<<"logoff";
     myPost(url,inputStr);
 
     return;
@@ -368,6 +369,7 @@ void commuinication::getAppList()
     qDebug()<<"url:"<<url.toString()<<"\n";
 
     _type = GETAPP;
+    qDebug()<<"get applist";
     myPost(url,inputStr);
 
     return;
@@ -393,6 +395,7 @@ void commuinication::changePwd(const QString strCurPwd,
     qDebug()<<"url:"<<url.toString()<<"\n";
 
     _type = CHPWD;
+    qDebug()<<"changpwd";
     myPost(url,inputStr);
 
     return;
@@ -410,6 +413,7 @@ void commuinication::loadBalance(QString name,QString appId)
     qDebug()<<"url:"<<url.toString()<<"\n";
 
     _type = LDBALANCE;
+    qDebug()<<"loadbanlance";
     myPost(url,inputStr);
 
     return;
@@ -431,6 +435,7 @@ void commuinication::heartBeat()
    // qDebug()<<"url:"<<url.toString()<<"\n";
 
     _type = HEARTBEAT;
+    qDebug()<<"heartbeat";
     myPost(url,inputStr);
     return;
 }

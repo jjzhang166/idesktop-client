@@ -78,7 +78,8 @@ HEADERS += src/config.h \
     src/contextmenuwidget.h \
     src/public.h \
     src/blurpicker.h \
-    src/blureffect.h
+    src/blureffect.h \
+    src/nodebutton.h
 
 
 win32 {
@@ -133,7 +134,8 @@ SOURCES += src/config.cpp \
     src/iconitem.cpp \
     src/contextmenuwidget.cpp \
     src/blurpicker.cpp \
-    src/blureffect.cpp
+    src/blureffect.cpp \
+    src/nodebutton.cpp
 
 
 FORMS +=

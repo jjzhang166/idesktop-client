@@ -21,9 +21,11 @@
 #include "commuinication.h"
 #include "paascommuinication.h"
 #include "iconitem.h"
+#include "dynamicbutton.h"
 
 //class VacItem;
 class VacWidget;
+class VacScrollBarWidget;
 
 class VacShowWidget : public QWidget
 {
@@ -43,20 +45,67 @@ public:
     void delIcon(const QString &text);
 
 public slots:
+
+    void largeIcon();
+    void mediumIcon();
+    void smallIcon();
+
+    void desktopDelIcon(const QString &text);
+
+signals:
+    void addApp(const QString &text, const QString &pix, const QString &url, int type);
+    void vacCloseBtnClicked();
+
+protected:
+    void paintEvent(QPaintEvent *event);
+
+private:
+    int _width;
+    int _height;
+
+    QPixmap _bgPix;
+
+    VacScrollBarWidget *_vacScrollBarWidget;
+
+    QPixmap _closePix;
+    QPixmap _closeHoverPix;
+    DynamicButton *_closeBtn;
+};
+
+class VacScrollBarWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit VacScrollBarWidget(QSize pageSize, QWidget *parent = 0);
+    ~VacScrollBarWidget();
+
+    void showApp(bool localApp);
+
+    void getIcon();
+
+    int addIcon(QString text, const QString &icon, \
+                int page, int index, const QString &url, int type);
+
+    void delIcon(const QString &text);
+
+    void desktopDelIcon(const QString &text);
+
+public slots:
     void scrollBarValueChanged(int val);
     void vacWidgetCountChanged();
 
     void largeIcon();
     void mediumIcon();
     void smallIcon();
-    void desktopDelIcon(const QString &text);
+//    void desktopDelIcon(const QString &text);
 signals:
     void addApp(const QString &text, const QString &pix, const QString &url, int type);
 
 protected:
     void resizeEvent(QResizeEvent *event);
     void wheelEvent(QWheelEvent *event);
-    void paintEvent(QPaintEvent *event);
+//    void paintEvent(QPaintEvent *event);
 
 private:
     int _width;

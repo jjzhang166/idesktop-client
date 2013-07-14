@@ -3,6 +3,7 @@
 #include <QLabel>
 
 #include "contextmenuwidget.h"
+#include <QMessageBox>
 
 //#define ICONTOP_H 54
 //#define ICONCENTER_H 42
@@ -317,6 +318,7 @@ void MenuButton::paintEvent(QPaintEvent *)
 
 void MenuButton::enterEvent(QEvent *event)
 {
+//    QMessageBox::information(NULL, "TIP", "ENTER EVNET");
     if (!isEnabled())
     {
         _entered = false;
@@ -336,6 +338,7 @@ void MenuButton::enterEvent(QEvent *event)
 
 void MenuButton::leaveEvent(QEvent *event)
 {
+//    QMessageBox::information(NULL, "TIP", "LEAVE");
     _entered = false;
     _pixmap.load(_normal);
     repaint();

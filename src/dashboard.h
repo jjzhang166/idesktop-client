@@ -23,6 +23,7 @@
 #include "movewidget.h"
 #include "dirwidget.h"
 #include "blurpicker.h"
+#include "nodebutton.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -69,8 +70,6 @@ public slots:
 	//vac end
 //    void onShowSwitcherDesktop();
     void onShowVacDesktop();
-    void onShowLocalDesktop();
-    void onShowDirDesktop();
     void onShowPerDesktop();
     //void onShowStore();
 
@@ -108,7 +107,10 @@ public slots:
     void mediumIcon();
     void smallIcon();
 
+    void desktopPageChanged(int page);
+
 //    void onOutFinished(QNetworkReply *reply);
+    void updateNodes();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -181,7 +183,7 @@ private:
 
 //    LocalShowWidget *_localShowWidget;
     VacShowWidget *_vacShowWidget;
-    SkinWidget *_skinShowWidget;
+    SkinShowWidget *_skinShowWidget;
 
     QPropertyAnimation *_animationUp;
     QPropertyAnimation *_animationDown;
@@ -204,5 +206,7 @@ private:
     BlurPicker *_blurPicker;
 
     QNetworkAccessManager *_nam;
+
+    PageNodes *_pageNodes;
 };
 #endif

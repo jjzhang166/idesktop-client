@@ -11,20 +11,23 @@
 #include <QPainter>
 #include <QLabel>
 
+#include "dynamicbutton.h"
+
 //class PixmapWidget;
 //class SkinPixWidget;
 class PixItem;
 class PixWidget;
 
-class SkinWidget : public QWidget
+class SkinShowWidget : public QWidget
 {
     Q_OBJECT
 public :
-    explicit SkinWidget(QWidget *parent = 0);
-    ~SkinWidget() {}
+    explicit SkinShowWidget(QWidget *parent = 0);
+    ~SkinShowWidget() {}
 
 signals:
     void setBgPixmap(const QString &pixText);
+    void skinCloseBtnClicked();
 
 public slots:
     void scrollBarValueChanged(int val);
@@ -54,6 +57,9 @@ private:
     int _width;
     int _height;
 
+    QPixmap _closePix;
+    QPixmap _closeHoverPix;
+    DynamicButton *_closeBtn;
 };
 
 

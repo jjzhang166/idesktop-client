@@ -114,31 +114,40 @@ Dashboard::Dashboard(QWidget *parent)
     indicator = new Indicator(vdesktop, this);
     indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
     //indicator->setGeometry((_width - indicator->width())/2, _height - indicator->height() - 28 , 20, 80);
-    indicator->show();
+    indicator->setVisible(false);
+
+    _pageNodes = new PageNodes(this);
+    qDebug() << "vdesktop->count()vdesktop->count()-->" << vdesktop->count();
+    qDebug() << "vdesktop->currentPage()vdesktop->currentPage()-->" << vdesktop->currentPage();
+
+    _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
+    _pageNodes->move((_width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100);
+    _pageNodes->setVisible(true);
+
+
 
     panel = new Panel(this);
 //    panel->setFixedSize(_width, 28); // 406
 //    panel->move(0,0);
     panel->setGeometry(0, 0, _width, 28);
+    panel->setVisible(true);
+    panel->animationHide();
 
 //    panel->animationShow();
 
     _switcherLeft = new Switcher(this);
     _switcherLeft->setPixmap(QString(":images/win_normal.png"));
-    _switcherLeft->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
+    _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool | Qt::WindowStaysOnTopHint);
     _switcherLeft->setGeometry(_width / 2 - _switcherLeft->width(), 0, _switcherLeft->width(), _switcherLeft->height());
     _switcherLeft->show();
 
     _switcherRight = new Switcher(this);
     _switcherRight->setPixmap(QString(":images/isoft_normal.png"));
-    _switcherRight->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
+    _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool | Qt::WindowStaysOnTopHint);
     _switcherRight->setGeometry(_switcherLeft->pos().x() + _switcherLeft->width(), 0, _switcherRight->width(), _switcherRight->height());
     _switcherRight->show();
 
-    panel->setVisible(true);
-    panel->animationHide();
-
-    _vacShowWidget = new VacShowWidget(QSize(820, 484), this);
+    _vacShowWidget = new VacShowWidget(QSize(841, 540), this);
     _vacShowWidget->move((_width - _vacShowWidget->width()) / 2, (_height - _vacShowWidget->height()) / 2);
  //   _vacShowWidget->move(_width - panel->width() - 820 + 10, panel->pos().y());
 //    _localShowWidget->showApp(true);
@@ -185,8 +194,8 @@ Dashboard::Dashboard(QWidget *parent)
         _pixmap = QPixmap(query.value(0).toString());
 
     _refreshTimer = new QTimer(this);
-//    connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(timeOut()));
-//    _refreshTimer->start(1000 * 60);
+    connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(timeOut()));
+    _refreshTimer->start(1000 * 60);
 
     _vacServerWidget = new VacServerWidget();
     _vacServerWidget->setVisible(false);
@@ -213,9 +222,9 @@ Dashboard::Dashboard(QWidget *parent)
 //    _vacShowWidget->setVisible(false);
 ////    _vacShowWidget->getIcon();
 
-    _skinShowWidget = new SkinWidget(this);
-    _skinShowWidget->resize(820, 484);
-    _skinShowWidget->move(_width - panel->width() - _skinShowWidget->width() + 10, panel->pos().y() - 78 - 78); //panel->pos().y() - 78
+    _skinShowWidget = new SkinShowWidget(this);
+    _skinShowWidget->resize(841, 540);
+    _skinShowWidget->move((_width - _skinShowWidget->width()) / 2, (_height - _skinShowWidget->height()) / 2);
     _skinShowWidget->setVisible(false);
 
 
@@ -252,22 +261,25 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_vacServerWidget, SIGNAL(serverChanged()), this, SLOT(updateVacServer()));
     connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
     connect(_skinShowWidget, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
+
     connect(_switcherLeft, SIGNAL(switcherActivated()), this, SLOT(outOfScreen()));
     connect(_switcherRight, SIGNAL(switcherActivated()), this, SLOT(inOfScreen()));
     connect(_switcherLeft, SIGNAL(switcherHover()), panel, SLOT(animationShow()));
-    connect(_switcherRight, SIGNAL(switcherHover()), panel, SLOT(animationHide()));
-    connect(_switcherLeft, SIGNAL(switcherLeave()), panel, SLOT(animationShow()));
+    connect(_switcherRight, SIGNAL(switcherHover()), panel, SLOT(animationShow()));
+    connect(_switcherLeft, SIGNAL(switcherLeave()), panel, SLOT(animationHide()));
     connect(_switcherRight, SIGNAL(switcherLeave()), panel, SLOT(animationHide()));
 
     connect(panel, SIGNAL(quit()), this, SLOT(quit()));
+    connect(panel, SIGNAL(showSkinWidget()), this, SLOT(onShowPerDesktop()));
+    connect(panel, SIGNAL(showSoftwareWidget()), this, SLOT(onShowVacDesktop()));
 //    connect(panel, SIGNAL(showSwitcherDesktop()), this, SLOT(onShowSwitcherDesktop()));
 //    connect(panel, SIGNAL(showSwitcherDesktop()), this, SLOT(switchBetween()));
-    connect(panel, SIGNAL(showSoftwareWidget()), this, SLOT(onShowVacDesktop()));
+
 //    connect(panel, SIGNAL(showLocalDesktop()), this, SLOT(onShowLocalDesktop()));
  //   connect(panel, SIGNAL(showDirDesktop()), this, SLOT(onShowDirDesktop()));
-    connect(panel, SIGNAL(showSkinWidget()), this, SLOT(onShowPerDesktop()));
 //    connect(panel, SIGNAL(pageChanged(int)), this, SLOT(goPage(int)));
     connect(panel, SIGNAL(checkDirState()), vdesktop, SLOT(hideMenuWidget()));
+
     connect(_ldialog, SIGNAL(dQuit()), this, SLOT(quit()));
     connect(_ldialog, SIGNAL(dShow()), this, SLOT(show()));
     connect(_ldialog, SIGNAL(dHide()), this, SLOT(hide()));
@@ -281,16 +293,23 @@ Dashboard::Dashboard(QWidget *parent)
     connect(vdesktop, SIGNAL(mediumIcon()), this, SLOT(mediumIcon()));
     connect(vdesktop, SIGNAL(smallIcon()), this, SLOT(smallIcon()));
     connect(vdesktop, SIGNAL(desktopDelIcon(const QString &)), _vacShowWidget, SLOT(desktopDelIcon(const QString &)));
+    connect(vdesktop, SIGNAL(pageChanged(int)), this, SLOT(desktopPageChanged(int)));
+    connect(vdesktop, SIGNAL(pageIncreased()), this, SLOT(updateNodes()));
+    connect(vdesktop, SIGNAL(pageDecreased()), this, SLOT(updateNodes()));
 //    connect(vdesktop, SIGNAL(bgMove(int, int)), this, SLOT(bgMove(int, int)));
 //    connect(vdesktop, SIGNAL(toOrigin()), switcher, SLOT(changed()));////////
     connect(panel, SIGNAL(setEqual(int)), vdesktop, SLOT(arrangeEqually(int)));
     connect(panel, SIGNAL(setMini()), vdesktop, SLOT(arrangeMinimum()));
-    connect(indicator, SIGNAL(iNeedMove()), this, SLOT(moveIndicator()));
+//    connect(indicator, SIGNAL(iNeedMove()), this, SLOT(moveIndicator()));
+
+    connect(_pageNodes, SIGNAL(choosePage(int)), vdesktop, SLOT(goPage(int)));
     //connect(panel, SIGNAL(showDesktop()), this, SLOT(onShowDesktop()));
     //setGeoProper();
 
     connect(_vacShowWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int)),
             vdesktop, SLOT(addDesktopApp(const QString&,const QString&, const QString&, int))); //
+    connect(_skinShowWidget, SIGNAL(skinCloseBtnClicked()), _skinShowWidget, SLOT(hide()));
+    connect(_vacShowWidget, SIGNAL(vacCloseBtnClicked()), _vacShowWidget, SLOT(hide()));
     connect(vdesktop, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
 //    connect(_dirWidget, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
     connect(_bsWidget,SIGNAL(goBack()), this, SLOT(goDesktop()));
@@ -349,6 +368,21 @@ Dashboard::Dashboard(QWidget *parent)
 //        connect(_nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(onOutFinished(QNetworkReply*)));
 }
 
+//page nodes
+void Dashboard::desktopPageChanged(int page)
+{
+    _pageNodes->setCurrent(page);
+}
+
+void Dashboard::updateNodes()
+{
+    _pageNodes->setVisible(false);
+    _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
+    _pageNodes->move(( _width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 50);
+    _pageNodes->setVisible(true);
+}
+
+//dir open and close
 void Dashboard::desktopClicked()
 {
     _vacShowWidget->setVisible(false);
@@ -425,7 +459,7 @@ void Dashboard::animationFinished()
         _upMoveWidget->setVisible(false);
         _downMoveWidget->setVisible(false);
 
-        indicator->setVisible(true);
+//        indicator->setVisible(true);
 
         if (!panel->isVisible())
         {
@@ -457,7 +491,7 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
 
-    indicator->setVisible(false);
+//    indicator->setVisible(false);
 //    _dirWidget->move(x, y);
 //    _dirWidget->setVisible(true);
 
@@ -631,7 +665,6 @@ void Dashboard::valueChanged(const QVariant &value)
 }
 
 
-
 void Dashboard::showBs(const QString &url)
 {
 //    qDebug() << "url"<< "url" << url;
@@ -735,101 +768,39 @@ void Dashboard::goPage(int page)
 
 void Dashboard::onShowVacDesktop()
 {
-//    _perWidget->setVisible(false);
-
-//    vdesktop->setVisible(false);
-
-//    _bsWidget->setVisible(true);
-
-    _skinShowWidget->setVisible(false);
+    if (_skinShowWidget->isVisible())
+        _skinShowWidget->setVisible(false);
 
     if (_vacShowWidget->isVisible())
     {
         _vacShowWidget->setVisible(false);
-        panel->setAutoHide(true);
     }
     else
     {
         _vacShowWidget->setVisible(true);
-//        panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
-        panel->show();
-        panel->setAutoHide(false);
-        panel->animationShow();
     }
-
-}
-
-void Dashboard::onShowLocalDesktop()
-{
-//    panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
-//    panel->show();
-//    panel->setAutoHide(false);
-//    panel->animationShow();
-
-    _vacShowWidget->setVisible(false);
-    _skinShowWidget->setVisible(false);
-
-
-//    if (_localShowWidget->isVisible())
-//    {
-//        _localShowWidget->setVisible(false);
-//        panel->setAutoHide(true);
-//    }
-//    else
-//    {
-//        _localShowWidget->setVisible(true);
-//        panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
-//        panel->show();
-//        panel->setAutoHide(false);
-//        panel->animationShow();
-//    }
-
-}
-
-void Dashboard::onShowDirDesktop()
-{
-    _vacShowWidget->setVisible(false);
-//    _localShowWidget->setVisible(false);
-    _skinShowWidget->setVisible(false);
-
-    panel->setAutoHide(true);
-
-    vdesktop->addDirItem();
 
 }
 
 void Dashboard::onShowPerDesktop()
 {
-
-//    _localShowWidget->setVisible(false);
-    _vacShowWidget->setVisible(false);
+    if (_vacShowWidget->isVisible())
+        _vacShowWidget->setVisible(false);
 
     if (_skinShowWidget->isVisible())
     {
         _skinShowWidget->setVisible(false);
-        panel->setAutoHide(true);
     }
     else
     {
         _skinShowWidget->setVisible(true);
-//        panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
-        panel->show();
-        panel->setAutoHide(false);
-        panel->animationShow();
     }
 
-
-//    if (_bsWidget->isVisible())
-//        _bsWidget->setVisible(false);
-//    if (vdesktop->isVisible())
-//        vdesktop->setVisible(false);
-
-//    _perWidget->setVisible(true);
 }
 
 void Dashboard::moveIndicator()
 {
-    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
+//    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
 }
 
 void Dashboard::getIn()
@@ -848,11 +819,11 @@ void Dashboard::getIn()
 //    panel->setAutoHide(false);
 //    panel->animationShow();
 //    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
-    panel->show();
-    panel->setAutoHide(true);
-    panel->animationHide();
+//    panel->show();
+//    panel->setAutoHide(true);
+//    panel->animationHide();
 
-    indicator->show();
+//    indicator->show();
 
     _animation->setStartValue(start);
     _animation->setEndValue(end);
@@ -872,10 +843,10 @@ void Dashboard::getOut()
     _animation->setDuration(900);
     _animation->setEasingCurve(QEasingCurve::OutElastic);
 //    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
-    panel->show();
-    panel->setAutoHide(true);
-    panel->animationHide();
-    indicator->hide();
+//    panel->show();
+//    panel->setAutoHide(true);
+//    panel->animationHide();
+//    indicator->hide();
     _animation->setStartValue(start);
     _animation->setEndValue(end);
     _outOfScreen = !_outOfScreen;
@@ -911,11 +882,11 @@ void Dashboard::switchBetween()
 
 void Dashboard::inOfScreen()
 {
-    if (_vacShowWidget->isVisible())
-    {
-        _vacShowWidget->setVisible(false);
-//        return;
-    }
+//    if (_vacShowWidget->isVisible())
+//    {
+//        _vacShowWidget->setVisible(false);
+////        return;
+//    }
 
     if (_skinShowWidget->isVisible())
     {
@@ -931,11 +902,11 @@ void Dashboard::inOfScreen()
 
 void Dashboard::outOfScreen()
 {
-    if (_vacShowWidget->isVisible())
-    {
-        _vacShowWidget->setVisible(false);
-//        return;
-    }
+//    if (_vacShowWidget->isVisible())
+//    {
+//        _vacShowWidget->setVisible(false);
+////        return;
+//    }
 
     if (_skinShowWidget->isVisible())
     {

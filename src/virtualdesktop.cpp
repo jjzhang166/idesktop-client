@@ -439,6 +439,90 @@ void Indicator::setCurrent(int index)
         _labels.at(i)->setPixmap(QPixmap(":images/bottomPage_icon.png"));
     _labels.at(index+1)->setPixmap(QPixmap(":images/bottomPage_current_icon.png"));
 }
+#if 0
+//PageNodes
+VmDevicePageNodes::VmDevicePageNodes(QWidget *parent)
+    : QWidget(parent)
+    , _sum(1)
+    , _current(0)
+{
+    setMaximumHeight(12);
+}
+/*
+VmDevicePageNodes::~VmDevicePageNodes()
+{
+
+}
+*/
+void VmDevicePageNodes::update(const int &sum , const int &cur)
+{
+    _sum = sum;
+    _current = cur;
+
+    for (int i = 0;i < _nodes.size();i++) {
+        _nodes.at(i)->setParent(NULL);
+        delete _nodes.at(i);
+    }
+    _nodes.clear();
+
+    for (int i = 0;i < sum;i++) {
+        VmDeviceButton* node = new VmDeviceButton(":/resources/images/page_number.png",
+                                                          ":/resources/images/page_number.png",
+                                                          ":/resources/images/page_number_current.png","",
+                                                          VmDeviceButton::current_stay, this);
+        node->setSize(12,12);
+        node->move((NODE_WIDTH + NODE_SPACING) * i , 0);
+        if (i == cur)
+            node->setCurrent(true);
+        _nodes.push_back(node);
+        connect(node, SIGNAL(clicked(VmDeviceButton *)), this, SLOT(clickNode(VmDeviceButton *)));
+
+    }
+    resize((NODE_WIDTH + NODE_SPACING) * _sum, 12);
+}
+
+void VmDevicePageNodes::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+}
+
+void VmDevicePageNodes::clickNode(VmDeviceButton* node)
+{
+    for (int i = 0;i < _nodes.size();i++) {
+        if (_nodes.at(i)->isVisible()) {
+            if (_nodes.at(i) == node) {
+                emit choosePage(i);
+                _current = i;
+            }
+            else {
+                _nodes.at(i)->setCurrent(false);
+            }
+        }
+    }
+}
+
+void VmDevicePageNodes::setCurrent(const int &cur)
+{
+    if (cur >= 0 && cur < _nodes.size()) {
+        if (_current >= 0 && _current < _nodes.size())
+            _nodes.at(_current)->setCurrent(false);
+        _current = cur;
+        _nodes.at(_current)->setCurrent(true);
+    }
+/*
+    int count = 0;
+    for (int i = 0;i < _nodes.size();i++) {
+        if (_nodes.at(i)->isVisible()) {
+            if (count == cur)
+                _nodes.at(i)->setCurrent(true);
+            else
+                _nodes.at(i)->setCurrent(false);
+
+            count++;
+        }
+    }*/
+}
+#endif
 
 /* ########################################################
  * definition of VirtualDesktop methods
@@ -1715,6 +1799,11 @@ void VirtualDesktop::keyPressEvent(QKeyEvent *event)
 
 void VirtualDesktop::goPage(int page)
 {
+    qDebug() << "void VirtualDesktop::goPage(int page)-->page" << page;
+    if (_current == page)
+        return;
+    qDebug() << "void VirtualDesktop::goPage(int page)-->_current" << _current;
+
     _current = page;
     _animation->setDuration(900);
     _animation->setStartValue(QRect(x(), y(), width(), height()));
@@ -3253,7 +3342,7 @@ void VirtualDesktop::iconMenuDelClicked()
     _iconMenu->setVisible(false);
  //   qDebug() << _currentIconItem;
 //    delIcon(_currentIconItem);
-    qDebug() << "    if (_iconDict.value(_currentIconItem)->getMinIconNum() != 0)" << _iconDict.value(_currentIconItem)->getMinIconNum();
+//    qDebug() << "    if (_iconDict.value(_currentIconItem)->getMinIconNum() != 0)" << _iconDict.value(_currentIconItem)->getMinIconNum();
 //    if (_iconDict.value(_currentIconItem)->getMinIconNum() != 0)
 //    {
 //        return;
@@ -3270,7 +3359,7 @@ void VirtualDesktop::iconMenuDelClicked()
 
         _dirMinList.removeAt(index);
 
-        for (int i = index; i < _dirList.count(); i++)//error
+        for (int i = index; i < _dirList.count(); i++)
         {
             _dirList.at(i)->setId(i);
 

@@ -842,3 +842,7 @@ void IconItem::addDirMinItem(const QString &text, const QString &icon, \
 
         _dirMinShowWidget->addDirMinItem(text, icon, page, index, url);
 }
+int IconItem::getMinIconNum()
+{
+    return _dirMinShowWidget->getMinIconNum();
+}

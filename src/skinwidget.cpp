@@ -12,7 +12,7 @@
 #define ICONHEIGHT 85
 #define ICONNUM 30
 
-SkinWidget::SkinWidget(QWidget *parent)
+SkinShowWidget::SkinShowWidget(QWidget *parent)
     : QWidget(parent)
 {
     //resize(20, 20);
@@ -22,13 +22,13 @@ SkinWidget::SkinWidget(QWidget *parent)
     setAttribute(Qt::WA_NoSystemBackground, true);
 
     _pixWidget = new PixWidget(QSize(830, 484), this);
-    _pixWidget->move(0,0);
+    _pixWidget->move(15,30);
     _pixWidget->setVisible(true);
 
     _scrollBar = new QScrollBar(this);
 
     _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}\
-                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 249px; background-image:url(:/images/bs_scrollbar.png);\
+                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 251px; background-image:url(:/images/widget_scrollbar.png);\
                     background-position: left; background-repeat:none; border-style:flat;}\
                     QScrollBar::handle:vertical::disabled{background:#232329;}\
                     QScrollBar::handle:vertical:hover{background-image:url(:/images/bs_scrollbar.png);}\
@@ -54,7 +54,7 @@ SkinWidget::SkinWidget(QWidget *parent)
 //    _rightCenterPix.load(":/images/bs_rightbg_center.png");
 //    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
 
-    _bgPix.load(":/images/skin_bg.png");
+    _bgPix.load(":/images/widget_bg.png");
 
 //    QImage normal = QImage(":/images/skin_bg.png");
 
@@ -69,11 +69,17 @@ SkinWidget::SkinWidget(QWidget *parent)
 //    }
 //    _bgPix = QPixmap::fromImage(normal);
 
+    _closePix.load(":images/widget_close_normal.png");
+    _closeHoverPix.load(":images/widget_close_hover.png");
+    _closeBtn = new DynamicButton(_closePix, _closeHoverPix, this);
+
+    connect(_closeBtn, SIGNAL(clicked()), this, SIGNAL(skinCloseBtnClicked()));
+
     connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
     connect(_pixWidget, SIGNAL(setBgPixmap(QString)), this, SIGNAL(setBgPixmap(QString)));
 }
 
-void SkinWidget::scrollBarValueChanged(int val)
+void SkinShowWidget::scrollBarValueChanged(int val)
 {
     if (val % _pixWidget->pageSize().height() != 0)
     {
@@ -86,35 +92,37 @@ void SkinWidget::scrollBarValueChanged(int val)
     }
 
     _animation->setDuration(80);
-    _animation->setStartValue(QRect(0, _pixWidget->pos().y(), _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
-    _animation->setEndValue(QRect(0, -1 * val, _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
+    _animation->setStartValue(QRect(15, _pixWidget->pos().y(), _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
+    _animation->setEndValue(QRect(15, -1 * val + 30, _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
 
     _animation->start();
 }
 
-void SkinWidget::resizeEvent(QResizeEvent *event)
+void SkinShowWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
     _width = width();
     _height = height();
 
     int w = 15;
-    int x = width() - 33;
+    int x = width() - 36;
     x = x < 0 ? 0: x;
     int h = height();
-    _scrollBar->setGeometry(x, 15, w, h - 30);
+    _scrollBar->setGeometry(x, 45, w, h - 30);
 
-    _scrollBar->setRange(0, _pixWidget->count() * _pixWidget->pageSize().height() - h);
+    _scrollBar->setRange(0, (_pixWidget->count() - 1) * _pixWidget->pageSize().height());
+
+    _closeBtn->setGeometry(_width - 8 - 25 - 3, 25, 8, 8);
     update();
 }
 
-void SkinWidget::wheelEvent(QWheelEvent *event)
+void SkinShowWidget::wheelEvent(QWheelEvent *event)
 {
     Q_UNUSED(event);
     _scrollBar->event(event);
 }
 
-void SkinWidget::paintEvent(QPaintEvent *event)
+void SkinShowWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
@@ -124,7 +132,9 @@ void SkinWidget::paintEvent(QPaintEvent *event)
 //                       _rightCenterPix.scaled(_width, _height - 18));
 //    painter.drawPixmap(0, _height - 9, _width, 9,\
 //                       _rightBottomPix.scaled(_width, 9));
+
     painter.drawPixmap(0, 0, _width, _height, _bgPix.scaled(_width, _height));
+    painter.drawPixmap(10, 20, QPixmap(":images/panel_skin_normal.png"));
 
 //    painter.setPen(QPen(QBrush(Qt::white), 1, Qt::DashLine));
 //    painter.drawLine(15, 40, _width - 25, 40);

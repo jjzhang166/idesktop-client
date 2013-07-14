@@ -83,7 +83,7 @@ extern int ICON_TYPE;
 #define VSPACING 0
 #define BOTTOMSPACING 4
 
-#define ICONHSPACING (70 - 40)
+#define ICONHSPACING 0 // 70 -40
 #define ICONVSPACING (45 - 36)
 
 VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
@@ -92,25 +92,90 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
 //    QTextCodec *codec = QTextCodec::codecForName("utf-8"); //System
 //    QTextCodec::setCodecForCStrings(codec);
 
-    _bgPix.load(":/images/vac_bg.png");
-//    QImage normal = QImage(":/images/skin_bg.png");
+    _bgPix.load(":/images/widget_bg.png");
 
-//    for (int i = 0; i < normal.width(); i++) {
-//        for (int j = 0; j < normal.height(); j++) {
-//            QRgb pixel = normal.pixel(i,j);
-//            int a = qAlpha(pixel);
-//            QRgb lightPixel = qRgba(qRed(pixel) * 1, qGreen(pixel) * 1, \
-//                                    qBlue(pixel) * 1, a * 180 / 255);
-//            normal.setPixel(i, j, lightPixel);
-//        }
-//    }
-//    _bgPix = QPixmap::fromImage(normal);
+    _width = pageSize.width();
+    _height = pageSize.height();
 
-//    setAutoFillBackground(true);
-//    QPalette pal = this->palette();
-//    pal.setBrush(QPalette::Window, QBrush(QPixmap(":/images/vac_bg.png")));
-//    setPalette(pal);
+    resize(_width, _height);
 
+    _vacScrollBarWidget = new VacScrollBarWidget(QSize(pageSize.width(), 464), this);
+    _vacScrollBarWidget->move(13,50);
+    _vacScrollBarWidget->setVisible(true);
+
+    _closePix.load(":images/widget_close_normal.png");
+    _closeHoverPix.load(":images/widget_close_hover.png");
+    _closeBtn = new DynamicButton(_closePix, _closeHoverPix, this);
+    _closeBtn->setGeometry(_width - 8 -25 - 3, 28, 8, 8);
+
+    connect(_closeBtn, SIGNAL(clicked()), this, SIGNAL(vacCloseBtnClicked()));
+
+    connect(_vacScrollBarWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int)),
+            this, SIGNAL(addApp(const QString&,const QString&, const QString&, int )));
+}
+
+VacShowWidget::~VacShowWidget()
+{
+
+}
+
+void VacShowWidget::showApp(bool localApp)
+{
+    _vacScrollBarWidget->showApp(localApp);
+}
+
+int VacShowWidget::addIcon(QString text, const QString &icon, int page, int index, const QString &url, int type)
+{
+    _vacScrollBarWidget->addIcon(text, icon, page, index, url, type);
+}
+
+void VacShowWidget::delIcon(const QString &text)
+{
+    _vacScrollBarWidget->delIcon(text);
+}
+
+
+void VacShowWidget::largeIcon()
+{
+    _vacScrollBarWidget->largeIcon();
+}
+
+void VacShowWidget::mediumIcon()
+{
+    _vacScrollBarWidget->mediumIcon();
+}
+
+void VacShowWidget::smallIcon()
+{
+    _vacScrollBarWidget->smallIcon();
+}
+
+void VacShowWidget::desktopDelIcon(const QString &text)
+{
+    _vacScrollBarWidget->desktopDelIcon(text);
+}
+
+void VacShowWidget::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+
+    painter.drawPixmap(0, 0, _width, _height, _bgPix.scaled(_width, _height));
+    painter.drawPixmap(18, 25, QPixmap(":images/panel_software_normal.png"));
+
+    QWidget::paintEvent(event);
+}
+
+VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
+    : QWidget(parent)
+{
+//    QTextCodec *codec = QTextCodec::codecForName("utf-8"); //System
+//    QTextCodec::setCodecForCStrings(codec);
+
+    setAttribute(Qt::WA_TranslucentBackground, true);
+    setAutoFillBackground(true);
+    QPalette pal = palette();
+    pal.setColor(QPalette::Background, QColor(0x00,0x00,0x00,0xdd));
+    setPalette(pal);
 
     _width = pageSize.width();
     _height = pageSize.height();
@@ -124,7 +189,7 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
     _scrollBar = new QScrollBar(this);
 
     _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}\
-                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 249px; background-image:url(:/images/bs_scrollbar.png);\
+                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 251px; background-image:url(:/images/widget_scrollbar.png);\
                     background-position: left; background-repeat:none; border-style:flat;}\
                     QScrollBar::handle:vertical::disabled{background:#232329;}\
                     QScrollBar::handle:vertical:hover{background-image:url(:/images/bs_scrollbar.png);}\
@@ -158,12 +223,12 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
 
 }
 
-VacShowWidget::~VacShowWidget()
+VacScrollBarWidget::~VacScrollBarWidget()
 {
 
 }
 
-void VacShowWidget::scrollBarValueChanged(int val)
+void VacScrollBarWidget::scrollBarValueChanged(int val)
 {
     if (val % _vacWidget->pageSize().height() != 0)
     {
@@ -182,23 +247,23 @@ void VacShowWidget::scrollBarValueChanged(int val)
     _animation->start();
 }
 
-void VacShowWidget::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);;
-    painter.drawPixmap(0, 0, _width, _height,\
-                       _bgPix.scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+//void VacScrollBarWidget::paintEvent(QPaintEvent *event)
+//{
+//    QPainter painter(this);;
+//    painter.drawPixmap(0, 0, _width, _height,\
+//                       _bgPix.scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
-    QWidget::paintEvent(event);
-}
+//    QWidget::paintEvent(event);
+//}
 
-void VacShowWidget::resizeEvent(QResizeEvent *event)
+void VacScrollBarWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
     _width = width();
     _height = height();
 
     int w = 15;
-    int x = width() - 33;
+    int x = width() - 48;
     x = x < 0 ? 0: x;
     int h = height();
     _scrollBar->setGeometry(x, 15, w, h - 30);
@@ -208,13 +273,13 @@ void VacShowWidget::resizeEvent(QResizeEvent *event)
     update();
 }
 
-void VacShowWidget::wheelEvent(QWheelEvent *event)
+void VacScrollBarWidget::wheelEvent(QWheelEvent *event)
 {
     Q_UNUSED(event);
     _scrollBar->event(event);
 }
 
-void VacShowWidget::showApp(bool localApp)
+void VacScrollBarWidget::showApp(bool localApp)
 {
     if (localApp)
         _vacWidget->showApp(true);
@@ -222,17 +287,17 @@ void VacShowWidget::showApp(bool localApp)
         _vacWidget->showApp(false);
 }
 
-int VacShowWidget::addIcon(QString text, const QString &icon, int page, int index, const QString &url, int type)
+int VacScrollBarWidget::addIcon(QString text, const QString &icon, int page, int index, const QString &url, int type)
 {
     _vacWidget->addIcon(text, icon, page, index, url, type);
 }
 
-void VacShowWidget::delIcon(const QString &text)
+void VacScrollBarWidget::delIcon(const QString &text)
 {
     _vacWidget->delIcon(text);
 }
 
-void VacShowWidget::vacWidgetCountChanged()
+void VacScrollBarWidget::vacWidgetCountChanged()
 {
     _scrollBar->setSingleStep(_vacWidget->pageSize().height());
     _scrollBar->setPageStep(_vacWidget->pageSize().height());
@@ -245,22 +310,22 @@ void VacShowWidget::vacWidgetCountChanged()
     _scrollBar->setRange(0, _vacWidget->count() * _vacWidget->pageSize().height() - _height);
 }
 
-void VacShowWidget::largeIcon()
+void VacScrollBarWidget::largeIcon()
 {
     _vacWidget->largeIcon();
 }
 
-void VacShowWidget::mediumIcon()
+void VacScrollBarWidget::mediumIcon()
 {
     _vacWidget->mediumIcon();
 }
 
-void VacShowWidget::smallIcon()
+void VacScrollBarWidget::smallIcon()
 {
     _vacWidget->smallIcon();
 }
 
-void VacShowWidget::desktopDelIcon(const QString &text)
+void VacScrollBarWidget::desktopDelIcon(const QString &text)
 {
     _vacWidget->unChecked(text);
 }
@@ -1521,7 +1586,7 @@ void VacWidget::changeSpacing()
     {
         case IconItem::large_size :
 
-            _iconHSpacing = ICONHSPACING;
+            _iconHSpacing = ICONHSPACING + 25;
             _iconVSpacing = ICONVSPACING;
 
             gridWidth = LARGESIZE.width() + HSPACING * 2;
@@ -1531,16 +1596,16 @@ void VacWidget::changeSpacing()
 
         case IconItem::medium_size :
 
-            _iconHSpacing = ICONHSPACING / 3 * 2;
-            _iconVSpacing = ICONVSPACING * 3.5;
+            _iconHSpacing = ICONHSPACING / 3 * 2 + 19;
+            _iconVSpacing = ICONVSPACING * 1.5;
 
             gridWidth = MEDIUMSIZE.width() + HSPACING * 2;
-            gridHeight = MEDIUMSIZE.height() + BOTTOMSPACING;
+            gridHeight = MEDIUMSIZE.height() + BOTTOMSPACING * 5;
             break;
 
         default:
 
-            _iconHSpacing = ICONHSPACING / 3;
+            _iconHSpacing = ICONHSPACING / 3 + 14;
             _iconVSpacing = ICONVSPACING * 1.5;
 
             gridWidth = SMALLSIZE.width() + HSPACING * 2;
