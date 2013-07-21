@@ -55,7 +55,7 @@ signals:
 //    void openItem(int id, int page, int index);
     void openItem();
     void dragEnterMinWidget();
-
+    void lineEditValueChange(QString);
 //    void delIcon(const QString &text);
 
 
@@ -78,6 +78,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
+    void resizeEvent(QResizeEvent *);
 
 
 private:
@@ -309,13 +310,7 @@ private:
     QString _hint;
 //    QPixmap _pixmap;
 
-    QImage *_editLeft;
-    QImage *_editCenter;
-    QImage *_editRight;
 
-    QImage *_left;
-    QImage *_center;
-    QImage *_right;
 
     QColor _color;
 

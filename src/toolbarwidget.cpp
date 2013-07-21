@@ -99,6 +99,7 @@ toolBarWidget::toolBarWidget(QSize pageSize, QWidget *parent)
     , _iconsPerPage(0)
     , _toolBarDirIndex(1000)
     , _inDrag(NULL)
+    , _refreshToolBar(false)
 
 {
 
@@ -426,7 +427,15 @@ void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
 
 void toolBarWidget::dragMoveEvent(QDragMoveEvent *event)
 {
-    qDebug() << "123123123123213213213213213213";
+//    qDebug() << "123123123123213213213213213213";
+
+//    event->setDropAction(Qt::MoveAction);
+//    event->accept();
+//    return;
+
+    if (_refreshToolBar)
+        return;
+
     if (!_isIconMove)
         return;
     if (_iconDragEnter)
@@ -502,7 +511,10 @@ void toolBarWidget::dragMoveEvent(QDragMoveEvent *event)
 
 void toolBarWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
+    _refreshToolBar = true;
+
     _iconDragEnter = false;
+
     qDebug() << "*********************************dragLeaveEventdragLeaveEvent";
     _itemHeld = false;
 
@@ -686,7 +698,7 @@ int toolBarWidget::addIcon(const QString &text, \
                             const QString &url,\
                             int type, int id)
 {
-
+    qDebug() << text << iconPath << page << index << url << type << id;
     _localIconNum ++;
 
     setShowType();
@@ -726,7 +738,7 @@ int toolBarWidget::addIcon(const QString &text, \
     icon->setLeaveEventBool(true);
     icon->setEqualIcon(false);
     icon->setSaveDataBool(true);
-
+    qDebug() << "0************0*0**0*0*0*0*0*0*0*0*00*0*0*0*0*0*0*0*0*0*0*00*0*0**0*0*0*0*0";
     if(type == dirIcon)
     {
 
@@ -734,10 +746,13 @@ int toolBarWidget::addIcon(const QString &text, \
         icon->setId(id);
 
     }
-    else if (type == dustbinIcon)
+    else if (type == 4)
     {
         icon->addDustbin();
         icon->setId(1000);
+        //emit toolBarAddDirSW(_toolBarDirIndex);
+
+
     }
 
 
@@ -800,7 +815,7 @@ int toolBarWidget::addIcon(const QString &text, \
 //    }
 
 
-    icon->setPixmap(iconPath);
+    icon->setPixmap(iconPath,text);
     icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
     icon->setPage(page);
     icon->setIndex(index);
@@ -829,10 +844,6 @@ int toolBarWidget::addIcon(const QString &text, \
 //        _toolBarDirIndex++;
 
     }
-    if (dustbinIcon == type)
-    {
-        emit toolBarAddDirShowWidget(_toolBarDirIndex);
-    }
 
 
         connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(delIcon(const QString&)));
@@ -841,7 +852,7 @@ int toolBarWidget::addIcon(const QString &text, \
         connect(icon, SIGNAL(iconLeave()), this, SLOT(iconDragLeave()));
         connect(icon, SIGNAL(iconDrop(int, const QString &, const QString &, int, int, const QString &, int)),
                 this, SLOT(iconDragDrop(int, const QString &, const QString &, int, int, const QString &, int)));
-        connect(icon, SIGNAL(openDir(int, int, int)), this, SIGNAL(toolOpenDir(int, int, int)));
+        connect(icon, SIGNAL(openDir(int, int, int)), this, SLOT(openDir(int, int, int)));
         connect(icon, SIGNAL(dragEnterMinWidget()), this, SLOT(iconDragEnter()));
     //    connect(icon, SIGNAL(showContextMenu(QPoint, QPoint,const QString &))
     //            , this, SLOT(showIconContextMenu(QPoint, QPoint,const QString &)));
@@ -852,6 +863,13 @@ int toolBarWidget::addIcon(const QString &text, \
 
      return page;
 }
+
+//void toolBarWidget::test()
+//{
+//    qDebug() << "testttttttttttttttttttttttttttttttttttttttttttttttttt";
+//    emit toolBarAddDirSW(_toolBarDirIndex);
+
+//}
 
 int toolBarWidget::addIcon(const QString &text, const QString &icon, const QString &url, int type, int id)
 {
@@ -1024,6 +1042,13 @@ void toolBarWidget::moveBackIcons(int page, int index)
     setShowType();
 
 }
+
+void toolBarWidget::openDir(int id, int page, int index)
+{
+    //    int x = _gridTable[page][index].x();
+    //    emit toolOpenDir(id , x, gridWidth);
+}
+
 #if 0
 void toolBarWidget::runApp(const QString &text)
 {
@@ -1437,90 +1462,7 @@ void toolBarWidget::reloadApplist()
 //    addDesktopApp(QString("_%1").arg(_dirMinList.count()), "", "", 3);
 
 //}
-#if 0
-void toolBarWidget::openDir(int id, int page, int index)
-{
-//    hideMenuWidget();
 
-    if (!_dirMovingFinished)
-        return;
-
-    _dirMovingFinished = false;
-
-    qDebug() << "void toolBarWidget::openDir(int id, int page, int index)void toolBarWidget::openDir(int id, int page, int index)";
-
-//    setContextMenuPolicy(Qt::NoContextMenu);
-
-    _openDir = true;
-    _isIconMove = false;
-
-    _dirPage = page;
-    _dirIndex = index;
-
-    qDebug() << "toolBarWidget::openDir() ------>_dirPage" << _dirPage;
-    qDebug() << "toolBarWidget::openDir() ------>_dirIndex" << _dirIndex;
-
-//    setIconEnabled(false);
-
-    if (_animationScreenDown)
-    {
-        closeDir(page, index);
-        return;
-    }
-
-    emit toolOpenDir(id, page, index);
-#if 0
-    _dirId = id;
-    _distance = _dirList.at(_dirId)->getHeight();
-
-    int x = page * _desktopRect.width();
-    int y = 0;                              //_gridTable[page][index].y() + gridHeight;
-    int w = _desktopRect.width();
-    int upH = _desktopRect.height() - _height;
-
-    int downH = _height;
-//    int h = _dirShowWidget->getHeight();
-
-//    _dirList.at(_dirId)->move(x, y);
-//    _dirList.at(_dirId)->setVisible(true);
-//    _dirList.at(_dirId)->raise();
-
-    int mx = _gridTable[page][index].x() + (gridWidth - SMALLSLIDERWIDTH) / 2 + x;  // 39
-    int my = upH;                            //_gridTable[page][index].y() + gridHeight + 21;
-    int mw = 38;                                //gridWidth - 40;
-    int mh = 15;                                //40;
-
-
-//    int _upDistance;
-//    int row = (_gridTable[page][index].y() + gridHeight) / gridHeight;
-
-//    if (row + _dirList.at(_dirId)->getRow() > _row)
-//    {
-//        _upDistance = (row + _dirList.at(_dirId)->getRow() - _row) * gridHeight;
-//    }
-//    else
-//    {
-        _upDistance = 0;
-//    }
-
-    _dirList.at(_dirId)->move(x + w, upH - _distance);
-
-    emit upMove(0, 0, x + w, upH, _distance);
-
-    emit desktopOpenMove(x, upH, x + w, downH, _upDistance);
-    emit openMinWidget(mx, upH, mw, mh, _upDistance);
-    emit upMinMove(mx, upH, mw, mh, _distance);
-//    if (_upDistance > 0)
-//        emit desktopBgMove(gridHeight);
-    qDebug() << "before" ;
-    _dirList.at(_dirId)->raise();
-    _dirList.at(_dirId)->setVisible(true);
-
-    qDebug() << "after";
-#endif
-    _animationScreenDown = true;
-}
-#endif
 //void toolBarWidget::closeDir(int page, int index)
 //{
 //    if (!_dirMovingFinished)
@@ -2170,6 +2112,7 @@ void toolBarWidget::initIconItem()
             }
             else
             {
+                qDebug() << "ajsdfjaslkdjflasj;flkajsldkfjal;skdfjalsjdf;alsdf";
                 addIcon(_local->at(i)->name(), _local->at(i)->icon(),
                         _local->at(i)->page(), _local->at(i)->index(),
                         "", 4, _local->at(i)->id().toInt());
@@ -2228,10 +2171,14 @@ void toolBarWidget::setShowType()
 
 
      repaint();
+
+     _refreshToolBar = false;
 }
 
 void toolBarWidget::moveOutIcon(const QString &text)
 {
+//    _refreshToolBar = true;
+
     if (!_iconDict.value(text))
         return;
 

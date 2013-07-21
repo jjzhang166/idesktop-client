@@ -28,25 +28,25 @@ HANDLE handle;
 QString serverip;
 /****************************************************************/
 
-//in file main.cpp
-void crashingMessageHandler(QtMsgType type, const char *msg)
-{
-    switch (type) {
-    case QtDebugMsg:
-        fprintf(stderr, "Debug: %s\n", msg);
-        break;
-    case QtWarningMsg:
-        fprintf(stderr, "Warning: %s\n", msg);
-        break;
-    case QtCriticalMsg:
-        fprintf(stderr, "Critical: %s\n", msg);
-        break;
-    case QtFatalMsg:
-        fprintf(stderr, "Fatal: %s\n", msg);
-        __asm("int3");
-        abort();
-    }
-}
+////in file main.cpp
+//void crashingMessageHandler(QtMsgType type, const char *msg)
+//{
+//    switch (type) {
+//    case QtDebugMsg:
+//        fprintf(stderr, "Debug: %s\n", msg);
+//        break;
+//    case QtWarningMsg:
+//        fprintf(stderr, "Warning: %s\n", msg);
+//        break;
+//    case QtCriticalMsg:
+//        fprintf(stderr, "Critical: %s\n", msg);
+//        break;
+//    case QtFatalMsg:
+//        fprintf(stderr, "Fatal: %s\n", msg);
+//        __asm("int3");
+//        abort();
+//    }
+//}
 
 int main(int argc, char *argv[])
 {
@@ -184,9 +184,9 @@ int main(int argc, char *argv[])
                                   "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId) values ( " \
                                   "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
                                   "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\');")\
-                                   .arg("dustbin").arg("1.0")\
-                                   .arg("dustbin").arg(":images/dustbin_normal.png")\
-                                   .arg("dustbin").arg(1)\
+                                   .arg("À¬»øÏä").arg("1.0")\
+                                   .arg("À¬»øÏä").arg(":images/dustbin_normal.png")\
+                                   .arg("À¬»øÏä").arg(1)\
                                    .arg(0).arg(0)\
                                    .arg(int(false)).arg(0)\
                                    .arg("4").arg(int(true))\
@@ -209,20 +209,20 @@ int main(int argc, char *argv[])
         }
 
         //192.168.49.253    //test    //1357.com
-        QString qstrVacS = QString("insert into vacservers ("\
-                                  "id, server, port, name, password) values ("\
-                                  "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\');")\
-                                  .arg(1).arg("192.168.49.253").arg(80).arg("test").arg("1357.com");
-         if(!query.exec(qstrVacS)) {
-             qDebug() <<"query failed";
-         }
-         QString qstrPaasS = QString("insert into paasservers ("\
-                                   "id, server) values ("\
-                                   "\'%1\', \'%2\');")\
-                                   .arg(1).arg("http://192.168.49.243:8080/CloudManage/rest/service/getUserAllService");
-          if(!query.exec(qstrPaasS)) {
-              qDebug() <<"query failed";
-          }
+//        QString qstrVacS = QString("insert into vacservers ("\
+//                                  "id, server, port, name, password) values ("\
+//                                  "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\');")\
+//                                  .arg(1).arg("192.168.49.253").arg(80).arg("test").arg("1357.com");
+//         if(!query.exec(qstrVacS)) {
+//             qDebug() <<"query failed";
+//         }
+//         QString qstrPaasS = QString("insert into paasservers ("\
+//                                   "id, server) values ("\
+//                                   "\'%1\', \'%2\');")\
+//                                   .arg(1).arg("http://192.168.49.243:8080/CloudManage/rest/service/getUserAllService");
+//          if(!query.exec(qstrPaasS)) {
+//              qDebug() <<"query failed";
+//          }
 
          QString qstrSizeType = QString("insert into sizetype ("\
                                         "id, type) values ( "\
@@ -242,6 +242,6 @@ int main(int argc, char *argv[])
     board.setFixedSize(rect.width(), rect.height());
 
     board.show();
-    qInstallMsgHandler(crashingMessageHandler); //
+//    qInstallMsgHandler(crashingMessageHandler); //
     return app.exec();
 }

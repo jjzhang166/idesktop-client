@@ -261,7 +261,7 @@ void commuinication::handleTimeOut()
 {
 
     QTime Time = QTime::currentTime();
-    qDebug()<<"TimeOut"<<Time.minute()<<Time.second()<<":"<<Time.msec()<<endl;
+    qDebug()<<" vac TimeOut"<<Time.minute()<<Time.second()<<":"<<Time.msec()<<endl;
 
     timeOut->stop();
     qEvent->exit();

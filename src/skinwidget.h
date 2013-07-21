@@ -56,7 +56,8 @@ private:
 
     int _width;
     int _height;
-
+    int _oldPagePos;
+    int _newPagePos;
     QPixmap _closePix;
     QPixmap _closeHoverPix;
     DynamicButton *_closeBtn;

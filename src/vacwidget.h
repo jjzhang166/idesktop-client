@@ -124,6 +124,8 @@ private:
 
     QScrollBar *_scrollBar;
     QPropertyAnimation *_animation;
+    int _oldPagePos;
+    int _newPagePos;
 
 };
 

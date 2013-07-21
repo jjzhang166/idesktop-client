@@ -37,8 +37,7 @@ CONFIG(debug,debug|release) {
 
 TRANSLATIONS = appstore.ts
 RESOURCES += appstore.qrc \
-    appstore.qrc \
-    VAC.qrc
+    appstore.qrc
 RC_FILE += icon.rc
 #vac
 RC_FILE += vac.rc
@@ -79,7 +78,8 @@ HEADERS += src/config.h \
     src/public.h \
     src/nodebutton.h \
     src/toolbarwidget.h \
-    src/dustbin.h
+    src/dustbin.h \
+    src/qitemmanager.h
 
 
 win32 {
@@ -135,7 +135,8 @@ SOURCES += src/config.cpp \
     src/contextmenuwidget.cpp \
     src/nodebutton.cpp \
     src/toolbarwidget.cpp \
-    src/dustbin.cpp
+    src/dustbin.cpp \
+    src/qitemmanager.cpp
 
 
 FORMS +=

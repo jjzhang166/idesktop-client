@@ -17,7 +17,7 @@
 #include "dirminwidget.h"
 #include "contextmenuwidget.h"
 #include "toolbarwidget.h"
-
+#include "qitemmanager.h"
 class ArrangeWidget;
 
 //app
@@ -134,6 +134,7 @@ public:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);	
+    void keyReleaseEvent(QKeyEvent *);
     void dragMoveEvent(QDragMoveEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
     void dragLeaveEvent(QDragLeaveEvent *event);
@@ -178,6 +179,8 @@ public:
 
     void initIconItem();
     void dirMovingFinished();
+
+    void toolBarAddDirShowWidget();
 
 public slots:
     void goPage(int page);
@@ -231,7 +234,7 @@ public slots:
 
     void addDirItem();
 
-    void showIconContextMenu(QPoint pos, QPoint mPos, const QString &text);
+    void showIconContextMenu(bool,QPoint pos, QPoint mPos, const QString &text);
     void iconMenuRunClicked();
     void iconMenuDelClicked();
 
@@ -244,10 +247,8 @@ public slots:
 
     void desktopIconMoveOtherWidget(const QString &text);
 
-    void toolBarAddDirShowWidget(int id);
-
-    void toolOpenDir(int id, int page, int index);
-    void toolCloseDir(int page, int index);
+    void toolOpenDir(int id, int posX, int width);
+    void toolCloseDir(int posX, int width);
 
 signals:
     void pageChanged(int i);
@@ -301,6 +302,8 @@ signals:
     //miya add
     void hideDesktop();
     void addDesktopLink();
+
+    void refreshVac();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -371,6 +374,7 @@ private:
     QList<DirShowWidget *> _dirList;
 
     DirShowWidget *_dirShowWidget;
+    DirShowWidget *_dustbinDirShowWidget;
     int _dirId;
 
     void moveBackIcons(int page, int index);
@@ -505,7 +509,7 @@ public:
     void mouseMoveEvent(QMouseEvent *event);
 	void contextMenuEvent(QContextMenuEvent *event);
     void paintEvent(QPaintEvent *event);
-
+    void keyReleaseEvent(QKeyEvent *event);
     void enterEvent(QEvent *event);
     void leaveEvent(QEvent *event);
 

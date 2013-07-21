@@ -19,7 +19,7 @@
 /* #############################################
  * Declaration of IconItem
  */
-
+class QItemManager;
 class IconItem : public QWidget
 {
     Q_OBJECT
@@ -29,11 +29,13 @@ public:
     {
         large_size = 0, medium_size, small_size
     };
-
+    enum status{
+        normal = 1, hover = 2, selected = 3
+    };
     IconItem(QWidget *parent = 0);
     ~IconItem();
 
-    void setPixmap(const QString &icon);
+    void setPixmap(const QString &icon, const QString &text);
     void setText(const QString &text);
     void setPage(int page);
     void setIndex(int index);
@@ -44,12 +46,15 @@ public:
     void setId(int id);
     void setType(int type);
     void setDirId(int dirId);
-
+    void setLineEditBg(QPixmap strLeft, QPixmap strCenter, QPixmap strRight);
     void setTimeLine(bool timeLine);
     void setPropertyAnimation(bool propertyAnimation);
     void setRunAction(bool runItem);
     void setDelAction(bool delItem);
-
+    void init();
+    void setCurrentStatus(status state) { _currentStatus = state ; \
+                                          update();}
+    QPixmap setTransparentPixmap(const QString &pix);
     void setLargeSize();
     void setMediumSize();
     void setSmallSize();
@@ -119,7 +124,7 @@ signals:
     void iconDrop(int id, const QString &text, const QString &iconPath, int page, int index, const QString &url, int type);
     void addApp(const QString &text, const QString &pix, const QString &url, int type);
 
-    void showContextMenu(QPoint pos, QPoint mPos, const QString &text);
+    void showContextMenu(bool ,QPoint pos, QPoint mPos, const QString &text);
 
     void dragEnterMinWidget();
 
@@ -132,7 +137,10 @@ public slots:
     void startTremble();
     void stopTremble();
     void doTremble(qreal);
-
+    void LineEditFocusIn();
+    void LineEditFocusOut();
+    void changeItemName(QString);
+    void setDirBackground();
     void runClicked();
     void delClicked();
 //dir
@@ -156,7 +164,8 @@ protected:
 
     void enterEvent(QEvent *event);
     void leaveEvent(QEvent *event);
-
+    void focusOutEvent(QFocusEvent *);
+    void resizeEvent(QResizeEvent *event);
 private:
     LocalApp *_app;
     QDrag *_drag;
@@ -172,7 +181,19 @@ private:
 
     QString _url;
     QString _pixText;
+    QPixmap _hoverBackgroud;
+    QPixmap _selectedBackgroud;
+    QPixmap _normalBackground;
 
+    QPixmap _editLeft;
+    QPixmap _editCenter;
+    QPixmap _editRight;
+    QPixmap _left;
+    QPixmap _center;
+    QPixmap _right;
+    QPixmap _editLeftNormal;
+    QPixmap _editCenterNormal;
+    QPixmap _editRightNormal;
     QPixmap _pixmap;
     QPixmap _normalPixmap;
     QPixmap _grayPixmap;
@@ -184,7 +205,7 @@ private:
 
     QAction *_runAction;
     QAction *_delAction;
-
+    status _currentStatus;
     int _type;
 
 //    DirMinShowWidget *_dirMinShowWidget;
@@ -228,7 +249,7 @@ private:
 
     DirMinShowWidget *_dirMinShowWidget;
     QList<DirMinShowWidget*> _dirMinShowWidgets;
-
+    DirLineEdit* _lineEdit;
     Dustbin *_dustbin;
 
 };

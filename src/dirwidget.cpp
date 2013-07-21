@@ -945,7 +945,7 @@ int DirWidget::addIcon(const QString &text,
 //            icon->setEqualIcon(false);
 //    }
 //    qDebug() << _nextIdx[page] << page;
-    icon->setPixmap(iconPath);
+    icon->setPixmap(iconPath,text);
     icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
     icon->setPage(page);
     icon->setIndex(index);
@@ -963,8 +963,8 @@ int DirWidget::addIcon(const QString &text,
 //   connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(delIcon(const QString&)));
-    connect(icon, SIGNAL(showContextMenu(QPoint, QPoint,const QString &))
-            , this, SLOT(showIconContextMenu(QPoint, QPoint,const QString &)));
+    connect(icon, SIGNAL(showContextMenu(bool,QPoint, QPoint,const QString &))
+            , this, SLOT(showIconContextMenu(bool,QPoint, QPoint,const QString &)));
 
     _url = QString("");
      return page;
@@ -1470,7 +1470,11 @@ void DirWidget::dragMoveEvent(QDragMoveEvent *event)
     }
 
 }
-
+void DirWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    event->accept();
+    return;
+}
 void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
     _dragEvent = false;
@@ -1554,7 +1558,7 @@ void DirWidget::mouseReleaseEvent(QMouseEvent *)
 
 }
 
-void DirWidget::showIconContextMenu(QPoint pos, QPoint mPos, const QString &text)
+void DirWidget::showIconContextMenu(bool visiable,QPoint pos, QPoint mPos, const QString &text)
 {
     qDebug() << "void DirWidget::showIconContextMenu(QPoint pos, const QString &text)" << pos << text;
     Q_UNUSED(mPos);
@@ -1562,7 +1566,7 @@ void DirWidget::showIconContextMenu(QPoint pos, QPoint mPos, const QString &text
 
     _iconMenu->move(pos.x() + _iconDict.value(text)->pos().x(), pos.y() + _iconDict.value(text)->pos().y());
     _iconMenu->raise();
-    _iconMenu->setVisible(true);
+    _iconMenu->setVisible(visiable);
 }
 
 void DirWidget::iconMenuRunClicked()

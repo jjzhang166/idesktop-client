@@ -796,14 +796,6 @@ void DirLineEdit::paintEvent(QPaintEvent* event)
 {
     QLineEdit::paintEvent(event);
     QPainter painter(this);
-    painter.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
-
-//    *_left = _left->scaled(11, 23);
-//    painter.drawImage(QRect(0, 0, _left->width(), _left->height()), *_left);
-//    *_right = _right->scaled(10, 23);
-//    painter.drawImage(QRect(_width - _right->width(), 0, _right->width(), _right->height()), *_right);
-//    *_center = _center->scaled(width() - 11 - 10, 23);
-//    painter.drawImage(QRect(_left->width(), 0, _width - _left->width() - _right->width(), _center->height()), *_center);
     if (hasFocus())
         return;
     if (!text().isEmpty())
@@ -818,12 +810,8 @@ void DirLineEdit::paintEvent(QPaintEvent* event)
 
 void DirLineEdit::mousePressEvent(QMouseEvent *event)
 {
-//    emit focusIn();
-//    _mousePress = true;
-//            setEnabled(true);
             if (!hasFocus())
                 setFocus();
-//            emit focusIn();
 
     QLineEdit::mousePressEvent(event);
 }
@@ -1010,16 +998,9 @@ DirMinShowWidget::DirMinShowWidget(QWidget *parent)
 //    _editCenter = new QImage(":/images/dir_edit_center.png");
 //    _editRight = new QImage(":/images/dir_edit_right.png");
 
-//    _editLeftNormal = new QImage("");
-//    _editCenterNormal = new QImage("");
-//    _editRightNormal = new QImage("");
-
-    _editLeft = setTransparentPixmap(":/images/dir_edit_left.png");
-    _editCenter = setTransparentPixmap(":/images/dir_edit_center.png");
-    _editRight = setTransparentPixmap(":/images/dir_edit_right.png");
-    _editLeftNormal.load("");
-    _editCenterNormal.load("");
-    _editRightNormal.load("");
+    _editLeftNormal =  QPixmap("");
+    _editCenterNormal =  QPixmap("");
+    _editRightNormal =  QPixmap("");
 
     setImgs(_editLeftNormal, _editCenterNormal, _editRightNormal);
 
@@ -1037,13 +1018,43 @@ DirMinShowWidget::DirMinShowWidget(QWidget *parent)
     connect(_dirMWidget, SIGNAL(mouseClicked()), this, SIGNAL(openItem()));
     connect(_dirLineEdit, SIGNAL(focusIn()), this, SLOT(editFocusIn()));
     connect(_dirLineEdit, SIGNAL(focusOut()), this, SLOT(editFocusOut()));
+    connect(_dirLineEdit, SIGNAL(textChanged(QString)), this ,SIGNAL(lineEditValueChange(QString)));
 }
 
 DirMinShowWidget::~DirMinShowWidget()
 {
 
 }
-
+void DirMinShowWidget::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    _height = height();
+    _width = width();
+    switch(ICON_TYPE)
+    {
+    case 0:
+        _dirLineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
+        _dirLineEdit->setGeometry((_width - (72 + 37 / 2 + 8)) / 2, _height - 26, 72 + 37 / 2 + 8, 23);
+        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(11,23);
+        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(11,23);
+        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(11,23);
+        break;
+    case 1:
+        _dirLineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE - 1, QFont::Normal));
+        _dirLineEdit->setGeometry((_width - (60 + 30 / 2 + 22)) / 2, _height - 23, 60 + 30 / 2 + 22, 19 );
+        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(9,19);
+        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(9,19);
+        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(9,19);
+        break;
+    case 2:
+        _dirLineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE - 2, QFont::Normal));
+        _dirLineEdit->setGeometry((_width - (51 + 26 / 2 + 16)) / 2, _height - 18, 51 + 26 / 2 + 16, 16 );
+        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(8,16);
+        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(8,16);
+        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(8,16);
+        break;
+    }
+}
 void DirMinShowWidget::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
@@ -1056,6 +1067,15 @@ void DirMinShowWidget::paintEvent(QPaintEvent *event)
             painter.drawPixmap(0, 0, LARGESIZE.width(), LARGESIZE.height()
                                , QPixmap(":/images/icon_shadow.png").scaled(LARGESIZE.width(), LARGESIZE.height()
                                , Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            painter.drawPixmap((_width - (72 + 37 / 2 + 8)) / 2, _height - 26, \
+                              _left.width(), _left.height(),
+                              _left);
+            painter.drawPixmap((_width + (72 + 37 / 2 + 8)) / 2 - _right.width(), _height - 26, \
+                              _right.width(), _right.height(),
+                              _right);
+            painter.drawPixmap((_width - (72 + 37 / 2 + 8)) / 2 + _left.width(), _height - 26, \
+                              (72 + 37 / 2 + 8) - _left.width() - _right.width(), _center.height(),
+                              _center);
 
             break;
 
@@ -1064,6 +1084,15 @@ void DirMinShowWidget::paintEvent(QPaintEvent *event)
             painter.drawPixmap(0, 0, MEDIUMSIZE.width(), MEDIUMSIZE.height()
                                , QPixmap(":/images/icon_shadow.png").scaled(MEDIUMSIZE.width(), MEDIUMSIZE.height()
                                , Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            painter.drawPixmap((_width - (60 + 30 / 2 + 16)) / 2, _height - 23, \
+                              _left.width(), _left.height() ,
+                              _left);
+            painter.drawPixmap((_width + (60 + 30 / 2 + 16)) / 2 - _right.width(), _height - 23, \
+                              _right.width(), _right.height(),
+                              _right);
+            painter.drawPixmap((_width - (60 + 30 / 2 + 16)) / 2 + _left.width(), _height - 23, \
+                              (60 + 30 / 2 + 16) - _left.width() - _right.width(), _center.height(),
+                              _center);
             break;
 
         default:
@@ -1071,20 +1100,19 @@ void DirMinShowWidget::paintEvent(QPaintEvent *event)
             painter.drawPixmap(0, 0, SMALLSIZE.width(), SMALLSIZE.height()
                                , QPixmap(":/images/icon_shadow.png").scaled(SMALLSIZE.width(), SMALLSIZE.height()
                                , Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            painter.drawPixmap((_width - (51 + 26 / 2 + 16)) / 2, _height - 18, \
+                              _left.width(), _left.height(),
+                              _left);
+            painter.drawPixmap((_width + (51 + 26 / 2 + 16)) / 2 - _right.width(), _height - 18,\
+                                      _right.width(), _right.height(),
+                                      _right);
+            painter.drawPixmap((_width - (51 + 26 / 2 + 16)) / 2 + _left.width(), _height - 18, \
+                              (51 + 26 / 2 + 16) - _left.width() - _right.width(), _center.height(),
+                              _center);
             break;
     }
     //_width - (72 + 37 / 2 + 8)) / 2, _height - 26, 72 + 37 / 2 + 8, 23
 //    painter.drawPixmap(0, 0, QPixmap(":/images/icon_shadow.png"));
-
-    painter.drawPixmap((_width - (72 + 37 / 2 + 8)) / 2, _height - 26, \
-                      _left.width(), _left.height(),
-                      _left);
-    painter.drawPixmap((_width + (72 + 37 / 2 + 8)) / 2 - _right.width(), _height - 26, \
-                      _right.width(), _right.height(),
-                      _right);
-    painter.drawPixmap((_width - (72 + 37 / 2 + 8)) / 2 + _left.width(), _height - 26, \
-                      (72 + 37 / 2 + 8) - _left.width() - _right.width(), _center.height(),
-                      _center);
 }
 
 void DirMinShowWidget::mouseClicked()

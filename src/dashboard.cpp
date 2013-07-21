@@ -112,12 +112,6 @@ Dashboard::Dashboard(QWidget *parent)
 //    connect(_animationDesktop, SIGNAL(valueChanged(QVariant)), this, SLOT(valueChanged(QVariant)));
 
 
-    _toolBarWidget = new toolBarWidget(QSize(_width, 143 + 0 + 24), this);
-    _toolBarWidget->move(0,_height - (143 + 0 + 24));//
-    _toolBarWidget->raise();
-    _toolBarWidget->show();
-
-
     indicator = new Indicator(vdesktop, this);
     indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
     //indicator->setGeometry((_width - indicator->width())/2, _height - indicator->height() - 28 , 20, 80);
@@ -165,6 +159,11 @@ Dashboard::Dashboard(QWidget *parent)
 
     //vdesktop->setGeometry(QRect(0, 20, _width * vdesktop->count(), _height - indicator->height() - panel->height()));
     vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height));
+
+    _toolBarWidget = new toolBarWidget(QSize(_width, 143 + 0 + 24), this);
+    _toolBarWidget->move(0,_height - (143 + 0 + 24));//
+    _toolBarWidget->raise();
+    _toolBarWidget->show();
 
     _bsWidget = new BsWidget(_width, _height, this);
     //_bsWidget->setGeometry(0, 0, _width, _height);
@@ -230,7 +229,7 @@ Dashboard::Dashboard(QWidget *parent)
 ////    _vacShowWidget->getIcon();
 
     _skinShowWidget = new SkinShowWidget(this);
-    _skinShowWidget->resize(841, 540);
+    _skinShowWidget->resize(841, 530);
     _skinShowWidget->move((_width - _skinShowWidget->width()) / 2, (_height - _skinShowWidget->height()) / 2);
     _skinShowWidget->setVisible(false);
 
@@ -303,6 +302,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(vdesktop, SIGNAL(pageChanged(int)), this, SLOT(desktopPageChanged(int)));
     connect(vdesktop, SIGNAL(pageIncreased()), this, SLOT(updateNodes()));
     connect(vdesktop, SIGNAL(pageDecreased()), this, SLOT(updateNodes()));
+    connect(vdesktop, SIGNAL(refreshVac()), this, SLOT(timeOut()));
 //    connect(vdesktop, SIGNAL(bgMove(int, int)), this, SLOT(bgMove(int, int)));
 //    connect(vdesktop, SIGNAL(toOrigin()), switcher, SLOT(changed()));////////
     connect(panel, SIGNAL(setEqual(int)), vdesktop, SLOT(arrangeEqually(int)));
@@ -354,7 +354,7 @@ Dashboard::Dashboard(QWidget *parent)
 
     connect(_toolBarWidget, SIGNAL(iconDropToolWidget(const QString &))
             , vdesktop, SLOT(desktopIconMoveOtherWidget(const QString &)));
-    connect(_toolBarWidget, SIGNAL(toolBarAddDirShowWidget(int)), vdesktop, SLOT(toolBarAddDirShowWidget(int)));
+//    connect(_toolBarWidget, SIGNAL(toolBarAddDirSW(int)), this, SLOT(test(int)));
     connect(_toolBarWidget, SIGNAL(toolOpenDir(int,int,int)), vdesktop, SLOT(toolOpenDir(int,int,int)));
     connect(_toolBarWidget, SIGNAL(toolCloseDir(int, int)), vdesktop, SLOT(toolCloseDir(int, int)));
     //    connect(vdesktop, SIGNAL(setDirIcon(const QString&, const QString&, const QString&)),
@@ -993,7 +993,7 @@ void Dashboard::quit()
         vdesktop->atExit();
 
         _Isheartbeat = false;
-
+        this->hide();
         _switcherLeft->setVisible(false);
         _switcherRight->setVisible(false);
         this->hide();
@@ -1057,16 +1057,20 @@ void Dashboard::setBgPixmap(const QString &pixText)
     }
 
     _bsWidget->setPixmap(pixText);
+    qDebug() << "setBgPixmap(const QString &pixText)setBgPixmap(const QString &pixText)setBgPixmap(const QString &pixText)" << pixText;
     setBgImage(pixText);
 
 }
 //miya add change background imgae
 void Dashboard::setBgImage(QString url)
 {
+    qDebug() << "Dashboard::setBgImage(QString url)" << url;
     QString path = QCoreApplication::applicationDirPath();
     url.replace(QString(":"), QString(""));
+    qDebug() << url;
     path += url;
     path.replace(QString("/"), QString("\\"));
+    qDebug() << path;
     QLibrary lib("changebg.dll");
     if(lib.load()) {
         qDebug() << "success load dll";

@@ -71,6 +71,8 @@ public:
     void dirMovingFinished();
 
     void setShowType();
+
+    void test();
 public slots:
 //    void goPage(int page);
 
@@ -127,6 +129,8 @@ public slots:
 
     void moveOutIcon(const QString &text);
 
+    void openDir(int id, int page, int index);
+
 signals:
     void pageChanged(int i);
     void pageIncreased();
@@ -136,21 +140,11 @@ signals:
     void trembleStoped();
     void reInitiate();
 
+    void toolBarAddDirSW(int id);
+
 //    void bgMove(int x, int y);
 
 //    void setDirIcon(const QString &text, const QString &iconPath, const QString &url);
-
-    void upMove(int x, int y, int w, int h, int distance);
-    void upBackMove(int x, int y, int w, int h, int distance);
-
-    void desktopOpenMove(int x, int y, int w, int h, int distance);
-    void desktopCloseMove(int x, int y, int w, int h, int distance);
-
-    void openMinWidget(int mx, int my, int mw, int mh, int distance);
-    void closeMinWidget(int mx, int my, int mw, int mh, int distance);
-
-    void upMinMove(int mx, int my, int mw, int mh, int distance);
-    void upMinBackMove(int mx, int my, int mw, int mh, int distance);
 
     int rowsNum(int row);
 
@@ -176,9 +170,7 @@ signals:
 
     void iconDropToolWidget(const QString &text);
 
-    void toolBarAddDirShowWidget(int id);
-
-    void toolOpenDir(int id, int page, int index);
+    void toolOpenDir(int x, int width, int index);
     void toolCloseDir(int page, int index);
 
 protected:
@@ -315,6 +307,8 @@ public:
 //    QList<IconItem*> _tempLists;
 
     int _toolBarDirIndex;
+
+    bool _refreshToolBar;
 
 
 };

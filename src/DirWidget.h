@@ -205,7 +205,7 @@ signals:
     void dirWidgetDelIcon(int id, const QString &text);
 
 public slots:
-    void showIconContextMenu(QPoint pos, QPoint mPos, const QString &text);
+    void showIconContextMenu(bool,QPoint pos, QPoint mPos, const QString &text);
     void iconMenuRunClicked();
     void iconMenuDelClicked();
     void runApp(const QString &text);
@@ -221,6 +221,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *event);
+    void contextMenuEvent(QContextMenuEvent *);
 
 private:
 

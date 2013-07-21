@@ -14,6 +14,8 @@
 
 SkinShowWidget::SkinShowWidget(QWidget *parent)
     : QWidget(parent)
+    , _oldPagePos(0)
+    , _newPagePos(0)
 {
     //resize(20, 20);
 
@@ -22,7 +24,7 @@ SkinShowWidget::SkinShowWidget(QWidget *parent)
     setAttribute(Qt::WA_NoSystemBackground, true);
 
     _pixWidget = new PixWidget(QSize(830, 484), this);
-    _pixWidget->move(15,30);
+    _pixWidget->move(15,25);
     _pixWidget->setVisible(true);
 
     _scrollBar = new QScrollBar(this);
@@ -81,19 +83,18 @@ SkinShowWidget::SkinShowWidget(QWidget *parent)
 
 void SkinShowWidget::scrollBarValueChanged(int val)
 {
-    if (val % _pixWidget->pageSize().height() != 0)
-    {
-        return;
-    }
+    _oldPagePos = _newPagePos;
+    _newPagePos = val / _pixWidget->pageSize().height();
+    if( _oldPagePos == _newPagePos )
 
     if (_animation->state() == QAbstractAnimation::Running)
     {
         return;
     }
 
-    _animation->setDuration(80);
+    _animation->setDuration(10);
     _animation->setStartValue(QRect(15, _pixWidget->pos().y(), _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
-    _animation->setEndValue(QRect(15, -1 * val + 30, _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
+        _animation->setEndValue(QRect(15, -1 * (_newPagePos * _pixWidget->pageSize().height()) + 25, _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
 
     _animation->start();
 }
@@ -108,7 +109,7 @@ void SkinShowWidget::resizeEvent(QResizeEvent *event)
     int x = width() - 36;
     x = x < 0 ? 0: x;
     int h = height();
-    _scrollBar->setGeometry(x, 45, w, h - 30);
+    _scrollBar->setGeometry(x, 45, w, h - 30 -30);
 
     _scrollBar->setRange(0, (_pixWidget->count() - 1) * _pixWidget->pageSize().height());
 

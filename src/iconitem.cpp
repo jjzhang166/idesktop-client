@@ -5,7 +5,11 @@
 #include <QMenu>
 #include <QImage>
 #include <QtDebug>
-
+#include <QFontMetrics>
+#include <QFont>
+#include <QGraphicsDropShadowEffect>
+#include <QPainter>
+#include <QLabel>
 #include "iconitem.h"
 
 #define APPICON 0
@@ -14,7 +18,7 @@
 #define ICONY 36
 #define SELECTWIDTH 37
 #define SELECTHEIGHT 37
-
+#include "qitemmanager.h"
 #define LARGESIZE QSize(143, 143)
 #define MEDIUMSIZE QSize(119, 119)
 #define SMALLSIZE QSize(103, 103)
@@ -22,7 +26,9 @@
 #define SMALL_L_SIZE QSize(42, 42)    //72*72
 #define SMALL_M_SIZE QSize(36, 36)    //48*48
 #define SMALL_S_SIZE QSize(30, 30)    //32*32
-
+#define HOVERALPHA  0
+#define SELECTALPHA 25
+extern int ICON_TYPE;
 static QPoint gap;
 
 IconItem::IconItem(QWidget *parent)
@@ -51,6 +57,7 @@ IconItem::IconItem(QWidget *parent)
     , _index(-1)
     , _dirId(-1)
     , _dirMinShowWidget(NULL)
+    , _currentStatus(normal)
 {
     _shadowPixmap.load(":/images/icon_shadow.png");
     _selectPixmap.load("");
@@ -64,6 +71,16 @@ IconItem::IconItem(QWidget *parent)
 //                    SIGNAL(trembleStoped()), \
 //                    this, SLOT(stopTremble()));
 //        }
+    _lineEdit = new DirLineEdit(QString(""),this);
+//    _lineEdit->setStyleSheet("QLineEdit{selection-color: white}");
+//    _lineEdit->setDisabled(true);
+    _editLeftNormal =  QPixmap("");
+    _editCenterNormal =  QPixmap("");
+    _editRightNormal =  QPixmap("");
+    setLineEditBg(_editLeftNormal, _editCenterNormal, _editRightNormal);
+    connect(_lineEdit, SIGNAL(focusIn()), this, SLOT(LineEditFocusIn()));
+    connect(_lineEdit, SIGNAL(focusOut()), this, SLOT(LineEditFocusOut()));
+    connect(_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(changeItemName(QString)));
 
 }
 
@@ -154,6 +171,51 @@ void IconItem::setText(const QString &text)
             }
         }
     }
+    QSize textsize;
+    switch(ICON_TYPE)
+    {
+    case 0:
+    {
+        QFont font1 = _lineEdit->font();
+        QFontMetrics fm1(font1);
+        textsize = fm1.size(Qt::TextSingleLine,_text );
+        int x = textsize.width();
+        int y =  _lineEdit->width();
+        if(textsize.width() > 150)
+            _lineEdit->setAlignment(Qt::AlignRight);
+        else
+            _lineEdit->setAlignment(Qt::AlignCenter);
+        break;
+    }
+    case 1:
+    {
+        QFont font2 = _lineEdit->font();
+        QFontMetrics fm2(font2);
+        textsize = fm2.size(Qt::TextSingleLine,_text);
+        int x = textsize.width();
+        int y =  _lineEdit->width();
+        if(textsize.width() > 118)
+            _lineEdit->setAlignment(Qt::AlignRight);
+        else
+            _lineEdit->setAlignment(Qt::AlignCenter);
+        _lineEdit->setFont(font2);
+        break;
+    }
+    case 2:
+    {
+        QFont font3 = _lineEdit->font();
+        QFontMetrics fm3(font3);
+        textsize = fm3.size(Qt::TextSingleLine,_text);
+        int x = textsize.width();
+        int y =  _lineEdit->width();
+        if(textsize.width() > 100)
+            _lineEdit->setAlignment(Qt::AlignRight);
+        else
+            _lineEdit->setAlignment(Qt::AlignCenter);
+
+        break;
+    }
+    }
 
     _textHeight = fm.height();
 }
@@ -208,7 +270,7 @@ void IconItem::setLargeSize()
 
     _iconWidth = 72;
     _iconHeight = 72;
-
+    init();
     setFixedSize(_width, _height);
 
     repaint();
@@ -221,7 +283,7 @@ void IconItem::setMediumSize()
 
     _iconWidth = 60;
     _iconHeight = 60;
-
+    init();
     setFixedSize(_width, _height);
 
     repaint();
@@ -234,7 +296,7 @@ void IconItem::setSmallSize()
 
     _iconWidth = 52;
     _iconHeight = 52;
-
+    init();
     setFixedSize(_width, _height);
 
     repaint();
@@ -296,10 +358,64 @@ void IconItem::stopTremble()
 
 void IconItem::paintEvent(QPaintEvent *event)
 {
+    QPainter painter(this);
+    painter.setPen(Qt::white);
+    painter.setFont(QFont(QString::fromLocal8Bit(" Microsoft YaHei"), FONTSIZE, QFont::Black));
+//    if(_currentStatus == normal)
+//        painter.drawPixmap(0, 0, width(), height(), _normalBackground.scaled(width(),height()));
+//    else if(_currentStatus == hover)
+//        painter.drawPixmap(0, 0, width(), height(), _hoverBackgroud.scaled(width(),height()));
+    if(_currentStatus == selected)
+        painter.drawPixmap(0, 0, width(), height(), _selectedBackgroud.scaled(width(),height()));
+
+    switch(ICON_TYPE)
+    {
+        case 0 :
+
+            painter.drawPixmap((_width - 120) / 2, _height - 26, \
+                              _left.width(), _left.height(),
+                              _left);
+            painter.drawPixmap((_width + 120) / 2 - _right.width(), _height - 26, \
+                              _right.width(), _right.height(),
+                              _right);
+            painter.drawPixmap((_width - 120) / 2 + _left.width(), _height - 26, \
+                              120 - _left.width() - _right.width(), _center.height(),
+                              _center);
+            _lineEdit->setGeometry(4 + (width() - 100) / 2, _height - 26, 100, 23);
+
+            break;
+
+        case 1 :
+
+            painter.drawPixmap((_width - 110) / 2, _height - 24, \
+                              _left.width(), _left.height() ,
+                              _left);
+            painter.drawPixmap((_width + 110) / 2 - _right.width(), _height - 24, \
+                              _right.width(), _right.height(),
+                              _right);
+            painter.drawPixmap((_width - 110) / 2 + _left.width(), _height - 24, \
+                              110 - _left.width() - _right.width(), _center.height(),
+                              _center);
+           _lineEdit->setGeometry(4 + (width() - 90) / 2, _height - 24, 90, 23 );
+            break;
+
+        default:
+
+            painter.drawPixmap((_width - 100) / 2, _height - 22, \
+                              _left.width(), _left.height(),
+                              _left);
+            painter.drawPixmap((_width + 100) / 2 - _right.width(), _height - 22,\
+                                      _right.width(), _right.height(),
+                                      _right);
+            painter.drawPixmap((_width - 100) / 2 + _left.width(), _height - 22, \
+                              100 - _left.width() - _right.width(), _center.height(),
+                              _center);
+           _lineEdit->setGeometry(4 + (width() - 80) / 2, _height - 22, 80, 23 );
+            break;
+    }
     if(_type == 3)
         return;
 
-    QPainter painter(this);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
     if (_trembleBool)
@@ -319,14 +435,63 @@ void IconItem::paintEvent(QPaintEvent *event)
     else
         painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT, QPixmap(""));
 
-    painter.setPen(QPen(QColor(Qt::white)));
-    painter.drawRect(0,0,_width - 1, _height - 1);
     QWidget::paintEvent(event);
 
 }
 
 void IconItem::mousePressEvent(QMouseEvent *event)
 {
+    if(event->button() == Qt::LeftButton && QItemManager::getManager()->keyAt(0) == 0x01000021)
+    {
+
+        bool isSelected = false;
+        for(int i=0; i < QItemManager::getManager()->getItemListSize(); i++)
+        {
+            if(QItemManager::getManager()->itemAt(i) == this)
+            {
+                isSelected = true;
+                break;
+            }
+            else
+                isSelected = false;
+        }
+        if(isSelected)
+        {
+            _currentStatus = hover;
+            QItemManager::getManager()->deleteRecordIconItem(this);
+        }
+        else
+        {
+            _currentStatus = selected;
+            this->clearFocus();
+            QItemManager::getManager()->saveSelectedIconItem(this);
+        }
+        update();
+        emit showContextMenu( false,event->pos(), mapToGlobal(event->pos()), _text);
+        return;
+    }
+    if(event->button() == Qt::LeftButton)
+    {
+        if(_currentStatus == normal)
+             return;
+        else if(_currentStatus == hover)
+        {
+            _currentStatus = selected;
+            this->setFocus();
+//            _lineEdit->clearFocus();
+//            _lineEdit->setEnabled(true);
+        }
+        else if(_currentStatus == selected)
+        {
+            if(_lineEdit->hasFocus())
+                _currentStatus = hover;
+        }
+        update();
+    }
+    if(event->button() == Qt::RightButton)
+    {
+        return;
+    }
     if(_closePixBool)
     {
         if (_timeline->state() == QTimeLine::Running)
@@ -413,13 +578,15 @@ void IconItem::mouseMoveEvent(QMouseEvent *event)
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData("image/x-iconitem", itemData);
-
+    if(_type == 3)
+        setDirBackground();
     QDrag *drag = new QDrag(this);
     drag->setMimeData(mimeData);
     drag->setPixmap(grayPixmap());
     drag->setHotSpot(event->pos());
     gap = drag->hotSpot();
     drag->exec(Qt::MoveAction);
+    delete drag;
 
 }
 
@@ -460,11 +627,16 @@ void IconItem::contextMenuEvent(QContextMenuEvent *event)
 
 //    return;
 
-    emit showContextMenu( event->pos(), mapToGlobal(event->pos()), _text);
+    emit showContextMenu( true, event->pos(), mapToGlobal(event->pos()), _text);
 }
 
 void IconItem::enterEvent(QEvent *event)
 {
+    if(_currentStatus == normal)
+        _currentStatus=hover;
+    else if(_currentStatus == selected)
+        _currentStatus = selected;
+    update();
     if (!_enterEventBool)
     {
         QWidget::enterEvent(event);
@@ -479,6 +651,17 @@ void IconItem::enterEvent(QEvent *event)
 
 void IconItem::leaveEvent(QEvent *event)
 {
+    if(_currentStatus == hover)
+    {
+        _currentStatus = normal;
+//        _lineEdit->setDisabled(true);
+        clearFocus();
+    }
+    else if(_currentStatus == selected && QItemManager::getManager()->containsItem(this))
+    {
+        _currentStatus = selected;
+    }
+    update();
     if (!_leaveEventBool)
     {
         QWidget::leaveEvent(event);
@@ -500,19 +683,17 @@ void IconItem::leaveEvent(QEvent *event)
     repaint();
 }
 
-void IconItem::setPixmap(const QString &icon)
+void IconItem::setPixmap(const QString &icon, const QString &text)
 {
     if (icon.isEmpty())
+    {
+        if(_type == 3)
+            setDirBackground();
         return;
-
-    if(_type == 3)
-        return;
-
+    }
     _pixText = icon;
 
-    QString text = _text;
-    if (isUserType())
-        text = _text.right(_text.length() - 1);
+    _texticon = text;
 
     _originPixmap = QPixmap(icon);
 
@@ -532,11 +713,10 @@ void IconItem::setPixmap(const QString &icon)
     int y = _height - FONTSIZE * 2;
     textsize.setWidth(textsize.width() + 2 * margin);
     textsize.setHeight(textsize.height() + 2 * margin);
-
     QPainterPath pp(QPointF(x, y));
     qreal px = x, py = y + fm.ascent();
 //    //    foreach(const QString& line, text_lines) {
-     pp.addText(px, py, font, _texticon);
+//     pp.addText(px, py, font, _texticon);
 //    //        py += fm2.lineSpacing();
 //    //    }
 
@@ -554,7 +734,7 @@ void IconItem::setPixmap(const QString &icon)
 
     QPainter pt1(&normal);
     pt1.setPen(Qt::white);
-//    pt1.drawRect(1, 1, _width - 1, _height - 1);
+    pt1.drawRect(1, 1, _width - 1, _height - 1);
     pt1.setCompositionMode(QPainter::CompositionMode_Source);
     pt1.fillRect(normal.rect(), Qt::transparent);
     pt1.drawImage(QRect(0, 0, _width, _height), image);
@@ -578,22 +758,27 @@ void IconItem::setPixmap(const QString &icon)
    //    pt1.drawRect(1, 1, _width - 1, _height - 1);
 
    //    QFont font("", FONTSIZE, QFont::Normal);
-//       QFont font(QString::fromLocal8Bit("?¡é¨¨¨ª??o¨²"), FONTSIZE, QFont::Normal);
+//       QFont font(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
        font.setStyleHint(QFont::Cursive, QFont::PreferBitmap);
        font.setStyleStrategy(QFont::PreferAntialias);
        pt1.setFont(font);
        pt1.setRenderHint(QPainter::HighQualityAntialiasing);
-//    pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
+//       pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
 //                        _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
     pt1.fillPath(path, glow_color);
     pt1.setPen(glow_color.lighter(66));
     pt1.drawPath(path);
     pt1.setPen(QPen(QColor(Qt::white)));
-    pt1.drawText(x, y
-                 , textpixmap.width(), textpixmap.height()
-                 , textflags, _texticon);
+//    pt1.drawText(x, y
+//                 , textpixmap.width(), textpixmap.height()
+//                 , textflags, _texticon);
        pt1.end();
-
+    _lineEdit->setText(_texticon);
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(_lineEdit);
+        effect->setBlurRadius(8);
+        effect->setColor(QColor(0, 0, 0));
+        effect->setOffset(-1,1);
+        _lineEdit->setGraphicsEffect(effect);
     QImage light = QImage(_width, _height, QImage::Format_ARGB32);
     QImage dark =  QImage(_width, _height, QImage::Format_ARGB32);
     QImage transparent = QImage(_width, _height, QImage::Format_ARGB32);
@@ -616,7 +801,7 @@ void IconItem::setPixmap(const QString &icon)
             {
                 //darkPixel = qRgba(0, 0, \
                 //                    0, 0);
-				 darkPixel = pixel;                
+                 darkPixel = pixel;
             }
             dark.setPixel(i, j, darkPixel);
 
@@ -686,15 +871,10 @@ void IconItem::setPixmap(const QString &icon)
 //    QPixmap textpixmap(textsize);
 //    textpixmap.fill(QColor(0, 0, 0, 0));
 
-    QPainter pt2(&dark);
+    QPainter pt2(&light);
     pt2.setFont(font);
-
-    pt2.fillPath(path, glow_color);
-
-    pt2.setPen(glow_color.lighter(66));
-    pt2.drawPath(path);
-
     pt2.setPen(QPen(QColor(Qt::white)));
+    pt2.setOpacity(0.5);
     pt2.drawText(x, y, textpixmap.width(), textpixmap.height()
                        , textflags, _texticon);
     pt2.end();
@@ -886,3 +1066,132 @@ void IconItem::addDustbin()
 //    qDebug() << "IconItem::iconDropEvent()" << _id;
 //    emit iconDrop(_id, text, iconPath, page, index, url, type);
 //}
+void IconItem::changeItemName(QString name)
+{
+    setText(name);
+}
+void IconItem::setDirBackground()
+{
+    if(_type == 3)
+    {
+        QPixmap source = QPixmap::grabWidget(this).scaled(width(),height());
+        QImage image = source.toImage().scaled(width(),height());
+        QImage light = QImage(_width, _height, QImage::Format_ARGB32);
+        QPainter painter(&light);
+        painter.setCompositionMode(QPainter::CompositionMode_Source);
+        painter.fillRect(image.rect(), Qt::transparent);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        painter.setOpacity(0.5);
+        painter.drawImage(0,0,image);
+        painter.end();
+        _grayPixmap = QPixmap::fromImage(light).scaled(width() * 1.0, height() * 1.0);
+    }
+}
+void IconItem::setLineEditBg(QPixmap strLeft, QPixmap strCenter, QPixmap strRight)
+{
+    _left = strLeft;
+    _center = strCenter;
+    _right = strRight;
+
+    repaint();
+}
+
+void IconItem::LineEditFocusIn()
+{
+    QSqlQuery query(QSqlDatabase::database("local"));
+    QString qstr = QString("update localapps set name=\'%1\' where id=\'%2\'").arg(_lineEdit->text()).arg(_id);
+    if(!query.exec(qstr)) {
+        qDebug() <<"query failed";
+        return;
+    }
+    setLineEditBg(_editLeft, _editCenter, _editRight);
+    _currentStatus = hover;
+    update();
+}
+void IconItem::LineEditFocusOut()
+{
+//    if(_currentStatus == normal)
+//        _lineEdit->setDisabled(true);
+    setLineEditBg(_editLeftNormal, _editCenterNormal, _editRightNormal);
+}
+QPixmap IconItem::setTransparentPixmap(const QString &pix)
+{
+    QImage normal = QImage(pix);
+
+    for (int i = 0; i < normal.width(); i++) {
+        for (int j = 0; j < normal.height(); j++) {
+            QRgb pixel = normal.pixel(i,j);
+            int a = qAlpha(pixel);
+            QRgb lightPixel = qRgba(qRed(pixel) * 1, qGreen(pixel) * 1, \
+                                    qBlue(pixel) * 1, a * 50 / 255);
+            normal.setPixel(i, j, lightPixel);
+        }
+    }
+    return QPixmap::fromImage(normal);
+}
+void IconItem::focusOutEvent(QFocusEvent *event)
+{
+    if(_currentStatus == selected && QItemManager::getManager()->containsItem(this))
+    {
+        _currentStatus = selected;
+        update();
+        return;
+    }
+    emit showContextMenu( false,QPoint(0,0), mapToGlobal(QPoint(0,0)), _text);
+    _currentStatus = normal;
+    update();
+}
+void IconItem::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    switch(ICON_TYPE)
+    {
+    case 0:
+    {
+        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(11,23);
+        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(1,23);
+        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(11,23);
+        break;
+    }
+    case 1:
+    {
+        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(11,23);
+        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(1,23);
+        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(11,23);
+        break;
+    }
+    case 2:
+    {
+        _lineEdit->setGeometry(4 + (width() - 80) / 2, _height - 22, 80, 23 );
+        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(11,23);
+        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(11,23);
+        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(11,23);
+        break;
+    }
+    }
+}
+void IconItem::init()
+{
+     QImage normal(_width, _height, QImage::Format_ARGB32_Premultiplied);
+     QPainter painter(&normal);
+     painter.fillRect(QRectF(0,0,_width,_height),Qt::transparent);
+     _normalBackground = QPixmap::fromImage(normal);
+
+     for(int i = 0; i < _width; i ++)
+     {
+         for(int j = 0; j < _height; j++)
+         {
+             normal.setPixel(QPoint(i , j),qRgba(0,0,0,HOVERALPHA));
+         }
+     }
+     _hoverBackgroud = QPixmap::fromImage(normal);
+     for(int i = 0; i < _width; i ++)
+     {
+         for(int j = 0; j < _height; j++)
+         {
+             normal.setPixel(QPoint(i , j),qRgba(0,0,0,SELECTALPHA));
+         }
+     }
+     _selectedBackgroud = QPixmap::fromImage(normal);
+
+}

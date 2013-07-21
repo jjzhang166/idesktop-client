@@ -168,6 +168,8 @@ void VacShowWidget::paintEvent(QPaintEvent *event)
 
 VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
+    , _oldPagePos(0)
+    , _newPagePos(0)
 {
 //    QTextCodec *codec = QTextCodec::codecForName("utf-8"); //System
 //    QTextCodec::setCodecForCStrings(codec);
@@ -232,7 +234,9 @@ VacScrollBarWidget::~VacScrollBarWidget()
 
 void VacScrollBarWidget::scrollBarValueChanged(int val)
 {
-    if (val % _vacWidget->pageSize().height() != 0)
+    _oldPagePos = _newPagePos;
+    _newPagePos = val / _height;
+    if (_oldPagePos == _newPagePos)
     {
         return;
     }
@@ -242,9 +246,9 @@ void VacScrollBarWidget::scrollBarValueChanged(int val)
         return;
     }
 
-    _animation->setDuration(80);
+    _animation->setDuration(10);
     _animation->setStartValue(QRect(0, _vacWidget->pos().y(), _vacWidget->pageSize().width(), _vacWidget->pageSize().height()));
-    _animation->setEndValue(QRect(0, -1 * val, _vacWidget->pageSize().width(), _vacWidget->pageSize().height()));
+    _animation->setEndValue(QRect(0, -1 * (_newPagePos*_height), _vacWidget->pageSize().width(), _vacWidget->pageSize().height()));
 
     _animation->start();
 }
@@ -1019,7 +1023,7 @@ int VacWidget::addIcon(QString text, \
 //            icon->setEqualIcon(false);
 //    }
 
-    icon->setPixmap(iconPath);
+    icon->setPixmap(iconPath,text);
     icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
     icon->setPage(page);
     icon->setIndex(index);
