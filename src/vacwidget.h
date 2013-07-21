@@ -55,6 +55,7 @@ public slots:
 signals:
     void addApp(const QString &text, const QString &pix, const QString &url, int type);
     void vacCloseBtnClicked();
+    void delItem(const QString &text);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -101,6 +102,8 @@ public slots:
 //    void desktopDelIcon(const QString &text);
 signals:
     void addApp(const QString &text, const QString &pix, const QString &url, int type);
+    void delItem(const QString &text);
+
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -179,6 +182,7 @@ signals:
 
     void pageIncreased();
     void pageDecreased();
+    void delItem(const QString &text);
 
 public slots:
 //    void onPaasDone();

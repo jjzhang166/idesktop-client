@@ -13,6 +13,7 @@
 
 #include "dirminwidget.h"
 #include "localapps.h"
+#include "dustbin.h"
 
 
 /* #############################################
@@ -92,15 +93,19 @@ public:
 
     void animationMove(const QRect &start, const QRect &end);
 
+    //dirMin
     void addMinWidget();
     void setMinWidgetDragEnable(bool enable);
 
-    //dirMin
     void removeDirMinItem(const QString &text);
     void addDirMinItem(const QString &text, const QString &icon, \
                        int page, int index, const QString &url);
 
     int getMinIconNum();
+    void setDirMinItemId(int id);
+    void setMouseMoveEnable(bool enable);
+
+    void addDustbin();
 
 signals:
 //    void clicked();
@@ -118,6 +123,11 @@ signals:
 
     void dragEnterMinWidget();
 
+//dustbin
+    void dustbinIconEnter();
+    void dustbinIconMove();
+    void dustbinIconLeave();
+
 public slots:
     void startTremble();
     void stopTremble();
@@ -125,10 +135,14 @@ public slots:
 
     void runClicked();
     void delClicked();
-
+//dir
     void openDirWidget();
     void iconDropEvent(const QString &text, const QString &iconPath, int page, int index,
                        const QString &url, int type);
+//dustbin
+//    void dustbinOpenDirWidget();
+//    void dustbinIconDropEvent(const QString &text, const QString &iconPath, int page, int index,
+//                              const QString &url, int type);
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
@@ -214,6 +228,8 @@ private:
 
     DirMinShowWidget *_dirMinShowWidget;
     QList<DirMinShowWidget*> _dirMinShowWidgets;
+
+    Dustbin *_dustbin;
 
 };
 

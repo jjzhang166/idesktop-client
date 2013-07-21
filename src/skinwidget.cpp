@@ -31,15 +31,15 @@ SkinShowWidget::SkinShowWidget(QWidget *parent)
                     QScrollBar::handle:vertical{ min-width: 8px;min-height: 251px; background-image:url(:/images/widget_scrollbar.png);\
                     background-position: left; background-repeat:none; border-style:flat;}\
                     QScrollBar::handle:vertical::disabled{background:#232329;}\
-                    QScrollBar::handle:vertical:hover{background-image:url(:/images/bs_scrollbar.png);}\
-                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);\
+                    QScrollBar::handle:vertical:hover{background-image:url(:/images/widget_scrollbar.png);}\
+                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);height:13px;\
                                                   subcontrol-position: bottom; subcontrol-origin: margin;}\
-                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);\
+                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);height:13px;\
                                                   subcontrol-position: top; subcontrol-origin: margin;}\
                     QScrollBar::add-page:vertical{background-color: rgba(255,255,255,0);}\
                     QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}\
-                    QScrollBar::up-arrow:vertical{background-color: rgba(255,255,255,0);}\
-                    QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);}");
+                    QScrollBar::up-arrow:vertical{background-color: rgba(255,255,255,0);height:13px;}\
+                    QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);height:13px;}");
 
 
     if (_pixWidget->count() > 1)

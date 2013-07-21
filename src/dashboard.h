@@ -24,6 +24,7 @@
 #include "dirwidget.h"
 #include "blurpicker.h"
 #include "nodebutton.h"
+#include "toolbarwidget.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -206,7 +207,11 @@ private:
     BlurPicker *_blurPicker;
 
     QNetworkAccessManager *_nam;
-
     PageNodes *_pageNodes;
+    toolBarWidget *_toolBarWidget;
+//miya add
+public:
+    void setBgImage(QString url);
+
 };
 #endif

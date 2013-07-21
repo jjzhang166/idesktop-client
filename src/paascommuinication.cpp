@@ -40,6 +40,7 @@ PaasCommuinication::~PaasCommuinication()
 //core post fuction;
 void PaasCommuinication::myPost(const QUrl url, const QByteArray postData)
 {
+    qDebug() << "void PaasCommuinication::myPost() -- >";
     _buffer.clear();
     if (!url.isValid())
     {
@@ -125,7 +126,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
 
         return;
     }
-
+    qDebug() << "replyFinished(QNetworkReply*) /* download finished */";
     QScriptValue sc;
     QScriptEngine engine;
     QString result;
@@ -134,11 +135,14 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     QString previewURL;
     QString cnName("");
     PAAS_LIST tempPaasList;
+    qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 2";
 
    QString jsonResult = _buffer;
     jsonResult.replace(QString("[{"), QString("{"));
+        qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 3";
     jsonResult.replace(QString("}]"), QString("}"));
     QStringList jsonSections = jsonResult.split(QString("},{"), QString::SkipEmptyParts);
+        qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 4";
     qDebug() << "jsonSections---->" << jsonSections;
 
     for (int i = 0; i < jsonSections.size(); i++)

@@ -89,6 +89,7 @@ DirShowWidget::DirShowWidget(QSize pageSize, QWidget *parent)
     _width = pageSize.width();
 
     _dirWidget = new DirWidget(pageSize, this);
+    qDebug() << "_dirWidget->height()_dirWidget->height()-0- > " << _dirWidget->height();
     _dirWidget->setGeometry(0,0, _dirWidget->width() - 5, _dirWidget->height());
 //    _dirWidget->setMaxPage(_maxRow);
     _dirWidget->setVisible(true);
@@ -235,7 +236,7 @@ void DirShowWidget::showApp(bool localApp)
 
 void DirShowWidget::addDirIcon(const QString &text, const QString &iconPath, int page, int index, const QString &url, int type)
 {
-    _dirWidget->setUrl(url);
+//    _dirWidget->setUrl(url);
     _dirWidget->addIcon(text, iconPath, page, index, url, type);
 }
 
@@ -1063,7 +1064,10 @@ void DirWidget::delIcon(const QString &text)
 
 void DirWidget::removeIcon(const QString &text)
 {
-    moveBackIcons(_iconDict.value(text)->page(), _iconDict.value(text)->index());
+    int p = _iconDict.value(text)->page();
+    int s = _iconDict.value(text)->index();
+    _iconTable[p][s] = NULL;
+    moveBackIcons(p, s);
 
     _iconDict.take(text);
 }
@@ -1471,6 +1475,21 @@ void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
     _dragEvent = false;
     qDebug() << "DirWidget::dragLeaveEvent(QDragLeaveEvent *event)";
+
+
+    if (!_inDrag)
+        return;
+
+    int p = _inDrag->page();
+    int s = _inDrag->index();
+
+    _iconDict.take(_inDrag->text());
+    _inDrag = NULL;
+
+    _iconTable[p][s] = NULL;
+
+    moveBackIcons(p, s);
+
     emit dirWidgetDragLeave();
 
     Q_UNUSED(event);

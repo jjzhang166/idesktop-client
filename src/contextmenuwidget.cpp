@@ -1,9 +1,13 @@
 #include <QPainter>
 #include <QFontMetrics>
 #include <QLabel>
-
+#include <QDebug>
+#include <QSettings>
+#include <QFile>
 #include "contextmenuwidget.h"
+//miya add
 #include <QMessageBox>
+#include <QDesktopServices>
 
 //#define ICONTOP_H 54
 //#define ICONCENTER_H 42
@@ -83,6 +87,209 @@
 //    _createMenu->setVisible(false);
 //}
 
+//miya add
+QStringList MenuWidget::getAppList()
+{
+    qDebug() << "getNewList";
+    QString newListPath("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Discardable\\PostSetup\\ShellNew");
+    QSettings reg(newListPath, QSettings::NativeFormat);
+    QStringList list = reg.allKeys();
+    QString strKey;
+    QStringList strValue;
+    int nCount = list.count();
+    qDebug() << "nCount : " << nCount;
+    strKey = list.at(0);
+    strValue = reg.value(strKey).toStringList();
+    qDebug() << "strKey aaaaaa: " << strKey;
+start:
+    int len = strValue.length();
+    for(int i = 0; i < len; ++i) {
+        if((strValue.at(i) == "Folder") && i != 0) {
+            strValue.removeAt(i);
+            strValue.insert(0, "Folder");
+            goto start;
+        } else if((strValue.at(i) == ".lnk") && (i != 1)) {
+            strValue.removeAt(i);
+            strValue.insert(1, ".lnk");
+            goto start;
+        } else if((strValue.at(i) == "Briefcase") && (i != len - 1)) {
+            strValue.removeAt(i);
+            goto start;
+        } else if((strValue.at(i) == ".library-ms")) {
+            strValue.removeAt(i);
+            goto start;
+        } else if((strValue.at(i) == ".contact")) {
+            strValue.removeAt(i);
+            goto start;
+        }
+    }
+    len = strValue.length();
+    qDebug() << "after aaaaaaaaacccccc";
+    for(int j = 0; j < len ; j++)
+        qDebug() << j << " " << strValue.at(j);
+
+    return strValue;
+}
+
+QStringList MenuWidget::getAppName()
+{
+    QStringList appList = getAppList();
+    qDebug() << "in getAppName";
+    int nCount = appList.length();
+    QString tempPath;
+    QSettings *settings;
+    QSettings *reg;
+    QStringList list;
+    QString appName;
+    QString strKey;
+    QString strValue;
+    QStringList strAppName;
+    for(int i = 0; i < nCount; ++i)
+    {
+        tempPath = "HKEY_CLASSES_ROOT\\";
+        tempPath += appList.at(i);
+        //qDebug() << "tempPath " << tempPath << "index " << i << "nCount " << nCount;
+        settings = new QSettings(tempPath, QSettings::NativeFormat);
+        list = settings->allKeys();
+        strKey = list.at(0);
+        strValue = settings->value(strKey).toString();
+        //qDebug() << "strValue" << strValue ;
+        tempPath = "HKEY_CLASSES_ROOT\\";
+        tempPath += strValue;
+        //qDebug() << "new tempPath" << tempPath;
+        reg = new QSettings(tempPath, QSettings::NativeFormat);
+        list = reg->allKeys();
+        strKey = list.at(0);
+        strValue = reg->value(strKey).toString();
+        if(strValue == "Folder") {
+            strValue = tr("文件夹");
+        } else if(strValue == "Shortcut") {
+            strValue = tr("快捷方式…");
+        } else if(strValue == "Briefcase") {
+            strValue = tr("公文包");
+        } else if (strValue == "Bitmap Image") {
+            strValue = tr("BMP 图像");
+        } else if (strValue == "Contact File") {
+            strValue = tr("联系人");
+        } else if (strValue == "Journal Document") {
+            strValue = tr("日记本文档");
+        } else if (strValue == "Text Document") {
+            strValue = tr("文本文档");
+        }
+
+        strAppName.append(strValue);
+        qDebug() << "new name" << strValue;
+     }
+    return strAppName;
+}
+int MenuWidget::getAppCount()
+{
+    if(_appList.length() == 0)
+        return 0;
+    if(_appList.length() == _appName.length()) {
+        return _appList.length();
+    } else {
+        return -1;
+    }
+}
+
+//create menu from weile
+void MenuWidget::oldCreateMenu()
+{
+    _dirBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                             tr("文件夹"), this, false);
+    _linkBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                              tr("快捷方式"), this, false);
+    _docBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                             tr("DOC 文档"), this, false);
+    _excelBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                               tr("Excel 工作表"), this, false);
+    _pptBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                             tr("PPT 演示文稿"), this, false);
+
+
+
+    _dirBtn->setGeometry(14, 20, ICON_W, BTN_H);
+    _linkBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
+    _docBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
+    _excelBtn->setGeometry(14, 77 + 2 * 4, ICON_W, BTN_H);
+    _pptBtn->setGeometry(14, 96 + 2 * 5, ICON_W, BTN_H);
+
+
+    _dirBtn->setValue(0);
+    _linkBtn->setValue(1);
+    _docBtn->setValue(2);
+    _excelBtn->setValue(3);
+    _pptBtn->setValue(4);
+
+
+    //setFixedSize(ICON_W, 96 + 19 + 2 * 5 + 20);
+    setFixedSize(ICON_W, 40 + 19 * 6 + 2 * 5);
+
+    connect(_dirBtn, SIGNAL(clicked()), this, SIGNAL(createDir()));
+    connect(_linkBtn, SIGNAL(clicked()), this, SIGNAL(createLink()));
+    connect(_docBtn, SIGNAL(clicked()), this, SIGNAL(createDOC()));
+    connect(_excelBtn, SIGNAL(clicked()), this, SIGNAL(createEXCEL()));
+    connect(_pptBtn, SIGNAL(clicked()), this, SIGNAL(createPPT()));
+}
+
+void MenuWidget::createNewFile(int value)
+{
+    int i = 1;
+    QString fileName;
+    while(1) {
+        if(_appList.at(value) == "Folder") {
+            emit createDir();
+            break;
+        }
+
+        fileName += QDesktopServices::storageLocation(QDesktopServices::DesktopLocation);
+        fileName += ("\\" + tr("新建"));
+        fileName += _appName.at(value);
+        if(i > 1) {
+            fileName += "(" + QString::number(i) + ")";
+        }
+        fileName += _appList.at(value);
+        qDebug() << "filename" << fileName;
+        QFile newFile(fileName);
+        if(newFile.exists()) {
+            qDebug() << "file exsit : " << fileName;
+            ++i;
+        } else {
+            if(_appList.at(value) == ".lnk") {
+                emit addDesktopLink();
+                break;
+            }
+            if(newFile.open(QIODevice::ReadWrite)) {
+                qDebug() << "createFile success";
+            }
+            newFile.close();
+            emit hideDesktop();
+            break;
+        }
+        fileName = "";
+    }
+}
+
+void MenuWidget::newCreateMenu()
+{
+    _appList = getAppList();
+    _appName = getAppName();
+    _appCount = getAppCount();
+#if 0
+    oldCreateMenu();
+#else
+    MenuButton *newButton;
+    for(int i = 0; i < _appCount; ++i) {
+        newButton = new MenuButton("", ":images/menu_btn_hover.png", _appName.at(i), this, false);
+        newButton->setGeometry(7, 20 + 19 * i + 2 * i, ICON_W_NEW, BTN_H);
+        newButton->setValue(i);
+        _menuButtons.append(newButton);
+        connect(newButton, SIGNAL(buttonClicked(int)), this, SLOT(createNewFile(int)));
+    }
+    setFixedSize(ICON_W_NEW, 40 + 19 * _appCount + 2 * _appCount);
+#endif
+}
 MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
     : QWidget(parent)
     , _type(type)
@@ -95,7 +302,7 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         _refreshBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                      tr("刷新"), this, false);
         _createBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                    tr("新建文件夹"), this, false);
+                                    tr("新建"), this, true);
 //        _changeSkinBtn = new MenuButton("", ":images/menu_btn_hover.png",
 //                                        tr("更换壁纸"), this, false);
 //        _themeBtn = new MenuButton("", ":images/menu_btn_hover.png",
@@ -120,7 +327,7 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         setFixedSize(ICON_W, 77 + 2 * 3 + 20);
 
         connect(_showBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
-//        connect(_createBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
+        connect(_createBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
        connect(_createBtn, SIGNAL(clicked()), this, SIGNAL(createDir()));
 //        connect(_changeSkinBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
 //        connect(_themeBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
@@ -158,37 +365,7 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         break;
 
     case MenuWidget::create :
-        _dirBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                 tr("文件夹"), this, false);
-        _linkBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                  tr("快捷方式"), this, false);
-        _docBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                 tr("DOC 文档"), this, false);
-        _excelBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                   tr("Excel 工作表"), this, false);
-        _pptBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                 tr("PPT 演示文稿"), this, false);
-
-        _dirBtn->setGeometry(14, 20, ICON_W, BTN_H);
-        _linkBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
-        _docBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
-        _excelBtn->setGeometry(14, 77 + 2 * 4, ICON_W, BTN_H);
-        _pptBtn->setGeometry(14, 96 + 2 * 5, ICON_W, BTN_H);
-
-        _dirBtn->setValue(0);
-        _linkBtn->setValue(1);
-        _docBtn->setValue(2);
-        _excelBtn->setValue(3);
-        _pptBtn->setValue(4);
-
-        setFixedSize(ICON_W, 96 + 19 + 2 * 5 + 20);
-
-        connect(_dirBtn, SIGNAL(clicked()), this, SIGNAL(createDir()));
-        connect(_linkBtn, SIGNAL(clicked()), this, SIGNAL(createLink()));
-        connect(_docBtn, SIGNAL(clicked()), this, SIGNAL(createDOC()));
-        connect(_excelBtn, SIGNAL(clicked()), this, SIGNAL(createEXCEL()));
-        connect(_pptBtn, SIGNAL(clicked()), this, SIGNAL(createPPT()));
-
+        newCreateMenu();
         break;
 
     case MenuWidget::iconMenu :
@@ -348,6 +525,8 @@ void MenuButton::leaveEvent(QEvent *event)
 
 void MenuButton::mousePressEvent(QMouseEvent *event)
 {
+    //miya add
+    emit buttonClicked(_value);
     _pixmap.load(_normal);
     repaint();
     Q_UNUSED(event);
@@ -363,6 +542,11 @@ void MenuButton::mouseReleaseEvent(QMouseEvent *event)
 //        emit valueClicked(_value);
     }
     Q_UNUSED(event);
+}
+
+int MenuButton::getValue()
+{
+    return _value;
 }
 
 void MenuButton::setValue(int value)

@@ -41,6 +41,7 @@ public:
 
     int getMinIconNum();
 
+
 signals:
 //    void sendUrl(const QString &url);
 
@@ -57,6 +58,7 @@ signals:
 
 //    void delIcon(const QString &text);
 
+
 public slots:
     void mouseClicked();
     void iconDropEvent(const QString &text, const QString &iconPath, const QString &url);
@@ -64,13 +66,18 @@ public slots:
     void editFocusIn();
     void editFocusOut();
 
+    void mouseStatus();
+
 protected:
     void paintEvent(QPaintEvent *event);
 
     void dragEnterEvent(QDragEnterEvent *event);
-//    void dragMoveEvent(QDragMoveEvent *event);
-//    void dragLeaveEvent(QDragLeaveEvent *event);
-//    void dropEvent(QDropEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dragLeaveEvent(QDragLeaveEvent *event);
+    void dropEvent(QDropEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *);
 
 
 private:
@@ -120,6 +127,9 @@ private:
     int _iconHeight;
 
 //    bool _dragEnable;
+    bool _isMouseMove;
+    bool _isMousePress;
+    bool _skipMouseMove;
 
 };
 
@@ -221,16 +231,16 @@ signals:
     void mouseClicked();
 
 public slots:
-    void mouseStatus();
+//    void mouseStatus();
 
 protected:
     void paintEvent(QPaintEvent *);
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dragMoveEvent(QDragMoveEvent *event);
-    void dragLeaveEvent(QDragLeaveEvent *event);
-    void dropEvent(QDropEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+//    void dragEnterEvent(QDragEnterEvent *event);
+//    void dragMoveEvent(QDragMoveEvent *event);
+//    void dragLeaveEvent(QDragLeaveEvent *event);
+//    void dropEvent(QDropEvent *event);
+//    void mousePressEvent(QMouseEvent *event);
+//    void mouseMoveEvent(QMouseEvent *event);
 //    void mouseDoubleClickEvent(QMouseEvent *);
 //    void mouseReleaseEvent(QMouseEvent *event);
 
@@ -263,7 +273,6 @@ private:
     bool _dragEnable;
 
 //    QPropertyAnimation *_animation;
-    bool _isMouseMove;
 
 };
 

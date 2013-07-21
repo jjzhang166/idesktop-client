@@ -10,9 +10,10 @@ HintLineEdit::HintLineEdit(QString hint, QString pixmap, QWidget *parent)
     //setFixedSize(300, 35);
     //setTextMargins(32, 5, 2, 5);
 //    setStyleSheet("QLineEdit{border-width:0;border-style:outset;font:18px;}");
-    setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:5px;");
-
-    _pixmap.load(":images/login_input.png");
+    //setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:5px;");
+    //setStyleSheet("QLineEdit{border: 2px solid white;border-radius: 3px;padding: 0 2px;selection-background-color: darkgray;}");
+    setStyleSheet("QLineEdit:focus{border-color: rgba(133,192,241,255);}");
+    //_pixmap.load(":images/login_input.png");
 
     //QPalette pal;
     //pal.setBrush(backgroundRole(), QBrush(QPixmap(":images/login_input_bg.png")));
@@ -23,7 +24,7 @@ void HintLineEdit::paintEvent(QPaintEvent* event)
 {
     QLineEdit::paintEvent(event);
     QPainter painter(this);
-    painter.drawPixmap(0, 0, 208, 27, _pixmap.scaled(208, 27));
+    //painter.drawPixmap(0, 0, 208, 27, _pixmap.scaled(208, 27));
     //if (hasFocus())
     //    return;
     if (!text().isEmpty())
@@ -37,7 +38,7 @@ void HintLineEdit::paintEvent(QPaintEvent* event)
 void HintLineEdit::focusInEvent(QFocusEvent *event)
 {
 
-    _pixmap.load(":images/login_input_hover.png");
+    //_pixmap.load(":images/login_input_hover.png");
 
     QLineEdit::focusInEvent(event);
 }
@@ -45,7 +46,7 @@ void HintLineEdit::focusInEvent(QFocusEvent *event)
 void HintLineEdit::focusOutEvent(QFocusEvent *event)
 {
 
-    _pixmap.load(":images/login_input.png");
+    //_pixmap.load(":images/login_input.png");
 
     QLineEdit::focusOutEvent(event);
 }

@@ -28,10 +28,29 @@ HANDLE handle;
 QString serverip;
 /****************************************************************/
 
+//in file main.cpp
+void crashingMessageHandler(QtMsgType type, const char *msg)
+{
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stderr, "Debug: %s\n", msg);
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "Warning: %s\n", msg);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Critical: %s\n", msg);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Fatal: %s\n", msg);
+        __asm("int3");
+        abort();
+    }
+}
+
 int main(int argc, char *argv[])
 {
     serverip = "in put server ip";
-
 
     Config::initiate();
 //    QApplication app(argc, argv);
@@ -145,6 +164,7 @@ int main(int argc, char *argv[])
        QString createPaasServerTable = \
                       "CREATE TABLE paasservers " \
                       "(id int not null primary key, " \
+                      "verifyServer nvarchar not null, "\
                       "server nvarchar not null);";
        QString createIconSizeTable = \
                       "CREATE TABLE sizetype " \
@@ -159,14 +179,35 @@ int main(int argc, char *argv[])
        QSqlDatabase::database("local").exec(createPaasServerTable);
        QSqlDatabase::database("local").exec(createIconSizeTable);
 
+       QString qstrLapp = QString("insert into localapps ("\
+                                  "name, version, execname, icon, uninstall, "\
+                                  "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId) values ( " \
+                                  "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
+                                  "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\');")\
+                                   .arg("dustbin").arg("1.0")\
+                                   .arg("dustbin").arg(":images/dustbin_normal.png")\
+                                   .arg("dustbin").arg(1)\
+                                   .arg(0).arg(0)\
+                                   .arg(int(false)).arg(0)\
+                                   .arg("4").arg(int(true))\
+                                   .arg("").arg(-2);
+
+       QSqlQuery query(QSqlDatabase::database("local"));
+
+       if(!query.exec(qstrLapp))
+       {
+           qDebug() <<"query failed";
+       }
+
        QString qstrWp = QString("insert into wallpapers ("\
                               "id, wallpaper) values ( "\
                               "\'%1\', \'%2\');")\
                               .arg(1).arg(":images/shadow.png");
-        QSqlQuery query(QSqlDatabase::database("local"));
+
         if(!query.exec(qstrWp)) {
             qDebug() <<"query failed";
         }
+
         //192.168.49.253    //test    //1357.com
         QString qstrVacS = QString("insert into vacservers ("\
                                   "id, server, port, name, password) values ("\
@@ -201,5 +242,6 @@ int main(int argc, char *argv[])
     board.setFixedSize(rect.width(), rect.height());
 
     board.show();
+    qInstallMsgHandler(crashingMessageHandler); //
     return app.exec();
 }

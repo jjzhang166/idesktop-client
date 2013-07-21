@@ -111,17 +111,24 @@ Dashboard::Dashboard(QWidget *parent)
 //    _animationDesktop = new QPropertyAnimation(vdesktop, "pos");
 //    connect(_animationDesktop, SIGNAL(valueChanged(QVariant)), this, SLOT(valueChanged(QVariant)));
 
+
+    _toolBarWidget = new toolBarWidget(QSize(_width, 143 + 0 + 24), this);
+    _toolBarWidget->move(0,_height - (143 + 0 + 24));//
+    _toolBarWidget->raise();
+    _toolBarWidget->show();
+
+
     indicator = new Indicator(vdesktop, this);
     indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
     //indicator->setGeometry((_width - indicator->width())/2, _height - indicator->height() - 28 , 20, 80);
     indicator->setVisible(false);
 
     _pageNodes = new PageNodes(this);
-    qDebug() << "vdesktop->count()vdesktop->count()-->" << vdesktop->count();
-    qDebug() << "vdesktop->currentPage()vdesktop->currentPage()-->" << vdesktop->currentPage();
+//    qDebug() << "vdesktop->count()vdesktop->count()-->" << vdesktop->count();
+//    qDebug() << "vdesktop->currentPage()vdesktop->currentPage()-->" << vdesktop->currentPage();
 
     _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
-    _pageNodes->move((_width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100);
+    _pageNodes->move((_width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100 - 45);
     _pageNodes->setVisible(true);
 
 
@@ -194,8 +201,8 @@ Dashboard::Dashboard(QWidget *parent)
         _pixmap = QPixmap(query.value(0).toString());
 
     _refreshTimer = new QTimer(this);
-    connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(timeOut()));
-    _refreshTimer->start(1000 * 60);
+//    connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(timeOut()));
+//    _refreshTimer->start(1000 * 60);
 
     _vacServerWidget = new VacServerWidget();
     _vacServerWidget->setVisible(false);
@@ -308,6 +315,7 @@ Dashboard::Dashboard(QWidget *parent)
 
     connect(_vacShowWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int)),
             vdesktop, SLOT(addDesktopApp(const QString&,const QString&, const QString&, int))); //
+    connect(_vacShowWidget, SIGNAL(delItem(QString)), vdesktop, SLOT(vacWidgetDelIcon(const QString &)));
     connect(_skinShowWidget, SIGNAL(skinCloseBtnClicked()), _skinShowWidget, SLOT(hide()));
     connect(_vacShowWidget, SIGNAL(vacCloseBtnClicked()), _vacShowWidget, SLOT(hide()));
     connect(vdesktop, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
@@ -333,12 +341,23 @@ Dashboard::Dashboard(QWidget *parent)
 
     connect(vdesktop, SIGNAL(desktopClicked()), this, SLOT(desktopClicked()));
 
+    connect(vdesktop, SIGNAL(delToolBarWidgetIcon(const QString &))
+            , _toolBarWidget, SLOT(moveOutIcon(const QString&)));
+    connect(vdesktop, SIGNAL(delToolBarIcon(const QString &))
+            , _toolBarWidget, SLOT(delIcon(const QString&)));
+
     connect(_animationDown,SIGNAL(finished()), this, SLOT(animationFinished()));
     connect(_animationDownMin,SIGNAL(finished()), this, SLOT(animationMinDownFinished()));
     connect(_animationUp,SIGNAL(finished()), this, SLOT(animationFinished()));
 
     connect(_animationDownMin, SIGNAL(valueChanged(const QVariant&)), this, SLOT(valueChanged(const QVariant&)));
-//    connect(vdesktop, SIGNAL(setDirIcon(const QString&, const QString&, const QString&)),
+
+    connect(_toolBarWidget, SIGNAL(iconDropToolWidget(const QString &))
+            , vdesktop, SLOT(desktopIconMoveOtherWidget(const QString &)));
+    connect(_toolBarWidget, SIGNAL(toolBarAddDirShowWidget(int)), vdesktop, SLOT(toolBarAddDirShowWidget(int)));
+    connect(_toolBarWidget, SIGNAL(toolOpenDir(int,int,int)), vdesktop, SLOT(toolOpenDir(int,int,int)));
+    connect(_toolBarWidget, SIGNAL(toolCloseDir(int, int)), vdesktop, SLOT(toolCloseDir(int, int)));
+    //    connect(vdesktop, SIGNAL(setDirIcon(const QString&, const QString&, const QString&)),
 //            _dirWidget, SLOT(addDirIcon(const QString&, const QString&, const QString&)));
 
 
@@ -415,6 +434,7 @@ void Dashboard::upMove(int x, int y, int w, int h, int distance)
     result = QPixmap::grabWindow(this->winId(), \
                                  x, y, \
                                  w, h); //抓取当前屏幕的图片
+
     _upMoveWidget->setPixmap(result);
     _upMoveWidget->setVisible(true);
 
@@ -477,11 +497,13 @@ void Dashboard::animationFinished()
         vdesktop->setIconMove(true);
 
         vdesktop->dirMovingFinished();
+        _toolBarWidget->setVisible(true);
     }
 }
 
 void Dashboard::downMove(int x, int y, int w, int h, int distance)
 {
+    qDebug() << x << y << w << h;
     if (_animationDown->state() == QAbstractAnimation::Running)
     {
         return;
@@ -503,6 +525,7 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
                                  w, h); //抓取当前屏幕的图片
     _downMoveWidget->setPixmap(result);
     _downMoveWidget->setVisible(true);
+    _toolBarWidget->setVisible(false);
 
     _animationDown->setDuration(500);
     _animationDown->setStartValue(QRect(x, y, w, h));
@@ -970,6 +993,11 @@ void Dashboard::quit()
         vdesktop->atExit();
 
         _Isheartbeat = false;
+
+        _switcherLeft->setVisible(false);
+        _switcherRight->setVisible(false);
+        this->hide();
+
         _commui->logoff();
         while (!_finished)
         {
@@ -1003,6 +1031,9 @@ void Dashboard::paintEvent(QPaintEvent *event)
 
     painter.drawPixmap(0, 0, _width, _height, _pixmap);
 }
+//miya add
+typedef bool (*DLL_Changebg)(char* path, int flag);
+DLL_Changebg changebg;
 
 void Dashboard::setBgPixmap(const QString &pixText)
 {
@@ -1026,6 +1057,28 @@ void Dashboard::setBgPixmap(const QString &pixText)
     }
 
     _bsWidget->setPixmap(pixText);
+    setBgImage(pixText);
+
+}
+//miya add change background imgae
+void Dashboard::setBgImage(QString url)
+{
+    QString path = QCoreApplication::applicationDirPath();
+    url.replace(QString(":"), QString(""));
+    path += url;
+    path.replace(QString("/"), QString("\\"));
+    QLibrary lib("changebg.dll");
+    if(lib.load()) {
+        qDebug() << "success load dll";
+        if(changebg = (DLL_Changebg)lib.resolve("SetMyWallpaper")) {
+            qDebug() << "success find func";
+            changebg(path.toLatin1().data(), 0);
+        } else {
+            qDebug() << "failed find func";
+        }
+    } else {
+        qDebug() << "failed load dll";
+    }
 }
 
 void Dashboard::errOut()

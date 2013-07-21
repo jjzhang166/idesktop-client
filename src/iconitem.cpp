@@ -318,6 +318,9 @@ void IconItem::paintEvent(QPaintEvent *event)
         painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT, _selectPixmap);
     else
         painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT, QPixmap(""));
+
+    painter.setPen(QPen(QColor(Qt::white)));
+    painter.drawRect(0,0,_width - 1, _height - 1);
     QWidget::paintEvent(event);
 
 }
@@ -354,6 +357,13 @@ void IconItem::mousePressEvent(QMouseEvent *event)
                     setEqualIcon(true);
 
                     emit addApp(_text, _pixText, _url , _type);
+                }
+                else
+                {
+                    emit delItem(_text);
+
+                    setEqualIcon(false);
+
                 }
             }
         }
@@ -399,7 +409,7 @@ void IconItem::mouseMoveEvent(QMouseEvent *event)
 
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
-    dataStream << _text << _pixText << _page << _index << _url << _type;
+    dataStream << _text << _pixText << _page << _index << _url << _type << _id;
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData("image/x-iconitem", itemData);
@@ -789,13 +799,11 @@ void IconItem::setEqualIcon(bool equal)
 
     repaint();
 }
-
+//dir_min_show_widget
 void IconItem::addMinWidget()
 {
     _dirMinShowWidget = new DirMinShowWidget(this);
     _dirMinShowWidget->move(0,0);
-
-    _dirMinShowWidget->setId(_id);
 
     connect(_dirMinShowWidget, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
     connect(_dirMinShowWidget, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
@@ -817,12 +825,12 @@ void IconItem::setMinWidgetDragEnable(bool enable)
     if (enable)
     {
         _dirMinShowWidget->setAcceptDrops(true);
-        _dirMinShowWidget->setMinDragEnable(true);
+//        _dirMinShowWidget->setMinDragEnable(true);
     }
     else
     {
         _dirMinShowWidget->setAcceptDrops(false);
-        _dirMinShowWidget->setMinDragEnable(false);
+//        _dirMinShowWidget->setMinDragEnable(false);
     }
 }
 
@@ -846,3 +854,35 @@ int IconItem::getMinIconNum()
 {
     return _dirMinShowWidget->getMinIconNum();
 }
+
+void IconItem::setDirMinItemId(int id)
+{
+    _id = id;
+    _dirMinShowWidget->setId(id);
+}
+//dustbin
+void IconItem::addDustbin()
+{
+    _dustbin = new Dustbin(this);
+    _dustbin->move(0,0);
+
+    connect(_dustbin, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
+    connect(_dustbin, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
+    connect(_dustbin, SIGNAL(iconLeave()), this, SIGNAL(iconLeave()));
+    connect(_dustbin, SIGNAL(iconDrop(const QString &, const QString &, int, int, const QString &, int)),
+            this, SLOT(iconDropEvent(const QString &, const QString &, int, int, const QString &, int)));
+    connect(_dustbin, SIGNAL(openItem()), this, SLOT(openDirWidget()));
+}
+
+
+//void IconItem::dustbinOpenDirWidget()
+//{
+//    emit openDir(_id, _page, _index);
+//}
+
+//void IconItem::dustbinIconDropEvent(const QString &text, const QString &iconPath, int page, int index,
+//                             const QString &url, int type)
+//{
+//    qDebug() << "IconItem::iconDropEvent()" << _id;
+//    emit iconDrop(_id, text, iconPath, page, index, url, type);
+//}

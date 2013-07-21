@@ -21,7 +21,7 @@
 //#include <QtScript/QScriptEngine>
 //#include <QtScript/QScriptValueIterator>
 
-#include "vacwidget.h"
+#include "vacwidget.h"delItem
 #include "config.h"
 #include "commuinication.h"
 
@@ -112,6 +112,7 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
 
     connect(_vacScrollBarWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int)),
             this, SIGNAL(addApp(const QString&,const QString&, const QString&, int )));
+    connect(_vacScrollBarWidget, SIGNAL(delItem(const QString &)), this, SIGNAL(delItem(const QString &)));
 }
 
 VacShowWidget::~VacShowWidget()
@@ -192,15 +193,15 @@ VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
                     QScrollBar::handle:vertical{ min-width: 8px;min-height: 251px; background-image:url(:/images/widget_scrollbar.png);\
                     background-position: left; background-repeat:none; border-style:flat;}\
                     QScrollBar::handle:vertical::disabled{background:#232329;}\
-                    QScrollBar::handle:vertical:hover{background-image:url(:/images/bs_scrollbar.png);}\
-                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);\
+                    QScrollBar::handle:vertical:hover{background-image:url(:/images/widget_scrollbar.png);}\
+                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);height:13px;\
                                                   subcontrol-position: bottom; subcontrol-origin: margin;}\
-                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);\
+                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);height:13px;\
                                                   subcontrol-position: top; subcontrol-origin: margin;}\
                     QScrollBar::add-page:vertical{background-color: rgba(255,255,255,0);}\
                     QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}\
-                    QScrollBar::up-arrow:vertical{subcontrol-origin: margin; background-color: rgba(255,255,255,0);}\
-                    QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);}");
+                    QScrollBar::up-arrow:vertical{subcontrol-origin: margin; background-color: rgba(255,255,255,0);height:13px;}\
+                    QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);height:13px;}");
 
 
     _scrollBar->setSingleStep(_vacWidget->pageSize().height());
@@ -218,6 +219,7 @@ VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
             this, SIGNAL(addApp(const QString&,const QString&, const QString&, int )));
     connect(_vacWidget, SIGNAL(pageIncreased()), this, SLOT(vacWidgetCountChanged()));
     connect(_vacWidget, SIGNAL(pageDecreased()), this, SLOT(vacWidgetCountChanged()));
+    connect(_vacWidget, SIGNAL(delItem(const QString &)), this, SIGNAL(delItem(const QString &)));
 
 
 
@@ -1040,7 +1042,7 @@ int VacWidget::addIcon(QString text, \
 //    }
 
 //    connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
-//    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
+    connect(icon, SIGNAL(delItem(const QString&)), this, SIGNAL(delItem(const QString&)));
 
 
      return page;

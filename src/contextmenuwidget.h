@@ -6,6 +6,11 @@
 #include <QEvent>
 #include <QPixmap>
 
+//miya add
+#define MAX_LEN 50;
+#define ICON_W 162
+#define ICON_W_NEW 300
+
 class MenuButton;
 //class MenuWidget;
 
@@ -93,6 +98,9 @@ signals:
     void run();
     void del();
     void rename();
+    //miya add
+    void hideDesktop();
+    void addDesktopLink();
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -120,6 +128,20 @@ private:
 //    MenuButton *_delBtn;
 //    MenuButton *_renameBtn;
 
+//miya add
+public:
+    QStringList getAppList(); //得到新建文件后缀名
+    QStringList getAppName(); //得到新建文件名
+    int getAppCount(); //新建个数
+    void newCreateMenu(); //新建弹出的list
+    void oldCreateMenu();
+    QList<MenuButton*> _menuButtons;
+private:
+    QStringList _appList; //新建文件后缀名
+    QStringList _appName; //新建文件名
+    int _appCount;
+public slots:
+    void createNewFile(int value);
 };
 
 class MenuButton : public QPushButton
@@ -131,11 +153,13 @@ public:
 
     void setValue(int value);
     bool hasSubMenu();
-
+    int getValue();
 signals:
 //    void clicked();
     void valueClicked(int value);
     void hover(int value);
+    //miya add
+    void buttonClicked(int value);
 protected:
     void paintEvent(QPaintEvent *);
     void enterEvent(QEvent *);
@@ -156,6 +180,8 @@ private:
     bool _subMenu;
 
     int _value;
+    int _width;
+    int _height;
 };
 
 #endif // CONTEXTMENUWIDGET_H

@@ -32,7 +32,7 @@
 #define SMALL_M_SIZE QSize(36, 36)    //48*48
 #define SMALL_S_SIZE QSize(30, 30)    //32*32
 
-
+class IconItem;
 extern int ICON_TYPE;
 
 IconMinItem::IconMinItem(QWidget *parent)
@@ -161,10 +161,10 @@ DirMinWidget::DirMinWidget(QWidget *parent)
     , _current(0)
     , _iconNum(0)
     , _dragEnable(true)
-    , _isMouseMove(false)
+//    , _isMouseMove(false)
 //    , _pageSize(_width, _height)
 {
-    setAcceptDrops(true);
+//    setAcceptDrops(true);
 
     changeSize();
 //    _local = LocalAppList::getList();
@@ -272,7 +272,7 @@ void DirMinWidget::paintEvent(QPaintEvent *)
     }
 
 }
-
+#if 0
 void DirMinWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     if (event->source() != this && event->mimeData()->hasFormat("image/x-iconitem")) {
@@ -351,6 +351,7 @@ void DirMinWidget::dropEvent(QDropEvent *event)
         event->ignore();
     }
 }
+#endif
 
 void DirMinWidget::expand()
 {
@@ -671,35 +672,35 @@ void DirMinWidget::moveBackIcons(int page, int index)
     _iconNum--;
 }
 
-void DirMinWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    qDebug() << "void DirMinWidget::mouseMoveEvent(QMouseEvent *event)";
-    _isMouseMove = true;
+//void DirMinWidget::mouseMoveEvent(QMouseEvent *event)
+//{
+//    qDebug() << "void DirMinWidget::mouseMoveEvent(QMouseEvent *event)";
+//    _isMouseMove = true;
 
-    event->ignore();
-}
+//    event->ignore();
+//}
 
-void DirMinWidget::mousePressEvent(QMouseEvent *event)
-{
-//    QWidget::mousePressEvent(event);
-    if (event->button() == Qt::LeftButton)
-    {
-        QTimer::singleShot(300, this, SLOT(mouseStatus()));
-    }
-}
+//void DirMinWidget::mousePressEvent(QMouseEvent *event)
+//{
+////    QWidget::mousePressEvent(event);
+//    if (event->button() == Qt::LeftButton)
+//    {
+//        QTimer::singleShot(300, this, SLOT(mouseStatus()));
+//    }
+//}
 
-void DirMinWidget::mouseStatus()
-{
-    if (_isMouseMove)
-    {
-        _isMouseMove = false;
-        return;
-    }
-    else
-    {
-        emit mouseClicked();
-    }
-}
+//void DirMinWidget::mouseStatus()
+//{
+//    if (_isMouseMove)
+//    {
+//        _isMouseMove = false;
+//        return;
+//    }
+//    else
+//    {
+//        emit mouseClicked();
+//    }
+//}
 
 //void DirMinWidget::mouseReleaseEvent(QMouseEvent * event)
 //{
@@ -770,6 +771,8 @@ DirLineEdit::DirLineEdit(QString hint, QWidget *parent)
     : QLineEdit(parent), _hint(hint), _color(Qt::white)
     , _mousePress(false)
 {
+    setContextMenuPolicy(Qt::NoContextMenu);
+
     setFocusPolicy(Qt::NoFocus);
     setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:0px; color:white;");
     setAlignment(Qt::AlignCenter);
@@ -914,16 +917,16 @@ DirMWidget::~DirMWidget()
 
 void DirMWidget::setMinDragEnable(bool dragEnable)
 {
-    if (dragEnable)
-    {
-        _dirMinWidget->setAcceptDrops(true);
-        _dirMinWidget->setDragEnable(true);
-    }
-    else
-    {
-        _dirMinWidget->setAcceptDrops(false);
-        _dirMinWidget->setDragEnable(false);
-    }
+//    if (dragEnable)
+//    {
+//        _dirMinWidget->setAcceptDrops(true);
+//        _dirMinWidget->setDragEnable(true);
+//    }
+//    else
+//    {
+//        _dirMinWidget->setAcceptDrops(false);
+//        _dirMinWidget->setDragEnable(false);
+//    }
 }
 
 void DirMWidget::removeDirMinItem(const QString &text)
@@ -944,6 +947,9 @@ int DirMWidget::getMinIconNum()
 
 DirMinShowWidget::DirMinShowWidget(QWidget *parent)
     : QWidget(parent)
+    , _isMouseMove(false)
+    , _isMousePress(false)
+    , _skipMouseMove(false)
 {
 
     setAcceptDrops(true);
@@ -1146,26 +1152,18 @@ QPixmap DirMinShowWidget::setTransparentPixmap(const QString &pix)
     return QPixmap::fromImage(normal);
 }
 
-void DirMinShowWidget::dragEnterEvent(QDragEnterEvent *event)
-{
-    if (event->source() == this)
-        return;
-
-    emit dragEnterMinWidget();
-}
-
 void DirMinShowWidget::setMinDragEnable(bool dragEnable)
 {
-    if (dragEnable)
-    {
-        _dirMWidget->setMinDragEnable(true);
-        _dirMWidget->setAcceptDrops(false);
-    }
-    else
-    {
-        _dirMWidget->setMinDragEnable(false);
-        _dirMWidget->setAcceptDrops(false);
-    }
+//    if (dragEnable)
+//    {
+//        _dirMWidget->setMinDragEnable(true);
+//        _dirMWidget->setAcceptDrops(false);
+//    }
+//    else
+//    {
+//        _dirMWidget->setMinDragEnable(false);
+//        _dirMWidget->setAcceptDrops(false);
+//    }
 
 }
 
@@ -1180,6 +1178,107 @@ void DirMinShowWidget::addDirMinItem(const QString &text, const QString &icon, \
     _dirMWidget->addDirMinItem(text, icon, page, index, url);
 }
 
+//void DirMinShowWidget::dragEnterEvent(QDragEnterEvent *event)
+//{
+//    if (event->source() == this)
+//        return;
+
+//    emit dragEnterMinWidget();
+//}
+
+void DirMinShowWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+
+    void *source = (DirMinShowWidget*)(event->source());
+    void *dst = this->parent();
+    if(source == dst)
+    {
+        event->ignore();
+        return;
+    }
+
+    if ((event->source() != this) && (event->mimeData()->hasFormat("image/x-iconitem"))) {
+//        if (event->source() == this) {
+//            event->setDropAction(Qt::MoveAction);
+//            event->accept();
+//        } else {
+//           event->acceptProposedAction();
+//        }
+        emit iconEnter();
+//        IconDesktopItem *icon = qobject_cast<IconDesktopItem*> (event->source());
+//        if (icon && icon->type() != VirtualDesktop::dirIcon) {
+        event->setDropAction(Qt::MoveAction);
+        event->accept();
+//       }
+//        emit dragEnterMinWidget();
+} else {
+
+    event->ignore();
+}
+//        qDebug() << "DirMinWidget******************DirMinShowWidget********************************dragEnter";
+
+}
+
+void DirMinShowWidget::dragMoveEvent(QDragMoveEvent *event)
+{
+//        qDebug() << "DirMinWidget*******dragMoveEvent**********DirMinShowWidget********";
+
+    event->setDropAction(Qt::MoveAction);
+    event->accept();
+
+
+    emit iconMove();
+}
+
+void DirMinShowWidget::dragLeaveEvent(QDragLeaveEvent *event)
+{
+    emit iconLeave();
+}
+
+void DirMinShowWidget::dropEvent(QDropEvent *event)
+{
+    if (event->mimeData()->hasFormat("image/x-iconitem")) {
+        QByteArray itemData = event->mimeData()->data("image/x-iconitem");
+        QDataStream dataStream(&itemData, QIODevice::ReadOnly);
+
+        QString nameText;
+        QString pixText;
+        QString urlText;
+        int page;
+        int index;
+        int type;
+        int id;
+        dataStream >> nameText >> pixText >> page >> index >> urlText >> type >> id;
+        qDebug() << "id"<< id;
+        qDebug() << "_id" << _id;
+
+        if (id == _id)
+            event->ignore();
+
+
+//         pixText.replace(".png", ".ico");
+//        qDebug() << pixText;
+
+//        if (event->source() == this) {
+//            event->setDropAction(Qt::MoveAction);
+//            event->accept();
+//        } else {
+//            event->acceptProposedAction();
+//        }
+
+//    IconDesktopItem *icon = qobject_cast<IconDesktopItem*> (event->source());
+//    if (icon && icon->type() != VirtualDesktop::dirIcon) {
+            event->setDropAction(Qt::MoveAction);
+            event->accept();
+//    }
+
+    _dirMWidget->addDirMinItem(nameText, pixText, -1, -1, urlText);
+    emit iconDrop(nameText ,pixText, page, index, urlText, type);
+    } else {
+        event->ignore();
+    }
+}
+
 const QString & DirMinShowWidget::getDirText()
 {
     _dirLineEdit->text();
@@ -1188,4 +1287,53 @@ const QString & DirMinShowWidget::getDirText()
 int DirMinShowWidget::getMinIconNum()
 {
     return _dirMWidget->getMinIconNum();
+}
+
+void DirMinShowWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    /*
+    if (_isMousePress)
+        return;
+ */
+   if(_skipMouseMove)
+        return;
+
+    qDebug() << "void DirMinWidget::mouseMoveEvent(QMouseEvent *event)";
+    _isMouseMove = true;
+
+    event->ignore();
+}
+
+void DirMinShowWidget::mousePressEvent(QMouseEvent *event)
+{
+//    QWidget::mousePressEvent(event);
+    if (event->button() == Qt::LeftButton)
+    {
+        _isMousePress = true;
+        _skipMouseMove=false;
+        QTimer::singleShot(300, this, SLOT(mouseStatus()));
+    }
+
+}
+
+void DirMinShowWidget::mouseStatus()
+{
+//    _isMousePress = true;
+
+    if (_isMouseMove)
+    {
+        _isMouseMove = false;
+        return;
+    }
+    else
+    {
+        emit openItem();
+        _skipMouseMove = true;
+    }
+}
+
+void DirMinShowWidget::mouseReleaseEvent(QMouseEvent *)
+{
+    _isMousePress = false;
+    _skipMouseMove=false;
 }

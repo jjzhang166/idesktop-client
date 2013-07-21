@@ -77,9 +77,9 @@ HEADERS += src/config.h \
     src/iconitem.h \
     src/contextmenuwidget.h \
     src/public.h \
-    src/blurpicker.h \
-    src/blureffect.h \
-    src/nodebutton.h
+    src/nodebutton.h \
+    src/toolbarwidget.h \
+    src/dustbin.h
 
 
 win32 {
@@ -133,9 +133,9 @@ SOURCES += src/config.cpp \
     src/paascommuinication.cpp \
     src/iconitem.cpp \
     src/contextmenuwidget.cpp \
-    src/blurpicker.cpp \
-    src/blureffect.cpp \
-    src/nodebutton.cpp
+    src/nodebutton.cpp \
+    src/toolbarwidget.cpp \
+    src/dustbin.cpp
 
 
 FORMS +=

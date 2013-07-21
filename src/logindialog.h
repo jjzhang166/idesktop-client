@@ -97,6 +97,11 @@ public slots:
     void updateFlip(qreal val);
     void flip();
 
+    //setting
+    void settingSlot();
+    void saveSettingSlot();
+    void returnSlot();
+
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -154,8 +159,28 @@ private:
     QTransform _tran;
     QTransform _t;
     qreal _finalyrot;
+    // app ini
+    QString iniPath;
+
 
 //    void setIcon(const QString &dirPath, const QString &iconPath);
 
     QString getLocalIcon(QString localPath);
+
+    // setting line
+    HintLineEdit *vacLEdit;
+    HintLineEdit *paasLEdit;
+    HintLineEdit *vacPortLEdit;
+    HintLineEdit *verifyLEdit;
+    DynamicButton *saveButton;
+    DynamicButton *returnButton;
+    bool _isSetting;
+    void readVerifyServer();
+    void updateUi();
+    void settingUi();
+    void readSetting();
+    void VserverError(QString error);
+    void PaasError(QString error);
+    void saveVacUserInfo();
+    QString _vserverError, _paasError;
 };

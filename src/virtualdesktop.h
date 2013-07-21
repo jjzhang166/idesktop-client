@@ -16,6 +16,7 @@
 #include "dirwidget.h"
 #include "dirminwidget.h"
 #include "contextmenuwidget.h"
+#include "toolbarwidget.h"
 
 class ArrangeWidget;
 
@@ -239,6 +240,15 @@ public slots:
 
     void moveWidgetDrop(IconItem *iconItem);
 
+    void vacWidgetDelIcon(const QString &text);
+
+    void desktopIconMoveOtherWidget(const QString &text);
+
+    void toolBarAddDirShowWidget(int id);
+
+    void toolOpenDir(int id, int page, int index);
+    void toolCloseDir(int page, int index);
+
 signals:
     void pageChanged(int i);
     void pageIncreased();
@@ -265,9 +275,6 @@ signals:
     void upMinMove(int mx, int my, int mw, int mh, int distance);
     void upMinBackMove(int mx, int my, int mw, int mh, int distance);
 
-    void desktopBgMove(int distance);
-    void desktopBgBack(int distance);
-
     int rowsNum(int row);
 
     void desktopClicked();
@@ -289,6 +296,11 @@ signals:
     void createPPT();
 
     void desktopDelIcon(const QString &text);
+    void delToolBarWidgetIcon(const QString &text);
+    void delToolBarIcon(const QString &text);
+    //miya add
+    void hideDesktop();
+    void addDesktopLink();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -370,6 +382,7 @@ private:
     int _dirPage;
     int _dirIndex;
     bool _openDir;
+    bool _openToolBar;
 
     int _iconSize;
     int _iconHSpacing;
@@ -472,6 +485,7 @@ public:
 /* #############################################
  * Declaration of IconAddItem
  */
+#if 0
 class IconAddItem : public QWidget
 {
     Q_OBJECT
@@ -554,6 +568,7 @@ private:
 /* ##############################################
  * Declaration of Indicator
  */
+#endif
 
 class Indicator : public QWidget
 {
