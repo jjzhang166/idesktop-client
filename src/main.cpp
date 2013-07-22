@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
                                    .arg("À¬»øÏä").arg(":images/dustbin_normal.png")\
                                    .arg("À¬»øÏä").arg(1)\
                                    .arg(0).arg(0)\
-                                   .arg(int(false)).arg(0)\
+                                   .arg(int(false)).arg(1000)\
                                    .arg("4").arg(int(true))\
                                    .arg("").arg(-2);
 

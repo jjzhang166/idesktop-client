@@ -225,5 +225,6 @@
         <file>images/dustbin_normal.png</file>
         <file>images/skin_normal.png</file>
         <file>images/software_normal.png</file>
+        <file>images/min_toolbar_mask_icon.png</file>
     </qresource>
 </RCC>

@@ -938,6 +938,7 @@ DirMinShowWidget::DirMinShowWidget(QWidget *parent)
     , _isMouseMove(false)
     , _isMousePress(false)
     , _skipMouseMove(false)
+    , _smallSize(false)
 {
 
     setAcceptDrops(true);
@@ -1002,6 +1003,8 @@ DirMinShowWidget::DirMinShowWidget(QWidget *parent)
     _editCenterNormal =  QPixmap("");
     _editRightNormal =  QPixmap("");
 
+    _local = LocalAppList::getList();
+
     setImgs(_editLeftNormal, _editCenterNormal, _editRightNormal);
 
 //    connect(_dirMWidget, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
@@ -1060,7 +1063,12 @@ void DirMinShowWidget::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
     QPainter painter(this);
 
-    switch(ICON_TYPE)
+    int i = ICON_TYPE;
+
+    if (_smallSize)
+        i = 2;
+
+    switch(i)
     {
         case 0 :
 
@@ -1364,4 +1372,29 @@ void DirMinShowWidget::mouseReleaseEvent(QMouseEvent *)
 {
     _isMousePress = false;
     _skipMouseMove=false;
+}
+
+void DirMinShowWidget::setId(int id)
+{
+    _id = id;
+
+    for (int i = 0; i < _local->count(); i++) {
+        if (_local->at(i)->hidden())
+            continue;
+
+        if (_local->at(i)->dirId() == _id)
+        {
+
+            addDirMinItem(_local->at(i)->name(), _local->at(i)->icon(),
+                          _local->at(i)->page(), _local->at(i)->index(),
+                          _local->at(i)->url());
+
+
+        }
+    }
+}
+
+void DirMinShowWidget::showSmallSize(bool isSmall)
+{
+    _smallSize = isSmall;
 }

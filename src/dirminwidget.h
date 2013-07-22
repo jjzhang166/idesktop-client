@@ -10,6 +10,8 @@
 #include <QLineEdit>
 #include <QtDebug>
 
+#include "localapps.h"
+
 class IconMinItem;
 class DirLineEdit;
 class DirMinWidget;
@@ -24,7 +26,7 @@ public:
 
     void setPage(int page)      { _page = page; }
     void setIndex(int index)    { _index = index; }
-    void setId(int id)          { _id = id; }
+    void setId(int id);
 //    void setHidden(bool hide);
 
     int page()                  { return _page; }
@@ -40,6 +42,8 @@ public:
                        int page, int index, const QString &url);
 
     int getMinIconNum();
+
+    void showSmallSize(bool isSmall);
 
 
 signals:
@@ -131,6 +135,9 @@ private:
     bool _isMouseMove;
     bool _isMousePress;
     bool _skipMouseMove;
+    LocalAppList *_local;
+
+    bool _smallSize;
 
 };
 

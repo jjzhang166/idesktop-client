@@ -244,14 +244,21 @@ Dashboard::Dashboard(QWidget *parent)
 
     _animationUp = new QPropertyAnimation(_upMoveWidget, "geometry");
 
-    QPixmap minPix(":/images/min_mask_icon.png");
-    _minLabel = new QLabel(this);
-    _minLabel->setPixmap(minPix); //_minLabel->width(), _minLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
-    _minLabel->setVisible(false);
-    _animationUpMin = new QPropertyAnimation(_minLabel, "geometry");
+
+//    QPixmap minToolBarPix(":/images/min_toolbar_mask_icon.png");
+//    _minToolBarLabel = new QLabel(this);
+//    _minToolBarLabel->setPixmap(minToolBarPix); //_minDirLabel->width(), _minDirLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+//    _minToolBarLabel->setVisible(false);
+//    _animationUpMin = new QPropertyAnimation(_minDirLabel, "geometry");
 
     _downMoveWidget = new MoveWidget(this);
     _downMoveWidget->setVisible(false);
+
+//    QPixmap minDirPix(":/images/min_mask_icon.png");
+    _minDirLabel = new QLabel(this);
+//    _minDirLabel->setPixmap(minDirPix); //_minDirLabel->width(), _minDirLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+    _minDirLabel->setVisible(false);
+    _animationUpMin = new QPropertyAnimation(_minDirLabel, "geometry");
     connect(_downMoveWidget, SIGNAL(moveWidgetDrop(IconItem*)), vdesktop, SLOT(moveWidgetDrop(IconItem*)));
 
     _animationDown = new QPropertyAnimation(_downMoveWidget, "geometry");
@@ -338,6 +345,7 @@ Dashboard::Dashboard(QWidget *parent)
             this, SLOT(upMinMove(int ,int ,int, int, int)));
     connect(vdesktop, SIGNAL(upMinBackMove(int,int,int,int,int)),
             this, SLOT(upMinBackMove(int ,int ,int, int, int)));
+    connect(vdesktop, SIGNAL(setMinMoveLabel(bool)), this, SLOT(setMinMoveLabel(bool)));
 
     connect(vdesktop, SIGNAL(desktopClicked()), this, SLOT(desktopClicked()));
 
@@ -355,8 +363,12 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_toolBarWidget, SIGNAL(iconDropToolWidget(const QString &))
             , vdesktop, SLOT(desktopIconMoveOtherWidget(const QString &)));
 //    connect(_toolBarWidget, SIGNAL(toolBarAddDirSW(int)), this, SLOT(test(int)));
-    connect(_toolBarWidget, SIGNAL(toolOpenDir(int,int,int)), vdesktop, SLOT(toolOpenDir(int,int,int)));
-    connect(_toolBarWidget, SIGNAL(toolCloseDir(int, int)), vdesktop, SLOT(toolCloseDir(int, int)));
+    connect(_toolBarWidget, SIGNAL(toolOpenDir(int,int,int)), vdesktop, SLOT(toolBarOpenDir(int,int,int)));
+//    connect(_toolBarWidget, SIGNAL(toolBarCloseDir(int, int)), vdesktop, SLOT(toolBarCloseDir(int, int)));
+    connect(_toolBarWidget, SIGNAL(toolBarIconToDustbin(const QString &,const QString &, int, int, const QString &, int))
+            , vdesktop, SLOT(toolBarIconToDustbin(const QString &, const QString &, int, int, const QString &, int)));
+    connect(_toolBarWidget, SIGNAL(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int))
+            , vdesktop, SLOT(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int)));
     //    connect(vdesktop, SIGNAL(setDirIcon(const QString&, const QString&, const QString&)),
 //            _dirWidget, SLOT(addDirIcon(const QString&, const QString&, const QString&)));
 
@@ -397,7 +409,7 @@ void Dashboard::updateNodes()
 {
     _pageNodes->setVisible(false);
     _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
-    _pageNodes->move(( _width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 50);
+    _pageNodes->move(( _width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100 - 45);
     _pageNodes->setVisible(true);
 }
 
@@ -411,6 +423,28 @@ void Dashboard::desktopClicked()
     panel->setAutoHide(true);
     panel->animationHide();
     vdesktop->setIconEnabled(true);
+}
+
+void Dashboard::setMinMoveLabel(bool up)
+{
+    QPixmap minDirPix;
+    if (up)
+    {
+        _minMoveLabelUp = true;
+        minDirPix.load(":/images/min_mask_icon.png");
+        _downMinW->setPixmapPointF(true);
+
+    }
+    else
+    {
+        _minMoveLabelUp = false;
+        minDirPix.load(":/images/min_toolbar_mask_icon.png");
+        _downMinW->setPixmapPointF(false);
+    }
+    _minDirLabel->setPixmap(minDirPix); //_minDirLabel->width(), _minDirLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
+
+    //    _minDirLabel->setVisible(false);
+//    _animationUpMin = new QPropertyAnimation(_minDirLabel, "geometry");
 }
 
 void Dashboard::upMove(int x, int y, int w, int h, int distance)
@@ -475,7 +509,7 @@ void Dashboard::animationFinished()
         //        _dirWidget->setVisible(false);
         vdesktop->setDirHide();
         _downMinW->setVisible(false);
-        _minLabel->setVisible(false);
+        _minDirLabel->setVisible(false);
         _upMoveWidget->setVisible(false);
         _downMoveWidget->setVisible(false);
 
@@ -493,11 +527,13 @@ void Dashboard::animationFinished()
         _animationUpFinished = false;
         _animationUpFinished = false;
 
+        _pageNodes->setVisible(true);
+
         vdesktop->setIconEnabled(true);
         vdesktop->setIconMove(true);
 
         vdesktop->dirMovingFinished();
-        _toolBarWidget->setVisible(true);
+//        _toolBarWidget->setVisible(true);
     }
 }
 
@@ -512,6 +548,7 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
     panel->setVisible(false);
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
+    _pageNodes->setVisible(false);
 
 //    indicator->setVisible(false);
 //    _dirWidget->move(x, y);
@@ -525,7 +562,7 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
                                  w, h); //抓取当前屏幕的图片
     _downMoveWidget->setPixmap(result);
     _downMoveWidget->setVisible(true);
-    _toolBarWidget->setVisible(false);
+//    _toolBarWidget->setVisible(false);
 
     _animationDown->setDuration(500);
     _animationDown->setStartValue(QRect(x, y, w, h));
@@ -556,7 +593,7 @@ void Dashboard::animationDownFinished()
     {
 //        _dirWidget->setVisible(false);
         _downMinW->setVisible(false);
-        _minLabel->setVisible(false);
+        _minDirLabel->setVisible(false);
         vdesktop->setDirHide();
         _upMoveWidget->setVisible(false);
         _downMoveWidget->setVisible(false);
@@ -576,80 +613,174 @@ void Dashboard::animationDownFinished()
 */
 void Dashboard::upMinMove(int x, int y, int w, int h, int distance)
 {
-    if (_animationUpMin->state() == QAbstractAnimation::Running)
+
+    if (_minMoveLabelUp)
     {
-        return;
+        if (_animationUpMin->state() == QAbstractAnimation::Running)
+        {
+            return;
+        }
+        _minDirLabel->setGeometry(x, y + 2, w, h);
+        _minDirLabel->setVisible(true);
+
+
+        _animationUpMin->setDuration(500);
+        _animationUpMin->setStartValue(QRect(x, y + 2, w, h));
+        _animationUpMin->setEndValue(QRect(x, y - distance + 2, w, h));
+        _animationUpMin->start();
     }
+    else
+    {
+        if (_animationDownMin->state() == QAbstractAnimation::Running)
+        {
+            return;
+        }
 
-    _minLabel->setGeometry(x, y + 2, w, h);
-    _minLabel->setVisible(true);
+        qDebug() << "111111111111111111111111111111" << x << y << w << h;
+        _distance = distance;
+        _minY = y;
+        _minUpward = false;
 
+    //    _minDirLabel->setGeometry(x, y + 1, w, h);
+    //    _minDirLabel->setVisible(true);
 
-    _animationUpMin->setDuration(500);
-    _animationUpMin->setStartValue(QRect(x, y + 2, w, h));
-    _animationUpMin->setEndValue(QRect(x, y - distance + 2, w, h));
-    _animationUpMin->start();
+        _downMinW->resize(QSize(w, h));
+
+        QPixmap result = QPixmap();
+        result = QPixmap::grabWindow(this->winId(), \
+                                     x, y, \
+                                     w, h); //抓取当前屏幕的图片
+        _downMinW->setPixmap(result);
+    //    _downMinW->setVisible(true);
+
+        _animationDownMin->setDuration(500);
+        _animationDownMin->setStartValue(QRect(x, y, w, h));
+        _animationDownMin->setEndValue(QRect(x, y - distance, w, h));
+        _animationDownMin->start();
+
+    }
 }
 
 void Dashboard::upMinBackMove(int x, int y, int w, int h, int distance)
 {
-    if (_animationUpMin->state() == QAbstractAnimation::Running)
+    if (_minMoveLabelUp)
     {
-        return;
+        if (_animationUpMin->state() == QAbstractAnimation::Running)
+        {
+            return;
+        }
+    //    _downMinW->setVisible(true);
+        _animationUpMin->setDuration(500);
+        _animationUpMin->setStartValue(QRect(x, y + 2, w, h));
+        _animationUpMin->setEndValue(QRect(x, y + 2 + distance, w, h));
+        _animationUpMin->start();
     }
+    else
+    {
+        if (_animationDownMin->state() == QAbstractAnimation::Running)
+        {
+            return;
+        }
 
-//    _downMinW->setVisible(true);
-    _animationUpMin->setDuration(500);
-    _animationUpMin->setStartValue(QRect(x, y + 2, w, h));
-    _animationUpMin->setEndValue(QRect(x, y + 2 + distance, w, h));
-    _animationUpMin->start();
+        qDebug() << "22222222222222222222222222222222222" << x << y << w << h;
+        //    _distance = distance;
+            _minY = y;
+            _minUpward = true;
+
+        //    _downMinW->setVisible(true);
+            _animationDownMin->setDuration(500);
+            _animationDownMin->setStartValue(QRect(x, y, w, h));
+            _animationDownMin->setEndValue(QRect(x, y + distance, w, h));
+            _animationDownMin->start();
+
+    }
 }
 
 void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
 {
-    if (_animationDownMin->state() == QAbstractAnimation::Running)
+    if (_minMoveLabelUp)
     {
-        return;
+        if (_animationDownMin->state() == QAbstractAnimation::Running)
+        {
+            return;
+        }
+
+        _distance = distance;
+        _minY = y;
+        _minUpward = false;
+
+    //    _minDirLabel->setGeometry(x, y + 1, w, h);
+    //    _minDirLabel->setVisible(true);
+
+        _downMinW->resize(QSize(w, h));
+
+        QPixmap result = QPixmap();
+        result = QPixmap::grabWindow(this->winId(), \
+                                     x, y, \
+                                     w, h); //抓取当前屏幕的图片
+        _downMinW->setPixmap(result);
+    //    _downMinW->setVisible(true);
+
+        _animationDownMin->setDuration(500);
+        _animationDownMin->setStartValue(QRect(x, y, w, h));
+        _animationDownMin->setEndValue(QRect(x, y + distance, w, h));
+        _animationDownMin->start();
     }
+    else
+    {
+        if (_animationUpMin->state() == QAbstractAnimation::Running)
+        {
+            return;
+        }
 
-    _distance = distance;
-    _minY = y;
-    _minUpward = false;
+        qDebug() << "33333333333333333333333333333333333" << x << y << w << h;
+        _minDirLabel->setGeometry(x, y + 2, w, h);
+//        _minDirLabel->raise();
+        _minDirLabel->setVisible(true);
 
-//    _minLabel->setGeometry(x, y + 1, w, h);
-//    _minLabel->setVisible(true);
 
-    _downMinW->resize(QSize(w, h));
+        _animationUpMin->setDuration(500);
+        _animationUpMin->setStartValue(QRect(x, y - 2, w, h));
+        _animationUpMin->setEndValue(QRect(x, y + distance - 2, w, h));
+        _animationUpMin->start();
 
-    QPixmap result = QPixmap();
-    result = QPixmap::grabWindow(this->winId(), \
-                                 x, y, \
-                                 w, h); //抓取当前屏幕的图片
-    _downMinW->setPixmap(result);
-//    _downMinW->setVisible(true);
-
-    _animationDownMin->setDuration(500);
-    _animationDownMin->setStartValue(QRect(x, y, w, h));
-    _animationDownMin->setEndValue(QRect(x, y + distance, w, h));
-    _animationDownMin->start();
+    }
 }
 
 void Dashboard::closeMinWidget(int x, int y, int w, int h, int distance)
 {
-    if (_animationDownMin->state() == QAbstractAnimation::Running)
+
+    if (_minMoveLabelUp)
     {
-        return;
+        if (_animationDownMin->state() == QAbstractAnimation::Running)
+        {
+            return;
+        }
+
+    //    _distance = distance;
+        _minY = y;
+        _minUpward = true;
+
+    //    _downMinW->setVisible(true);
+        _animationDownMin->setDuration(500);
+        _animationDownMin->setStartValue(QRect(x, y, w, h));
+        _animationDownMin->setEndValue(QRect(x, y - distance, w, h));
+        _animationDownMin->start();
     }
+    else
+    {
+        if (_animationUpMin->state() == QAbstractAnimation::Running)
+        {
+            return;
+        }
 
-//    _distance = distance;
-    _minY = y;
-    _minUpward = true;
-
-//    _downMinW->setVisible(true);
-    _animationDownMin->setDuration(500);
-    _animationDownMin->setStartValue(QRect(x, y, w, h));
-    _animationDownMin->setEndValue(QRect(x, y - distance, w, h));
-    _animationDownMin->start();
+        qDebug() << "4444444444444444444444444444444444444" << x << y << w << h;
+        //    _downMinW->setVisible(true);
+            _animationUpMin->setDuration(500);
+            _animationUpMin->setStartValue(QRect(x, y + 15 - 2, w, h));
+            _animationUpMin->setEndValue(QRect(x, y + 15 - distance - 2, w, h));
+            _animationUpMin->start();
+    }
 }
 
 void Dashboard::animationMinDownFinished()
@@ -1066,12 +1197,16 @@ void Dashboard::setBgImage(QString url)
 {
     qDebug() << "Dashboard::setBgImage(QString url)" << url;
     QString path = QCoreApplication::applicationDirPath();
+    QString dllPath = path;
     url.replace(QString(":"), QString(""));
     qDebug() << url;
     path += url;
     path.replace(QString("/"), QString("\\"));
-    qDebug() << path;
-    QLibrary lib("changebg.dll");
+    dllPath.replace(QString("/"), QString("\\"));
+    qDebug() <<"void Dashboard::setBgImage(QString url)"<<path;
+    qDebug() <<"void Dashboard::setBgImage(QString url)"<<dllPath + "\\changebg.dll";
+    QLibrary lib(dllPath + "\\changebg.dll");
+        qDebug() <<"void Dashboard::setBgImage(QString url)"<<path;
     if(lib.load()) {
         qDebug() << "success load dll";
         if(changebg = (DLL_Changebg)lib.resolve("SetMyWallpaper")) {
@@ -1189,27 +1324,27 @@ void Dashboard::refreshVapp()
 
 void Dashboard::timeOut()
 {
-    if (vdesktop->dragEventState())
-    {
-        return;
-    }
+//    if (vdesktop->dragEventState())
+//    {
+//        return;
+//    }
 
-    if (vdesktop->trembleState())
-    {
-        return;
-    }
+//    if (vdesktop->trembleState())
+//    {
+//        return;
+//    }
 
-    if (vdesktop->addAppState())
-    {
-        return;
-    }
+//    if (vdesktop->addAppState())
+//    {
+//        return;
+//    }
 
-    if (vdesktop->iconDragState())
-    {
-        return;
-    }
+//    if (vdesktop->iconDragState())
+//    {
+//        return;
+//    }
 
-    refreshVapp();
+//    refreshVapp();
 
     refreshPaas();
 }

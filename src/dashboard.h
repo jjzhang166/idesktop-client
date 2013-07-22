@@ -113,6 +113,8 @@ public slots:
 //    void onOutFinished(QNetworkReply *reply);
     void updateNodes();
 
+    void setMinMoveLabel(bool up);
+
 protected:
     void closeEvent(QCloseEvent *event);
     void resizeEvent(QResizeEvent * event);
@@ -198,7 +200,8 @@ private:
     DirShowWidget *_dirWidget;
     bool _animationDownFinished;
     bool _animationUpFinished;
-    QLabel *_minLabel;
+    QLabel *_minDirLabel;
+    QLabel *_minToolBarLabel;
 
     QPushButton* _backBtn;
     int _distance;
@@ -209,6 +212,8 @@ private:
     QNetworkAccessManager *_nam;
     PageNodes *_pageNodes;
     toolBarWidget *_toolBarWidget;
+
+    bool _minMoveLabelUp;
 //miya add
 public:
     void setBgImage(QString url);

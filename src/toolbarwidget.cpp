@@ -226,35 +226,27 @@ void toolBarWidget::iconDragDrop(int id, const QString &text,
                                   int index, const QString &url, int type)
 {
     _iconDragEnter = false;
-//    _dragEnterMinWidget = false;
-//    getIconByName(text)->setHidden(true);
 
-//    QString icoText(iconPath);
-//    icoText.replace(".ico", ".png");
+    //_isDirWidgetObject = false;
 
-////    emit setDirIcon(text, icoText, url);
-//    _dirList.at(id)->addDirIcon(text, icoText, url);
-//   _dirList.at(id)->addDirIcon(text, iconPath, -1, index, url, type);
+    if (_inDrag)
+    {
+        moveOutIcon(text);
 
-//    if (!_inDrag)
-//        return;
+        _inDrag = NULL;
+    }
 
-//    int p = _inDrag->page();
-//    int s = _inDrag->index();
 
-//    _iconDict.take(_inDrag->text());
-//    _inDrag = NULL;
-////    _iconNum--;
-////    int expandPageCount = _iconNum / _iconsPerPage + 1;
-////    if (expandPageCount < _count)
-////        delPage(_count - 1);
-//    moveBackIcons(p, s);
-//    _isOtherWidgetObject = false;
+    if (id == 1000)
+    {
+        emit toolBarIconToDustbin(text, iconPath, -1, index, url, type);
+    }
+    else
+    {
+        emit toolBarIconToDir(id, text, iconPath, -1, index, url, type);
+    }
 
-//    for (int i = 0; i <_dirMinList.count(); i++)
-//    {
-//        _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
-//    }
+    emit iconDropToolWidget(text);
 
 }
 
@@ -351,6 +343,14 @@ int toolBarWidget::getNearestIndex(const QRect &rect)
 
 void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
 {
+    if (_dragItem)
+    {
+        event->setDropAction(Qt::MoveAction);
+        event->accept();
+        return;
+
+    }
+
     if (_localIconNum == _MaxNum)
     {
  //       QMessageBox::information(NULL, "TIP", tr("¹¤¾ßÀ¸ÒÑÂú"));
@@ -403,8 +403,8 @@ void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
 
         _isOtherWidgetObject = true;
 
-        if (_dragItem != NULL)
-            _dragItem = NULL;
+//        if (_dragItem != NULL)
+//            _dragItem = NULL;
         _dragItem = icon;
 
         addIcon(icon->text(), icon->pix()
@@ -718,7 +718,7 @@ int toolBarWidget::addIcon(const QString &text, \
 //            break;
 
 //        default:
-           icon->setSmallSize();
+    icon->setSmallSize();
 //            break;
 //    }
     icon->setText(text);
@@ -738,12 +738,13 @@ int toolBarWidget::addIcon(const QString &text, \
     icon->setLeaveEventBool(true);
     icon->setEqualIcon(false);
     icon->setSaveDataBool(true);
-    qDebug() << "0************0*0**0*0*0*0*0*0*0*0*00*0*0*0*0*0*0*0*0*0*0*00*0*0**0*0*0*0*0";
+
     if(type == dirIcon)
     {
 
         icon->addMinWidget();
         icon->setId(id);
+        icon->showSmallSize(true);
 
     }
     else if (type == 4)
@@ -760,9 +761,9 @@ int toolBarWidget::addIcon(const QString &text, \
     if (page == -1) {
             qDebug() << "toolBarWidget::addIcon() --> setPage(page) -- > _count" << page << _count;
         for (int i = 0; i < _count; i++) {
-            qDebug() << "111111111111111111111111111111111111111";
+
             if (_nextIdx[i] < _iconsPerPage) {
-            qDebug() << "222222222222222222222222222222222222222222";
+
                 page = i;
                 index = _nextIdx[i];
                 qDebug() << "toolBarWidget::addIcon() --> setPage(page)" << page  << index;
@@ -1045,8 +1046,8 @@ void toolBarWidget::moveBackIcons(int page, int index)
 
 void toolBarWidget::openDir(int id, int page, int index)
 {
-    //    int x = _gridTable[page][index].x();
-    //    emit toolOpenDir(id , x, gridWidth);
+        int x = _gridTable[page][index].x();
+        emit toolOpenDir(id , x, gridWidth);
 }
 
 #if 0
@@ -2119,6 +2120,24 @@ void toolBarWidget::initIconItem()
             }
         }
     }
+
+//    for (int i = 0; i < _dirMinList.count(); i++)
+//    {
+//        for (int j = 0; j < _local->count(); j++) {
+//            if (_local->at(j)->hidden())
+//                continue;
+
+//            if (_local->at(j)->dirId() == 1000)
+//                continue;
+
+//            if (_local->at(j)->dirId() == _iconDict.value(_dirMinList.at(i))->id())
+//            {
+//                _iconDict.value(_dirMinList.at(_local->at(j)->dirId()))->addDirMinItem(_local->at(j)->name(), _local->at(j)->icon(),
+//                                                                                       _local->at(j)->page(), _local->at(j)->index(),
+//                                                                                       _local->at(j)->url());
+//            }
+//        }
+//    }
 }
 
 void toolBarWidget::setShowType()

@@ -22,6 +22,7 @@
 #include <QTextCodec>
 #include <QSettings>
 #include <QProcess>
+#include <QFile>
 
 #include "logindialog.h"
 #include "hintlineEdit.h"
@@ -413,7 +414,7 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
         qDebug()<<"Invalid response: " << jsonResult;
         // fatal error
     }
-    _authSuccess = true;
+
     if (result == "1")   //  APPSTORE SUCCESS
     {
         _authSuccess = true;
@@ -834,7 +835,7 @@ void LoginDialog::auth()
                     .arg(iconDirPath)
                     .arg(g_myVappList[i].id);
 
-            g_myVappList[i].icon = iconPath;
+//            g_myVappList[i].icon = iconPath;
 
             g_RemoteappList.insert(i, g_myVappList[i]);
             g_RemoteappList[i].icon = iconPath;

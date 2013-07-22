@@ -115,6 +115,8 @@ Section "MainSection" SEC01
   File "..\release\PluginSeam.dll"
   File "..\release\PlugLink.dll"
   File "..\release\QtXml4.dll"
+  File "..\release\changebg.dll"
+  File "..\release\GetApp.dll"
   ${If} ${IsWinXP}
   ${AndIf} ${AtLeastServicePack} 3
     File "..\files\higher\ClientEngineChildHigher.exe"
@@ -141,6 +143,8 @@ Section "MainSection" SEC01
     File "..\files\lower\ClientEngineChildEarly.exe"
     Rename "ClientEngineChildEarly.exe" "ClientEngineChild.exe"
   ${EndIf}
+	SetOutPath "$INSTDIR\images\wallpager"
+  File "..\release\images\wallpager\*.*"
   
 SectionEnd
 
@@ -199,6 +203,12 @@ Section Uninstall
   Delete "$INSTDIR\PluginSeam.dll"
   Delete "$INSTDIR\PlugLink.dll"
   Delete "$INSTDIR\QtXml4.dll"
+  Delete "$INSTDIR\changebg.dll"
+  Delete "$INSTDIR\GetApp.dll"
+
+  RMDir /r "$INSTDIR\wallpager\*.*"
+  RMDir /r "$INSTDIR\wallpager"
+	
   RMDir /r "$INSTDIR\codecs"
   RMDir /r "$INSTDIR\imageformats"
   RMDir /r "$INSTDIR\sqldrivers"

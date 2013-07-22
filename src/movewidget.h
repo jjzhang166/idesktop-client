@@ -55,6 +55,8 @@ public:
     ~MoveMinWidget();
 
     void setPixmap(const QPixmap &pix);
+
+    void setPixmapPointF(bool up);
 protected:
     void paintEvent(QPaintEvent *);
     void resizeEvent(QResizeEvent *);
@@ -64,5 +66,7 @@ private:
 
     int _width;
     int _height;
+
+    bool _isUp;
 };
 #endif // MOVEWIDGET_H

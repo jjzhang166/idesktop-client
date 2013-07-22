@@ -173,6 +173,13 @@ signals:
     void toolOpenDir(int x, int width, int index);
     void toolCloseDir(int page, int index);
 
+    void toolBarIconToDustbin(const QString &text,
+                              const QString &iconPath, int page,
+                              int index, const QString &url, int type);
+    void toolBarIconToDir(int id, const QString &text,
+                          const QString &iconPath, int page,
+                          int index, const QString &url, int type);
+
 protected:
 //    void contextMenuEvent(QContextMenuEvent *event);
 
@@ -225,7 +232,7 @@ private:
     //dirWidget
     bool _iconDragEnter;
 
-    DirMinShowWidget *_dirMinShowWidget;
+//    DirMinShowWidget *_dirMinShowWidget;
 
     QList<QString> _dirMinList;
 //    QList<DirShowWidget *> _dirList;

@@ -112,6 +112,8 @@ public:
 
     void addDustbin();
 
+    void showSmallSize(bool isSmall);
+
 signals:
 //    void clicked();
     void runItem(const QString &text);

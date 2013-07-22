@@ -274,7 +274,7 @@ bool LocalAppList::addApp(LocalApp *app)
     }
     qDebug()<<"add APP";
     _list.append(app);
-    emit appAdded(app->name(), app->icon(), app->url(), app->type().toInt());
+    emit appAdded(app->name(), app->icon(), app->url(), app->type().toInt(), app->id().toInt());
     return true;
 }
 

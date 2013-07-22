@@ -758,7 +758,7 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
    //    pt1.drawRect(1, 1, _width - 1, _height - 1);
 
    //    QFont font("", FONTSIZE, QFont::Normal);
-//       QFont font(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
+//       QFont font(QString::fromLocal8Bit("?¡é¨¨¨ª??o¨²"), FONTSIZE, QFont::Normal);
        font.setStyleHint(QFont::Cursive, QFont::PreferBitmap);
        font.setStyleStrategy(QFont::PreferAntialias);
        pt1.setFont(font);
@@ -1005,12 +1005,10 @@ void IconItem::setMinWidgetDragEnable(bool enable)
     if (enable)
     {
         _dirMinShowWidget->setAcceptDrops(true);
-//        _dirMinShowWidget->setMinDragEnable(true);
     }
     else
     {
         _dirMinShowWidget->setAcceptDrops(false);
-//        _dirMinShowWidget->setMinDragEnable(false);
     }
 }
 
@@ -1020,6 +1018,7 @@ void IconItem::removeDirMinItem(const QString &text)
         return;
 
         _dirMinShowWidget->removeDirMinItem(text);
+        qDebug() << "_dirMinShowWidget->removeDirMinItem(text);" <<"text";
 }
 
 void IconItem::addDirMinItem(const QString &text, const QString &icon, \
@@ -1040,6 +1039,12 @@ void IconItem::setDirMinItemId(int id)
     _id = id;
     _dirMinShowWidget->setId(id);
 }
+
+void IconItem::showSmallSize(bool isSmall)
+{
+    _dirMinShowWidget->showSmallSize(isSmall);
+}
+
 //dustbin
 void IconItem::addDustbin()
 {
@@ -1137,7 +1142,7 @@ void IconItem::focusOutEvent(QFocusEvent *event)
         update();
         return;
     }
-    emit showContextMenu( false,QPoint(0,0), mapToGlobal(QPoint(0,0)), _text);
+//    emit showContextMenu( false,QPoint(0,0), mapToGlobal(QPoint(0,0)), _text);
     _currentStatus = normal;
     update();
 }

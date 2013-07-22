@@ -97,8 +97,8 @@ MoveMinWidget::MoveMinWidget(QWidget *parent)
     : QWidget(parent)
     , _width(0)
     , _height(0)
+    , _isUp(true)
 {
-
 }
 
 MoveMinWidget::~MoveMinWidget()
@@ -108,17 +108,26 @@ MoveMinWidget::~MoveMinWidget()
 
 void MoveMinWidget::paintEvent(QPaintEvent *)
 {
-    static const QPointF points[4] = {
+    static const QPointF upPoints[3] = {
         QPointF(_width / 2, 0),
         QPointF(0, _height),
-        QPointF(_width, _height),
+        QPointF(_width, _height)
+    };
+
+    static const QPointF downPoints[3] = {
+        QPointF(0, 0),
+        QPointF(_width, 0),
+        QPointF(_width / 2, _height)
     };
 
     QPainter painter(this);
     painter.setPen(QPen(QBrush(QColor(255,255,255,0)), 1, Qt::SolidLine,
                         Qt::SquareCap, Qt::MiterJoin));
     painter.setBrush(QBrush(_pixmap.scaled(_width, _height)));
-    painter.drawConvexPolygon(points, 3);
+    if (_isUp)
+        painter.drawConvexPolygon(upPoints, 3);
+    else
+        painter.drawConvexPolygon(downPoints, 3);
 }
 
 void MoveMinWidget::resizeEvent(QResizeEvent *event)
@@ -136,5 +145,20 @@ void MoveMinWidget::setPixmap(const QPixmap &pix)
     _pixmap = pix;
 
     update();
+}
+
+void MoveMinWidget::setPixmapPointF(bool up)
+{
+    if (up)
+    {
+        _isUp = true;
+        update();
+
+    }
+    else
+    {
+        _isUp = false;
+        update();
+    }
 }
 

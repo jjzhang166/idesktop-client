@@ -237,6 +237,7 @@ void DirShowWidget::showApp(bool localApp)
 void DirShowWidget::addDirIcon(const QString &text, const QString &iconPath, int page, int index, const QString &url, int type)
 {
 //    _dirWidget->setUrl(url);
+    qDebug() << "void DirShowWidget::addDirIcon(" << text;
     _dirWidget->addIcon(text, iconPath, page, index, url, type);
 }
 
@@ -963,8 +964,8 @@ int DirWidget::addIcon(const QString &text,
 //   connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
 //    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(delIcon(const QString&)));
-    connect(icon, SIGNAL(showContextMenu(bool,QPoint, QPoint,const QString &))
-            , this, SLOT(showIconContextMenu(bool,QPoint, QPoint,const QString &)));
+    connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint,const QString &))
+            , this, SLOT(showIconContextMenu(bool, QPoint, QPoint,const QString &)));
 
     _url = QString("");
      return page;

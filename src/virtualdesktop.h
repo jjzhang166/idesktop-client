@@ -126,7 +126,7 @@ public:
     //void setMargin(int top, int bottom, int left, int right);
 
     int addIcon(const QString &text, const QString &icon, \
-                int page, int index, const QString &url, int type = 0);
+                int page, int index, const QString &url, int type = 0, int i = -1);
     int showAddIcon(int page, int index);
     IconItem *getIconByName(const QString &name);
 
@@ -182,13 +182,15 @@ public:
 
     void toolBarAddDirShowWidget();
 
+    void addShowWidget(int i);
+
 public slots:
     void goPage(int page);
 
     void onProcessFinished(int, QProcess::ExitStatus);
     void delIcon(const QString &text);
 //    void delIcon(IconItem *ic);
-    int addIcon(const QString &text, const QString &icon, const QString &url, int type = 0);
+    int addIcon(const QString &text, const QString &icon, const QString &url, int type = 0, int i = -1);
     void updateClicked();
     void itemHeld();
     void dragRight();
@@ -247,8 +249,14 @@ public slots:
 
     void desktopIconMoveOtherWidget(const QString &text);
 
-    void toolOpenDir(int id, int posX, int width);
-    void toolCloseDir(int posX, int width);
+    void toolBarOpenDir(int id, int posX, int width);
+    void toolBarCloseDir(int id, int posX, int width);
+    void toolBarIconToDustbin(const QString &text,
+                              const QString &iconPath, int page,
+                              int index, const QString &url, int type);
+    void toolBarIconToDir(int id, const QString &text,
+                          const QString &iconPath, int page,
+                          int index, const QString &url, int type);
 
 signals:
     void pageChanged(int i);
@@ -260,7 +268,7 @@ signals:
     void reInitiate();
 
 //    void bgMove(int x, int y);
-    void sendUrl(const QString &url);
+//    void sendUrl(const QString &url);
 
 //    void setDirIcon(const QString &text, const QString &iconPath, const QString &url);
 
@@ -304,6 +312,8 @@ signals:
     void addDesktopLink();
 
     void refreshVac();
+
+    void setMinMoveLabel(bool up);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -409,6 +419,9 @@ private:
     int _localIconNum;
 
     bool _dirMovingFinished;
+
+    int _toolBarClickedPosX;
+    int _toolBarIconItemWidth;
 
 public:
     int _current;

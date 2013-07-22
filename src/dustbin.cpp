@@ -68,37 +68,33 @@ Dustbin::~Dustbin()
 
 void Dustbin::dragEnterEvent(QDragEnterEvent *event)
 {
+
     void *source = (Dustbin*)(event->source());
     void *dst = this->parent();
-    if(source == dst){
+    if(source == dst)
+    {
         event->ignore();
         return;
     }
 
     if ((event->source() != this) && (event->mimeData()->hasFormat("image/x-iconitem"))) {
-//        if (event->source() == this) {
-//            event->setDropAction(Qt::MoveAction);
-//            event->accept();
-//        } else {
-//           event->acceptProposedAction();
-//        }
         emit iconEnter();
-//        IconDesktopItem *icon = qobject_cast<IconDesktopItem*> (event->source());
-//        if (icon && icon->type() != VirtualDesktop::dirIcon) {
+
         event->setDropAction(Qt::MoveAction);
         event->accept();
-//       }
-//        emit dragEnterMinWidget();
-} else {
 
-    event->ignore();
-}
-//        qDebug() << "DirMinWidget******************Dustbin********************************dragEnter";
+    } else {
+
+        event->ignore();
+    }
+
 
 }
 
 void Dustbin::dragMoveEvent(QDragMoveEvent *event)
 {
+//        qDebug() << "DirMinWidget*******dragMoveEvent**********DirMinShowWidget********";
+
     event->setDropAction(Qt::MoveAction);
     event->accept();
 
@@ -129,28 +125,14 @@ void Dustbin::dropEvent(QDropEvent *event)
         qDebug() << "_id" << _id;
 
         if (id == _id)
+        {
             event->ignore();
+            return;
+        }
 
-
-//         pixText.replace(".png", ".ico");
-//        qDebug() << pixText;
-
-//        if (event->source() == this) {
-//            event->setDropAction(Qt::MoveAction);
-//            event->accept();
-//        } else {
-//            event->acceptProposedAction();
-//        }
-
-//    IconDesktopItem *icon = qobject_cast<IconDesktopItem*> (event->source());
-//    if (icon && icon->type() != VirtualDesktop::dirIcon) {
-            event->setDropAction(Qt::MoveAction);
-            event->accept();
-//    }
-
-//    emit iconDrop(nameText ,pixText, page, index, urlText, type);
-
-            qDebug() << nameText << pixText << page << index << urlText << type;
+        event->setDropAction(Qt::MoveAction);
+        event->accept();
+        emit iconDrop(nameText ,pixText, page, index, urlText, type);
     } else {
         event->ignore();
     }
