@@ -22,6 +22,7 @@
 #include <windows.h>
 #include <shellapi.h>
 #include "strings.h"
+#include "qitemmanager.h"
 using namespace std;
 #include <QMessageBox>
 #include <QCursor>
@@ -462,7 +463,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     , _distance(0)
     , _openDir(false)
     , _iconSize(ICON_TYPE)
-    , _dragEnterMinWidget(true)
+    , _dragEnterMinWidget(false)
     , _isIconMove(true)
     , _isDirWidgetObject(false)
     , _dragItem(NULL)

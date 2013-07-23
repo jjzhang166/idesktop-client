@@ -322,7 +322,7 @@ void LocalAppList::save()
     QSqlQuery query(QSqlDatabase::database("local"));
     for (int i = 0; i < _list.count(); i++) {
         QString qstr = QString("update localapps "\
-                               "set page=%1, idx=%2, dirId=%3 where name=\'%4\';")\
+                               "set page=\'%1\', idx=\'%2\', dirId=\'%3\' where name=\'%4\';")\
                 .arg(_list.at(i)->page())\
                 .arg(_list.at(i)->index())\
                 .arg(_list.at(i)->dirId())\

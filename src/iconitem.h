@@ -13,13 +13,13 @@
 
 #include "dirminwidget.h"
 #include "localapps.h"
-#include "dustbin.h"
 
 
 /* #############################################
  * Declaration of IconItem
  */
 class QItemManager;
+class Dustbin;
 class IconItem : public QWidget
 {
     Q_OBJECT
@@ -72,6 +72,8 @@ public:
     void setEnterEventBool(bool enterEventBool)         { _enterEventBool = enterEventBool; }
     void setLeaveEventBool(bool leaveEventBool)         { _leaveEventBool = leaveEventBool; }
     void setSaveDataBool(bool saveDataBool)             { _saveDataBool = saveDataBool; }
+
+    void chopText(QFontMetrics fm, int width);
 
     int page()                  { return _page; }
     int index()                 { return _index; }

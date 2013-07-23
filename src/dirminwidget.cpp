@@ -4,7 +4,8 @@
 #include <QPainter>
 #include <cassert>
 #include <QTimer>
-
+#include <QToolTip>
+#include <QApplication>
 #include "dirminwidget.h"
 
 #define ICONWIDTH 72            //72
@@ -774,7 +775,8 @@ DirLineEdit::DirLineEdit(QString hint, QWidget *parent)
     setContextMenuPolicy(Qt::NoContextMenu);
 
     setFocusPolicy(Qt::NoFocus);
-    setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:0px; color:white;");
+    setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:0px; color:white;" \
+                  "selection-background-color: lightGray;");
     setAlignment(Qt::AlignCenter);
     setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
 //    resize(95, 15);
@@ -789,7 +791,7 @@ DirLineEdit::DirLineEdit(QString hint, QWidget *parent)
 //    _pixmap.load(":images/login_input.png");
 
 //    connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(setHint(const QString&)));
-
+//    qApp->setStyleSheet(" QToolTip { background-color:lightGray; border: 2px;padding: 1px; border-radius: 3px; color: white;}");
 }
 
 void DirLineEdit::paintEvent(QPaintEvent* event)
@@ -806,6 +808,12 @@ void DirLineEdit::paintEvent(QPaintEvent* event)
     QRect rt = rect();
     painter.drawText(rt.translated(0,1), Qt::AlignCenter | Qt::TextHideMnemonic, _hint);
 
+}
+void DirLineEdit::enterEvent(QEvent *event)
+{
+//    if(this->text().length() != _fullName.length())
+//       QToolTip::showText( QCursor::pos(), _fullName);
+    QWidget::enterEvent(event);
 }
 
 void DirLineEdit::mousePressEvent(QMouseEvent *event)

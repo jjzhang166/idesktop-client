@@ -11,7 +11,7 @@
 #include <QPainter>
 #include <QLabel>
 #include "iconitem.h"
-
+#include "dustbin.h"
 #define APPICON 0
 #define FONTSIZE 10
 #define ICONX 35
@@ -80,7 +80,7 @@ IconItem::IconItem(QWidget *parent)
     setLineEditBg(_editLeftNormal, _editCenterNormal, _editRightNormal);
     connect(_lineEdit, SIGNAL(focusIn()), this, SLOT(LineEditFocusIn()));
     connect(_lineEdit, SIGNAL(focusOut()), this, SLOT(LineEditFocusOut()));
-    connect(_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(changeItemName(QString)));
+//    connect(_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(changeItemName(QString)));
 
 }
 
@@ -145,8 +145,48 @@ void IconItem::setText(const QString &text)
 
     _app = LocalAppList::getList()->getAppByName(_text);
 
-    QFontMetrics fm(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
+    switch(ICON_TYPE)
+    {
+    case 0:
+    {
+        QFont font1 = QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
+        QFontMetrics fm1(font1);
+        chopText(fm1,108);
+//        if(textsize.width() > _textWidth_firstrow)
+//            _lineEdit->setAlignment(Qt::AlignRight);
+//        else
+//            _lineEdit->setAlignment(Qt::AlignCenter);
+        break;
+    }
+    case 1:
+    {
+        QFont font2 = QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE -1 , QFont::Normal);
+        QFontMetrics fm2(font2);
+        chopText(fm2,84);
+//        if(textsize.width() > _textWidth_firstrow)
+//            _lineEdit->setAlignment(Qt::AlignRight);
+//        else
+//            _lineEdit->setAlignment(Qt::AlignCenter);
+        break;
+    }
+    case 2:
+    {
+        QFont font3 = QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE - 2 , QFont::Normal);
+        QFontMetrics fm3(font3);
+        chopText(fm3,65);
+//        if(textsize.width() > _textWidth_firstrow)
+//            _lineEdit->setAlignment(Qt::AlignRight);
+//        else
+//            _lineEdit->setAlignment(Qt::AlignCenter);
 
+        break;
+    }
+    }
+    _lineEdit->setText(_texticon);
+    _lineEdit->saveFullName(_text);
+}
+void IconItem::chopText(QFontMetrics fm, int width)
+{
     _textWidth = fm.width(_text);
 
     if (_text.startsWith("/")) {
@@ -155,13 +195,13 @@ void IconItem::setText(const QString &text)
     }
     else
         _texticon = _text;
-
-    if (_textWidth > _width)
+    int x = width;
+    if (_textWidth > width)
     {
         for (int i = 0; i < _textWidth; i++)
         {
             _textWidth_firstrow = fm.width(_texticon);
-            if (_textWidth_firstrow > _width)
+            if (_textWidth_firstrow > width)
             {
                 _texticon.chop(1);
             }else{
@@ -171,52 +211,6 @@ void IconItem::setText(const QString &text)
             }
         }
     }
-    QSize textsize;
-    switch(ICON_TYPE)
-    {
-    case 0:
-    {
-        QFont font1 = _lineEdit->font();
-        QFontMetrics fm1(font1);
-        textsize = fm1.size(Qt::TextSingleLine,_text );
-        int x = textsize.width();
-        int y =  _lineEdit->width();
-        if(textsize.width() > 150)
-            _lineEdit->setAlignment(Qt::AlignRight);
-        else
-            _lineEdit->setAlignment(Qt::AlignCenter);
-        break;
-    }
-    case 1:
-    {
-        QFont font2 = _lineEdit->font();
-        QFontMetrics fm2(font2);
-        textsize = fm2.size(Qt::TextSingleLine,_text);
-        int x = textsize.width();
-        int y =  _lineEdit->width();
-        if(textsize.width() > 118)
-            _lineEdit->setAlignment(Qt::AlignRight);
-        else
-            _lineEdit->setAlignment(Qt::AlignCenter);
-        _lineEdit->setFont(font2);
-        break;
-    }
-    case 2:
-    {
-        QFont font3 = _lineEdit->font();
-        QFontMetrics fm3(font3);
-        textsize = fm3.size(Qt::TextSingleLine,_text);
-        int x = textsize.width();
-        int y =  _lineEdit->width();
-        if(textsize.width() > 100)
-            _lineEdit->setAlignment(Qt::AlignRight);
-        else
-            _lineEdit->setAlignment(Qt::AlignCenter);
-
-        break;
-    }
-    }
-
     _textHeight = fm.height();
 }
 
@@ -372,49 +366,52 @@ void IconItem::paintEvent(QPaintEvent *event)
     {
         case 0 :
 
-            painter.drawPixmap((_width - 120) / 2, _height - 26, \
+            painter.drawPixmap((_width - 140) / 2, _height - 26, \
                               _left.width(), _left.height(),
                               _left);
-            painter.drawPixmap((_width + 120) / 2 - _right.width(), _height - 26, \
+            painter.drawPixmap((_width + 140) / 2 - _right.width(), _height - 26, \
                               _right.width(), _right.height(),
                               _right);
-            painter.drawPixmap((_width - 120) / 2 + _left.width(), _height - 26, \
-                              120 - _left.width() - _right.width(), _center.height(),
+            painter.drawPixmap((_width - 140) / 2 + _left.width(), _height - 26, \
+                              140 - _left.width() - _right.width(), _center.height(),
                               _center);
-            _lineEdit->setGeometry(4 + (width() - 100) / 2, _height - 26, 100, 23);
+            _lineEdit->setGeometry( 4 + (width() - 110) / 2, _height - 26, 110, 23);
 
             break;
 
         case 1 :
 
-            painter.drawPixmap((_width - 110) / 2, _height - 24, \
+            painter.drawPixmap((_width - 118) / 2, _height - 24, \
                               _left.width(), _left.height() ,
                               _left);
-            painter.drawPixmap((_width + 110) / 2 - _right.width(), _height - 24, \
+            painter.drawPixmap((_width + 118) / 2 - _right.width(), _height - 24, \
                               _right.width(), _right.height(),
                               _right);
-            painter.drawPixmap((_width - 110) / 2 + _left.width(), _height - 24, \
-                              110 - _left.width() - _right.width(), _center.height(),
+            painter.drawPixmap((_width - 118) / 2 + _left.width(), _height - 24, \
+                              118 - _left.width() - _right.width(), _center.height(),
                               _center);
-           _lineEdit->setGeometry(4 + (width() - 90) / 2, _height - 24, 90, 23 );
+           _lineEdit->setGeometry(4 + (width() - 84) / 2, _height - 24, 84, 18 );
             break;
 
         default:
 
-            painter.drawPixmap((_width - 100) / 2, _height - 22, \
+            painter.drawPixmap((_width - 102) / 2, _height - 22, \
                               _left.width(), _left.height(),
                               _left);
-            painter.drawPixmap((_width + 100) / 2 - _right.width(), _height - 22,\
+            painter.drawPixmap((_width + 102) / 2 - _right.width(), _height - 22,\
                                       _right.width(), _right.height(),
                                       _right);
-            painter.drawPixmap((_width - 100) / 2 + _left.width(), _height - 22, \
-                              100 - _left.width() - _right.width(), _center.height(),
+            painter.drawPixmap((_width - 102) / 2 + _left.width(), _height - 22, \
+                              102 - _left.width() - _right.width(), _center.height(),
                               _center);
-           _lineEdit->setGeometry(4 + (width() - 80) / 2, _height - 22, 80, 23 );
+           _lineEdit->setGeometry( 4 + (width() - 65) / 2, _height - 22, 65, 15 );
             break;
     }
     if(_type == 3)
+    {
+        _lineEdit->setVisible(false);
         return;
+    }
 
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
@@ -587,6 +584,7 @@ void IconItem::mouseMoveEvent(QMouseEvent *event)
     gap = drag->hotSpot();
     drag->exec(Qt::MoveAction);
     delete drag;
+    qDebug() << "falfalfjlafjlajflafjjjjjjjjjjjjjjjjjjjjjjjgjjjjjjjjjjjjjj  QDrag";
 
 }
 
@@ -642,7 +640,6 @@ void IconItem::enterEvent(QEvent *event)
         QWidget::enterEvent(event);
         return;
     }
-
    _pixmap = darkPixmap();
 //    _pixmap = _normalPixmap;
     repaint();
@@ -692,8 +689,6 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
         return;
     }
     _pixText = icon;
-
-    _texticon = text;
 
     _originPixmap = QPixmap(icon);
 
@@ -773,7 +768,6 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
 //                 , textpixmap.width(), textpixmap.height()
 //                 , textflags, _texticon);
        pt1.end();
-    _lineEdit->setText(_texticon);
     QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(_lineEdit);
         effect->setBlurRadius(8);
         effect->setColor(QColor(0, 0, 0));
@@ -1074,6 +1068,8 @@ void IconItem::addDustbin()
 void IconItem::changeItemName(QString name)
 {
     setText(name);
+    if (_saveDataBool)
+        _app->setName(_texticon);
 }
 void IconItem::setDirBackground()
 {
@@ -1103,12 +1099,7 @@ void IconItem::setLineEditBg(QPixmap strLeft, QPixmap strCenter, QPixmap strRigh
 
 void IconItem::LineEditFocusIn()
 {
-    QSqlQuery query(QSqlDatabase::database("local"));
-    QString qstr = QString("update localapps set name=\'%1\' where id=\'%2\'").arg(_lineEdit->text()).arg(_id);
-    if(!query.exec(qstr)) {
-        qDebug() <<"query failed";
-        return;
-    }
+    _lineEdit->setText(_text);
     setLineEditBg(_editLeft, _editCenter, _editRight);
     _currentStatus = hover;
     update();
@@ -1117,6 +1108,14 @@ void IconItem::LineEditFocusOut()
 {
 //    if(_currentStatus == normal)
 //        _lineEdit->setDisabled(true);
+//    changeItemName(_text);
+    setText(_lineEdit->text());
+    QSqlQuery query(QSqlDatabase::database("local"));
+    QString qstr = QString("update localapps set name=\'%1\' where id=\'%2\'").arg(_text).arg(_id);
+    if(!query.exec(qstr)) {
+        qDebug() <<"query failed";
+        return;
+    }
     setLineEditBg(_editLeftNormal, _editCenterNormal, _editRightNormal);
 }
 QPixmap IconItem::setTransparentPixmap(const QString &pix)
@@ -1153,6 +1152,7 @@ void IconItem::resizeEvent(QResizeEvent *event)
     {
     case 0:
     {
+        _lineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
         _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(11,23);
         _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(1,23);
         _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(11,23);
@@ -1160,17 +1160,18 @@ void IconItem::resizeEvent(QResizeEvent *event)
     }
     case 1:
     {
-        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(11,23);
-        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(1,23);
-        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(11,23);
+        _lineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE - 1 , QFont::Normal));
+        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(9,19);
+        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(1,19);
+        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(9,19);
         break;
     }
-    case 2:
+    default:
     {
-        _lineEdit->setGeometry(4 + (width() - 80) / 2, _height - 22, 80, 23 );
-        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(11,23);
-        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(11,23);
-        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(11,23);
+        _lineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE - 1 , QFont::Normal));
+        _editLeft = setTransparentPixmap(":/images/dir_edit_left.png").scaled(8,16);
+        _editCenter = setTransparentPixmap(":/images/dir_edit_center.png").scaled(1,16);
+        _editRight = setTransparentPixmap(":/images/dir_edit_right.png").scaled(8,16);
         break;
     }
     }

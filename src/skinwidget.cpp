@@ -86,6 +86,7 @@ void SkinShowWidget::scrollBarValueChanged(int val)
     _oldPagePos = _newPagePos;
     _newPagePos = val / _pixWidget->pageSize().height();
     if( _oldPagePos == _newPagePos )
+        return;
 
     if (_animation->state() == QAbstractAnimation::Running)
     {
@@ -111,7 +112,7 @@ void SkinShowWidget::resizeEvent(QResizeEvent *event)
     int h = height();
     _scrollBar->setGeometry(x, 45, w, h - 30 -30);
 
-    _scrollBar->setRange(0, (_pixWidget->count() - 1) * _pixWidget->pageSize().height());
+    _scrollBar->setRange(0, (_pixWidget->count()) * _pixWidget->pageSize().height() - 30);
 
     _closeBtn->setGeometry(_width - 8 - 25 - 3, 25, 8, 8);
     update();

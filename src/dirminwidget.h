@@ -291,7 +291,7 @@ public:
     DirLineEdit(QString hint = QString(""),
                  QWidget *parent = NULL); // QString pixmap = QString(""),
     ~DirLineEdit() {}
-
+    void saveFullName(QString name) { _fullName = name;}
 signals:
     void focusIn();
     void focusOut();
@@ -308,6 +308,7 @@ protected:
     void focusOutEvent(QFocusEvent *event);
     void resizeEvent(QResizeEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void enterEvent(QEvent *);
 
 private:
 
@@ -318,7 +319,7 @@ private:
 //    QPixmap _pixmap;
 
 
-
+    QString _fullName;
     QColor _color;
 
     int _width;

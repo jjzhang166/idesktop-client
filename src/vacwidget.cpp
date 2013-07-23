@@ -21,7 +21,7 @@
 //#include <QtScript/QScriptEngine>
 //#include <QtScript/QScriptValueIterator>
 
-#include "vacwidget.h"delItem
+#include "vacwidget.h"
 #include "config.h"
 #include "commuinication.h"
 

@@ -37,7 +37,8 @@ CONFIG(debug,debug|release) {
 
 TRANSLATIONS = appstore.ts
 RESOURCES += appstore.qrc \
-    appstore.qrc
+    appstore.qrc \
+    VAC.qrc
 RC_FILE += icon.rc
 #vac
 RC_FILE += vac.rc
@@ -76,20 +77,22 @@ HEADERS += src/config.h \
     src/iconitem.h \
     src/contextmenuwidget.h \
     src/public.h \
+    src/blurpicker.h \
+    src/blureffect.h \
     src/nodebutton.h \
     src/toolbarwidget.h \
-    src/dustbin.h \
-    src/qitemmanager.h
+    src/qitemmanager.h \
+    src/dustbin.h
 
 
 win32 {
 
 SOURCES += src/qtsingleapplication/qtlockedfile_win.cpp
-	#vac
-    	LIBS +=  -lUser32 -lShell32
-    	LIBS += -L"binary"
-    	LIBS += -leay32
-    	INCLUDEPATH +=  openssl
+        #vac
+        LIBS +=  -lUser32 -lShell32
+        LIBS += -L"binary"
+        LIBS += -leay32
+        INCLUDEPATH +=  openssl
 }
 
 unix {
@@ -133,13 +136,14 @@ SOURCES += src/config.cpp \
     src/paascommuinication.cpp \
     src/iconitem.cpp \
     src/contextmenuwidget.cpp \
+    src/blurpicker.cpp \
+    src/blureffect.cpp \
     src/nodebutton.cpp \
     src/toolbarwidget.cpp \
-    src/dustbin.cpp \
-    src/qitemmanager.cpp
+    src/qitemmanager.cpp \
+    src/dustbin.cpp
 
 
 FORMS +=
 
 OTHER_FILES +=
-
