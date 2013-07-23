@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QToolTip>
 #include <QApplication>
+#include <QGraphicsDropShadowEffect>
 #include "dirminwidget.h"
 
 #define ICONWIDTH 72            //72
@@ -996,9 +997,13 @@ DirMinShowWidget::DirMinShowWidget(QWidget *parent)
 //    _dirMWidget = new DirMWidget(this);
 //    _dirMWidget->move(35, 36);          //((SELECTWIDTH / 2  + 8) / 2, 0)
     _dirMWidget->setVisible(true);
-
     _dirLineEdit = new DirLineEdit(QString(tr("ÊäÈëÎÄ¼þ¼ÐÃû³Æ")), this);
     _dirLineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(_dirLineEdit);
+        effect->setBlurRadius(8);
+        effect->setColor(QColor(0, 0, 0));
+        effect->setOffset(-1,1);
+        _dirLineEdit->setGraphicsEffect(effect);
     _dirLineEdit->setGeometry((_width - (72 + 37 / 2 + 8)) / 2, _height - 26, 72 + 37 / 2 + 8, 23);
 
 //    _dirLineEdit->setTextMargins(3, 5, 2, 5);
