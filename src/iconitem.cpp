@@ -760,45 +760,24 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
     pt1.fillRect(normal.rect(), Qt::transparent);
     pt1.drawImage(QRect(0, 0, _width, _height), image);
 
-//    QFont font("", FONTSIZE, QFont::Normal);
-//    QFont font(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
-//    QFontMetrics fm(font);
-//    font.setStyleHint(QFont::Cursive, QFont::PreferBitmap);
-//    font.setStyleStrategy(QFont::PreferAntialias);
-
-//    pt1.fillPath(path, glow_color);
-
-//    pt1.setPen(glow_color.lighter(66));
-//    pt1.drawPath(path);
-
-//    pt1.setPen(QPen(QColor(Qt::white)));
-//    pt1.drawText(x, y
-//                 , textpixmap.width(), textpixmap.height()
-//                 , textflags, _texticon);
-
-   //    pt1.drawRect(1, 1, _width - 1, _height - 1);
-
-   //    QFont font("", FONTSIZE, QFont::Normal);
-//       QFont font(QString::fromLocal8Bit("?¡é¨¨¨ª??o¨²"), FONTSIZE, QFont::Normal);
-       font.setStyleHint(QFont::Cursive, QFont::PreferBitmap);
-       font.setStyleStrategy(QFont::PreferAntialias);
-       pt1.setFont(font);
-       pt1.setRenderHint(QPainter::HighQualityAntialiasing);
+    font.setStyleHint(QFont::Cursive, QFont::PreferBitmap);
+    font.setStyleStrategy(QFont::PreferAntialias);
+    pt1.setFont(font);
+    pt1.setRenderHint(QPainter::HighQualityAntialiasing);
 //       pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
 //                        _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
     pt1.fillPath(path, glow_color);
     pt1.setPen(glow_color.lighter(66));
     pt1.drawPath(path);
     pt1.setPen(QPen(QColor(Qt::white)));
-//    pt1.drawText(x, y
-//                 , textpixmap.width(), textpixmap.height()
-//                 , textflags, _texticon);
-       pt1.end();
+
+    pt1.end();
+
     QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(_lineEdit);
-        effect->setBlurRadius(8);
-        effect->setColor(QColor(0, 0, 0));
-        effect->setOffset(-1,1);
-        _lineEdit->setGraphicsEffect(effect);
+    effect->setBlurRadius(8);
+    effect->setColor(QColor(0, 0, 0));
+    effect->setOffset(-1,1);
+    _lineEdit->setGraphicsEffect(effect);
     QImage light = QImage(_width, _height, QImage::Format_ARGB32);
     QImage dark =  QImage(_width, _height, QImage::Format_ARGB32);
     QImage transparent = QImage(_width, _height, QImage::Format_ARGB32);
@@ -831,66 +810,6 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
         }
     }
 
-#if 0
-    //ÒõÓ°Ð§¹û
-    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(this);
-        effect->setBlurRadius(7);
-        effect->setColor(QColor(19,29,31));
-        effect->setOffset(1,1);
-        ui->label->setGraphicsEffect(effect)
-#endif
-
-#if 0
-    QPainter pt2(&dark);
-
-    QFont font2(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
-    font2.setStyleStrategy(QFont::PreferOutline);
-    pt2.setFont(font);
-
-        pt2.setPen(Qt::white);
- //       pt2.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Light));
-        pt2.setRenderHint(QPainter::HighQualityAntialiasing);
-        pt2.drawText(QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
-                            _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
-        pt2.end();
-#endif
-//        pt2.setPen(Qt::white);
-//        pt2.setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Light));
-//        pt2.setRenderHint(QPainter::HighQualityAntialiasing);
-//        pt2.drawText(QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
-//                            _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
-//        pt2.end();
-//    QStringList text_lines = _texticon;
-//    QString text = _texticon.join("n");
-//   QFont font2(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
-//    QFontMetrics fm2(font2);
-//    int textflags = Qt::AlignLeft | Qt::TextExpandTabs;
-//    QSize textsize = fm2.size(textflags, _texticon);
-
-//    int margin = 8;
-//    int x = (_width - _textWidth_firstrow) / 2;
-//    int y = _height - FONTSIZE * 2;
-//    textsize.setWidth(textsize.width() + 2*margin);
-//    textsize.setHeight(textsize.height() + 2*margin);
-
-//    QPainterPath pp(QPointF(x, y));
-//    qreal px = x, py = y + fm2.ascent();
-////    foreach(const QString& line, text_lines) {
-//        pp.addText(px, py, font2, _texticon);
-//        py += fm2.lineSpacing();
-//    }
-
-//    QPainterPathStroker pps;
-//    pps.setCapStyle(Qt::RoundCap);
-//    //pps.setJoinStyle(Qt::MiterJoin);
-//    pps.setWidth(2);
-//    QPainterPath path = pps.createStroke(pp).united(pp).simplified();
-
-//    QColor glow_color = QColor(50,50,50).lighter(180);
-
-//    QPixmap textpixmap(textsize);
-//    textpixmap.fill(QColor(0, 0, 0, 0));
-
     QPainter pt2(&light);
     pt2.setFont(font);
     pt2.setPen(QPen(QColor(Qt::white)));
@@ -898,8 +817,6 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
     pt2.drawText(x, y, textpixmap.width(), textpixmap.height()
                        , textflags, _texticon);
     pt2.end();
-
-
 
     _grayPixmap = QPixmap::fromImage(light).scaled(width() * 1.0, height() * 1.0);
     _darkPixmap = QPixmap::fromImage(dark);
@@ -1004,6 +921,8 @@ void IconItem::addMinWidget(int type)
 {
     _dirMinShowWidget = new DirMinShowWidget(type, this);
     _dirMinShowWidget->move(0,0);
+    _dirMinShowWidget->setUniqueName(_uniqueName);
+    _dirMinShowWidget->setText(_text);
 
     connect(_dirMinShowWidget, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
     connect(_dirMinShowWidget, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
@@ -1015,6 +934,8 @@ void IconItem::addMinWidget(int type)
             this, SLOT(iconDropEvent(const QString &, const QString &, int, int, const QString &, int, const QString &)));
     connect(_dirMinShowWidget, SIGNAL(openItem()), this, SLOT(openDirWidget()));
     connect(_dirMinShowWidget, SIGNAL(dragEnterMinWidget()), SIGNAL(dragEnterMinWidget()));
+    connect(_dirMinShowWidget, SIGNAL(dirMinLineEditFocusOut(int, const QString &))
+            , this, SIGNAL(dirMinLineEditFocusOut(int, const QString &)));
 }
 
 void IconItem::setMinWidgetDragEnable(bool enable)
@@ -1063,6 +984,11 @@ void IconItem::setDirMinItemId(int id)
 
     _dirMinShowWidget->setId(id);
 }
+
+//void IconItem::dirMinLineEditFocusOut(const QString &text)
+//{
+//    emit dirMinFocusOut(text);
+//}
 
 //dustbin
 void IconItem::addDustbin()
@@ -1135,12 +1061,15 @@ void IconItem::LineEditFocusOut()
 //        _lineEdit->setDisabled(true);
 //    changeItemName(_text);
     setText(_lineEdit->text());
-    QSqlQuery query(QSqlDatabase::database("local"));
-    QString qstr = QString("update localapps set name=\'%1\' where uniquename=\'%2\'").arg(_text).arg(_uniqueName);
-    if(!query.exec(qstr)) {
-        qDebug() <<"query failed";
-        return;
-    }
+    _app->setName(_text);
+
+    emit iconItemNameChanged(_uniqueName, _text);
+//    QSqlQuery query(QSqlDatabase::database("local"));
+//    QString qstr = QString("update localapps set name=\'%1\' where uniquename=\'%2\'").arg(_text).arg(_uniqueName);
+//    if(!query.exec(qstr)) {
+//        qDebug() <<"query failed";
+//        return;
+//    }
     setLineEditBg(_editLeftNormal, _editCenterNormal, _editRightNormal);
 }
 QPixmap IconItem::setTransparentPixmap(const QString &pix)

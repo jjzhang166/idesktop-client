@@ -262,6 +262,8 @@ public slots:
                           const QString &iconPath, int page,
                           int index, const QString &url, int type, const QString &uniqueName);
 
+    void changedDirWidgetTitle(int i, const QString &text);
+
 signals:
     void pageChanged(int i);
     void pageIncreased();
@@ -320,6 +322,8 @@ signals:
     void setMinMoveLabel(bool up);
 
     void toolBarRemoveDirMinItem(const QString &uniqueName = "", int dirId = -1);
+
+    void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);

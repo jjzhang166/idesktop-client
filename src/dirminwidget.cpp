@@ -1194,11 +1194,23 @@ void DirMinShowWidget::editFocusIn()
 
 void DirMinShowWidget::editFocusOut()
 {
-    QSqlQuery query(QSqlDatabase::database("local"));
-    QString qstr = QString("update localapps set name=\'%1\' where uniquename=\'%2\'").arg(_dirLineEdit->text()).arg(_uniqueName);
-    if(!query.exec(qstr)) {
-        qDebug() <<"query failed";
-        return;
+//    QSqlQuery query(QSqlDatabase::database("local"));
+//    QString qstr = QString("update localapps set name=\'%1\' where uniquename=\'%2\'").arg(_dirLineEdit->text()).arg(_uniqueName);
+//    if(!query.exec(qstr)) {
+//        qDebug() <<"query failed";
+//        return;
+//    }
+    LocalApp * _app = LocalAppList::getList()->getAppByUniqueName(_uniqueName);
+
+    if (!_dirLineEdit->text().isEmpty())
+    {
+        _app->setName(_dirLineEdit->text());
+        emit dirMinLineEditFocusOut(_id, _dirLineEdit->text());
+    }
+    else
+    {
+        _app->setName(tr("新建文件夹"));
+        emit dirMinLineEditFocusOut(_id, tr("新建文件夹"));
     }
 
     setImgs(_editLeftNormal, _editCenterNormal, _editRightNormal);
@@ -1449,4 +1461,9 @@ void DirMinShowWidget::setUniqueName(const QString &uniqueName)
 {
     _uniqueName = uniqueName;
     _dirMWidget->setUniqueName(uniqueName);
+}
+
+void DirMinShowWidget::setText(const QString text)
+{
+    _dirLineEdit->setText(text);
 }

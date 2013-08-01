@@ -163,6 +163,11 @@ void VacShowWidget::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 }
 
+void VacShowWidget::iconItemNameChanged(const QString &uniqueName, const QString &name)
+{
+    _vacScrollBarWidget->iconItemNameChanged(uniqueName, name);
+}
+
 VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
     , _oldPagePos(0)
@@ -331,6 +336,11 @@ void VacScrollBarWidget::smallIcon()
 void VacScrollBarWidget::desktopDelIcon(const QString &uniqueName)
 {
     _vacWidget->unChecked(uniqueName);
+}
+
+void VacScrollBarWidget::iconItemNameChanged(const QString &uniqueName, const QString &name)
+{
+    _vacWidget->iconItemNameChanged(uniqueName, name);
 }
 
 //
@@ -960,10 +970,23 @@ int VacWidget::addIcon(QString text,
             icon->setSmallSize();
             break;
     }
+
     icon->setSaveDataBool(false);
-    icon->setText(text);
-    icon->setIconClass(type);
     icon->setUniqueName(uniqueName);
+    LocalApp * _app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
+
+    if (_app)
+    {
+        icon->setEqualIcon(true);
+        icon->setText(_app->name());
+    }
+    else
+    {
+        icon->setEqualIcon(false);
+        icon->setText(text);
+    }
+
+    icon->setIconClass(type);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
     icon->setRunAction(false);
@@ -978,15 +1001,6 @@ int VacWidget::addIcon(QString text,
     icon->setEnterEventBool(true);
     icon->setLeaveEventBool(true);
 
-
-    if (LocalAppList::getList()->getAppByUniqueName(uniqueName))
-    {
-        icon->setEqualIcon(true);
-    }
-    else
-    {
-        icon->setEqualIcon(false);
-    }
 
     if (page == -1) {
         for (int i = 0; i < _count; i++) {
@@ -1628,4 +1642,9 @@ void VacWidget::unChecked(const QString &uniqueName)
         return;
 
     _iconDict.value(uniqueName)->setEqualIcon(false);
+}
+
+void VacWidget::iconItemNameChanged(const QString &uniqueName, const QString &name)
+{
+    _iconDict.value(uniqueName)->setText(name);
 }

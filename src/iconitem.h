@@ -143,10 +143,13 @@ signals:
 
     void dragEnterMinWidget();
 
+    void dirMinLineEditFocusOut(int i, const QString &text);
 //dustbin
     void dustbinIconEnter();
     void dustbinIconMove();
     void dustbinIconLeave();
+
+    void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
 public slots:
     void startTremble();

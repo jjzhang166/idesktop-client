@@ -160,6 +160,8 @@ void DirShowWidget::dirWidgetLeave(const QString &uniqueName)
 
 void DirShowWidget::showTitle(QString text)
 {
+    _text = text;
+
     QFont font(QString::fromLocal8Bit("Microsoft YaHei"), 14, QFont::Normal);
     QFontMetrics fm(font);
     int textflags = Qt::AlignLeft | Qt::TextExpandTabs;

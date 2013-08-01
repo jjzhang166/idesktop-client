@@ -432,6 +432,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     , _dirMovingFinished(true)
     , _inDrag(NULL)
     , _openToolBar(false)
+    , _dirShowWidget(NULL)
 //    , _vappCount(0)
 
 {
@@ -2004,6 +2005,10 @@ int VirtualDesktop::addIcon(const QString &text, \
     connect(icon, SIGNAL(dragEnterMinWidget()), this, SLOT(iconDragEnter()));
     connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint,const QString &))
             , this, SLOT(showIconContextMenu(bool, QPoint, QPoint,const QString &)));
+    connect(icon, SIGNAL(iconItemNameChanged(const QString &, const QString &))
+            , this, SIGNAL(iconItemNameChanged(const QString &, const QString &)));
+    connect(icon, SIGNAL(dirMinLineEditFocusOut(int, const QString &))
+            , this, SLOT(changedDirWidgetTitle(int, const QString &)));
 
     /*addicon add the last*/
 //    showAddIcon(page, -1);
@@ -3871,6 +3876,7 @@ void VirtualDesktop::initIconItem()
             }
             else if (_local->at(i)->type().toInt() == dirIcon)
             {
+                qDebug() <<"---------->"<<_local->at(i)->name() << _local->at(i)->name();
                 addIcon(_local->at(i)->name(), "",
                         _local->at(i)->page(), _local->at(i)->index(),
                         "", 3,
@@ -4133,4 +4139,18 @@ void VirtualDesktop::addShowWidget(const QString &text, int i, const QString &un
 
     connect(_dirShowWidget, SIGNAL(dirWidgetDragLeave(const QString &, int)), this, SLOT(hideDirWidget(const QString &, int)));
     connect(_dirShowWidget, SIGNAL(dirWidgetDelIcon(int, const QString &)), this, SLOT(dirWidgetDelIcon(int, const QString &)));
+}
+
+void VirtualDesktop::changedDirWidgetTitle(int i, const QString &text)
+{
+    if (_dirShowWidget)
+    {
+        for (int j = 0; j < _dirShowWidgetList.count(); j++)
+        {
+            if (_dirShowWidgetList.at(j)->id() == i)
+            {
+                _dirShowWidgetList.at(j)->showTitle(text);
+            }
+        }
+    }
 }

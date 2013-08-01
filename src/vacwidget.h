@@ -53,6 +53,8 @@ public slots:
 
     void desktopDelIcon(const QString &uniqueName);
 
+    void iconItemNameChanged(const QString &uniqueName, const QString &name);
+
 signals:
     void addApp(const QString &text, const QString &pix, const QString &url, \
                 int type, const QString &uniqueName);
@@ -94,6 +96,8 @@ public:
     void delIcon(const QString &uniqueName);
 
     void desktopDelIcon(const QString &uniqueName);
+
+    void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
 public slots:
     void scrollBarValueChanged(int val);
@@ -183,6 +187,7 @@ public:
     void reloadApplist(QSize size);
 
     void unChecked(const QString &uniqueName);
+    void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
 signals:
     void addApp(const QString &text, const QString &pix, const QString &url, \

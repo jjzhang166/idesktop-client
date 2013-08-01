@@ -307,7 +307,10 @@ Dashboard::Dashboard(QWidget *parent)
     connect(vdesktop, SIGNAL(largeIcon()), this, SLOT(largeIcon()));
     connect(vdesktop, SIGNAL(mediumIcon()), this, SLOT(mediumIcon()));
     connect(vdesktop, SIGNAL(smallIcon()), this, SLOT(smallIcon()));
-    connect(vdesktop, SIGNAL(desktopDelIcon(const QString &)), _vacShowWidget, SLOT(desktopDelIcon(const QString &)));
+    connect(vdesktop, SIGNAL(desktopDelIcon(const QString &))
+            , _vacShowWidget, SLOT(desktopDelIcon(const QString &)));
+    connect(vdesktop, SIGNAL(iconItemNameChanged(const QString &, const QString &))
+            , _vacShowWidget, SLOT(iconItemNameChanged(const QString &, const QString &)));
     connect(vdesktop, SIGNAL(pageChanged(int)), this, SLOT(desktopPageChanged(int)));
     connect(vdesktop, SIGNAL(pageIncreased()), this, SLOT(updateNodes()));
     connect(vdesktop, SIGNAL(pageDecreased()), this, SLOT(updateNodes()));

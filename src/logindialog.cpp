@@ -136,8 +136,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
     passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
-//    userEdit->setText(QString("admin"));
-//    passEdit->setText(QString("root"));
+    userEdit->setText(QString("demo"));
+    passEdit->setText(QString("abc_123"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");

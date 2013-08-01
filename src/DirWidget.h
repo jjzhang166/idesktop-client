@@ -158,6 +158,7 @@ private:
     Switcher *_clearBtn;
 
     QString _uniqueName;
+    QString _text;
 
 };
 

@@ -28,6 +28,7 @@ public:
     void setIndex(int index)    { _index = index; }
     void setId(int id);
 //    void setHidden(bool hide);
+    void setText(const QString text);
 
     int page()                  { return _page; }
     int index()                 { return _index; }
@@ -60,7 +61,7 @@ signals:
     void dragEnterMinWidget();
     void lineEditValueChange(QString);
 //    void delIcon(const QString &text);
-
+    void dirMinLineEditFocusOut(int i, const QString &text);
 
 public slots:
     void mouseClicked();
