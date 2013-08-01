@@ -13,13 +13,14 @@
 
 #include "dirminwidget.h"
 #include "localapps.h"
+#include "dustbin.h"
 
 
 /* #############################################
  * Declaration of IconItem
  */
 class QItemManager;
-class Dustbin;
+//class Dustbin;
 class IconItem : public QWidget
 {
     Q_OBJECT
@@ -31,6 +32,10 @@ public:
     };
     enum status{
         normal = 1, hover = 2, selected = 3
+    };
+
+    enum icon_class{
+        local = 0, vapp, paas
     };
     IconItem(QWidget *parent = 0);
     ~IconItem();
@@ -101,7 +106,7 @@ public:
     void animationMove(const QRect &start, const QRect &end);
 
     //dirMin
-    void addMinWidget();
+    void addMinWidget(int type);
     void setMinWidgetDragEnable(bool enable);
 
     void removeDirMinItem(const QString &text);
@@ -113,8 +118,7 @@ public:
     void setMouseMoveEnable(bool enable);
 
     void addDustbin();
-
-    void showSmallSize(bool isSmall);
+    void setIconClass(int iconClass);
 
 signals:
 //    void clicked();
@@ -255,6 +259,8 @@ private:
     QList<DirMinShowWidget*> _dirMinShowWidgets;
     DirLineEdit* _lineEdit;
     Dustbin *_dustbin;
+
+    QPixmap _iconClassPixmap;
 
 };
 

@@ -289,9 +289,6 @@ void LoginDialog::paintEvent(QPaintEvent *event)
 
     }
 
-
-
-
     painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 9, QFont::Normal));
     //    painter.drawPixmap(74, 104, QPixmap(":images/login_input.png"));
     //    painter.drawPixmap(74, 164, QPixmap(":images/login_input.png"));
@@ -677,8 +674,14 @@ void LoginDialog::auth()
             //qDebug()<<"name:"<<QString::fromLocal8Bit(pSectionName);     //把找到的显示出来
             //qDebug()<<"name:"<<QString(pSectionName).toLocal8Bit();
             //qDebug()<<"path:"<<QString::fromLocal8Bit(strBuff);
-            QString path = QString::fromLocal8Bit(strBuff);
-            //qDebug()<<"path"<<path;
+            //QString path = QString::fromLocal8Bit(strBuff);
+            QString path = strBuff;
+
+            QFileInfo fio(path);
+            if (!fio.exists())
+                continue;
+
+            //qDebug()<<"path"<<strBuff;
             QFileInfo fi = QFileInfo(path);
             QString iPath(Config::get("IconDir"));
             iPath = iPath + fi.baseName();
@@ -704,7 +707,19 @@ void LoginDialog::auth()
             LOCAL_LIST tempLocalList;
             tempLocalList.id = _id;
             tempLocalList.iconPath = localIconPath;
-            tempLocalList.name = QString::fromLocal8Bit(pSectionName);
+            //qDebug() << "name-->pSectionName" << pSectionName;
+//            tempLocalList.name = QString::fromLocal8Bit(pSectionName);
+
+
+            //QTextCodec *codec = QTextCodec::codecForName("utf-8"); //utf-8
+
+            //tempLocalList.name = codec->toUnicode(pSectionName);
+            QString temp = pSectionName;
+            temp.replace("]", "");
+            tempLocalList.name = temp;
+//            qDebug() << "tempLocalList.name" << tempLocalList.name;
+
+            //tempLocalList.name = QString(pSectionName);
             tempLocalList.execname = path;
             g_RemotelocalList.append(tempLocalList);
             _id++;
@@ -1417,7 +1432,7 @@ void LoginDialog::getPaas(bool isLogin)
         QString iconPath = QString("%1%2.png")
                 .arg(iconDirPath)
                 .arg(g_myPaasList[i].cnName);
-        QString tempPath = QString("%1%2.ico")
+        QString tempPath = QString("%1%2.png")
                 .arg(iconDirPath)
                 .arg(g_myPaasList[i].cnName);
         //        qDebug()<<"iconPath="<<iconPath;

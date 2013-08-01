@@ -40,10 +40,10 @@ public:
     void setType(QString type)              { _type = type; }
     bool isRemote()                         { return _isRemote; }
     void setIsRemote(bool isRemote)         { _isRemote = isRemote; }
-    QString url()                      { return _url; }
-    void setUrl(QString url)           { _url = url; }
-    int dirId()                      { return _dirId; }
-    void setDirId(int dirId)           { _dirId = dirId; }
+    QString url()                           { return _url; }
+    void setUrl(QString url)                { _url = url; }
+    int dirId()                             { return _dirId; }
+    void setDirId(int dirId)                { _dirId = dirId; }
 
 private:
     QString _name;

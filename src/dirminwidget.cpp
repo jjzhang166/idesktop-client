@@ -39,6 +39,7 @@ extern int ICON_TYPE;
 
 IconMinItem::IconMinItem(QWidget *parent)
     : QWidget(parent)
+    , _page(0)
 {
     _animation = new QPropertyAnimation(this, "geometry");
     _animation->setDuration(200);
@@ -154,7 +155,7 @@ void IconMinItem::animationMove(const QRect &start, const QRect &end)
     _animation->start();
 }
 
-DirMinWidget::DirMinWidget(QWidget *parent)
+DirMinWidget::DirMinWidget(int type, QWidget *parent)
     : QWidget(parent)
     , _col(2)
     , _row(2)
@@ -163,6 +164,7 @@ DirMinWidget::DirMinWidget(QWidget *parent)
     , _current(0)
     , _iconNum(0)
     , _dragEnable(true)
+    , _type(type)
 //    , _isMouseMove(false)
 //    , _pageSize(_width, _height)
 {
@@ -248,7 +250,8 @@ DirMinWidget::~DirMinWidget()
 void DirMinWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    switch(ICON_TYPE)
+
+    switch(_type)   //ICON_TYPE
     {
         case 0 :
 
@@ -436,7 +439,8 @@ int DirMinWidget::addIcon(const QString &text, \
         expand();
 
     IconMinItem *icon = new IconMinItem(this);
-    switch(ICON_TYPE)
+
+    switch(_type)   //ICON_TYPE
     {
         case 0 :
             icon->setSLargeSize();
@@ -485,9 +489,20 @@ int DirMinWidget::addIcon(const QString &text, \
                     if (_nextIdx[i] < _row * _col) {
                         page = i;
                         index = _nextIdx[i];
-                        move(_pages[page], y());
+//                        move(_pages[page], y());
                         break;
                     }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < _count; i++) {
+                if (_nextIdx[i] < _row * _col) {
+                    page = i;
+                    index = _nextIdx[i];
+//                    move(_pages[page], y());
+                    break;
                 }
             }
         }
@@ -619,6 +634,13 @@ void DirMinWidget::delIcon(const QString &text)
 void DirMinWidget::removeDirMinItem(const QString &text)
 {
     //moveBackIcons(_iconDict.value(text)->page(), _iconDict.value(text)->index());
+
+    if (!_iconDict.value(text))
+    {
+        qDebug() << text << " isn't exist!!!";
+        return;
+    }
+
     delIcon(text);
 }
 
@@ -716,7 +738,7 @@ void DirMinWidget::moveBackIcons(int page, int index)
 
 void DirMinWidget::changeSize()
 {
-    switch(ICON_TYPE)
+    switch(_type)   //ICON_TYPE
     {
         case 0 :
 
@@ -861,12 +883,13 @@ void DirLineEdit::resizeEvent(QResizeEvent *event)
 //    repaint();
 //}
 
-DirMWidget::DirMWidget(QWidget *parent)
+DirMWidget::DirMWidget(int type, QWidget *parent)
     : QWidget(parent)
+    , _type(type)
 {
 //    setAcceptDrops(true);
 
-    switch(ICON_TYPE)
+    switch(_type)   //ICON_TYPE
     {
     case 0 :
 
@@ -891,7 +914,7 @@ DirMWidget::DirMWidget(QWidget *parent)
     }
     setFixedSize(_width, _height);
 
-    _dirMinWidget = new DirMinWidget(this);
+    _dirMinWidget = new DirMinWidget(_type, this);
     _dirMinWidget->move(0, 0);
     _dirMinWidget->setVisible(true);
 
@@ -942,21 +965,21 @@ int DirMWidget::getMinIconNum()
     return _dirMinWidget->getIconNum();
 }
 
-DirMinShowWidget::DirMinShowWidget(QWidget *parent)
+DirMinShowWidget::DirMinShowWidget(int type, QWidget *parent)
     : QWidget(parent)
     , _isMouseMove(false)
     , _isMousePress(false)
     , _skipMouseMove(false)
-    , _smallSize(false)
+    , _type(type)
 {
 
     setAcceptDrops(true);
 
     setFocusPolicy(Qt::ClickFocus);
 
-    _dirMWidget = new DirMWidget(this);
+    _dirMWidget = new DirMWidget(_type, this);
 
-    switch(ICON_TYPE)
+    switch(_type)       //ICON_TYPE
     {
         case 0 :
 
@@ -1046,7 +1069,7 @@ void DirMinShowWidget::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
     _height = height();
     _width = width();
-    switch(ICON_TYPE)
+    switch(_type)   //ICON_TYPE
     {
     case 0:
         _dirLineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
@@ -1076,12 +1099,7 @@ void DirMinShowWidget::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
     QPainter painter(this);
 
-    int i = ICON_TYPE;
-
-    if (_smallSize)
-        i = 2;
-
-    switch(i)
+    switch(_type)   //ICON_TYPE
     {
         case 0 :
 
@@ -1405,9 +1423,4 @@ void DirMinShowWidget::setId(int id)
 
         }
     }
-}
-
-void DirMinShowWidget::showSmallSize(bool isSmall)
-{
-    _smallSize = isSmall;
 }

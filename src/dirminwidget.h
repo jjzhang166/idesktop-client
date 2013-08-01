@@ -21,7 +21,7 @@ class DirMinShowWidget : public QWidget
 {
     Q_OBJECT
 public:
-    DirMinShowWidget(QWidget *parent = 0);
+    DirMinShowWidget(int type, QWidget *parent = 0);
     ~DirMinShowWidget();
 
     void setPage(int page)      { _page = page; }
@@ -42,9 +42,6 @@ public:
                        int page, int index, const QString &url);
 
     int getMinIconNum();
-
-    void showSmallSize(bool isSmall);
-
 
 signals:
 //    void sendUrl(const QString &url);
@@ -137,7 +134,7 @@ private:
     bool _skipMouseMove;
     LocalAppList *_local;
 
-    bool _smallSize;
+    int _type;
 
 };
 
@@ -147,7 +144,7 @@ class DirMWidget : public QWidget
     Q_OBJECT
 
 public: 
-    DirMWidget(QWidget *parent = 0);
+    DirMWidget(int type, QWidget *parent = 0);
     ~DirMWidget();
 
 //    void setPage(int page)      { _page = page; }
@@ -200,7 +197,9 @@ private:
 //    int _id;
 
     int _width;
-    int _height;
+    int _height; 
+
+    int _type;
 };
 
 class DirMinWidget : public QWidget
@@ -208,7 +207,7 @@ class DirMinWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit DirMinWidget(QWidget *parent = 0);
+    explicit DirMinWidget(int type, QWidget *parent = 0);
     ~DirMinWidget();
 
     int addIcon(const QString &text, const QString &iconPath, int page, int index, const QString &url);
@@ -279,6 +278,8 @@ private:
     int _spacing;
 
     bool _dragEnable;
+
+    int _type;
 
 //    QPropertyAnimation *_animation;
 

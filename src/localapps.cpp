@@ -322,10 +322,11 @@ void LocalAppList::save()
     QSqlQuery query(QSqlDatabase::database("local"));
     for (int i = 0; i < _list.count(); i++) {
         QString qstr = QString("update localapps "\
-                               "set page=\'%1\', idx=\'%2\', dirId=\'%3\' where name=\'%4\';")\
+                               "set page=%1, idx=%2, dirId=%3, id = \'%4\'where name=\'%5\';")\
                 .arg(_list.at(i)->page())\
                 .arg(_list.at(i)->index())\
                 .arg(_list.at(i)->dirId())\
+                .arg(_list.at(i)->id())\
                 .arg(_list.at(i)->name());
         if(!query.exec(qstr)) {
             qDebug() <<"query failed";
@@ -352,10 +353,11 @@ QString LocalAppList::getAppImage(QString appPath)
 
          QFileInfo info = QFileInfo(appPath);
          QString path(Config::get("IconDir"));
-         path = path + "\\" + "USER_ADDED_" + info.baseName();
+         path = path + "\\" + info.baseName();      //"USER_ADDED_"
          path += ".png"; //png
-         QPixmap newicon =  picon.scaled(72, 72, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+         QPixmap newicon =  picon.scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
          newicon.save(path, "PNG",-1);
+         qDebug() << newicon.width() << newicon.height();
          return path;
     }
     return "";
@@ -367,7 +369,7 @@ void LocalAppList::addLocalApp(QString appPath)
 
     if (newApp.isEmpty())
         return;
-
+#if 0
     QImage image = QImage(newApp).scaled(72, 72);
     QImage normal = QImage(":images/icon_shadow.png");
     //setImgOpacity(normal, 0);
@@ -388,10 +390,24 @@ void LocalAppList::addLocalApp(QString appPath)
     pt1.end();
     QPixmap pix = QPixmap::fromImage(normal);
     pix.save(newApp, "PNG", -1);//
+#endif
+
+    QImage image = QImage(newApp).scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QImage normal = QImage(":images/icon_shadow.png");
+    QImage middle = QImage(":images/icon_middle_shadow.png");
+
+    QPainter pt1(&normal);
+    pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    pt1.drawImage(QRect(35, 36, 72, 72), middle.scaled(72, 72, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    pt1.drawImage(QRect(35 + 7, 36 + 3, 59, 59), image);
+    pt1.end();
+
+    QPixmap pix = QPixmap::fromImage(normal);
+    pix.save(newApp, "PNG", -1);//
 
     QFileInfo info = QFileInfo(appPath);
     LocalApp *app = new LocalApp();
-    app->setName("/" + info.baseName());
+    app->setName(info.baseName());        // "/" + info.baseName()
     app->setIcon(newApp);
     app->setExecname(appPath);
     if (LocalAppList::getList()->getAppByName(app->name())) {

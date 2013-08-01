@@ -271,6 +271,89 @@ void MenuWidget::createNewFile(int value)
     }
 }
 
+QStringList MenuWidget::getXPAppList()
+{
+    qDebug() << "getNewList";
+    QString newListPath("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Discardable\\PostSetup\\ShellNew");
+    QSettings reg(newListPath, QSettings::NativeFormat);
+    QStringList list = reg.childKeys();
+    QByteArray value;
+    QStringList appList;
+    QStringList appName;
+    QString app;
+    int nCount = list.count();
+    for(int i = 0; i < nCount; i++) {
+        qDebug() << list.at(i);
+        if(list.at(i) == "." || list.at(i) == "~reserved~" || list.at(i) == "Language")
+            continue;
+        value = reg.value(list.at(i)).toByteArray();
+        for(int x=0; x < value.size(); x++)
+        {
+            if(value.at(x) == '.')
+            {
+                app = "";
+                int j = 0;
+                while(value.at(x) || j < 3) {
+                    if(value.at(x))
+                        app += value.at(x);
+                    else {
+                        j++;
+                    }
+                    x++;
+                }
+                break;
+            }
+        }
+        qDebug() << app;
+        if(app != ".bfc") {
+            appList.append(app);
+            appName.append(list.at(i));
+        }
+    }
+    appList.insert(0, "Folder");
+    appName.insert(0, tr("文件夹"));
+    appList.insert(1, ".lnk");
+    appName.insert(1, tr("快捷方式…"));
+    appList.removeDuplicates();
+    int len = appList.count();
+    _appName = appName;
+    _appList = appList;
+    for(int j = 0; j < len ; j++)
+        qDebug() << j << " " << _appList.at(j);
+
+    for(int j = 0; j < len ; j++)
+        qDebug() << j << " " << _appName.at(j);
+    qDebug() <<"app list coutn" << _appList.count();
+    qDebug() <<"app name coutn" << _appName.count();
+    qDebug() << "app count " << getAppCount();
+    return appList;
+}
+
+void MenuWidget::newCreateMenu()
+{
+    if(QSysInfo::windowsVersion() == QSysInfo::WV_XP)
+        getXPAppList();
+    else {
+        _appList = getAppList();
+        _appName = getAppName();
+    }
+    _appCount = getAppCount();
+#if 0
+    oldCreateMenu();
+#else
+    MenuButton *newButton;
+    for(int i = 0; i < _appCount; ++i) {
+        newButton = new MenuButton("", ":images/menu_btn_hover.png", _appName.at(i), this, false);
+        newButton->setGeometry(7, 20 + 19 * i + 2 * i, ICON_W_NEW, BTN_H);
+        newButton->setValue(i);
+        _menuButtons.append(newButton);
+        connect(newButton, SIGNAL(buttonClicked(int)), this, SLOT(createNewFile(int)));
+    }
+    setFixedSize(ICON_W_NEW, 40 + 19 * _appCount + 2 * _appCount);
+#endif
+}
+
+#if 0
 void MenuWidget::newCreateMenu()
 {
     _appList = getAppList();
@@ -290,6 +373,8 @@ void MenuWidget::newCreateMenu()
     setFixedSize(ICON_W_NEW, 40 + 19 * _appCount + 2 * _appCount);
 #endif
 }
+#endif
+
 MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
     : QWidget(parent)
     , _type(type)
@@ -406,7 +491,7 @@ void MenuWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    painter.drawPixmap(0, 0, QPixmap(":images/menu_top.png"));
+    painter.drawPixmap(0, 0, width(), 20, QPixmap(":images/menu_top.png"));
 
     painter.drawPixmap(0, 20, width(), height() - 40, QPixmap(":images/menu_center.png"));
 
@@ -417,14 +502,14 @@ void MenuWidget::paintEvent(QPaintEvent *event)
     }
     else if (_type == MenuWidget::create)
     {
-        painter.drawPixmap(0, 20 + 19 * 2 + 2, QPixmap(":images/menu_line.png"));
+        painter.drawPixmap(0, 20 + 19 * 2 + 2, width(), 2, QPixmap(":images/menu_line.png"));
     }
     else if (_type == MenuWidget::iconMenu)
     {
         painter.drawPixmap(0, 20 + 19, QPixmap(":images/menu_line.png"));
     }
 
-    painter.drawPixmap(0, height() - 20, QPixmap(":images/menu_bottom.png"));
+    painter.drawPixmap(0, height() - 20, width(), 20, QPixmap(":images/menu_bottom.png"));
 
     QWidget::paintEvent(event);
 }
@@ -463,7 +548,14 @@ void MenuButton::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     if (_entered)
-        painter.drawPixmap(0, 0, QPixmap(_hover));
+    {
+        if (this->width() > ICON_W + 1)
+            painter.drawPixmap(20, 0, width() - 55, height(), QPixmap(_hover));
+        else
+        {
+            painter.drawPixmap(0, 0, QPixmap(_hover));
+        }
+    }
     else
         painter.drawPixmap(0, 0, QPixmap(_normal));
 
@@ -489,7 +581,7 @@ void MenuButton::paintEvent(QPaintEvent *)
 // }
     painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 10, QFont::Normal));
     painter.drawPixmap(width() - 50, 5, _subPixmap);
-    painter.drawText(20, 13, _hint);
+    painter.drawText(25, 13, _hint);
 
 }
 

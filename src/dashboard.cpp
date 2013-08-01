@@ -141,12 +141,14 @@ Dashboard::Dashboard(QWidget *parent)
     _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool | Qt::WindowStaysOnTopHint);
     _switcherLeft->setGeometry(_width / 2 - _switcherLeft->width(), 0, _switcherLeft->width(), _switcherLeft->height());
     _switcherLeft->show();
+    _switcherLeft->activateWindow();
 
     _switcherRight = new Switcher(this);
     _switcherRight->setPixmap(QString(":images/isoft_normal.png"));
     _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool | Qt::WindowStaysOnTopHint);
     _switcherRight->setGeometry(_switcherLeft->pos().x() + _switcherLeft->width(), 0, _switcherRight->width(), _switcherRight->height());
     _switcherRight->show();
+    _switcherRight->activateWindow();
 
     _vacShowWidget = new VacShowWidget(QSize(841, 540), this);
     _vacShowWidget->move((_width - _vacShowWidget->width()) / 2, (_height - _vacShowWidget->height()) / 2);
@@ -268,8 +270,8 @@ Dashboard::Dashboard(QWidget *parent)
 
     _animationDownMin = new QPropertyAnimation(_downMinW, "geometry");
 
-    connect(_upMoveWidget, SIGNAL(mousePress()), vdesktop, SLOT(hideDirWidget()));
-    connect(_downMoveWidget, SIGNAL(mousePress()), vdesktop, SLOT(hideDirWidget()));
+    connect(_upMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
+    connect(_downMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
 
     connect(_vacServerWidget, SIGNAL(serverChanged()), this, SLOT(updateVacServer()));
     connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
@@ -310,6 +312,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(vdesktop, SIGNAL(pageIncreased()), this, SLOT(updateNodes()));
     connect(vdesktop, SIGNAL(pageDecreased()), this, SLOT(updateNodes()));
     connect(vdesktop, SIGNAL(refreshVac()), this, SLOT(timeOut()));
+    connect(vdesktop, SIGNAL(hideDesktop()), this, SLOT(getOut()));
 //    connect(vdesktop, SIGNAL(bgMove(int, int)), this, SLOT(bgMove(int, int)));
 //    connect(vdesktop, SIGNAL(toOrigin()), switcher, SLOT(changed()));////////
     connect(panel, SIGNAL(setEqual(int)), vdesktop, SLOT(arrangeEqually(int)));
@@ -353,6 +356,8 @@ Dashboard::Dashboard(QWidget *parent)
             , _toolBarWidget, SLOT(moveOutIcon(const QString&)));
     connect(vdesktop, SIGNAL(delToolBarIcon(const QString &))
             , _toolBarWidget, SLOT(delIcon(const QString&)));
+    connect(vdesktop, SIGNAL(toolBarRemoveDirMinItem(const QString &, int))
+            , _toolBarWidget, SLOT(toolBarRemoveDirMinItem(const QString &, int)));
 
     connect(_animationDown,SIGNAL(finished()), this, SLOT(animationFinished()));
     connect(_animationDownMin,SIGNAL(finished()), this, SLOT(animationMinDownFinished()));
@@ -414,6 +419,12 @@ void Dashboard::updateNodes()
 }
 
 //dir open and close
+
+void Dashboard::vdesktopHideDirWidget()
+{
+    vdesktop->hideDirWidget("", -1);
+}
+
 void Dashboard::desktopClicked()
 {
     _vacShowWidget->setVisible(false);
@@ -510,8 +521,8 @@ void Dashboard::animationFinished()
         vdesktop->setDirHide();
         _downMinW->setVisible(false);
         _minDirLabel->setVisible(false);
-        _upMoveWidget->setVisible(false);
         _downMoveWidget->setVisible(false);
+        _upMoveWidget->setVisible(false);
 
 //        indicator->setVisible(true);
 
@@ -1197,16 +1208,13 @@ void Dashboard::setBgImage(QString url)
 {
     qDebug() << "Dashboard::setBgImage(QString url)" << url;
     QString path = QCoreApplication::applicationDirPath();
-    QString dllPath = path;
     url.replace(QString(":"), QString(""));
     qDebug() << url;
     path += url;
     path.replace(QString("/"), QString("\\"));
-    dllPath.replace(QString("/"), QString("\\"));
-    qDebug() <<"void Dashboard::setBgImage(QString url)"<<path;
-    qDebug() <<"void Dashboard::setBgImage(QString url)"<<dllPath + "\\changebg.dll";
-    QLibrary lib(dllPath + "\\changebg.dll");
-        qDebug() <<"void Dashboard::setBgImage(QString url)"<<path;
+
+    QLibrary lib("changebg.dll");
+
     if(lib.load()) {
         qDebug() << "success load dll";
         if(changebg = (DLL_Changebg)lib.resolve("SetMyWallpaper")) {
@@ -1249,6 +1257,7 @@ void Dashboard::refreshVapp()
 //    }
 
     qDebug() << "refresh Vapp";
+#if 0
     if (!_Isheartbeat)
     {
         qDebug() << "_commui->errID:" << _commui->errID;
@@ -1261,6 +1270,7 @@ void Dashboard::refreshVapp()
 
         return;
     }
+#endif
 
     if (_commui->errID == "10000") {
         if (!_Isheartbeat)
@@ -1344,7 +1354,7 @@ void Dashboard::timeOut()
 //        return;
 //    }
 
-//    refreshVapp();
+    refreshVapp();
 
     refreshPaas();
 }

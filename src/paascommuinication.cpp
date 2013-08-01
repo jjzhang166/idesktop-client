@@ -5,6 +5,7 @@
 #include <QtScript/QScriptValue>
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValueIterator>
+#include <QTextCodec>
 
 #include "paascommuinication.h"
 #include "PaasCommuinication.h"
@@ -135,15 +136,19 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     QString previewURL;
     QString cnName("");
     PAAS_LIST tempPaasList;
-    qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 2";
+//    qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 2";
 
-   QString jsonResult = _buffer;
+//   QString jsonResult = _buffer;
+
+    QTextCodec *codec = QTextCodec::codecForName("utf-8"); //utf-8
+
+    QString jsonResult = codec->toUnicode(_buffer);
     jsonResult.replace(QString("[{"), QString("{"));
-        qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 3";
+//        qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 3";
     jsonResult.replace(QString("}]"), QString("}"));
     QStringList jsonSections = jsonResult.split(QString("},{"), QString::SkipEmptyParts);
-        qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 4";
-    qDebug() << "jsonSections---->" << jsonSections;
+//        qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 4";
+//    qDebug() << "jsonSections---->" << jsonSections;
 
     for (int i = 0; i < jsonSections.size(); i++)
     {
@@ -170,7 +175,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
                 else if (it.name() == "logoURL")
                 {
                     logoURL = it.value().toString();
-                    qDebug() << it.name() << it.value().toString();
+    //                qDebug() << it.name() << it.value().toString();
                 }
                 else if (it.name() == "previewURL")
                 {
@@ -179,7 +184,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
                 else if (it.name() == "urls")
                 {
                     url = it.value().toString();
-                    qDebug() << it.name() << it.value().toString();
+     //               qDebug() << it.name() << it.value().toString();
                 }
            }
         }

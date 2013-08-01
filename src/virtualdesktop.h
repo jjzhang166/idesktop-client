@@ -182,7 +182,7 @@ public:
 
     void toolBarAddDirShowWidget();
 
-    void addShowWidget(int i);
+    void addShowWidget(const QString &text, int i);
 
 public slots:
     void goPage(int page);
@@ -224,7 +224,7 @@ public slots:
                       int page, int index,
                       const QString &url, int type);
 
-    void hideDirWidget();
+    void hideDirWidget(const QString &text, int dirId);
     //normalMenu
 
     void menuChanged(int value);
@@ -314,6 +314,8 @@ signals:
     void refreshVac();
 
     void setMinMoveLabel(bool up);
+
+    void toolBarRemoveDirMinItem(const QString &text = "", int dirId = -1);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);

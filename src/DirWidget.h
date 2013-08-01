@@ -16,6 +16,7 @@ using namespace std;
 #include "iconitem.h"
 #include "contextmenuwidget.h"
 #include "commuinication.h"
+#include "switcher.h"
 
 #ifdef Q_WS_WIN
 #include <QLibrary>
@@ -29,6 +30,7 @@ using namespace std;
 #include <QtNetwork>
 #include <QTimer>
 #include <QPoint>
+#include <QLabel>
 
 typedef  unsigned long DWORD;
 
@@ -101,8 +103,11 @@ public:
 
     void removeIcon(const QString &text);
 
+    void showTitle(QString text);
+    void showClearBtn();
+
 signals:
-    void dirWidgetDragLeave();
+    void dirWidgetDragLeave(const QString &text, int dirId);
     void dirWidgetDelIcon(int id, const QString &text);
     void delApp(const QString &text);
 
@@ -114,6 +119,10 @@ public slots:
     void largeIcon();
     void mediumIcon();
     void smallIcon();
+
+    void clearAllIcon();
+
+    void dirWidgetLeave(const QString &text);
 
 protected:
 //    void resizeEvent(QResizeEvent *event);
@@ -140,6 +149,9 @@ private:
     int _iconCount;
     int _currentPage;
     int _count;
+
+    QLabel *_titleLabel;
+    Switcher *_clearBtn;
 
 };
 
@@ -173,6 +185,8 @@ public:
     void setId(int id)                  { _id = id; }
     int id()                            { return _id; }
 
+    int getHeight()                    { return _count * _pageSize.height(); }
+
     void expand();
     void delPage(int page);
 
@@ -193,6 +207,7 @@ public:
     void moveBackIcons(int page, int index);
 
 //    void initIconItem();
+    void clearAllIcon();
 
 signals:
 //    void sendUrl(const QString &url);
@@ -201,7 +216,7 @@ signals:
     void pageIncreased();
     void pageDecreased();
 
-    void dirWidgetDragLeave();
+    void dirWidgetDragLeave(const QString &text);
     void dirWidgetDelIcon(int id, const QString &text);
 
 public slots:
@@ -248,6 +263,7 @@ private:
     QList<QList<IconItem*> > _iconTable;
     QList<QList<QRect> > _gridTable;
     QList<int> _nextIdx;
+    QList<QString> _clearNames;
     QMap<QString, IconItem*> _iconDict;
 
     int _iconsPerPage;

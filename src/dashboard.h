@@ -114,6 +114,10 @@ public slots:
     void updateNodes();
 
     void setMinMoveLabel(bool up);
+    void getIn();
+    void getOut();
+
+    void vdesktopHideDirWidget();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -146,8 +150,8 @@ private:
     QAction *menu_refresh;
 
     QAction *menu_hideAction;
-    void getIn();
-    void getOut();
+//    void getIn();
+//    void getOut();
      //??//
     int _wid;
     QAction *changepwdAction;

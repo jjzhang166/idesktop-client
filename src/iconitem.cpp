@@ -92,6 +92,9 @@ IconItem::~IconItem()
 void IconItem::setId(int id)
 {
     _id = id;
+
+    if (_saveDataBool)
+        _app->setId(QString("%1").arg(id));
 }
 
 void IconItem::setPage(int page)
@@ -431,6 +434,22 @@ void IconItem::paintEvent(QPaintEvent *event)
         painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT, _selectPixmap);
     else
         painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT, QPixmap(""));
+    switch(ICON_TYPE)
+    {
+        case 0 :
+            painter.drawPixmap(_width - 36 - 26, 36, _iconClassPixmap);
+            break;
+
+        case 1 :
+
+            painter.drawPixmap(_width - 29 - 27, 29 + 1, _iconClassPixmap);
+            break;
+
+        default:
+
+            painter.drawPixmap(_width - 25 - 27, 25 + 1, _iconClassPixmap);
+            break;
+    }
 
     QWidget::paintEvent(event);
 
@@ -584,8 +603,6 @@ void IconItem::mouseMoveEvent(QMouseEvent *event)
     gap = drag->hotSpot();
     drag->exec(Qt::MoveAction);
     delete drag;
-    qDebug() << "falfalfjlafjlajflafjjjjjjjjjjjjjjjjjjjjjjjgjjjjjjjjjjjjjj  QDrag";
-
 }
 
 void IconItem::contextMenuEvent(QContextMenuEvent *event)
@@ -974,9 +991,9 @@ void IconItem::setEqualIcon(bool equal)
     repaint();
 }
 //dir_min_show_widget
-void IconItem::addMinWidget()
+void IconItem::addMinWidget(int type)
 {
-    _dirMinShowWidget = new DirMinShowWidget(this);
+    _dirMinShowWidget = new DirMinShowWidget(type, this);
     _dirMinShowWidget->move(0,0);
 
     connect(_dirMinShowWidget, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
@@ -1012,7 +1029,7 @@ void IconItem::removeDirMinItem(const QString &text)
         return;
 
         _dirMinShowWidget->removeDirMinItem(text);
-        qDebug() << "_dirMinShowWidget->removeDirMinItem(text);" <<"text";
+//        qDebug() << "_dirMinShowWidget->removeDirMinItem(text);" <<"text";
 }
 
 void IconItem::addDirMinItem(const QString &text, const QString &icon, \
@@ -1031,12 +1048,11 @@ int IconItem::getMinIconNum()
 void IconItem::setDirMinItemId(int id)
 {
     _id = id;
-    _dirMinShowWidget->setId(id);
-}
 
-void IconItem::showSmallSize(bool isSmall)
-{
-    _dirMinShowWidget->showSmallSize(isSmall);
+    if (_saveDataBool)
+        _app->setId(QString("%1").arg(id));
+
+    _dirMinShowWidget->setId(id);
 }
 
 //dustbin
@@ -1200,4 +1216,22 @@ void IconItem::init()
      }
      _selectedBackgroud = QPixmap::fromImage(normal);
 
+}
+
+void IconItem::setIconClass(int iconClass)
+{
+    if (iconClass == vapp)
+    {
+        _iconClassPixmap.load(":/images/app_normal.png");
+    }
+    else if (iconClass == paas)
+    {
+        _iconClassPixmap.load(":/images/paas_normal.png");
+    }
+    else
+    {
+        _iconClassPixmap.load("");
+    }
+
+    update();
 }

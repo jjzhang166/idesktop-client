@@ -25,9 +25,6 @@
 #include "config.h"
 #include "commuinication.h"
 
-//#define KEY "\\Windows\\CurrentVersion\\App Paths\\"
-//#define KEY "\\Windows\\CurrentVersion\\Uninstall\\"
-//#define PAASURL "http://192.168.30.128/dongfang.php"
 extern QString WIN_LOCAL_IconPath;
 extern QString WIN_VAPP_IconPath;
 extern QString WIN_PAAS_IconPath;
@@ -161,7 +158,7 @@ void VacShowWidget::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 
     painter.drawPixmap(0, 0, _width, _height, _bgPix.scaled(_width, _height));
-    painter.drawPixmap(18, 25, QPixmap(":images/panel_software_normal.png"));
+    painter.drawPixmap(18, 25, QPixmap(":images/software_normal.png"));
 
     QWidget::paintEvent(event);
 }
@@ -964,6 +961,7 @@ int VacWidget::addIcon(QString text, \
     }
 
     icon->setText(text);
+    icon->setIconClass(type);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
     icon->setRunAction(false);

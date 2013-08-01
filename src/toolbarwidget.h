@@ -131,6 +131,8 @@ public slots:
 
     void openDir(int id, int page, int index);
 
+    void toolBarRemoveDirMinItem(const QString &text, int dirId);
+
 signals:
     void pageChanged(int i);
     void pageIncreased();

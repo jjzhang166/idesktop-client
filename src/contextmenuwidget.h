@@ -132,6 +132,7 @@ private:
 public:
     QStringList getAppList(); //得到新建文件后缀名
     QStringList getAppName(); //得到新建文件名
+    QStringList getXPAppList(); //得到新建文件后缀名
     int getAppCount(); //新建个数
     void newCreateMenu(); //新建弹出的list
     void oldCreateMenu();

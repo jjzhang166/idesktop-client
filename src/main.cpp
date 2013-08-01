@@ -28,26 +28,6 @@ HANDLE handle;
 QString serverip;
 /****************************************************************/
 
-////in file main.cpp
-//void crashingMessageHandler(QtMsgType type, const char *msg)
-//{
-//    switch (type) {
-//    case QtDebugMsg:
-//        fprintf(stderr, "Debug: %s\n", msg);
-//        break;
-//    case QtWarningMsg:
-//        fprintf(stderr, "Warning: %s\n", msg);
-//        break;
-//    case QtCriticalMsg:
-//        fprintf(stderr, "Critical: %s\n", msg);
-//        break;
-//    case QtFatalMsg:
-//        fprintf(stderr, "Fatal: %s\n", msg);
-//        __asm("int3");
-//        abort();
-//    }
-//}
-
 int main(int argc, char *argv[])
 {
     serverip = "in put server ip";
@@ -184,12 +164,12 @@ int main(int argc, char *argv[])
                                   "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId) values ( " \
                                   "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
                                   "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\');")\
-                                   .arg("À¬»øÏä").arg("1.0")\
-                                   .arg("À¬»øÏä").arg(":images/dustbin_normal.png")\
-                                   .arg("À¬»øÏä").arg(1)\
+                                   .arg("·ÏÖ½Â¨").arg("1.0")\
+                                   .arg("·ÏÖ½Â¨").arg(":images/dustbin_normal.png")\
+                                   .arg("·ÏÖ½Â¨").arg(1)\
                                    .arg(0).arg(0)\
                                    .arg(int(false)).arg(1000)\
-                                   .arg("4").arg(int(true))\
+                                   .arg("4").arg(int(false))\
                                    .arg("").arg(-2);
 
        QSqlQuery query(QSqlDatabase::database("local"));
@@ -202,7 +182,7 @@ int main(int argc, char *argv[])
        QString qstrWp = QString("insert into wallpapers ("\
                               "id, wallpaper) values ( "\
                               "\'%1\', \'%2\');")\
-                              .arg(1).arg(":images/shadow.png");
+                              .arg(1).arg(":images/wallpager/wp_0.jpg");
 
         if(!query.exec(qstrWp)) {
             qDebug() <<"query failed";

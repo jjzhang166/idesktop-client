@@ -86,18 +86,32 @@ DirShowWidget::DirShowWidget(QSize pageSize, QWidget *parent)
 //    _rightCenterPix.load(":/images/bs_rightbg_center.png");
 //    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
 
+    QTextCodec *codec = QTextCodec::codecForName("System"); //System
+    QTextCodec::setCodecForCStrings(codec);
+
     _width = pageSize.width();
 
     _dirWidget = new DirWidget(pageSize, this);
-    qDebug() << "_dirWidget->height()_dirWidget->height()-0- > " << _dirWidget->height();
-    _dirWidget->setGeometry(0,0, _dirWidget->width() - 5, _dirWidget->height());
-//    _dirWidget->setMaxPage(_maxRow);
+    _dirWidget->setGeometry(0, 30, _dirWidget->width() - 5, _dirWidget->height());
     _dirWidget->setVisible(true);
 
-    _height = _dirWidget->height();
-//    _bgHeight = (ICONITEMWIDTH + VSPACING * 2) * _maxRow;
+    _height = _dirWidget->height() + 30;
 
     resize(_width, _height);
+
+    _titleLabel = new QLabel(this);
+    _titleLabel->move(40,10);
+    _titleLabel->setVisible(true);
+
+    _clearBtn = new Switcher(this);
+    _clearBtn->setPixmap(QString(":images/dushbin_clear_normal.png"));
+    _clearBtn->setGeometry(_width - _clearBtn->width() - 15, 15
+                           , _clearBtn->width(), _clearBtn->height());
+    _clearBtn->setVisible(false);
+
+    connect(_clearBtn, SIGNAL(switcherActivated()), this, SLOT(clearAllIcon()));
+
+
 
 //    _scrollBar = new QScrollBar(this);
 
@@ -130,13 +144,41 @@ DirShowWidget::DirShowWidget(QSize pageSize, QWidget *parent)
  //   connect(_dirWidget, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
     connect(_dirWidget, SIGNAL(pageIncreased()), this, SLOT(setSize()));
     connect(_dirWidget, SIGNAL(pageDecreased()), this, SLOT(setSize()));
-    connect(_dirWidget, SIGNAL(dirWidgetDragLeave()), this, SIGNAL(dirWidgetDragLeave()));
+    connect(_dirWidget, SIGNAL(dirWidgetDragLeave(const QString &)), this, SLOT(dirWidgetLeave(const QString &)));
     connect(_dirWidget, SIGNAL(dirWidgetDelIcon(int, const QString &)), this, SIGNAL(dirWidgetDelIcon(int, const QString &)));
 }
 
 DirShowWidget::~DirShowWidget()
 {
 
+}
+
+void DirShowWidget::dirWidgetLeave(const QString &text)
+{
+    emit dirWidgetDragLeave(text, _id);
+}
+
+void DirShowWidget::showTitle(QString text)
+{
+    QFont font(QString::fromLocal8Bit("Microsoft YaHei"), 14, QFont::Normal);
+    QFontMetrics fm(font);
+    int textflags = Qt::AlignLeft | Qt::TextExpandTabs;
+    QSize textsize = fm.size(textflags, text);
+    _titleLabel->setStyleSheet("color:white");
+    _titleLabel->setFont(font);
+    _titleLabel->resize(textsize);
+    _titleLabel->setText(QString(tr("%1")).arg(text));
+     QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(_titleLabel);
+     effect->setBlurRadius(8);
+     effect->setColor(QColor(0, 0, 0));
+     effect->setOffset(-1,1);
+     _titleLabel->setGraphicsEffect(effect);
+
+}
+
+void DirShowWidget::showClearBtn()
+{
+    _clearBtn->setVisible(true);
 }
 
 void DirShowWidget::removeIcon(const QString &text)
@@ -210,13 +252,12 @@ void DirShowWidget::mousePressEvent(QMouseEvent *event)
 void DirShowWidget::setSize()
 {
     qDebug() << "DirShowWidget::setSize() : ";
-    _width = _dirWidget->width();
-    _height = _dirWidget->height();
+//    _dirWidget->setMaxPage(_maxRow);
+
+    _dirWidget->setGeometry(0, 30, _dirWidget->width() - 5, _dirWidget->getHeight());
+    _height = _dirWidget->width() + 30;
 
     setFixedSize(_width, _height);
-
-    _dirWidget->setGeometry(0,0, _width, _height);
-
     update();
 }
 
@@ -286,6 +327,11 @@ void DirShowWidget::setId(int id)
 {
     _id = id;
     _dirWidget->setId(_id);
+}
+
+void DirShowWidget::clearAllIcon()
+{
+    _dirWidget->clearAllIcon();
 }
 
 //
@@ -895,6 +941,7 @@ int DirWidget::addIcon(const QString &text,
     }
 
     icon->setText(text);
+    icon->setIconClass(type);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
     icon->setRunAction(true);
@@ -920,17 +967,21 @@ int DirWidget::addIcon(const QString &text,
             }
         }
     } else {
-        if (_nextIdx[page] < _iconsPerPage)
-        {
-            index = _nextIdx[page];
-        }
-        else {
-            for (int i = 0; i < _count; i++) {
-                if (_nextIdx[i] < _row * _col) {
-                    page = i;
-                    index = _nextIdx[i];
-                    move(_pages[page], y());
-                    break;
+        if (index == -1) {
+            if (_nextIdx[page] < _iconsPerPage)
+            {
+                index = _nextIdx[page];
+            }
+            else
+            {
+                for (int i = 0; i < _count; i++) {
+                    if (_nextIdx[i] < _row * _col)
+                    {
+                        page = i;
+                        index = _nextIdx[i];
+                        move(_pages[page], y());
+                        break;
+                    }
                 }
             }
         }
@@ -952,7 +1003,7 @@ int DirWidget::addIcon(const QString &text,
     icon->setIndex(index);
     icon->setUrl(url);
     icon->setDirId(_id);
-    icon->setId(_id);
+    icon->setId(111);
     icon->setType(type);
     _iconDict.insert(text, icon);
     _iconTable[page][index] = icon;
@@ -1025,7 +1076,7 @@ void DirWidget::delPage(int page)
             if (icon != NULL) {
                 icon->setPage(i);
                 icon->setIndex(j);
-                icon->setGeometry(_gridTable[i][j].translated(SPACING, SPACING));
+                icon->setGeometry(_gridTable[i][j].translated(HSPACING, VSPACING));
             }
         }
     }
@@ -1040,7 +1091,7 @@ void DirWidget::delPage(int page)
             _inDrag->setPage(_inDrag->page() - 1);
         emit pageChanged(_current);
     }
-    setFixedSize( _count * _pageSize.width(), _pageSize.height());
+    setFixedSize(_pageSize.width(),  _count * _pageSize.height());
     move(_pages[_current], y());
     emit pageDecreased();
 }
@@ -1123,13 +1174,10 @@ void DirWidget::moveBackIcons(int page, int index)
     qDebug() << "_nextIdx[_count - 1] : " << _nextIdx[_count - 1];
     if (_nextIdx[_count - 1] == 0)
     {
-        if (_count - 1 == 0)
+        if (_count - 1 != 0)
         {
-            qDebug() << "_nextIdx[_count - 1] : " << _nextIdx[_count - 1];
-            return;
+            delPage(_count - 1);
         }
-
-        delPage(_count - 1);
     }
 
     _iconNum--;
@@ -1488,6 +1536,8 @@ void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
     int p = _inDrag->page();
     int s = _inDrag->index();
 
+    emit dirWidgetDragLeave(_inDrag->text());
+
     _iconDict.take(_inDrag->text());
     _inDrag = NULL;
 
@@ -1495,7 +1545,7 @@ void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
 
     moveBackIcons(p, s);
 
-    emit dirWidgetDragLeave();
+
 
     Q_UNUSED(event);
 }
@@ -1680,7 +1730,6 @@ void DirWidget::runServerApp()
             Commui._type = g_myVappList.at(i).type;
         }
     }
-
 
     if(_communi.errID == "10000")
     {
@@ -1893,4 +1942,31 @@ void DirWidget::runServerApp()
         QMessageBox::warning(this, tr("Get load balance info failed"), _communi.errInfo, tr("OK"));
         return;
     }
+}
+
+void DirWidget::clearAllIcon()
+{
+    qDebug() << "clicked";
+
+    if (_clearNames.count() != 0)
+        _clearNames.clear();
+
+    for (int i = 0; i < _local->count(); i++)
+    {
+        if (_local->at(i)->hidden())
+            continue;
+
+        if (_local->at(i)->dirId() == 1000)
+        {
+            _clearNames.append(_local->at(i)->name());
+        }
+    }
+
+    for (int i = 0; i < _clearNames.count(); i++)
+    {
+        LocalAppList::getList()->delApp(_clearNames.at(i));
+        emit dirWidgetDelIcon(_id , _clearNames.at(i));
+    }
+
+    _clearNames.clear();
 }

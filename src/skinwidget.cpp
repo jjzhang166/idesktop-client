@@ -136,7 +136,7 @@ void SkinShowWidget::paintEvent(QPaintEvent *event)
 //                       _rightBottomPix.scaled(_width, 9));
 
     painter.drawPixmap(0, 0, _width, _height, _bgPix.scaled(_width, _height));
-    painter.drawPixmap(10, 20, QPixmap(":images/panel_skin_normal.png"));
+    painter.drawPixmap(10, 20, QPixmap(":images/skin_normal.png"));
 
 //    painter.setPen(QPen(QBrush(Qt::white), 1, Qt::DashLine));
 //    painter.drawLine(15, 40, _width - 25, 40);

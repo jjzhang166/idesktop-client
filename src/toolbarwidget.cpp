@@ -132,13 +132,7 @@ toolBarWidget::toolBarWidget(QSize pageSize, QWidget *parent)
     setAutoFillBackground(true);
     setFixedSize(_width, _height);
 
-//    setAttribute(Qt::WA_TranslucentBackground, true);
-//    QPalette pal = palette();
-//    pal.setColor(QPalette::Background, QColor(0x00,0x00,0x00,0xdd));
-//    setPalette(pal);
-
     QPalette pal = palette();
-    //pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     pal.setColor(QPalette::Background, QColor(255,255,255,0));
     setPalette(pal);
 
@@ -742,9 +736,9 @@ int toolBarWidget::addIcon(const QString &text, \
     if(type == dirIcon)
     {
 
-        icon->addMinWidget();
+        icon->addMinWidget(2);  //  0 : largeSize, 1 : mediumSize, 2 : smallSize;
         icon->setId(id);
-        icon->showSmallSize(true);
+//        icon->showSmallSize(true);
 
     }
     else if (type == 4)
@@ -1723,7 +1717,7 @@ void toolBarWidget::setLargeIcon()
 {
 //    hideMenuWidget();
 
-    LocalAppList::getList()->save();
+//    LocalAppList::getList()->save();
 
     _iconSize = IconItem::large_size;
     ICON_TYPE = _iconSize;
@@ -1751,7 +1745,7 @@ void toolBarWidget::setMediumIcon()
 {
 //    hideMenuWidget();
 
-    LocalAppList::getList()->save();
+//    LocalAppList::getList()->save();
 
     _iconSize = IconItem::medium_size;
     ICON_TYPE = _iconSize;
@@ -1778,7 +1772,7 @@ void toolBarWidget::setSmallIcon()
 {
 //    hideMenuWidget();
 
-    LocalAppList::getList()->save();
+//    LocalAppList::getList()->save();
 
     _iconSize = IconItem::small_size;
     ICON_TYPE = _iconSize;
@@ -2205,25 +2199,19 @@ void toolBarWidget::moveOutIcon(const QString &text)
     {
         _dirMinList.removeOne(text);
     }
-    qDebug() << "_iconItemLists-->1";
+
     for (int i = 0; i < _iconItemLists.count(); i++)
     {
-            qDebug() << "_iconItemLists-->2";
+
         if (_iconItemLists.at(i)->text() == text)
         {
-                qDebug() << "_iconItemLists-->3";
-
             QList<IconItem*>::iterator iter = _iconItemLists.begin() + i;
             _iconItemLists.at(i)->setParent(NULL);
             _iconItemLists.at(i)->deleteLater();
             _iconItemLists.erase(iter);
-                qDebug() << "_iconItemLists-->4";
             break;
         }
     }
-        qDebug() << "_iconItemLists-->5";
-
-    qDebug() << _iconItemLists.count();
 
     int p = _iconDict.value(text)->page();
     int s = _iconDict.value(text)->index();
@@ -2236,3 +2224,21 @@ void toolBarWidget::moveOutIcon(const QString &text)
 
 }
 
+void toolBarWidget::toolBarRemoveDirMinItem(const QString &text, int dirId)
+{
+    for (int i = 0; i < _local->count(); i++)
+    {
+        if (_local->at(i)->id().toInt() == dirId)
+        {
+            if (_local->at(i)->dirId() == -2)
+            {
+                if (!_iconDict.value(_local->at(i)->name()))
+                    break;
+
+                _iconDict.value(_local->at(i)->name())->removeDirMinItem(text);
+            }
+
+            break;
+        }
+    }
+}
