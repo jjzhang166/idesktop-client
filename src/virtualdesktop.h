@@ -126,9 +126,10 @@ public:
     //void setMargin(int top, int bottom, int left, int right);
 
     int addIcon(const QString &text, const QString &icon, \
-                int page, int index, const QString &url, int type = 0, int i = -1);
-    int showAddIcon(int page, int index);
-    IconItem *getIconByName(const QString &name);
+                int page, int index, const QString &url, \
+                int type = 0, int i = -1, const QString &uniqueName = "");
+//    int showAddIcon(int page, int index);
+    IconItem *getIconByName(const QString &uniqueName);
 
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
@@ -182,15 +183,17 @@ public:
 
     void toolBarAddDirShowWidget();
 
-    void addShowWidget(const QString &text, int i);
+    void addShowWidget(const QString &text, int i, const QString &uniqueName);
 
 public slots:
     void goPage(int page);
 
     void onProcessFinished(int, QProcess::ExitStatus);
-    void delIcon(const QString &text);
+    void delIcon(const QString &uniqueName);
 //    void delIcon(IconItem *ic);
-    int addIcon(const QString &text, const QString &icon, const QString &url, int type = 0, int i = -1);
+    int addIcon(const QString &text, const QString &icon,
+                const QString &url, int type = 0,
+                int i = -1, const QString &uniqueName = "");
     void updateClicked();
     void itemHeld();
     void dragRight();
@@ -202,8 +205,8 @@ public slots:
     void appDelete();
     void appCancel();
 
-    void runApp(const QString &text);
-    void uninstall(const QString &name);
+    void runApp(const QString &uniqueName);
+    void uninstall(const QString &uniqueName);
 
     void upLoad();
 
@@ -215,16 +218,17 @@ public slots:
 
     void openDir(int id, int page, int index);
     void closeDir(int page, int index);
-    void addDesktopApp(const QString &text, const QString &pix, const QString &url, int type);
+    void addDesktopApp(const QString &text, const QString &pix,
+                       const QString &url, int type, const QString &uniqueName);
 
     void iconDragLeave();
     void iconDragEnter();
     void iconDragMove();
     void iconDragDrop(int id, const QString &text, const QString &iconPath,
                       int page, int index,
-                      const QString &url, int type);
+                      const QString &url, int type, const QString &uniqueName);
 
-    void hideDirWidget(const QString &text, int dirId);
+    void hideDirWidget(const QString &uniqueName, int dirId);
     //normalMenu
 
     void menuChanged(int value);
@@ -236,27 +240,27 @@ public slots:
 
     void addDirItem();
 
-    void showIconContextMenu(bool,QPoint pos, QPoint mPos, const QString &text);
+    void showIconContextMenu(bool,QPoint pos, QPoint mPos, const QString &uniqueName);
     void iconMenuRunClicked();
     void iconMenuDelClicked();
 
     void refreshMenu();
-    void dirWidgetDelIcon(int id, const QString &text);
+    void dirWidgetDelIcon(int id, const QString &uniqueName);
 
     void moveWidgetDrop(IconItem *iconItem);
 
-    void vacWidgetDelIcon(const QString &text);
+    void vacWidgetDelIcon(const QString &uniqueName);
 
-    void desktopIconMoveOtherWidget(const QString &text);
+    void iconMoveOtherWidget(const QString &uniqueName);
 
     void toolBarOpenDir(int id, int posX, int width);
     void toolBarCloseDir(int id, int posX, int width);
     void toolBarIconToDustbin(const QString &text,
                               const QString &iconPath, int page,
-                              int index, const QString &url, int type);
+                              int index, const QString &url, int type, const QString &uniqueName);
     void toolBarIconToDir(int id, const QString &text,
                           const QString &iconPath, int page,
-                          int index, const QString &url, int type);
+                          int index, const QString &url, int type, const QString &uniqueName);
 
 signals:
     void pageChanged(int i);
@@ -304,9 +308,9 @@ signals:
     void createEXCEL();
     void createPPT();
 
-    void desktopDelIcon(const QString &text);
-    void delToolBarWidgetIcon(const QString &text);
-    void delToolBarIcon(const QString &text);
+    void desktopDelIcon(const QString &uniqueName);
+    void delToolBarWidgetIcon(const QString &uniqueName);
+    void delToolBarIcon(const QString &uniqueName);
     //miya add
     void hideDesktop();
     void addDesktopLink();
@@ -315,7 +319,7 @@ signals:
 
     void setMinMoveLabel(bool up);
 
-    void toolBarRemoveDirMinItem(const QString &text = "", int dirId = -1);
+    void toolBarRemoveDirMinItem(const QString &uniqueName = "", int dirId = -1);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -383,7 +387,7 @@ private:
     DirMinShowWidget *_dirMinShowWidget;
 
     QList<QString> _dirMinList;
-    QList<DirShowWidget *> _dirList;
+    QList<DirShowWidget *> _dirShowWidgetList;
 
     DirShowWidget *_dirShowWidget;
     DirShowWidget *_dustbinDirShowWidget;
@@ -409,6 +413,7 @@ private:
     bool _dragEnterMinWidget;
 
     QString _currentIconItem;
+    QString _currentUniqueName;
 
     MenuWidget *_iconMenu;
 //DirWidget object to this

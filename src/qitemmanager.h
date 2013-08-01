@@ -20,7 +20,7 @@ public:
     int keyAt(int i);
     IconItem* itemAt(int i);
     bool containsItem(IconItem *);
-    void removeByName(QString name);
+    void removeByUniqueName(QString uniqueName);
     void clearFocus();
 
     

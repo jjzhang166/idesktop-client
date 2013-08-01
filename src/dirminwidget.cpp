@@ -155,6 +155,11 @@ void IconMinItem::animationMove(const QRect &start, const QRect &end)
     _animation->start();
 }
 
+void IconMinItem::setUniqueName(const QString &uniqueName)
+{
+    _uniqueName = uniqueName;
+}
+
 DirMinWidget::DirMinWidget(int type, QWidget *parent)
     : QWidget(parent)
     , _col(2)
@@ -426,11 +431,12 @@ void DirMinWidget::delPage(int page)
     emit pageDecreased();
 }
 
-int DirMinWidget::addIcon(const QString &text, \
-                            const QString &iconPath, \
-                            int page, \
-                            int index,\
-                            const QString &url)
+int DirMinWidget::addIcon(const QString &text,
+                          const QString &iconPath,
+                          int page,
+                          int index,
+                          const QString &url,
+                          const QString &uniqueName)
 {
 
     qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
@@ -529,7 +535,8 @@ int DirMinWidget::addIcon(const QString &text, \
     icon->setPage(page);
     icon->setIndex(index);
     icon->setUrl(url);
-    _iconDict.insert(text, icon);
+    icon->setUniqueName(uniqueName);
+    _iconDict.insert(uniqueName, icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
     icon->show();
@@ -544,10 +551,10 @@ int DirMinWidget::addIcon(const QString &text, \
      return page;
 }
 
-void DirMinWidget::delIcon(const QString &text)
+void DirMinWidget::delIcon(const QString &uniqueName)
 {
 
-    IconMinItem *icon = _iconDict.take(text);
+    IconMinItem *icon = _iconDict.take(uniqueName);
     //icon->setHidden(true);
     int p = icon->page();
     int s = icon->index();
@@ -631,17 +638,17 @@ void DirMinWidget::delIcon(const QString &text)
 //    }
 }
 
-void DirMinWidget::removeDirMinItem(const QString &text)
+void DirMinWidget::removeDirMinItem(const QString &uniqueName)
 {
     //moveBackIcons(_iconDict.value(text)->page(), _iconDict.value(text)->index());
 
-    if (!_iconDict.value(text))
+    if (!_iconDict.value(uniqueName))
     {
-        qDebug() << text << " isn't exist!!!";
+        qDebug() << uniqueName << " isn't exist!!!";
         return;
     }
 
-    delIcon(text);
+    delIcon(uniqueName);
 }
 
 void DirMinWidget::moveBackIcons(int page, int index)
@@ -791,6 +798,11 @@ int DirMinWidget::getIconNum()
     return _iconNum;
 }
 
+void DirMinWidget::setUniqueName(const QString &uniqueName)
+{
+    _uniqueName = uniqueName;
+}
+
 DirLineEdit::DirLineEdit(QString hint, QWidget *parent)
     : QLineEdit(parent), _hint(hint), _color(Qt::white)
     , _mousePress(false)
@@ -923,9 +935,9 @@ DirMWidget::DirMWidget(int type, QWidget *parent)
     connect(_dirMinWidget, SIGNAL(iconLeave()), this, SIGNAL(iconLeave()));
     connect(_dirMinWidget, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
     connect(_dirMinWidget, SIGNAL(iconDrop(const QString&, const QString&, int,
-                                  int, const QString&, int)),
+                                  int, const QString&, int, const QString &)),
             this, SIGNAL(iconDrop(const QString&, const QString&, int,
-                         int, const QString&, int)));
+                         int, const QString&, int, const QString &)));
     connect(_dirMinWidget, SIGNAL(mouseClicked()), this, SIGNAL(mouseClicked()));
 
 }
@@ -949,20 +961,26 @@ void DirMWidget::setMinDragEnable(bool dragEnable)
 //    }
 }
 
-void DirMWidget::removeDirMinItem(const QString &text)
+void DirMWidget::removeDirMinItem(const QString &uniqueName)
 {
-    _dirMinWidget->removeDirMinItem(text);
+    _dirMinWidget->removeDirMinItem(uniqueName);
 }
 
 void DirMWidget::addDirMinItem(const QString &text, const QString &icon, \
-                   int page, int index, const QString &url)
+                   int page, int index, const QString &url, const QString &uniqueName)
 {
-    _dirMinWidget->addIcon(text, icon, page, index, url);
+    _dirMinWidget->addIcon(text, icon, page, index, url, uniqueName);
 }
 
 int DirMWidget::getMinIconNum()
 {
     return _dirMinWidget->getIconNum();
+}
+
+void DirMWidget::setUniqueName(const QString &uniqueName)
+{
+    _uniqueName = uniqueName;
+    _dirMinWidget->setUniqueName(uniqueName);
 }
 
 DirMinShowWidget::DirMinShowWidget(int type, QWidget *parent)
@@ -1051,9 +1069,9 @@ DirMinShowWidget::DirMinShowWidget(int type, QWidget *parent)
 //            this, SLOT(iconDropEvent(const QString&, const QString& ,const QString&)));
 //    connect(_dirMinWidget, SIGNAL(mouseClicked()), this, SLOT(mouseClicked()));
     connect(_dirMWidget, SIGNAL(iconDrop(const QString&, const QString&, int,
-                                         int, const QString&, int)),
+                                         int, const QString&, int, const QString&)),
             this, SIGNAL(iconDrop(const QString&, const QString&, int,
-                                  int, const QString&, int)));
+                                  int, const QString&, int, const QString&)));
     connect(_dirMWidget, SIGNAL(mouseClicked()), this, SIGNAL(openItem()));
     connect(_dirLineEdit, SIGNAL(focusIn()), this, SLOT(editFocusIn()));
     connect(_dirLineEdit, SIGNAL(focusOut()), this, SLOT(editFocusOut()));
@@ -1160,11 +1178,12 @@ void DirMinShowWidget::mouseClicked()
     //emit openItem();
 }
 
-void DirMinShowWidget::iconDropEvent(const QString &text, const QString &iconPath, const QString &url)
+void DirMinShowWidget::iconDropEvent(const QString &text, const QString &iconPath, const QString &url, const QString &uniqueName)
 {
     Q_UNUSED(text);
     Q_UNUSED(iconPath);
     Q_UNUSED(url);
+    Q_UNUSED(uniqueName);
     //emit iconDrop(_id, text, iconPath, url);
 }
 
@@ -1176,7 +1195,7 @@ void DirMinShowWidget::editFocusIn()
 void DirMinShowWidget::editFocusOut()
 {
     QSqlQuery query(QSqlDatabase::database("local"));
-    QString qstr = QString("update localapps set name=\'%1\' where id=\'%2\'").arg(_dirLineEdit->text()).arg(_id);
+    QString qstr = QString("update localapps set name=\'%1\' where uniquename=\'%2\'").arg(_dirLineEdit->text()).arg(_uniqueName);
     if(!query.exec(qstr)) {
         qDebug() <<"query failed";
         return;
@@ -1234,15 +1253,15 @@ void DirMinShowWidget::setMinDragEnable(bool dragEnable)
 
 }
 
-void DirMinShowWidget::removeDirMinItem(const QString &text)
+void DirMinShowWidget::removeDirMinItem(const QString &uniqueName)
 {
-    _dirMWidget->removeDirMinItem(text);
+    _dirMWidget->removeDirMinItem(uniqueName);
 }
 
 void DirMinShowWidget::addDirMinItem(const QString &text, const QString &icon, \
-                   int page, int index, const QString &url)
+                   int page, int index, const QString &url, const QString &uniqueName)
 {
-    _dirMWidget->addDirMinItem(text, icon, page, index, url);
+    _dirMWidget->addDirMinItem(text, icon, page, index, url, uniqueName);
 }
 
 //void DirMinShowWidget::dragEnterEvent(QDragEnterEvent *event)
@@ -1315,7 +1334,8 @@ void DirMinShowWidget::dropEvent(QDropEvent *event)
         int index;
         int type;
         int id;
-        dataStream >> nameText >> pixText >> page >> index >> urlText >> type >> id;
+        QString uniqueName;
+        dataStream >> nameText >> pixText >> page >> index >> urlText >> type >> id >> uniqueName;
         qDebug() << "id"<< id;
         qDebug() << "_id" << _id;
 
@@ -1339,8 +1359,8 @@ void DirMinShowWidget::dropEvent(QDropEvent *event)
             event->accept();
 //    }
 
-    _dirMWidget->addDirMinItem(nameText, pixText, -1, -1, urlText);
-    emit iconDrop(nameText ,pixText, page, index, urlText, type);
+    _dirMWidget->addDirMinItem(nameText, pixText, -1, -1, urlText, uniqueName);
+    emit iconDrop(nameText ,pixText, page, index, urlText, type, uniqueName);
     } else {
         event->ignore();
     }
@@ -1418,9 +1438,15 @@ void DirMinShowWidget::setId(int id)
 
             addDirMinItem(_local->at(i)->name(), _local->at(i)->icon(),
                           _local->at(i)->page(), _local->at(i)->index(),
-                          _local->at(i)->url());
+                          _local->at(i)->url(), _local->at(i)->uniqueName());
 
 
         }
     }
+}
+
+void DirMinShowWidget::setUniqueName(const QString &uniqueName)
+{
+    _uniqueName = uniqueName;
+    _dirMWidget->setUniqueName(uniqueName);
 }

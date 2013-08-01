@@ -43,6 +43,8 @@
 #define ISREMOTE 11
 #define URL     12
 #define DIRID   13
+#define UNIQUENAME 14
+
 extern QList<APP_LIST> g_RemoteappList;
 LocalAppList * LocalAppList::_l = NULL;
 
@@ -56,6 +58,11 @@ LocalApp::LocalApp()
 
 LocalApp::~LocalApp()
 {
+}
+
+void LocalApp::setUniqueName(QString uniqueName)
+{
+    _uniqueName = uniqueName;
 }
 
 LocalAppList * LocalAppList::getList()
@@ -99,9 +106,7 @@ void LocalAppList::updateQList()
         app->setIsRemote(query.value(ISREMOTE).toBool());
         app->setUrl(query.value(URL).toString());
         app->setDirId(query.value(DIRID).toInt());
-//        qDebug()<<"index"<<query.value(IDX).toInt();
-//        qDebug()<<"name:"<<query.value(NAME).toString();
-//        qDebug()<<"isRemote"<<query.value(ISREMOTE).toInt();
+        app->setUniqueName(query.value(UNIQUENAME).toString());
         _list.append(app);
     }
 }
@@ -230,16 +235,17 @@ bool LocalAppList::addRemoteApp(LocalApp *app)
 
     QString qstr = QString("insert into localapps ("\
                            "name, version, execname, icon, uninstall, "\
-                           "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId) values ( " \
+                           "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniquename) values ( " \
                            "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
-                           "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\');")\
+                           "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\',\'%15\');")\
             .arg(app->name()).arg("1.0")\
             .arg(app->name()).arg(app->icon())\
             .arg(app->name()).arg(1)\
             .arg(app->page()).arg(app->index())\
             .arg(int(false)).arg(app->id())\
             .arg(app->type()).arg(int(true))\
-            .arg(app->url()).arg(app->dirId());
+            .arg(app->url()).arg(app->dirId())
+            .arg(app->uniqueName());
     qDebug()<<"query:"<<qstr;
     QSqlQuery query(QSqlDatabase::database("local"));
     if(!query.exec(qstr)) {
@@ -257,16 +263,17 @@ bool LocalAppList::addApp(LocalApp *app)
 
     QString qstr = QString("insert into localapps ("\
                            "name, version, execname, icon, uninstall, "\
-                           "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId) values ( " \
+                           "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniquename) values ( " \
                            "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
-                           "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\');")\
+                           "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\',\'%15\');")\
             .arg(app->name()).arg(app->version())\
             .arg(app->execname()).arg(app->icon())\
             .arg(app->uninstName()).arg(app->date())\
             .arg(app->page()).arg(app->index())\
             .arg(int(app->hidden())).arg(QString("%1").arg(app->id()))\
             .arg(app->type()).arg(int(false))\
-            .arg(app->url()).arg(app->dirId());
+            .arg(app->url()).arg(app->dirId())\
+            .arg(app->uniqueName());
     QSqlQuery query(QSqlDatabase::database("local"));
     if(!query.exec(qstr)) {
         qDebug() <<"query failed";
@@ -274,28 +281,51 @@ bool LocalAppList::addApp(LocalApp *app)
     }
     qDebug()<<"add APP";
     _list.append(app);
-    emit appAdded(app->name(), app->icon(), app->url(), app->type().toInt(), app->id().toInt());
+    emit appAdded(app->name(), app->icon(), app->url(), app->type().toInt(), app->id().toInt(), app->uniqueName());
     return true;
 }
 
-void LocalAppList::delApp(QString name)
-{
-    for (int i = 0; i < _list.count(); i++) {
-        if (_list.at(i)->name() == name) {
-            QString qstr = QString("delete from localapps "\
-                                   "where name=\"%1\";").arg(name);
-            QSqlQuery query = QSqlDatabase::database("local").exec(qstr);
-            _list.remove(i);
-            emit appRemoved(name);
-            return;
-        }
-    }
-}
+//void LocalAppList::delApp(QString name)
+//{
+//    for (int i = 0; i < _list.count(); i++) {
+//        if (_list.at(i)->name() == name) {
+//            QString qstr = QString("delete from localapps "\
+//                                   "where name=\"%1\";").arg(name);
+//            QSqlQuery query = QSqlDatabase::database("local").exec(qstr);
+//            _list.remove(i);
+//            emit appRemoved(name);
+//            return;
+//        }
+//    }
+//}
 
 LocalApp* LocalAppList::getAppByName(const QString &name)
 {
     for (int i = 0; i < _list.count(); i++) {
         if (_list.at(i)->name() == name)
+            return _list.at(i);
+    }
+    return NULL;
+}
+
+void LocalAppList::delApp(QString uniqueName)
+{
+    for (int i = 0; i < _list.count(); i++) {
+        if (_list.at(i)->uniqueName() == uniqueName) {
+            QString qstr = QString("delete from localapps "\
+                                   "where uniquename=\"%1\";").arg(uniqueName);
+            QSqlQuery query = QSqlDatabase::database("local").exec(qstr);
+            _list.remove(i);
+            emit appRemoved(uniqueName);
+            return;
+        }
+    }
+}
+
+LocalApp* LocalAppList::getAppByUniqueName(const QString &uniqueName)
+{
+    for (int i = 0; i < _list.count(); i++) {
+        if (_list.at(i)->uniqueName() == uniqueName)
             return _list.at(i);
     }
     return NULL;
@@ -322,12 +352,13 @@ void LocalAppList::save()
     QSqlQuery query(QSqlDatabase::database("local"));
     for (int i = 0; i < _list.count(); i++) {
         QString qstr = QString("update localapps "\
-                               "set page=%1, idx=%2, dirId=%3, id = \'%4\'where name=\'%5\';")\
+                               "set page=%1, idx=%2, dirId=%3, id=\'%4\', name=\'%5\' where uniquename=\'%6\';")\
                 .arg(_list.at(i)->page())\
                 .arg(_list.at(i)->index())\
                 .arg(_list.at(i)->dirId())\
                 .arg(_list.at(i)->id())\
-                .arg(_list.at(i)->name());
+                .arg(_list.at(i)->name())\
+                .arg(_list.at(i)->uniqueName());
         if(!query.exec(qstr)) {
             qDebug() <<"query failed";
             return;

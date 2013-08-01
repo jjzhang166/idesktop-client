@@ -107,8 +107,8 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
 
     connect(_closeBtn, SIGNAL(clicked()), this, SIGNAL(vacCloseBtnClicked()));
 
-    connect(_vacScrollBarWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int)),
-            this, SIGNAL(addApp(const QString&,const QString&, const QString&, int )));
+    connect(_vacScrollBarWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int, const QString&)),
+            this, SIGNAL(addApp(const QString&,const QString&, const QString&, int, const QString&)));
     connect(_vacScrollBarWidget, SIGNAL(delItem(const QString &)), this, SIGNAL(delItem(const QString &)));
 }
 
@@ -122,14 +122,14 @@ void VacShowWidget::showApp(bool localApp)
     _vacScrollBarWidget->showApp(localApp);
 }
 
-int VacShowWidget::addIcon(QString text, const QString &icon, int page, int index, const QString &url, int type)
+int VacShowWidget::addIcon(QString text, const QString &icon, int page, int index, const QString &url, int type, const QString &uniqueName)
 {
-    _vacScrollBarWidget->addIcon(text, icon, page, index, url, type);
+    _vacScrollBarWidget->addIcon(text, icon, page, index, url, type, uniqueName);
 }
 
-void VacShowWidget::delIcon(const QString &text)
+void VacShowWidget::delIcon(const QString &uniqueName)
 {
-    _vacScrollBarWidget->delIcon(text);
+    _vacScrollBarWidget->delIcon(uniqueName);
 }
 
 
@@ -148,9 +148,9 @@ void VacShowWidget::smallIcon()
     _vacScrollBarWidget->smallIcon();
 }
 
-void VacShowWidget::desktopDelIcon(const QString &text)
+void VacShowWidget::desktopDelIcon(const QString &uniqueName)
 {
-    _vacScrollBarWidget->desktopDelIcon(text);
+    _vacScrollBarWidget->desktopDelIcon(uniqueName);
 }
 
 void VacShowWidget::paintEvent(QPaintEvent *event)
@@ -214,8 +214,8 @@ VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
     _animation = new QPropertyAnimation(_vacWidget, "geometry");
 
     connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
-    connect(_vacWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int)),
-            this, SIGNAL(addApp(const QString&,const QString&, const QString&, int )));
+    connect(_vacWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int, const QString&)),
+            this, SIGNAL(addApp(const QString&,const QString&, const QString&, int, const QString&)));
     connect(_vacWidget, SIGNAL(pageIncreased()), this, SLOT(vacWidgetCountChanged()));
     connect(_vacWidget, SIGNAL(pageDecreased()), this, SLOT(vacWidgetCountChanged()));
     connect(_vacWidget, SIGNAL(delItem(const QString &)), this, SIGNAL(delItem(const QString &)));
@@ -290,14 +290,14 @@ void VacScrollBarWidget::showApp(bool localApp)
         _vacWidget->showApp(false);
 }
 
-int VacScrollBarWidget::addIcon(QString text, const QString &icon, int page, int index, const QString &url, int type)
+int VacScrollBarWidget::addIcon(QString text, const QString &icon, int page, int index, const QString &url, int type, const QString &uniqueName)
 {
-    _vacWidget->addIcon(text, icon, page, index, url, type);
+    _vacWidget->addIcon(text, icon, page, index, url, type, uniqueName);
 }
 
-void VacScrollBarWidget::delIcon(const QString &text)
+void VacScrollBarWidget::delIcon(const QString &uniqueName)
 {
-    _vacWidget->delIcon(text);
+    _vacWidget->delIcon(uniqueName);
 }
 
 void VacScrollBarWidget::vacWidgetCountChanged()
@@ -328,9 +328,9 @@ void VacScrollBarWidget::smallIcon()
     _vacWidget->smallIcon();
 }
 
-void VacScrollBarWidget::desktopDelIcon(const QString &text)
+void VacScrollBarWidget::desktopDelIcon(const QString &uniqueName)
 {
-    _vacWidget->unChecked(text);
+    _vacWidget->unChecked(uniqueName);
 }
 
 //
@@ -925,12 +925,13 @@ VacWidget::~VacWidget()
 
 }
 
-int VacWidget::addIcon(QString text, \
-                       const QString &iconPath, \
-                       int page, \
+int VacWidget::addIcon(QString text,
+                       const QString &iconPath,
+                       int page,
                        int index,
                        const QString &url,
-                       int type)
+                       int type,
+                       const QString &uniqueName)
 {
     int expandPageCount;
     int iconNum = g_RemotelocalList.count() + g_myPaasList.count() + g_myVappList.count();
@@ -959,9 +960,10 @@ int VacWidget::addIcon(QString text, \
             icon->setSmallSize();
             break;
     }
-
+    icon->setSaveDataBool(false);
     icon->setText(text);
     icon->setIconClass(type);
+    icon->setUniqueName(uniqueName);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
     icon->setRunAction(false);
@@ -977,7 +979,7 @@ int VacWidget::addIcon(QString text, \
     icon->setLeaveEventBool(true);
 
 
-    if (LocalAppList::getList()->getAppByName(text))
+    if (LocalAppList::getList()->getAppByUniqueName(uniqueName))
     {
         icon->setEqualIcon(true);
     }
@@ -1028,13 +1030,13 @@ int VacWidget::addIcon(QString text, \
     icon->setUrl(_url);
     icon->setType(type);
     icon->setDirId(0);
-    _iconDict.insert(text, icon);
+    _iconDict.insert(uniqueName, icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
     icon->show();
 
-    connect(icon, SIGNAL(addApp(const QString&, const QString&, const QString&, int)),
-            this, SIGNAL(addApp(const QString&,const QString&, const QString&, int)));
+    connect(icon, SIGNAL(addApp(const QString&, const QString&, const QString&, int, const QString&)),
+            this, SIGNAL(addApp(const QString&,const QString&, const QString&, int, const QString&)));
 
 //    if (text == "XXµÄÐéÄâ»ú" || text == "IE " || text == "WPP" || text == " Word")
 //    {
@@ -1051,11 +1053,11 @@ int VacWidget::addIcon(QString text, \
     //LocalAppList::getList()->save();
 }
 
-void VacWidget::delIcon(const QString &text)
+void VacWidget::delIcon(const QString &uniqueName)
 {
 //    qDebug() << "texttexttexttexttexttexttext" << text;
 
-    IconItem *icon = _iconDict.take(text);
+    IconItem *icon = _iconDict.take(uniqueName);
     //icon->setHidden(true);
     int p = icon->page();
     int s = icon->index();
@@ -1450,7 +1452,7 @@ void VacWidget::getPaasIcon()
 //        addIcon(g_RemotepaasList.at(i).cnName, WIN_PAAS_IconPath + g_RemotepaasList.at(i).cnName +".png",
 //                -1, i, g_RemotepaasList.at(i).urls);
         addIcon(g_RemotepaasList.at(i).cnName, g_RemotepaasList.at(i).iconPath,
-                -1, i, g_RemotepaasList.at(i).urls, paasIcon);
+                -1, i, g_RemotepaasList.at(i).urls, paasIcon, "2_" + g_RemotepaasList.at(i).name);
     }
 
 }
@@ -1460,7 +1462,7 @@ void VacWidget::getVacIcon()
     for(int i = 0; i < g_RemoteappList.count(); i++)
     {
         addIcon(g_RemoteappList[i].name, WIN_VAPP_IconPath + g_RemoteappList[i].id + ".png", \
-                                - 1, -1, QString(""), vacIcon);
+                - 1, -1, QString(""), vacIcon, "1_" + g_RemoteappList[i].id);
     }
 }
 
@@ -1469,7 +1471,7 @@ void VacWidget::getLocalIcon()
     for(int i = 0; i < g_RemotelocalList.count(); i++)
     {
         addIcon(g_RemotelocalList[i].name, g_RemotelocalList[i].iconPath, \
-                                - 1, -1, QString(""), localIcon);
+                - 1, -1, QString(""), localIcon, "0_" + g_RemotelocalList[i].uniqueName);
     }
 }
 
@@ -1618,12 +1620,12 @@ void VacWidget::changeSpacing()
     }
 }
 
-void VacWidget::unChecked(const QString &text)
+void VacWidget::unChecked(const QString &uniqueName)
 {
-    qDebug() << "void VacWidget::unChecked(const QString &text) : " <<text;
+    qDebug() << "void VacWidget::unChecked(const QString &text) : " <<uniqueName;
 
-    if (!_iconDict.value(text))
+    if (!_iconDict.value(uniqueName))
         return;
 
-    _iconDict.value(text)->setEqualIcon(false);
+    _iconDict.value(uniqueName)->setEqualIcon(false);
 }

@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
     Config::initiate();
 //    QApplication app(argc, argv);
     QtSingleApplication app(argc, argv);
+#if 1
     if (app.isRunning())
     {
    //     AppMessageBox box(false, NULL);
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
 
             return EXIT_SUCCESS;
     }
-
+#endif
 
     app.setQuitOnLastWindowClosed(false);
     app.setStyle(new QPlastiqueStyle);
@@ -121,7 +122,8 @@ int main(int argc, char *argv[])
                       "type nvarchar not null," \
                       "isRemote int not null default 0, " \
                       "url nvarchar not null, " \
-                      "dirId int not null);";
+                      "dirId int not null, "\
+                      "uniquename nvarchar not null);";
        QString createUserTable = \
                       "CREATE TABLE users " \
                       "(name nvarchar not null primary key, " \
@@ -161,16 +163,16 @@ int main(int argc, char *argv[])
 
        QString qstrLapp = QString("insert into localapps ("\
                                   "name, version, execname, icon, uninstall, "\
-                                  "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId) values ( " \
-                                  "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
-                                  "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\');")\
+                                  "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniqueName) values ( " \
+                                  "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', \'%8\', "\
+                                  "\'%9\', \'%10\',\'%11\',\'%12\',\'%13\',\'%14\', \'%15\');")\
                                    .arg("·ÏÖ½Â¨").arg("1.0")\
                                    .arg("·ÏÖ½Â¨").arg(":images/dustbin_normal.png")\
                                    .arg("·ÏÖ½Â¨").arg(1)\
                                    .arg(0).arg(0)\
                                    .arg(int(false)).arg(1000)\
                                    .arg("4").arg(int(false))\
-                                   .arg("").arg(-2);
+                                    .arg("").arg(-2).arg("4_·ÏÖ½Â¨");
 
        QSqlQuery query(QSqlDatabase::database("local"));
 

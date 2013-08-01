@@ -40,9 +40,10 @@ public:
     void getIcon();
 
     int addIcon(QString text, const QString &icon, \
-                int page, int index, const QString &url, int type);
+                int page, int index, const QString &url, \
+                int type, const QString &uniqueName);
 
-    void delIcon(const QString &text);
+    void delIcon(const QString &uniqueName);
 
 public slots:
 
@@ -50,12 +51,13 @@ public slots:
     void mediumIcon();
     void smallIcon();
 
-    void desktopDelIcon(const QString &text);
+    void desktopDelIcon(const QString &uniqueName);
 
 signals:
-    void addApp(const QString &text, const QString &pix, const QString &url, int type);
+    void addApp(const QString &text, const QString &pix, const QString &url, \
+                int type, const QString &uniqueName);
     void vacCloseBtnClicked();
-    void delItem(const QString &text);
+    void delItem(const QString &uniqueName);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -86,11 +88,12 @@ public:
     void getIcon();
 
     int addIcon(QString text, const QString &icon, \
-                int page, int index, const QString &url, int type);
+                int page, int index, const QString &url, \
+                int type, const QString &uniqueName);
 
-    void delIcon(const QString &text);
+    void delIcon(const QString &uniqueName);
 
-    void desktopDelIcon(const QString &text);
+    void desktopDelIcon(const QString &uniqueName);
 
 public slots:
     void scrollBarValueChanged(int val);
@@ -101,8 +104,9 @@ public slots:
     void smallIcon();
 //    void desktopDelIcon(const QString &text);
 signals:
-    void addApp(const QString &text, const QString &pix, const QString &url, int type);
-    void delItem(const QString &text);
+    void addApp(const QString &text, const QString &pix, const QString &url, \
+                int type, const QString &uniqueName);
+    void delItem(const QString &uniqueName);
 
 
 protected:
@@ -163,8 +167,9 @@ public:
     void delPage(int page);
 
     int addIcon(QString text, const QString &icon, \
-                int page, int index, const QString &url, int type);
-    void delIcon(const QString &text);
+                int page, int index, const QString &url, \
+                int type, const QString &uniqueName);
+    void delIcon(const QString &uniqueName);
     void moveBackIcons(int page, int index);
 
     void largeIcon();
@@ -177,14 +182,15 @@ public:
     void deleteAllIconItem();
     void reloadApplist(QSize size);
 
-    void unChecked(const QString &text);
+    void unChecked(const QString &uniqueName);
 
 signals:
-    void addApp(const QString &text, const QString &pix, const QString &url, int type);
+    void addApp(const QString &text, const QString &pix, const QString &url, \
+                int type, const QString &uniqueName);
 
     void pageIncreased();
     void pageDecreased();
-    void delItem(const QString &text);
+    void delItem(const QString &uniqueName);
 
 public slots:
 //    void onPaasDone();

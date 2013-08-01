@@ -139,8 +139,6 @@ LoginDialog::LoginDialog(QWidget *parent)
 //    userEdit->setText(QString("admin"));
 //    passEdit->setText(QString("root"));
 
-
-
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
 
@@ -504,11 +502,11 @@ void LoginDialog::auth()
         passError(tr("ÃÜÂë²»ÄÜÎª¿Õ"));
         return;
     }
-    QString md5;
-    QByteArray bb;
-    bb = QCryptographicHash::hash(passEdit->text().toAscii(), \
-                                  QCryptographicHash::Md5);
-    md5.append(bb.toHex());
+//    QString md5;
+//    QByteArray bb;
+//    bb = QCryptographicHash::hash(passEdit->text().toAscii(), \
+//                                  QCryptographicHash::Md5);
+//    md5.append(bb.toHex());
 
     QString statement = QString("select password from users where name='%1'")\
             .arg(userEdit->text());
@@ -597,7 +595,8 @@ void LoginDialog::auth()
             .arg(serverAddr->currentText()).arg(count + 1);
     localDb.exec(replaceAddr);
     //Config::set("Server", "http://" + serverAddr->currentText() + "/");
-    Config::set("password",md5);
+    //Config::set("password",md5);
+    Config::set("password",passEdit->text());
     Config::set("User", userEdit->text());
     QDialog::accept();
 
@@ -721,6 +720,15 @@ void LoginDialog::auth()
 
             //tempLocalList.name = QString(pSectionName);
             tempLocalList.execname = path;
+
+            QString md5;
+            QByteArray bb;
+            bb = QCryptographicHash::hash(path.toAscii(), \
+                                          QCryptographicHash::Md5);
+            md5.append(bb.toHex());
+
+            tempLocalList.uniqueName = md5;
+
             g_RemotelocalList.append(tempLocalList);
             _id++;
             if(chSectionNames[i+1]==0)

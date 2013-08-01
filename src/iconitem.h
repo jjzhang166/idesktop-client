@@ -90,6 +90,8 @@ public:
     QString url()               { return _url; }
     virtual QString pix()       { return _pixText; }
     int dirId()                 { return _dirId; }
+    void setUniqueName(const QString &uniqueName);
+    QString uniqueName()        { return _uniqueName; }
 
     const QString & text();
     virtual const QPixmap & pixmap();
@@ -109,9 +111,9 @@ public:
     void addMinWidget(int type);
     void setMinWidgetDragEnable(bool enable);
 
-    void removeDirMinItem(const QString &text);
+    void removeDirMinItem(const QString &uniqueName);
     void addDirMinItem(const QString &text, const QString &icon, \
-                       int page, int index, const QString &url);
+                       int page, int index, const QString &url, const QString &uniqueName);
 
     int getMinIconNum();
     void setDirMinItemId(int id);
@@ -122,17 +124,22 @@ public:
 
 signals:
 //    void clicked();
-    void runItem(const QString &text);
-    void delItem(const QString &text);
+    void runItem(const QString &uniqueName);
+    void delItem(const QString &uniqueName);
 
     void iconLeave();
     void iconEnter();
     void iconMove();
     void openDir(int id, int page, int index);
-    void iconDrop(int id, const QString &text, const QString &iconPath, int page, int index, const QString &url, int type);
-    void addApp(const QString &text, const QString &pix, const QString &url, int type);
+    void iconDrop(int id, const QString &text,
+                  const QString &iconPath, int page,
+                  int index, const QString &url,
+                  int type, const QString &uniqueName);
+    void addApp(const QString &text, const QString &pix,
+                const QString &url, int type,
+                const QString &uniqueName);
 
-    void showContextMenu(bool ,QPoint pos, QPoint mPos, const QString &text);
+    void showContextMenu(bool ,QPoint pos, QPoint mPos, const QString &uniqueName);
 
     void dragEnterMinWidget();
 
@@ -154,7 +161,7 @@ public slots:
 //dir
     void openDirWidget();
     void iconDropEvent(const QString &text, const QString &iconPath, int page, int index,
-                       const QString &url, int type);
+                       const QString &url, int type, const QString &uniqueName);
 //dustbin
 //    void dustbinOpenDirWidget();
 //    void dustbinIconDropEvent(const QString &text, const QString &iconPath, int page, int index,
@@ -261,6 +268,7 @@ private:
     Dustbin *_dustbin;
 
     QPixmap _iconClassPixmap;
+    QString _uniqueName;
 
 };
 

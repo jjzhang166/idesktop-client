@@ -37,11 +37,13 @@ public:
 
     void setMinDragEnable( bool dragEnable);
 
-    void removeDirMinItem(const QString &text);
+    void removeDirMinItem(const QString &uniqueName);
     void addDirMinItem(const QString &text, const QString &icon, \
-                       int page, int index, const QString &url);
+                       int page, int index, const QString &url, const QString &uniqueName);
 
     int getMinIconNum();
+    void setUniqueName(const QString &uniqueName);
+    QString uniqueName()          { return _uniqueName; }
 
 signals:
 //    void sendUrl(const QString &url);
@@ -51,7 +53,7 @@ signals:
     void iconMove();
 //    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
     void iconDrop(const QString &text, const QString &iconPath, int page, int index,
-                  const QString &url, int type);
+                  const QString &url, int type, const QString &uniqueName);
 
 //    void openItem(int id, int page, int index);
     void openItem();
@@ -62,7 +64,7 @@ signals:
 
 public slots:
     void mouseClicked();
-    void iconDropEvent(const QString &text, const QString &iconPath, const QString &url);
+    void iconDropEvent(const QString &text, const QString &iconPath, const QString &url, const QString &uniqueName);
 
     void editFocusIn();
     void editFocusOut();
@@ -136,6 +138,8 @@ private:
 
     int _type;
 
+    QString _uniqueName;
+
 };
 
 //
@@ -157,12 +161,14 @@ public:
 //    int id()                    { return _dirMWidget->id(); }
     void setMinDragEnable( bool dragEnable);
 
-    void removeDirMinItem(const QString &text);
+    void removeDirMinItem(const QString &uniqueName);
     void addDirMinItem(const QString &text, const QString &icon, \
-                       int page, int index, const QString &url);
+                       int page, int index, const QString &url, const QString &uniqueName);
 
     int getMinIconNum();
 
+    void setUniqueName(const QString &uniqueName);
+    QString uniqueName()          { return _uniqueName; }
 
 signals:
 //    void sendUrl(const QString &url);
@@ -173,7 +179,7 @@ signals:
 //    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
     void iconDrop(const QString &text, const QString &iconPath,
                   int page, int index,
-                  const QString &url, int type);
+                  const QString &url, int type, const QString &uniqueName);
 
 //    void mouseClicked(int id, int page, int index);
     void mouseClicked();
@@ -200,6 +206,7 @@ private:
     int _height; 
 
     int _type;
+    QString _uniqueName;
 };
 
 class DirMinWidget : public QWidget
@@ -210,18 +217,22 @@ public:
     explicit DirMinWidget(int type, QWidget *parent = 0);
     ~DirMinWidget();
 
-    int addIcon(const QString &text, const QString &iconPath, int page, int index, const QString &url);
+    int addIcon(const QString &text, const QString &iconPath,
+                int page, int index, const QString &url, const QString &uniqueName);
     void expand();
     void delPage(int page);
-    void delIcon(const QString &text);
+    void delIcon(const QString &uniqueName);
     void animationMove(const QRect &start, const QRect &end);
 
     void changeSize();
     void setDragEnable(bool dragEnable);
     int getIconNum();
 
-    void removeDirMinItem(const QString &text);
+    void removeDirMinItem(const QString &uniqueName);
     void moveBackIcons(int page, int index);
+
+    void setUniqueName(const QString &uniqueName);
+    QString uniqueName()          { return _uniqueName; }
 
 signals:
     void pageIncreased();
@@ -233,7 +244,7 @@ signals:
     void iconLeave();
     void iconMove();
     void iconDrop(const QString &text, const QString &iconPath, int page, int index,
-                  const QString &url, int type);
+                  const QString &url, int type, const QString &uniqueName);
 
     void mouseClicked();
 
@@ -282,6 +293,7 @@ private:
     int _type;
 
 //    QPropertyAnimation *_animation;
+    QString _uniqueName;
 
 };
 
@@ -347,6 +359,7 @@ public:
     void setUrl(const QString &url);
     void setId(int id);
     void setType(int type);
+    void setUniqueName(const QString &uniqueName);
 
     void setSLargeSize();
     void setSMediumSize();
@@ -364,6 +377,7 @@ public:
 
     const QString & text()      { return _text; }
     const QPixmap & pixmap()    { return _pixmap;}
+    QString uniqueName()        { return _uniqueName; }
 
     int _icontype;/*³ÌÐòÍ¼±ê*/
 
@@ -395,6 +409,7 @@ private:
     int _iconHeight;
 
     bool _isRemote;
+    QString _uniqueName;
 };
 
 

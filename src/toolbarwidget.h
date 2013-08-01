@@ -6,7 +6,7 @@
 #include "iconitem.h"
 #include "dirwidget.h"
 #include "dirminwidget.h"
-# if 1
+
 class toolBarWidget : public QWidget
 {
     Q_OBJECT
@@ -22,10 +22,11 @@ public:
     ~toolBarWidget();
 
 
-    int addIcon(const QString &text, const QString &icon, \
-                int page, int index, const QString &url, int type = 0, int id = -2);
+    int addIcon(const QString &text, const QString &icon,
+                int page, int index, const QString &url,
+                int type, int id, const QString &uniqueName);
 
-    IconItem *getIconByName(const QString &name);
+    IconItem *getIconByName(const QString &uniqueName);
 
 //    void mousePressEvent(QMouseEvent *event);
 //    void mouseReleaseEvent(QMouseEvent *event);
@@ -51,7 +52,6 @@ public:
     bool iconDragState()        { return _iconDragEnter; }
 
     //void runApp(const QString &text);
-    void atExit();
     void moveItem(IconItem *item, int page);
 
     int addDirIcon(int page, int index);
@@ -77,9 +77,11 @@ public slots:
 //    void goPage(int page);
 
 //    void onProcessFinished(int, QProcess::ExitStatus);
-    void delIcon(const QString &text);
+    void delIcon(const QString &uniqueName);
 ////    void delIcon(IconItem *ic);
-   int addIcon(const QString &text, const QString &icon, const QString &url, int type = 0, int id = -2);
+   int addIcon(const QString &text, const QString &icon
+               , const QString &url, int type
+               , int id, const QString &uniqueName);
     void updateClicked();
 
 //    void arrangeEqually(int pageCount);
@@ -97,14 +99,16 @@ public slots:
 
 //    void openDir(int id, int page, int index);
 //    void closeDir(int page, int index);
-    void addDesktopApp(const QString &text, const QString &pix, const QString &url, int type);
+//    void addDesktopApp(const QString &text, const QString &pix,
+//                       const QString &url, int type,
+//                       const QString &uniqueName);
 
     void iconDragLeave();
     void iconDragEnter();
     void iconDragMove();
     void iconDragDrop(int id, const QString &text, const QString &iconPath,
                       int page, int index,
-                      const QString &url, int type);
+                      const QString &url, int type, const QString &uniqueName);
 
     void hideDirWidget();
 //    //normalMenu
@@ -123,15 +127,15 @@ public slots:
 //    void iconMenuDelClicked();
 
    void refreshMenu();
-    void dirWidgetDelIcon(int id, const QString &text);
+    void dirWidgetDelIcon(int id, const QString &uniqueName);
 
 //    void moveWidgetDrop(IconItem *iconItem);
 
-    void moveOutIcon(const QString &text);
+    void moveOutIcon(const QString &uniqueName);
 
     void openDir(int id, int page, int index);
 
-    void toolBarRemoveDirMinItem(const QString &text, int dirId);
+    void toolBarRemoveDirMinItem(const QString &uniqueName, int dirId);
 
 signals:
     void pageChanged(int i);
@@ -168,19 +172,21 @@ signals:
     void createEXCEL();
     void createPPT();
 
-    void desktopDelIcon(const QString &text);
+    void desktopDelIcon(const QString &uniqueName);
 
-    void iconDropToolWidget(const QString &text);
+    void iconDropToolWidget(const QString &uniqueName);
 
     void toolOpenDir(int x, int width, int index);
     void toolCloseDir(int page, int index);
 
     void toolBarIconToDustbin(const QString &text,
                               const QString &iconPath, int page,
-                              int index, const QString &url, int type);
+                              int index, const QString &url,
+                              int type, const QString &uniqueName);
     void toolBarIconToDir(int id, const QString &text,
                           const QString &iconPath, int page,
-                          int index, const QString &url, int type);
+                          int index, const QString &url,
+                          int type, const QString &uniqueName);
 
 protected:
 //    void contextMenuEvent(QContextMenuEvent *event);
@@ -321,6 +327,6 @@ public:
 
 
 };
-#endif
+
 #endif // TOOLBARWIDGET_H
 

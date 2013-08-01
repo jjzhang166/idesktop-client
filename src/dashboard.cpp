@@ -323,12 +323,12 @@ Dashboard::Dashboard(QWidget *parent)
     //connect(panel, SIGNAL(showDesktop()), this, SLOT(onShowDesktop()));
     //setGeoProper();
 
-    connect(_vacShowWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int)),
-            vdesktop, SLOT(addDesktopApp(const QString&,const QString&, const QString&, int))); //
+    connect(_vacShowWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int,const QString &)),
+            vdesktop, SLOT(addDesktopApp(const QString&,const QString&, const QString&, int, const QString &))); //
     connect(_vacShowWidget, SIGNAL(delItem(QString)), vdesktop, SLOT(vacWidgetDelIcon(const QString &)));
     connect(_skinShowWidget, SIGNAL(skinCloseBtnClicked()), _skinShowWidget, SLOT(hide()));
     connect(_vacShowWidget, SIGNAL(vacCloseBtnClicked()), _vacShowWidget, SLOT(hide()));
-    connect(vdesktop, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
+//    connect(vdesktop, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
 //    connect(_dirWidget, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
     connect(_bsWidget,SIGNAL(goBack()), this, SLOT(goDesktop()));
     //move
@@ -366,14 +366,14 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_animationDownMin, SIGNAL(valueChanged(const QVariant&)), this, SLOT(valueChanged(const QVariant&)));
 
     connect(_toolBarWidget, SIGNAL(iconDropToolWidget(const QString &))
-            , vdesktop, SLOT(desktopIconMoveOtherWidget(const QString &)));
+            , vdesktop, SLOT(iconMoveOtherWidget(const QString &)));
 //    connect(_toolBarWidget, SIGNAL(toolBarAddDirSW(int)), this, SLOT(test(int)));
     connect(_toolBarWidget, SIGNAL(toolOpenDir(int,int,int)), vdesktop, SLOT(toolBarOpenDir(int,int,int)));
 //    connect(_toolBarWidget, SIGNAL(toolBarCloseDir(int, int)), vdesktop, SLOT(toolBarCloseDir(int, int)));
-    connect(_toolBarWidget, SIGNAL(toolBarIconToDustbin(const QString &,const QString &, int, int, const QString &, int))
-            , vdesktop, SLOT(toolBarIconToDustbin(const QString &, const QString &, int, int, const QString &, int)));
-    connect(_toolBarWidget, SIGNAL(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int))
-            , vdesktop, SLOT(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int)));
+    connect(_toolBarWidget, SIGNAL(toolBarIconToDustbin(const QString &,const QString &, int, int, const QString &, int, const QString &))
+            , vdesktop, SLOT(toolBarIconToDustbin(const QString &, const QString &, int, int, const QString &, int, const QString &)));
+    connect(_toolBarWidget, SIGNAL(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &))
+            , vdesktop, SLOT(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &)));
     //    connect(vdesktop, SIGNAL(setDirIcon(const QString&, const QString&, const QString&)),
 //            _dirWidget, SLOT(addDirIcon(const QString&, const QString&, const QString&)));
 
@@ -1408,7 +1408,7 @@ void Dashboard::modify()
  //               LocalAppList::getList()->addRemoteApp(RemoteApp);
 
                 _vacShowWidget->addIcon(g_myVappList[i].name, WIN_VAPP_IconPath + g_myVappList[i].id + ".png", \
-                                        vdesktop->count() - 1, -1, QString(""), 1);
+                                        vdesktop->count() - 1, -1, QString(""), 1, "1_" + g_myVappList[i].id);
             }
         }
     }
@@ -1497,7 +1497,7 @@ void Dashboard::paasModify()
             if (!isExist)
             {
                 _vacShowWidget->addIcon(g_myPaasList[i].cnName, g_myPaasList[i].iconPath, \
-                                        - 1, -1, g_myPaasList[i].urls, 2);
+                                        - 1, -1, g_myPaasList[i].urls, 2, "2_" + g_myPaasList[i].name);
             }
         }
     }

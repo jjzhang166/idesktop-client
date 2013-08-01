@@ -38,14 +38,14 @@ using namespace std;
 #include "paascommuinication.h"
 #include "toolbarwidget.h"
 
-#define ICONWIDTH 143                                   //72
-#define ICONHEIGHT 143                                  //72
+#define ICONWIDTH 143
+#define ICONHEIGHT 143
 
 #define SPACING 30
 #define FONTSIZE 10
 
-#define ICONITEMWIDTH 143                               //(ICONWIDTH + SELECTWIDTH/2 + 8)
-#define ICONITEMHEIGHT 143                              //(ICONHEIGHT + 15 + FONTSIZE * 2)
+#define ICONITEMWIDTH 143
+#define ICONITEMHEIGHT 143
 
 #define CLOSEWIDTH 30
 #define CLOSEHEIGHT 30
@@ -195,9 +195,6 @@ toolBarWidget::~toolBarWidget()
 void toolBarWidget::iconDragEnter()
 {
     _iconDragEnter = true;
-
-    qDebug() << "DirWidget*************************_iconDragEnter";
-//    _dragEnterMinWidget = true;
 }
 
 void toolBarWidget::iconDragMove()
@@ -216,8 +213,9 @@ void toolBarWidget::iconDragLeave()
 }
 
 void toolBarWidget::iconDragDrop(int id, const QString &text,
-                                  const QString &iconPath, int page,
-                                  int index, const QString &url, int type)
+                                 const QString &iconPath, int page,
+                                 int index, const QString &url, int type,
+                                 const QString &uniqueName)
 {
     _iconDragEnter = false;
 
@@ -225,7 +223,7 @@ void toolBarWidget::iconDragDrop(int id, const QString &text,
 
     if (_inDrag)
     {
-        moveOutIcon(text);
+        moveOutIcon(uniqueName);
 
         _inDrag = NULL;
     }
@@ -233,14 +231,14 @@ void toolBarWidget::iconDragDrop(int id, const QString &text,
 
     if (id == 1000)
     {
-        emit toolBarIconToDustbin(text, iconPath, -1, index, url, type);
+        emit toolBarIconToDustbin(text, iconPath, -1, index, url, type, uniqueName);
     }
     else
     {
-        emit toolBarIconToDir(id, text, iconPath, -1, index, url, type);
+        emit toolBarIconToDir(id, text, iconPath, -1, index, url, type, uniqueName);
     }
 
-    emit iconDropToolWidget(text);
+    emit iconDropToolWidget(uniqueName);
 
 }
 
@@ -249,14 +247,9 @@ void toolBarWidget::updateClicked()
 //    _itemClicked = false;
 }
 
-IconItem * toolBarWidget::getIconByName(const QString &name)
+IconItem * toolBarWidget::getIconByName(const QString &uniqueName)
 {
-    return _iconDict.value(name, NULL);
-}
-
-void toolBarWidget::atExit()
-{
-//    _local->save();
+    return _iconDict.value(uniqueName, NULL);
 }
 
 //void toolBarWidget::reload()
@@ -404,7 +397,7 @@ void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
         addIcon(icon->text(), icon->pix()
                 , 0, _nextIdx[_count - 1]
                 , icon->url(), icon->type()
-                , icon->id());
+                , icon->id(), icon->uniqueName());
 
         if (_inDrag->type() == dirIcon)
         {
@@ -526,7 +519,7 @@ void toolBarWidget::dragLeaveEvent(QDragLeaveEvent *event)
         if (!_inDrag)
             return;
 
-        moveOutIcon(_inDrag->text());
+        moveOutIcon(_inDrag->uniqueName());
 
         _inDrag = NULL;
 
@@ -584,7 +577,7 @@ void toolBarWidget::dropEvent(QDropEvent *event)
     _inDrag->show();
     qDebug() << "444444444444444444444444444444444444444";
 
-    QString dropText = _inDrag->text();
+    QString dropText = _inDrag->uniqueName();
 
     _inDrag=NULL;
     qDebug() << "555555555555555555555555555555555555555";
@@ -600,9 +593,9 @@ void toolBarWidget::dropEvent(QDropEvent *event)
 
                 if (_dragItem->id() == _local->at(i)->dirId())
                 {
-                    _iconDict.value(_dragItem->text())->addDirMinItem(_local->at(i)->name(), _local->at(i)->icon(),
-                                                                      _local->at(i)->page(), _local->at(i)->index(),
-                                                                      _local->at(i)->url());
+                    _iconDict.value(_dragItem->uniqueName())->addDirMinItem(_local->at(i)->name(), _local->at(i)->icon(),
+                                                                            _local->at(i)->page(), _local->at(i)->index(),
+                                                                            _local->at(i)->url(), _local->at(i)->uniqueName());
                 }
             }
         }
@@ -685,12 +678,12 @@ void toolBarWidget::paintEvent(QPaintEvent *event)
                        31, 60, QPixmap(":images/toolbar_right.png"));
 }
 
-int toolBarWidget::addIcon(const QString &text, \
-                            const QString &iconPath, \
-                            int page, \
-                            int index,\
-                            const QString &url,\
-                            int type, int id)
+int toolBarWidget::addIcon(const QString &text,
+                            const QString &iconPath,
+                            int page,
+                            int index,
+                            const QString &url,
+                            int type, int id, const QString &uniqueName)
 {
     qDebug() << text << iconPath << page << index << url << type << id;
     _localIconNum ++;
@@ -715,6 +708,8 @@ int toolBarWidget::addIcon(const QString &text, \
     icon->setSmallSize();
 //            break;
 //    }
+    icon->setSaveDataBool(true);
+    icon->setUniqueName(uniqueName);
     icon->setText(text);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
@@ -731,7 +726,6 @@ int toolBarWidget::addIcon(const QString &text, \
     icon->setEnterEventBool(true);
     icon->setLeaveEventBool(true);
     icon->setEqualIcon(false);
-    icon->setSaveDataBool(true);
 
     if(type == dirIcon)
     {
@@ -816,7 +810,7 @@ int toolBarWidget::addIcon(const QString &text, \
     icon->setIndex(index);
     icon->setUrl(url);
     icon->setDirId(-2);
-    _iconDict.insert(text, icon);
+    _iconDict.insert(uniqueName, icon);
     _iconItemLists.append(icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
@@ -834,7 +828,7 @@ int toolBarWidget::addIcon(const QString &text, \
     {
 //        icon->setId(_toolBarDirIndex);
 
-        _dirMinList.append(text);
+        _dirMinList.append(uniqueName);
 
 //        _toolBarDirIndex++;
 
@@ -845,8 +839,8 @@ int toolBarWidget::addIcon(const QString &text, \
         connect(icon, SIGNAL(iconEnter()), this, SLOT(iconDragEnter()));
         connect(icon, SIGNAL(iconMove()), this, SLOT(iconDragMove()));
         connect(icon, SIGNAL(iconLeave()), this, SLOT(iconDragLeave()));
-        connect(icon, SIGNAL(iconDrop(int, const QString &, const QString &, int, int, const QString &, int)),
-                this, SLOT(iconDragDrop(int, const QString &, const QString &, int, int, const QString &, int)));
+        connect(icon, SIGNAL(iconDrop(int, const QString &, const QString &, int, int, const QString &, int, const QString&)),
+                this, SLOT(iconDragDrop(int, const QString &, const QString &, int, int, const QString &, int, const QString&)));
         connect(icon, SIGNAL(openDir(int, int, int)), this, SLOT(openDir(int, int, int)));
         connect(icon, SIGNAL(dragEnterMinWidget()), this, SLOT(iconDragEnter()));
     //    connect(icon, SIGNAL(showContextMenu(QPoint, QPoint,const QString &))
@@ -866,21 +860,21 @@ int toolBarWidget::addIcon(const QString &text, \
 
 //}
 
-int toolBarWidget::addIcon(const QString &text, const QString &icon, const QString &url, int type, int id)
+int toolBarWidget::addIcon(const QString &text, const QString &icon, const QString &url, int type, int id, const QString &uniqueName)
 {
-    return addIcon(text, icon, _current, -1, url, type, id);
+    return addIcon(text, icon, _current, -1, url, type, id, uniqueName);
 }
 
-void toolBarWidget::delIcon(const QString &text)
+void toolBarWidget::delIcon(const QString &uniqueName)
 {
-    if (_iconDict.value(text) == NULL)
+    if (_iconDict.value(uniqueName) == NULL)
         return;
 
-    IconItem *icon = _iconDict.take(text);
+    IconItem *icon = _iconDict.take(uniqueName);
 
     for (int i = 0; i < _iconItemLists.count(); i++)
     {
-        if (_iconItemLists.at(i)->text() == icon->text())
+        if (_iconItemLists.at(i)->uniqueName() == icon->uniqueName())
         {
             _iconItemLists.removeAt(i);
             break;
@@ -1507,133 +1501,6 @@ void toolBarWidget::dirMovingFinished()
     _dirMovingFinished = true;
 }
 
-void toolBarWidget::addDesktopApp(const QString &text, const QString &pix, const QString &url, int type)
-{
-    /*
-    _url = url;
-    qDebug() << _url;
-
-    if (toolBarWidget::localIcon == type)
-    {
-            LocalApp *app = new LocalApp();
-            app->setName(text);
-            app->setIcon(pix);
-            app->setType(QString("%1").arg(type));
-            app->setUrl(url);
-            app->setPage(_count - 1);
-            app->setIndex(_nextIdx[_count - 1]);
-            app->setDirId(-1);
-            app->setId("111");
-
-            for (int i = 0; i < g_RemotelocalList.count(); i++)
-            {
-                if(g_RemotelocalList.at(i).name == text)
-                {
-                    qDebug() << "text" << text;
-                    app->setExecname(g_RemotelocalList.at(i).execname);
-                    qDebug() << "***************execname*******************" << g_RemotelocalList.at(i).execname;
-                    break;
-                }
-            }
-
-            if (LocalAppList::getList()->getAppByName(app->name())) {
-                QApplication::processEvents();
-                AppMessageBox box(false, NULL);
-                box.setText("    已添加该图标");
-                box.exec();
-            } else {
-                LocalAppList::getList()->addApp(app);
-            }
-
-    }
-    else if (toolBarWidget::vacIcon == type)
-    {
-            LocalApp *RemoteApp = new LocalApp();
-
-            for (int i = 0; i < g_myVappList.count(); i++)
-            {
-                if(g_myVappList.at(i).name == text)
-                {
-                    RemoteApp->setName(g_myVappList[i].name);
-                    RemoteApp->setId(g_myVappList[i].id);
-                    RemoteApp->setIcon(pix);
-                    RemoteApp->setPage(_count - 1);
-                    RemoteApp->setIndex(_nextIdx[_count - 1]);
-                    RemoteApp->setType(QString("%1").arg(type));
-                    RemoteApp->setIsRemote(true);
-                    RemoteApp->setUrl(url);
-                    RemoteApp->setDirId(-1);
-                    RemoteApp->setId("111");
-                    break;
-                }
-            }
-
-            LocalAppList::getList()->addRemoteApp(RemoteApp);
-            addIcon(RemoteApp->name(), RemoteApp->icon()
-                    , RemoteApp->page(), RemoteApp->index()
-                    , RemoteApp->url(), RemoteApp->type().toInt());
-
-    }
-    else if (toolBarWidget::paasIcon == type)
-    {
-        LocalApp *app = new LocalApp();
-        app->setName(text);
-        app->setIcon(pix);
-        app->setType(QString("%1").arg(type));
-        app->setUrl(url);
-        app->setPage(_count - 1);
-        app->setIndex(_nextIdx[_count - 1]);
-        app->setExecname(url);
-        app->setDirId(-1);
-        app->setId("111");
-
-
-        if (LocalAppList::getList()->getAppByName(app->name())) {
-            QApplication::processEvents();
-            AppMessageBox box(false, NULL);
-            box.setText("    已添加该图标");
-            box.exec();
-        } else {
-            LocalAppList::getList()->addApp(app);
-        }
-    }
-    else if (toolBarWidget::dirIcon == type)
-    {
-        LocalApp *app = new LocalApp();
-        app->setName(text);
-        app->setIcon(pix);
-        app->setType(QString("%1").arg(type));
-        app->setUrl(url);
-        app->setPage(_count - 1);
-        app->setIndex(_nextIdx[_count - 1]);
-        app->setExecname("");
-        app->setDirId(-1);
-        app->setId(QString("%1").arg(_dirMinList.count()));
-
-        LocalAppList::getList()->addApp(app);
-
-    }
-
-*/
-//    addIcon(text, pix, - 1, -1, localIcon);
-
-//    LocalApp *app = new LocalApp();
-//    app->setName("/" + info.baseName());
-//    app->setIcon(newApp);
-//    app->setExecname(appPath);
-//    if (LocalAppList::getList()->getAppByName(app->name())) {
-//        QApplication::processEvents();
-//        AppMessageBox box(false, NULL);
-//        box.setText("    已添加该图标");
-//        box.exec();
-//    } else {
-//        addApp(app);
-//    }
-
-//    AppDataReadExe::Instance()->addLocalApp(path);
-
-}
-
 void toolBarWidget::hideDirWidget()
 {
 //    if (_openDir)
@@ -2061,12 +1928,12 @@ void toolBarWidget::refreshMenu()
     }
 }
 
-void toolBarWidget::dirWidgetDelIcon(int id, const QString &text)
+void toolBarWidget::dirWidgetDelIcon(int id, const QString &uniqueName)
 {
     qDebug() <<"toolBarWidget::dirWidgetDelIcon"<<id;
-    _iconDict.value(_dirMinList.at(id))->removeDirMinItem(text);
+    _iconDict.value(_dirMinList.at(id))->removeDirMinItem(uniqueName);
 
-    emit desktopDelIcon(text);
+    emit desktopDelIcon(uniqueName);
 }
 
 void toolBarWidget::initIconItem()
@@ -2085,53 +1952,39 @@ void toolBarWidget::initIconItem()
                 addIcon(_local->at(i)->name(), _local->at(i)->icon(),
                         _local->at(i)->page(), _local->at(i)->index(),
                         _local->at(i)->url(), 0,
-                        _local->at(i)->id().toInt());
+                        _local->at(i)->id().toInt(), _local->at(i)->uniqueName());
             }
             else if (_local->at(i)->type().toInt() == vacIcon)
             {
                 addIcon(_local->at(i)->name(), _local->at(i)->icon(),
                         _local->at(i)->page(), _local->at(i)->index(),
-                        _local->at(i)->url(), 1, _local->at(i)->id().toInt());
+                        _local->at(i)->url(), 1,
+                        _local->at(i)->id().toInt(), _local->at(i)->uniqueName());
             }
             else if (_local->at(i)->type().toInt() == paasIcon)
             {
                 addIcon(_local->at(i)->name(), _local->at(i)->icon(),
                         _local->at(i)->page(), _local->at(i)->index(),
-                        _local->at(i)->url(), 2, _local->at(i)->id().toInt());
+                        _local->at(i)->url(), 2,
+                        _local->at(i)->id().toInt(), _local->at(i)->uniqueName());
             }
             else if (_local->at(i)->type().toInt() == dirIcon)
             {
                 addIcon(_local->at(i)->name(), "",
                         _local->at(i)->page(), _local->at(i)->index(),
-                        "", 3, _local->at(i)->id().toInt());
+                        "", 3,
+                        _local->at(i)->id().toInt(), _local->at(i)->uniqueName());
             }
             else
             {
                 qDebug() << "ajsdfjaslkdjflasj;flkajsldkfjal;skdfjalsjdf;alsdf";
                 addIcon(_local->at(i)->name(), _local->at(i)->icon(),
                         _local->at(i)->page(), _local->at(i)->index(),
-                        "", 4, _local->at(i)->id().toInt());
+                        "", 4,
+                        _local->at(i)->id().toInt(), _local->at(i)->uniqueName());
             }
         }
     }
-
-//    for (int i = 0; i < _dirMinList.count(); i++)
-//    {
-//        for (int j = 0; j < _local->count(); j++) {
-//            if (_local->at(j)->hidden())
-//                continue;
-
-//            if (_local->at(j)->dirId() == 1000)
-//                continue;
-
-//            if (_local->at(j)->dirId() == _iconDict.value(_dirMinList.at(i))->id())
-//            {
-//                _iconDict.value(_dirMinList.at(_local->at(j)->dirId()))->addDirMinItem(_local->at(j)->name(), _local->at(j)->icon(),
-//                                                                                       _local->at(j)->page(), _local->at(j)->index(),
-//                                                                                       _local->at(j)->url());
-//            }
-//        }
-//    }
 }
 
 void toolBarWidget::setShowType()
@@ -2188,22 +2041,22 @@ void toolBarWidget::setShowType()
      _refreshToolBar = false;
 }
 
-void toolBarWidget::moveOutIcon(const QString &text)
+void toolBarWidget::moveOutIcon(const QString &uniqueName)
 {
 //    _refreshToolBar = true;
 
-    if (!_iconDict.value(text))
+    if (!_iconDict.value(uniqueName))
         return;
 
-    if ( _iconDict.value(text)->type() == dirIcon)
+    if ( _iconDict.value(uniqueName)->type() == dirIcon)
     {
-        _dirMinList.removeOne(text);
+        _dirMinList.removeOne(uniqueName);
     }
 
     for (int i = 0; i < _iconItemLists.count(); i++)
     {
 
-        if (_iconItemLists.at(i)->text() == text)
+        if (_iconItemLists.at(i)->uniqueName() == uniqueName)
         {
             QList<IconItem*>::iterator iter = _iconItemLists.begin() + i;
             _iconItemLists.at(i)->setParent(NULL);
@@ -2213,10 +2066,10 @@ void toolBarWidget::moveOutIcon(const QString &text)
         }
     }
 
-    int p = _iconDict.value(text)->page();
-    int s = _iconDict.value(text)->index();
+    int p = _iconDict.value(uniqueName)->page();
+    int s = _iconDict.value(uniqueName)->index();
 
-    _iconDict.take(text);
+    _iconDict.take(uniqueName);
 
     _iconTable[p][s] = NULL;
 
@@ -2224,7 +2077,7 @@ void toolBarWidget::moveOutIcon(const QString &text)
 
 }
 
-void toolBarWidget::toolBarRemoveDirMinItem(const QString &text, int dirId)
+void toolBarWidget::toolBarRemoveDirMinItem(const QString &uniqueName, int dirId)
 {
     for (int i = 0; i < _local->count(); i++)
     {
@@ -2232,10 +2085,10 @@ void toolBarWidget::toolBarRemoveDirMinItem(const QString &text, int dirId)
         {
             if (_local->at(i)->dirId() == -2)
             {
-                if (!_iconDict.value(_local->at(i)->name()))
+                if (!_iconDict.value(_local->at(i)->uniqueName()))
                     break;
 
-                _iconDict.value(_local->at(i)->name())->removeDirMinItem(text);
+                _iconDict.value(_local->at(i)->uniqueName())->removeDirMinItem(uniqueName);
             }
 
             break;

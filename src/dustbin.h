@@ -32,7 +32,7 @@ signals:
     void iconLeave();
     void iconMove();
     void iconDrop(const QString &text, const QString &iconPath, int page, int index,
-                  const QString &url, int type);
+                  const QString &url, int type, const QString &uniqueName);
 
     void openItem();
 

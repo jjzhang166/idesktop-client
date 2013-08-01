@@ -120,7 +120,8 @@ void Dustbin::dropEvent(QDropEvent *event)
         int index;
         int type;
         int id;
-        dataStream >> nameText >> pixText >> page >> index >> urlText >> type >> id;
+        QString uniqueName;
+        dataStream >> nameText >> pixText >> page >> index >> urlText >> type >> id >> uniqueName;
         qDebug() << "id"<< id;
         qDebug() << "_id" << _id;
 
@@ -132,7 +133,7 @@ void Dustbin::dropEvent(QDropEvent *event)
 
         event->setDropAction(Qt::MoveAction);
         event->accept();
-        emit iconDrop(nameText ,pixText, page, index, urlText, type);
+        emit iconDrop(nameText ,pixText, page, index, urlText, type, uniqueName);
     } else {
         event->ignore();
     }
@@ -159,8 +160,8 @@ void Dustbin::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)
     {
         _isMousePress = true;
-        _skipMouseMove=false;
         QTimer::singleShot(300, this, SLOT(mouseStatus()));
+        _skipMouseMove=false;
     }
 
 }

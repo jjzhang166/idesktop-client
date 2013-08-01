@@ -44,6 +44,8 @@ public:
     void setUrl(QString url)                { _url = url; }
     int dirId()                             { return _dirId; }
     void setDirId(int dirId)                { _dirId = dirId; }
+    void setUniqueName(QString uniqueName);
+    QString uniqueName()                    { return _uniqueName; }
 
 private:
     QString _name;
@@ -60,6 +62,7 @@ private:
     bool _isRemote;
     QString _url;
     int _dirId;
+    QString _uniqueName;
 };
 
 class LocalAppList : public QObject
@@ -73,8 +76,9 @@ public:
     bool addRemoteApp(LocalApp*);
     void updateAppList();
     void updateQList();
-    void delApp(QString name);
+    void delApp(QString uniqueName);
     LocalApp * getAppByName(const QString &name);
+    LocalApp * getAppByUniqueName(const QString &uniqueName);
     LocalApp* at(int i);
     bool updateApp(LocalApp* app);
     int count();
@@ -85,8 +89,8 @@ public:
     QString getUninstExec(QString display);
 
 signals:
-    void appAdded(QString name, QString icon, QString url, int type, int i);
-    void appRemoved(const QString &name);
+    void appAdded(QString name, QString icon, QString url, int type, int i, const QString &uniqueName);
+    void appRemoved(const QString &uniqueName);
 
 private:
     LocalAppList(QObject *parent = NULL);

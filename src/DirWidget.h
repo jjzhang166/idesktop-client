@@ -101,19 +101,23 @@ public:
     int currentPage();
     int count();
 
-    void removeIcon(const QString &text);
+    void removeIcon(const QString &uniqueName);
 
     void showTitle(QString text);
     void showClearBtn();
 
+    void setUniqueName(const QString &uniqueName);
+    QString uniqueName()             { return _uniqueName; }
+
 signals:
-    void dirWidgetDragLeave(const QString &text, int dirId);
-    void dirWidgetDelIcon(int id, const QString &text);
-    void delApp(const QString &text);
+    void dirWidgetDragLeave(const QString &uniqueName, int dirId);
+    void dirWidgetDelIcon(int id, const QString &uniqueName);
+    void delApp(const QString &uniqueName);
 
 public slots:
 //    void scrollBarValueChanged(int val);
-    void addDirIcon(const QString &text, const QString &iconPath, int page, int index, const QString &url, int type);
+    void addDirIcon(const QString &text, const QString &iconPath,
+                    int page, int index, const QString &url, int type, const QString &uniqueName);
     void setSize();
 
     void largeIcon();
@@ -122,7 +126,7 @@ public slots:
 
     void clearAllIcon();
 
-    void dirWidgetLeave(const QString &text);
+    void dirWidgetLeave(const QString &uniqueName);
 
 protected:
 //    void resizeEvent(QResizeEvent *event);
@@ -153,6 +157,8 @@ private:
     QLabel *_titleLabel;
     Switcher *_clearBtn;
 
+    QString _uniqueName;
+
 };
 
 class DirWidget : public QWidget
@@ -166,7 +172,7 @@ public:
 
     int addIcon(const QString &text, const QString &iconPath,
                 int page, int index,
-                const QString &url, int type);
+                const QString &url, int type, const QString &uniqueName);
 
     QString addLocalApp(QString appPath);
     QString getAppImage(QString appPath);
@@ -203,11 +209,14 @@ public:
     void reloadApplist(QSize size);
     int getNearestIndex(const QRect &rect);
 
-    void removeIcon(const QString &text);
+    void removeIcon(const QString &uniqueName);
     void moveBackIcons(int page, int index);
 
 //    void initIconItem();
     void clearAllIcon();
+
+    void setUniqueName(const QString &uniqueName);
+    QString uniqueName()             { return _uniqueName; }
 
 signals:
 //    void sendUrl(const QString &url);
@@ -216,16 +225,16 @@ signals:
     void pageIncreased();
     void pageDecreased();
 
-    void dirWidgetDragLeave(const QString &text);
-    void dirWidgetDelIcon(int id, const QString &text);
+    void dirWidgetDragLeave(const QString &uniqueName);
+    void dirWidgetDelIcon(int id, const QString &uniqueName);
 
 public slots:
-    void showIconContextMenu(bool,QPoint pos, QPoint mPos, const QString &text);
+    void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, const QString &uniqueName);
     void iconMenuRunClicked();
     void iconMenuDelClicked();
-    void runApp(const QString &text);
+    void runApp(const QString &uniqueName);
     void runServerApp();
-    void delIcon(const QString &text);
+    void delIcon(const QString &uniqueName);
 
 protected:
 
@@ -302,112 +311,8 @@ private:
     Dll_CloseAppAll m_dllCloseAppAll;
     Dll_StartAppEx m_dllStartAppEx;
 
+    QString _uniqueName;
+
 };
-
-//class DirItem : public QWidget
-//{
-//    Q_OBJECT
-//public:
-//    DirItem(const QString &text, QWidget *parent = 0);
-//    ~DirItem();
-//    void setPixmap(const QString &icon);
-//    void setText(const QString &text);
-//    const QString & text();
-//    const QPixmap & pixmap();
-//    const QPixmap & originPixmap();
-//    const QPixmap & grayPixmap();
-//    const QPixmap & darkPixmap();
-
-//    bool isUserType();
-
-//    void animationMove(const QRect &start, const QRect &end);
-//    void setPage(int page);
-//    void setIndex(int index);
-//    void setHidden(bool hide);
-//    void setIsRmote(bool isRemote);
-//    int page()
-//    {
-//        return _page;
-//    }
-//    int index()
-//    {
-//        return _index;
-//    }
-//    bool isRmote()
-//    {
-//        return _isRemote;
-//    }
-//    int _icontype;/*³ÌÐòÍ¼±ê*/
-
-//    void setEqualIcon(bool equal);
-
-//    void setUrl(const QString &url) { _url = url;}
-//    QString getUrl() { return _url; }
-//signals:
-//    void clicked();
-//    void runItem(const QString &text);
-//    void delItem(const QString &text);
-
-//    void sendUrl(const QString &url);
-
-//public slots:
-////    void startTremble();
-////    void stopTremble();
-//   void doTremble(qreal);
-
-//    void openClicked();
-//    void delClicked();
-
-//protected:
-//    void mouseDoubleClickEvent(QMouseEvent *event);
-//    void mousePressEvent(QMouseEvent *event);
-//    void mouseMoveEvent(QMouseEvent *event);
-////    void contextMenuEvent(QContextMenuEvent *event);
-//    void paintEvent(QPaintEvent *event);
-
-//    void enterEvent(QEvent *event);
-//    void leaveEvent(QEvent *event);
-
-//private:
-////    LocalApp *_app;
-//    QDrag *_drag;
-//    QTimeLine *_timeline;
-//    QPoint dragStartPosition;
-//    QPropertyAnimation *_animation;
-//    int _textWidth;
-//    QString _text;
-
-//    QString _texticon;
-//    QString _texticon_firstrow;
-//    QString _texticon_secondrow;
-//    QString _texticon_thirdrow;
-//    int _textWidth_firstrow;
-//    int _textWidth_secondrow;
-//    int _textWidth_thirdrow;
-
-//    int _textHeight;
-//    int _page;
-//    int _index;
-//    int _trembling;
-//    bool _isRemote;
-//    QPixmap _pixmap;
-//    QPixmap _normalPixmap;
-//    QPixmap _grayPixmap;
-//    QPixmap _closePixmap;
-//    QPixmap _darkPixmap;
-//    QPixmap _originPixmap;
-
-//    QAction *_openAction;
-//    QAction *_delAction;
-////    HoverIconItem *_hoverDirItem;
-
-//    bool _equal;
-//    QString _url;
-
-//    int _width;
-//    int _height;
-
-//};
-
 
 #endif // DIRWIDGET_H

@@ -153,9 +153,9 @@ DirShowWidget::~DirShowWidget()
 
 }
 
-void DirShowWidget::dirWidgetLeave(const QString &text)
+void DirShowWidget::dirWidgetLeave(const QString &uniqueName)
 {
-    emit dirWidgetDragLeave(text, _id);
+    emit dirWidgetDragLeave(uniqueName, _id);
 }
 
 void DirShowWidget::showTitle(QString text)
@@ -181,9 +181,9 @@ void DirShowWidget::showClearBtn()
     _clearBtn->setVisible(true);
 }
 
-void DirShowWidget::removeIcon(const QString &text)
+void DirShowWidget::removeIcon(const QString &uniqueName)
 {
-    _dirWidget->removeIcon(text);
+    _dirWidget->removeIcon(uniqueName);
 }
 
 //void DirShowWidget::scrollBarValueChanged(int val)
@@ -275,11 +275,13 @@ void DirShowWidget::showApp(bool localApp)
         _dirWidget->showApp(false);
 }
 
-void DirShowWidget::addDirIcon(const QString &text, const QString &iconPath, int page, int index, const QString &url, int type)
+void DirShowWidget::addDirIcon(const QString &text, const QString &iconPath,
+                               int page, int index, const QString &url,
+                               int type, const QString &uniqueName)
 {
 //    _dirWidget->setUrl(url);
     qDebug() << "void DirShowWidget::addDirIcon(" << text;
-    _dirWidget->addIcon(text, iconPath, page, index, url, type);
+    _dirWidget->addIcon(text, iconPath, page, index, url, type, uniqueName);
 }
 
 void DirShowWidget::setMaxRow(int row)
@@ -329,470 +331,16 @@ void DirShowWidget::setId(int id)
     _dirWidget->setId(_id);
 }
 
+void DirShowWidget::setUniqueName(const QString &uniqueName)
+{
+    _uniqueName = uniqueName;
+    _dirWidget->setUniqueName(uniqueName);
+}
+
 void DirShowWidget::clearAllIcon()
 {
     _dirWidget->clearAllIcon();
 }
-
-//
-//DirItem::DirItem(const QString &text, QWidget *parent)
-//    : QWidget(parent)
-//    , _text(text)
-//    , _trembling(0)
-//    ,_equal(false)
-//{
-//    QFontMetrics fm(QFont("", FONTSIZE, QFont::Black));
-
-//    _width = ICONITEMWIDTH;
-//    _height = ICONITEMHEIGHT;
-//    setFixedSize(_width, _height);
-
-//    _textWidth = fm.width(_text);
-
-//    if (_text.startsWith("/")) {
-//        _texticon = _text.right(_text.length() - 1);
-//        _textWidth = fm.width(_text.right(_text.length() - 1));
-//    }
-//    else
-//        _texticon = _text;
-
-//    if (_textWidth > _width)
-//    {
-//        for (int i = 0; i < _textWidth; i++)
-//        {
-//            _textWidth_firstrow = fm.width(_texticon);
-//            if (_textWidth_firstrow > _width)
-//            {
-//                _texticon.chop(1);
-//            }else{
-//                _texticon.chop(3);
-//                _texticon.append("...");
-//                break;
-//            }
-//        }
-//    }
-
-//    _textHeight = fm.height();
-
-////    _texticon = _text;
-////    _texticon_firstrow = _texticon;
-////    _texticon_secondrow = _texticon;
-////    _texticon_thirdrow = _texticon;
-
-////    for (int i = 0; i < _textWidth; i++)
-////    {
-////        _textWidth_firstrow = fm.width(_texticon_firstrow);
-
-////        if (_textWidth_firstrow > width - 20)
-////        {
-////            _texticon_firstrow.chop(1);
-////        }
-////        else{
-////            //_texticon.chop(1);
-////            //_texticon.append("...");
-////            break;
-////        }
-////    }
-////    _texticon_secondrow = _texticon.right(_texticon.length() - _texticon_firstrow.length());
-
-////    _textWidth_secondrow = fm.width(_texticon_secondrow);
-////    for (i = 0; i < _textWidth_secondrow; i++)
-////    {
-////        _textWidth_secondrow = fm.width(_texticon_secondrow);
-
-////        if (_textWidth_secondrow > width - 20)
-////        {
-////            _texticon_secondrow.chop(1);
-////        }
-////        else{
-////            //_texticon.chop(1);
-////            //_texticon.append("...");
-////            break;
-////        }
-////    }
-////    _texticon_thirdrow = _texticon.right(_texticon.length() - _texticon_firstrow.length() - _texticon_secondrow.length());
-
-////    _textWidth_thirdrow = fm.width(_texticon_thirdrow);
-////    if (_textWidth_thirdrow > width)
-////    {
-////        for (i = 0; i < _textWidth_thirdrow; i++)
-////        {
-////            _textWidth_thirdrow = fm.width(_texticon_thirdrow);
-////            if (_textWidth_thirdrow > width - 20)
-////            {
-////                _texticon_thirdrow.chop(1);
-////            }else{
-////                _texticon_thirdrow.chop(3);
-////                _texticon_thirdrow.append("...");
-////                break;
-////            }
-////        }
-////    }
-
-////    _textHeight = fm.height();
-
-////    _app = LocalAppList::getList()->getAppByName(_text);
-//    _animation = new QPropertyAnimation(this, "geometry");
-//    _animation->setDuration(200);
-//    _animation->setEasingCurve(QEasingCurve::OutBack);
-
-//    _timeline = new QTimeLine(5000, this);
-//    _timeline->setLoopCount(0);
-//    _timeline->setUpdateInterval(65);
-
-//    _icontype = APPICON;
-
-////    _hoverDirItem = new HoverIconItem(this->width(), this->height(), this);
-////    _hoverDirItem->setVisible(false);
-
-////    _openAction = new QAction(tr("运行"), this);
-////    connect(_openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
-
-////    if (_style == VirtualDesktop::DirIcon)
-////    {
-////        _delAction = new QAction(tr("删除"), this);
-////        connect(_delAction, SIGNAL(triggered()), this, SLOT(delClicked()));
-////    }
-
-//    connect(_timeline, SIGNAL(valueChanged(qreal)), this, SLOT(doTremble(qreal)));
-////    if (parent) {
-////        if (_style == VirtualDesktop::DirIcon)
-////        {
-////            connect(static_cast<DirWidget*>(parent), \
-////                    SIGNAL(trembleStarted()), \
-////                    this, SLOT(startTremble()));
-////            connect(static_cast<DirWidget*>(parent), \
-////                    SIGNAL(trembleStoped()), \
-////                    this, SLOT(stopTremble()));
-////        }
-////    }
-//}
-
-//DirItem::~DirItem()
-//{
-////    delete _openAction;
-////    delete _hoverDirItem;
-
-////    delete _timeline;
-////    delete _animation;
-//}
-
-//void DirItem::setPage(int page)
-//{
-//    _page = page;
-////    _app->setPage(page);
-//}
-//void DirItem::setIndex(int index)
-//{
-//    _index= index;
-////   _app->setIndex(index);
-//}
-//void DirItem::setHidden(bool hide)
-//{
-////    _app->setHidden(hide);
-//}
-
-//void DirItem::animationMove(const QRect &start, const QRect &end)
-//{
-//    _animation->setStartValue(start);
-//    _animation->setEndValue(end);
-//    _animation->start();
-//}
-
-//void DirItem::doTremble(qreal value)
-//{
-//    Q_UNUSED(value);
-
-//#define LEFT -1
-//#define RIGHT 1
-//    static int direction = LEFT;
-//    if (_trembling == -1) {
-//        _trembling = 0;
-//        direction = RIGHT;
-//    }
-//    else if (_trembling == 0) {
-//        if (direction == LEFT) {
-//            _trembling = -1;
-//        } else {
-//            _trembling = 1;
-//        }
-//    }
-//    else {
-//        _trembling = 0;
-//        direction = LEFT;
-//    }
-//    repaint();
-//#undef LEFT
-//#undef RIGHT
-//}
-
-////void DirItem::startTremble()
-////{
-////    _timeline->start();
-////    _pixmap = _closePixmap;
-////}
-
-////void DirItem::stopTremble()
-////{
-////    _timeline->stop();
-////    _trembling = 0;
-////    _pixmap = _normalPixmap;
-////    repaint();
-////}
-
-//void DirItem::paintEvent(QPaintEvent *event)
-//{
-//    QPainter painter(this);
-//    painter.setRenderHint(QPainter::SmoothPixmapTransform);
-////    if (_trembling)
-////        painter.translate(width()/2, height()/2);
-////    painter.rotate(2*_trembling);
-////    if (_trembling)
-////        painter.translate(-1*width()/2, -1*height()/2);
-
-//    painter.drawPixmap(3, 0, _pixmap);
-
-////    painter.drawPixmap(width() - 50, height() - 80, _closePixmap);
-
-//    QWidget::paintEvent(event);
-//}
-
-//void DirItem::mousePressEvent(QMouseEvent *event)
-//{
-////    if (_timeline->state() == QTimeLine::Running) {
-////        if (QRect(0, 5, 30, 35).contains(event->pos())) {
-////            delClicked();
-////            return;
-////        }
-////    }
-
-////    if (event->button() == Qt::LeftButton && \
-////            geometry().contains(event->pos())) {
-////        dragStartPosition = event->pos();
-////    }
-////    emit sendUrl(_url);
-////    event->ignore();
-
-//}
-
-//void DirItem::mouseDoubleClickEvent(QMouseEvent *event)
-//{
-////    if ((event->button() == Qt::LeftButton))
-////    {
-////        emit sendUrl(_url);
-////    }
-//    if (!_url.isEmpty())
-//        emit sendUrl(_url);
-//}
-
-//void DirItem::mouseMoveEvent(QMouseEvent *event)
-//{
-////    if (!(event->buttons() & Qt::LeftButton))
-////        return;
-////    if ((event->pos() - dragStartPosition).manhattanLength() < QApplication::startDragDistance()) {
-////        return;
-////    }
-////    _drag = new QDrag(this);
-////    QMimeData *mimeData = new QMimeData;
-////    mimeData->setText(_text);
-////    _drag->setMimeData(mimeData);
-////    _drag->setPixmap(grayPixmap());
-////    _drag->setHotSpot(event->pos());
-////    gap = _drag->hotSpot();
-////    _drag->exec(Qt::MoveAction);
-//}
-
-////void DirItem::contextMenuEvent(QContextMenuEvent *event)
-////{
-////    Q_UNUSED(event);
-
-
-////    QCursor cur=this->cursor();
-////    QMenu *iconItemcontextMenu = new QMenu(this);
-
-////    iconItemcontextMenu->addAction(_openAction);
-
-//////    if (_style == VirtualDesktop::DirIcon)
-//////    {
-////        iconItemcontextMenu->addAction(_delAction);
-//////    }
-
-////    iconItemcontextMenu->setContextMenuPolicy(Qt::ActionsContextMenu);
-
-////    iconItemcontextMenu->exec(cur.pos());
-
-////    return;
-////}
-
-
-//void DirItem::enterEvent(QEvent *event)
-//{
-//    _pixmap = darkPixmap();
-////    _hoverIconItem->setVisible(true);
-//    repaint();
-
-//    Q_UNUSED(event);
-//}
-
-//void DirItem::leaveEvent(QEvent *event)
-//{
-
-////    if (_timeline->state() == QTimeLine::Running)
-////        _pixmap = _closePixmap;
-////    else
-//        _pixmap = _normalPixmap;
-
-////    _hoverIconItem->setVisible(false);
-//    repaint();
-
-//    Q_UNUSED(event);
-//}
-
-//const QPixmap& DirItem::originPixmap()
-//{
-//    return _originPixmap;
-//}
-
-//void DirItem::setPixmap(const QString &icon)
-//{
-////    int begin;
-//    QString text = _text;
-//    if (isUserType())
-//        text = _text.right(_text.length() - 1);
-//    _originPixmap = QPixmap(icon);
-////    QImage image = QImage(icon).scaled(ICONWIDTH, ICONHEIGHT);
-//    QImage image = QImage(icon);
-//    QImage normal(width(), height(), QImage::Format_ARGB32_Premultiplied);
-//    QPainter pt1(&normal);
-//    pt1.setPen(Qt::white);
-//    //pt1.setFont(QFont("", FONTSIZE, QFont::Black));
-//    pt1.setRenderHint(QPainter::HighQualityAntialiasing);
-//    pt1.setCompositionMode(QPainter::CompositionMode_Source);
-//    pt1.fillRect(normal.rect(), Qt::transparent);
-////    pt1.drawImage((SELECTWIDTH / 2  + 8) / 2, 0, image);
-//    pt1.drawImage(0, 0, image);
-
-//    //QFont font("", FONTSIZE, QFont::Normal);
-////    QFont font(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal);
-////    QFontMetrics fm(font);
-////    _textWidth_firstrow = fm.width(_texticon_firstrow);
-////    QString tx = _texticon_firstrow;
-////    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_firstrow) / 2, height() - _textHeight * 3 - 8, _textWidth_firstrow, _textHeight), Qt::TextSingleLine, tx);
-////    _textWidth_secondrow = fm.width(_texticon_secondrow);
-////    tx = _texticon_secondrow;
-////    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_secondrow) / 2, height() - _textHeight * 2 - 8, _textWidth_secondrow, _textHeight), Qt::TextSingleLine, tx);
-////    _textWidth_thirdrow = fm.width(_texticon_thirdrow);
-////    tx = _texticon_thirdrow;
-////    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_thirdrow) / 2, height() - _textHeight - 8, _textWidth_thirdrow, _textHeight), Qt::TextSingleLine, tx);
-////    pt1.end();
-//    QFont font("", FONTSIZE, QFont::Normal);
-////    QFont font(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal);
-
-//    QFontMetrics fm(font);
-//    _textWidth_firstrow = fm.width(_texticon);
-////    QString tx = _texticon;
-//    pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  ICONHEIGHT - FONTSIZE * 2,\
-//                        _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
-//    pt1.end();
-
-//    QImage light = QImage(width(), height(), QImage::Format_ARGB32);
-//    QImage dark =  QImage(width(), height(), QImage::Format_ARGB32);
-
-//    for (int i = 0; i < width(); i++) {
-//        for (int j = 0; j < height(); j++) {
-//            QRgb pixel = normal.pixel(i,j);
-//            int a = qAlpha(pixel);
-//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
-//                                    qBlue(pixel), a/2);
-//            light.setPixel(i, j, lightPixel);
-
-
-//            QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8, \
-//                                   qBlue(pixel)*0.8, a);
-//            dark.setPixel(i, j, darkPixel);
-//        }
-//    }
-//    QPainter pt2(&dark);
-//    pt2.setPen(Qt::white);
-//    pt2.setFont(QFont("", FONTSIZE, QFont::Black));
-//    pt2.setRenderHint(QPainter::HighQualityAntialiasing);
-
-//    pt2.end();
-//    _grayPixmap = QPixmap::fromImage(light).scaled(width() * 1.0, height() * 1.0);
-//    _darkPixmap = QPixmap::fromImage(dark);
-//    _normalPixmap = QPixmap::fromImage(normal);
-//    _pixmap = _normalPixmap;
-//    QImage resultImage(width(), height(),  \
-//                       QImage::Format_ARGB32_Premultiplied);
-
-//    QPainter painter(&resultImage);
-//    painter.setCompositionMode(QPainter::CompositionMode_Source);
-//    painter.fillRect(resultImage.rect(), Qt::transparent);
-//    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//    painter.drawImage(0, 0, normal);
-
-////    QImage closeImage(":images/close_icon.png");
-////    painter.drawImage(width() - 20, height() -50, closeImage);
-
-//    painter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
-//    painter.end();
-//    //_closePixmap = QPixmap::fromImage(resultImage);
-
-//}
-
-//void DirItem::setText(const QString &text)
-//{
-//    _text = text;
-//}
-
-//bool DirItem::isUserType()
-//{
-//    if (_text.startsWith("/"))
-//        return true;
-//    return false;
-//}
-
-//const QString & DirItem::text()
-//{
-//    return _text;
-//}
-
-//const QPixmap & DirItem::pixmap()
-//{
-//    return _pixmap;
-//}
-
-//const QPixmap & DirItem::grayPixmap()
-//{
-//    return _grayPixmap;
-//}
-
-//const QPixmap & DirItem::darkPixmap()
-//{
-////    if (_timeline->state() == QTimeLine::Running)
-////        return _closePixmap;
-//    return _darkPixmap;
-//}
-
-//void DirItem::openClicked()
-//{
-//    emit runItem(_text);
-//}
-
-//void DirItem::delClicked()
-//{
-//    emit delItem(_text);
-//}
-
-//void DirItem::setEqualIcon(bool equal)
-//{
-//    if (equal)
-//        _closePixmap.load(":/images/close_icon.png");
-//    else
-//        _closePixmap.load("");
-
-//    update();
-//}
 
 //
 DirWidget::DirWidget(QSize pageSize, QWidget *parent)
@@ -817,9 +365,6 @@ DirWidget::DirWidget(QSize pageSize, QWidget *parent)
 
     _iconsPerPage = _col * _row;
     _current  = 0;
-
-
-
 
 //    for (int i = 0; i < _local->count(); i++) {
 //        if (_local->at(i)->hidden())
@@ -914,7 +459,8 @@ int DirWidget::addIcon(const QString &text,
                        int page,
                        int index,
                        const QString &url,
-                       int type)
+                       int type,
+                       const QString &uniqueName)
 {
         qDebug() <<  "DirWidget::addIcon() -->_iconNum" << _iconNum;
     int expandPageCount = _iconNum / _iconsPerPage + 1;
@@ -940,6 +486,8 @@ int DirWidget::addIcon(const QString &text,
             break;
     }
 
+    icon->setSaveDataBool(true);    //  true
+    icon->setUniqueName(uniqueName);
     icon->setText(text);
     icon->setIconClass(type);
     icon->setTimeLine(false);
@@ -955,7 +503,6 @@ int DirWidget::addIcon(const QString &text,
     icon->setDragEventBool(true);
     icon->setEnterEventBool(false);
     icon->setLeaveEventBool(false);
-    icon->setSaveDataBool(true);    //  true
 
 
     if (page == -1) {
@@ -1005,7 +552,7 @@ int DirWidget::addIcon(const QString &text,
     icon->setDirId(_id);
     icon->setId(111);
     icon->setType(type);
-    _iconDict.insert(text, icon);
+    _iconDict.insert(uniqueName, icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
     icon->show();
@@ -1096,13 +643,13 @@ void DirWidget::delPage(int page)
     emit pageDecreased();
 }
 
-void DirWidget::delIcon(const QString &text)
+void DirWidget::delIcon(const QString &_uniqueName)
 {
-    if (!_iconDict.value(text))
+    if (!_iconDict.value(_uniqueName))
         return;
 
-    qDebug() << text;
-    IconItem *icon = _iconDict.take(text);
+    qDebug() << _uniqueName;
+    IconItem *icon = _iconDict.take(_uniqueName);
     //icon->setHidden(true);
     int p = icon->page();
     int s = icon->index();
@@ -1114,14 +661,14 @@ void DirWidget::delIcon(const QString &text)
 }
 
 
-void DirWidget::removeIcon(const QString &text)
+void DirWidget::removeIcon(const QString &_uniqueName)
 {
-    int p = _iconDict.value(text)->page();
-    int s = _iconDict.value(text)->index();
+    int p = _iconDict.value(_uniqueName)->page();
+    int s = _iconDict.value(_uniqueName)->index();
     _iconTable[p][s] = NULL;
     moveBackIcons(p, s);
 
-    _iconDict.take(text);
+    _iconDict.take(_uniqueName);
 }
 
 void DirWidget::moveBackIcons(int page, int index)
@@ -1536,9 +1083,9 @@ void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
     int p = _inDrag->page();
     int s = _inDrag->index();
 
-    emit dirWidgetDragLeave(_inDrag->text());
+    emit dirWidgetDragLeave(_inDrag->uniqueName());
 
-    _iconDict.take(_inDrag->text());
+    _iconDict.take(_inDrag->uniqueName());
     _inDrag = NULL;
 
     _iconTable[p][s] = NULL;
@@ -1609,13 +1156,13 @@ void DirWidget::mouseReleaseEvent(QMouseEvent *)
 
 }
 
-void DirWidget::showIconContextMenu(bool visiable,QPoint pos, QPoint mPos, const QString &text)
+void DirWidget::showIconContextMenu(bool visiable,QPoint pos, QPoint mPos, const QString &uniqueName)
 {
-    qDebug() << "void DirWidget::showIconContextMenu(QPoint pos, const QString &text)" << pos << text;
+    qDebug() << "void DirWidget::showIconContextMenu(QPoint pos, const QString &text)" << pos << uniqueName;
     Q_UNUSED(mPos);
-    _currentIconItem = text;
+    _currentIconItem = uniqueName;
 
-    _iconMenu->move(pos.x() + _iconDict.value(text)->pos().x(), pos.y() + _iconDict.value(text)->pos().y());
+    _iconMenu->move(pos.x() + _iconDict.value(uniqueName)->pos().x(), pos.y() + _iconDict.value(uniqueName)->pos().y());
     _iconMenu->raise();
     _iconMenu->setVisible(visiable);
 }
@@ -1639,53 +1186,24 @@ void DirWidget::iconMenuDelClicked()
 
 }
 
-void DirWidget::runApp(const QString &text)
+void DirWidget::runApp(const QString &uniqueName)
 {
     QString tmp;
     QString pram;
 
-    if (!_iconDict.value(text)->url().isEmpty())
+    if (uniqueName.startsWith("0_"))
     {
+        LocalApp *la = _local->getAppByUniqueName(uniqueName);
+        if (!la)
+            return;
 
-        QDesktopServices::openUrl(QUrl(_iconDict.value(text)->url()));
-        return;
-    }
+        char command[2048];
 
-    bool isRmote = false;
-    for (int i = 0; i < g_myVappList.count(); i++)
-    {
-        qDebug() << "g_myVappList.at(i).name" << g_myVappList.at(i).name;
-        qDebug() << "text" << text;
-        if(g_myVappList.at(i).name == text)
-        {
-         qDebug() << "g_myVappList.at(i).name == text ---  >" << text;
-            _appid = g_myVappList.at(i).id;
-            Commui._type = g_myVappList.at(i).type;
-            isRmote = true;
-        }
-    }
-    if(isRmote)
-    {
-                qDebug() << "if(isRmote)" << text;
-        appText = text;
-        _communi.loadBalance(Commui._name,_appid);
-        if(_communi._isNetError)
-        {
-            QMessageBox::warning(this, tr("Get load balance info failed"), _communi.errInfo, tr("OK"));
-        }
-        return;
-    }
-
-    LocalApp *la = _local->getAppByName(text);
-    if (!la)
-        return;
-
-    char command[2048];
-    if (la->type().toInt() == 0) {
         QFileInfo link(la->execname());
 
         qDebug() << "la->execname():" << la->execname();
-        if (!link.exists()) {
+        if (!link.exists())
+        {
             AppMessageBox box(true, NULL);
             box.setText("指向的应用或快捷方式已不存在\n点击\"确定\"删除图标");
             if (box.exec())
@@ -1693,22 +1211,43 @@ void DirWidget::runApp(const QString &text)
             return;
         }
         sprintf(command, "\"%s\"", la->execname().toLocal8Bit().data());
-    } else {
-        QFileInfo link(la->execname());
-        //   QString exec = AppDataReadExe::Instance()->getExec(la->execname());
-        if (!link.exists()) {
-//            QString msg = QString("%1没有被正确安装, 请在\n软件商店中重新安装, 是否删除图标?").arg(text);
-//            AppMessageBox box(true, NULL);
-//            box.setText(msg);
-//            if (box.exec())
-//                LocalAppList::getList()->delApp(la->name());
 
-            QMessageBox::information(NULL,"NO","Linke to Function is not OK!!!!");
+        ShellExecute(NULL, "open", command, "", "", SW_SHOW);
+
+        return;
+        }
+    else if(uniqueName.startsWith("1_"))
+    {
+        bool isRmote = false;
+        for (int i = 0; i < g_myVappList.count(); i++)
+        {
+//                qDebug() << "g_myVappList.at(i).name" << g_myVappList.at(i).name;
+//                qDebug() << "text" << text;
+            if(g_myVappList.at(i).id == uniqueName.right(uniqueName.length() - 2))
+            {
+                _appid = g_myVappList.at(i).id;
+                Commui._type = g_myVappList.at(i).type;
+                isRmote = true;
+                appText = g_myVappList.at(i).name;
+            }
+        }
+        if(isRmote)
+        {
+            _communi.loadBalance(Commui._name,_appid);
+            if(_communi._isNetError)
+            {
+                QMessageBox::warning(this, tr("Get load balance info failed"), _communi.errInfo, tr("OK"));
+            }
             return;
         }
-        sprintf(command, "\"%s\"", la->execname().toLocal8Bit().data());
+
+        return;
     }
-    ShellExecute(NULL, "open", command, "", "", SW_SHOW);
+    else if (uniqueName.startsWith("2_"))
+    {
+        QDesktopServices::openUrl(QUrl(_iconDict.value(uniqueName)->url()));
+        return;
+    }
 
 }
 
@@ -1958,7 +1497,7 @@ void DirWidget::clearAllIcon()
 
         if (_local->at(i)->dirId() == 1000)
         {
-            _clearNames.append(_local->at(i)->name());
+            _clearNames.append(_local->at(i)->uniqueName());
         }
     }
 
@@ -1969,4 +1508,9 @@ void DirWidget::clearAllIcon()
     }
 
     _clearNames.clear();
+}
+
+void DirWidget::setUniqueName(const QString &uniqueName)
+{
+    _uniqueName = uniqueName;
 }

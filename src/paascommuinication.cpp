@@ -135,6 +135,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     QString logoURL;
     QString previewURL;
     QString cnName("");
+    QString name("");
     PAAS_LIST tempPaasList;
 //    qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 2";
 
@@ -168,7 +169,11 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
             it.next();
             if (!it.name().isEmpty())
             {
-                if (it.name() == "cnName")
+                if (it.name() == "name")
+                {
+                    name = it.value().toString();
+                }
+                else if (it.name() == "cnName")
                 {
                     cnName = it.value().toString();
                 }
@@ -190,6 +195,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
         }
         if (!cnName.isEmpty())
         {
+            tempPaasList.name = name;
             tempPaasList.cnName = cnName;
             tempPaasList.logoURL = logoURL;
             tempPaasList.previewURL = previewURL;

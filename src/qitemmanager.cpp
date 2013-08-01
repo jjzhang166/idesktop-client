@@ -80,11 +80,11 @@ void QItemManager::clearFocus()
     _selectedIconItem.clear();
     _selectedIconItemText.clear();
 }
-void QItemManager::removeByName(QString name)
+void QItemManager::removeByUniqueName(QString uniqueName)
 {
     for(int i = 0; i < _selectedIconItem.size(); i++)
     {
-        if(_selectedIconItem.at(i)->text() == name)
+        if(_selectedIconItem.at(i)->uniqueName() == uniqueName)
         {
             _selectedIconItem.removeAt(i);
             _selectedIconItemText.removeAt(i);

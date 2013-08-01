@@ -20,6 +20,7 @@ typedef struct _LOCAL_LIST
     QString name;
     QString iconPath;
     QString execname;
+    QString uniqueName;
 } LOCAL_LIST;
 
 typedef struct _PAAS_LIST

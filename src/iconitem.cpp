@@ -58,6 +58,7 @@ IconItem::IconItem(QWidget *parent)
     , _dirId(-1)
     , _dirMinShowWidget(NULL)
     , _currentStatus(normal)
+    , _uniqueName("")
 {
     _shadowPixmap.load(":/images/icon_shadow.png");
     _selectPixmap.load("");
@@ -119,6 +120,16 @@ void IconItem::setDirId(int dirId)
     if (_saveDataBool)
         _app->setDirId(_dirId);
 }
+void IconItem::setUniqueName(const QString &uniqueName)
+{
+    _uniqueName = uniqueName;
+
+    _app = LocalAppList::getList()->getAppByUniqueName(_uniqueName);
+
+    if (_saveDataBool)
+        _app->setUniqueName(_uniqueName);
+
+}
 
 void IconItem::setHidden(bool hide)
 {
@@ -145,8 +156,6 @@ void IconItem::setText(const QString &text)
     if (text.isEmpty())
         return;
     _text = text;
-
-    _app = LocalAppList::getList()->getAppByName(_text);
 
     switch(ICON_TYPE)
     {
@@ -537,11 +546,11 @@ void IconItem::mousePressEvent(QMouseEvent *event)
                 {
                     setEqualIcon(true);
 
-                    emit addApp(_text, _pixText, _url , _type);
+                    emit addApp(_text, _pixText, _url , _type, _uniqueName);
                 }
                 else
                 {
-                    emit delItem(_text);
+                    emit delItem(_uniqueName);
 
                     setEqualIcon(false);
 
@@ -590,7 +599,7 @@ void IconItem::mouseMoveEvent(QMouseEvent *event)
 
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
-    dataStream << _text << _pixText << _page << _index << _url << _type << _id;
+    dataStream << _text << _pixText << _page << _index << _url << _type << _id << _uniqueName;
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData("image/x-iconitem", itemData);
@@ -642,7 +651,7 @@ void IconItem::contextMenuEvent(QContextMenuEvent *event)
 
 //    return;
 
-    emit showContextMenu( true, event->pos(), mapToGlobal(event->pos()), _text);
+    emit showContextMenu( true, event->pos(), mapToGlobal(event->pos()), _uniqueName);
 }
 
 void IconItem::enterEvent(QEvent *event)
@@ -955,7 +964,7 @@ const QPixmap & IconItem::darkPixmap()
 
 void IconItem::runClicked()
 {
-    emit runItem(_text);
+    emit runItem(_uniqueName);
 }
 
 void IconItem::delClicked()
@@ -969,10 +978,10 @@ void IconItem::openDirWidget()
 }
 
 void IconItem::iconDropEvent(const QString &text, const QString &iconPath, int page, int index,
-                             const QString &url, int type)
+                             const QString &url, int type, const QString &uniqueName)
 {
     qDebug() << "IconItem::iconDropEvent()" << _id;
-    emit iconDrop(_id, text, iconPath, page, index, url, type);
+    emit iconDrop(_id, text, iconPath, page, index, url, type, uniqueName);
 }
 
 void IconItem::setEqualIcon(bool equal)
@@ -1002,8 +1011,8 @@ void IconItem::addMinWidget(int type)
 //        connect(_dirMinShowWidget, SIGNAL(iconDrop(int, const QString &, const QString &, const QString &)),
 //                this, SLOT(iconDropEvent(int, const QString &, const QString &, const QString &)));
 //        connect(_dirMinShowWidget, SIGNAL(openItem(int, int, int)), this, SLOT(openDirWidget(int, int, int)));
-    connect(_dirMinShowWidget, SIGNAL(iconDrop(const QString &, const QString &, int, int, const QString &, int)),
-            this, SLOT(iconDropEvent(const QString &, const QString &, int, int, const QString &, int)));
+    connect(_dirMinShowWidget, SIGNAL(iconDrop(const QString &, const QString &, int, int, const QString &, int, const QString &)),
+            this, SLOT(iconDropEvent(const QString &, const QString &, int, int, const QString &, int, const QString &)));
     connect(_dirMinShowWidget, SIGNAL(openItem()), this, SLOT(openDirWidget()));
     connect(_dirMinShowWidget, SIGNAL(dragEnterMinWidget()), SIGNAL(dragEnterMinWidget()));
 }
@@ -1023,22 +1032,22 @@ void IconItem::setMinWidgetDragEnable(bool enable)
     }
 }
 
-void IconItem::removeDirMinItem(const QString &text)
+void IconItem::removeDirMinItem(const QString &uniqueName)
 {
     if (_dirMinShowWidget == NULL)
         return;
 
-        _dirMinShowWidget->removeDirMinItem(text);
+        _dirMinShowWidget->removeDirMinItem(uniqueName);
 //        qDebug() << "_dirMinShowWidget->removeDirMinItem(text);" <<"text";
 }
 
-void IconItem::addDirMinItem(const QString &text, const QString &icon, \
-                                      int page, int index, const QString &url)
+void IconItem::addDirMinItem(const QString &text, const QString &icon,
+                             int page, int index, const QString &url, const QString &uniqueName)
 {
     if (_dirMinShowWidget == NULL)
         return;
 
-        _dirMinShowWidget->addDirMinItem(text, icon, page, index, url);
+        _dirMinShowWidget->addDirMinItem(text, icon, page, index, url, uniqueName);
 }
 int IconItem::getMinIconNum()
 {
@@ -1064,8 +1073,8 @@ void IconItem::addDustbin()
     connect(_dustbin, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
     connect(_dustbin, SIGNAL(iconMove()), this, SIGNAL(iconMove()));
     connect(_dustbin, SIGNAL(iconLeave()), this, SIGNAL(iconLeave()));
-    connect(_dustbin, SIGNAL(iconDrop(const QString &, const QString &, int, int, const QString &, int)),
-            this, SLOT(iconDropEvent(const QString &, const QString &, int, int, const QString &, int)));
+    connect(_dustbin, SIGNAL(iconDrop(const QString &, const QString &, int, int, const QString &, int, const QString&)),
+            this, SLOT(iconDropEvent(const QString &, const QString &, int, int, const QString &, int, const QString&)));
     connect(_dustbin, SIGNAL(openItem()), this, SLOT(openDirWidget()));
 }
 
@@ -1127,7 +1136,7 @@ void IconItem::LineEditFocusOut()
 //    changeItemName(_text);
     setText(_lineEdit->text());
     QSqlQuery query(QSqlDatabase::database("local"));
-    QString qstr = QString("update localapps set name=\'%1\' where id=\'%2\'").arg(_text).arg(_id);
+    QString qstr = QString("update localapps set name=\'%1\' where uniquename=\'%2\'").arg(_text).arg(_uniqueName);
     if(!query.exec(qstr)) {
         qDebug() <<"query failed";
         return;
