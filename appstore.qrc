@@ -168,6 +168,36 @@
         <file>images/dir_edit_right.png</file>
         <file>images/icon_shadow.png</file>
         <file>images/skin_bg.png</file>
+        <file>images/icon_middle_shadow.png</file>
+        <file>images/message/message_bg.png</file>
+        <file>images/message/message_cancel_hover.png</file>
+        <file>images/message/message_cancel_normal.png</file>
+        <file>images/message/message_close.png</file>
+        <file>images/message/message_close_hover.png</file>
+        <file>images/message/message_submit_hover.png</file>
+        <file>images/message/message_submit_normal.png</file>
+        <file>images/menu_btn_hover.png</file>
+        <file>images/menu_center.png</file>
+        <file>images/menu_line.png</file>
+        <file>images/sub_menu.png</file>
+        <file>images/url_normal.png</file>
+        <file>images/panel_software_normal.png</file>
+        <file>images/panel_quit_normal.png</file>
+        <file>images/panel_skin_normal.png</file>
+        <file>images/panel_bg.png</file>
+        <file>images/widget_bg.png</file>
+        <file>images/widget_close_hover.png</file>
+        <file>images/widget_close_normal.png</file>
+        <file>images/widget_scrollbar.png</file>
+        <file>images/toolbar_center.png</file>
+        <file>images/toolbar_left.png</file>
+        <file>images/toolbar_right.png</file>
+        <file>images/dustbin_normal.png</file>
+        <file>images/skin_normal.png</file>
+        <file>images/min_toolbar_mask_icon.png</file>
+        <file>images/dushbin_clear_normal.png</file>
+        <file>images/app_normal.png</file>
+        <file>images/paas_normal.png</file>
         <file>images/wallpager/wp_0.jpg</file>
         <file>images/wallpager/wp_1.jpg</file>
         <file>images/wallpager/wp_2.jpg</file>
@@ -198,33 +228,6 @@
         <file>images/wallpager/wp_27.jpg</file>
         <file>images/wallpager/wp_28.jpg</file>
         <file>images/wallpager/wp_29.jpg</file>
-        <file>images/icon_middle_shadow.png</file>
-        <file>images/message/message_bg.png</file>
-        <file>images/message/message_cancel_hover.png</file>
-        <file>images/message/message_cancel_normal.png</file>
-        <file>images/message/message_close.png</file>
-        <file>images/message/message_close_hover.png</file>
-        <file>images/message/message_submit_hover.png</file>
-        <file>images/message/message_submit_normal.png</file>
-        <file>images/menu_btn_hover.png</file>
-        <file>images/menu_center.png</file>
-        <file>images/menu_line.png</file>
-        <file>images/sub_menu.png</file>
-        <file>images/url_normal.png</file>
-        <file>images/panel_software_normal.png</file>
-        <file>images/panel_quit_normal.png</file>
-        <file>images/panel_skin_normal.png</file>
-        <file>images/panel_bg.png</file>
-        <file>images/widget_bg.png</file>
-        <file>images/widget_close_hover.png</file>
-        <file>images/widget_close_normal.png</file>
-        <file>images/widget_scrollbar.png</file>
-        <file>images/toolbar_center.png</file>
-        <file>images/toolbar_left.png</file>
-        <file>images/toolbar_right.png</file>
-        <file>images/dustbin_normal.png</file>
-        <file>images/skin_normal.png</file>
         <file>images/software_normal.png</file>
-        <file>images/min_toolbar_mask_icon.png</file>
     </qresource>
 </RCC>
