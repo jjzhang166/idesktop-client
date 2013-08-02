@@ -379,6 +379,10 @@ Dashboard::Dashboard(QWidget *parent)
             , vdesktop, SLOT(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &)));
     //    connect(vdesktop, SIGNAL(setDirIcon(const QString&, const QString&, const QString&)),
 //            _dirWidget, SLOT(addDirIcon(const QString&, const QString&, const QString&)));
+    connect(_toolBarWidget, SIGNAL(iconItemNameChanged(const QString &, const QString &))
+            , _vacShowWidget, SLOT(iconItemNameChanged(const QString &, const QString &)));
+    connect(_toolBarWidget, SIGNAL(changedDirWidgetTitle(int, const QString &))
+            , vdesktop, SLOT(changedDirWidgetTitle(int, const QString &)));
 
 
 //    QPixmap backPix(":images/bs_goback.png");
@@ -1275,7 +1279,7 @@ void Dashboard::refreshVapp()
     }
 #endif
 
-    if (_commui->errID == "10000") {
+//    if (_commui->errID == "10000") {      // ÎŞ ĞÄÌø Ê±×¢ÊÍ
         if (!_Isheartbeat)
         {
             _Isheartbeat = true;
@@ -1331,7 +1335,7 @@ void Dashboard::refreshVapp()
         }
 
         modify();
-    }
+//    }
 
 }
 

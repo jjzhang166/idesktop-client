@@ -165,6 +165,7 @@ public slots:
     void openDirWidget();
     void iconDropEvent(const QString &text, const QString &iconPath, int page, int index,
                        const QString &url, int type, const QString &uniqueName);
+    void dirMinLineEditChanged(int i, const QString &text);
 //dustbin
 //    void dustbinOpenDirWidget();
 //    void dustbinIconDropEvent(const QString &text, const QString &iconPath, int page, int index,

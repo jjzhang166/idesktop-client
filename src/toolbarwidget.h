@@ -51,7 +51,6 @@ public:
     bool addAppState()          { return _addAppState; }
     bool iconDragState()        { return _iconDragEnter; }
 
-    //void runApp(const QString &text);
     void moveItem(IconItem *item, int page);
 
     int addDirIcon(int page, int index);
@@ -137,6 +136,8 @@ public slots:
 
     void toolBarRemoveDirMinItem(const QString &uniqueName, int dirId);
 
+    void runApp(const QString &uniqueName);
+
 signals:
     void pageChanged(int i);
     void pageIncreased();
@@ -187,6 +188,9 @@ signals:
                           const QString &iconPath, int page,
                           int index, const QString &url,
                           int type, const QString &uniqueName);
+
+    void iconItemNameChanged(const QString &uniqueName, const QString &name);
+    void changedDirWidgetTitle(int i, const QString &text);
 
 protected:
 //    void contextMenuEvent(QContextMenuEvent *event);

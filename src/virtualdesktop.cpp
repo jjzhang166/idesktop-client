@@ -29,7 +29,6 @@ using namespace std;
 #include <QDesktopServices>
 #include <QUuid>
 
-
 #include "virtualdesktop.h"
 #include "localapps.h"
 #include "movingdialog.h"
@@ -38,6 +37,7 @@ using namespace std;
 #include "dirwidget.h"
 //#include "movewidget.h"
 #include "paascommuinication.h"
+#include "runapp.h"
 
 //#define INDICATOR_ITEMSIZE QSize(14, 14)
 #define ICONWIDTH 143                                   //72
@@ -624,7 +624,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
             , this, SLOT(addIcon(const QString&, const QString&, const QString &, int, int, const QString &)));
     connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
 
-    connect(&_communi, SIGNAL(appRun()), this, SLOT(runServerApp()));//
+//    connect(&_communi, SIGNAL(appRun()), this, SLOT(runServerApp()));//
 }
 
 VirtualDesktop::~VirtualDesktop()
@@ -2215,137 +2215,10 @@ void VirtualDesktop::moveBackIcons(int page, int index)
 
 void VirtualDesktop::runApp(const QString &uniqueName)
 {
-    QString tmp;
-    QString pram;
-    qDebug() << "uniqueName" << uniqueName;
+    RunApp::getRunApp()->runApp(uniqueName);
 
-//    if (!_iconDict.value(text))
-//        return;
-    if (uniqueName.startsWith("0_"))
-    {
-        LocalApp *la = _local->getAppByUniqueName(uniqueName);
-        if (!la)
-            return;
-
-        char command[2048];
-
-        QFileInfo link(la->execname());
-
-        qDebug() << "la->execname():" << la->execname();
-        if (!link.exists())
-        {
-            AppMessageBox box(true, NULL);
-            box.setText("指向的应用或快捷方式已不存在\n点击\"确定\"删除图标");
-            if (box.exec())
-                LocalAppList::getList()->delApp(la->uniqueName());
-            return;
-        }
-        sprintf(command, "\"%s\"", la->execname().toLocal8Bit().data());
-
-        ShellExecute(NULL, "open", command, "", "", SW_SHOW);
-
-        return;
-        }
-    else if(uniqueName.startsWith("1_"))
-    {
-        bool isRmote = false;
-        for (int i = 0; i < g_myVappList.count(); i++)
-        {
-//                qDebug() << "g_myVappList.at(i).name" << g_myVappList.at(i).name;
-//                qDebug() << "text" << text;
-            if(g_myVappList.at(i).id == uniqueName.right(uniqueName.length() - 2))
-            {
-                _appid = g_myVappList.at(i).id;
-                Commui._type = g_myVappList.at(i).type;
-                isRmote = true;
-                appText = g_myVappList.at(i).name;
-            }
-        }
-        if(isRmote)
-        {
-            _communi.loadBalance(Commui._name,_appid);
-            if(_communi._isNetError)
-            {
-                QMessageBox::warning(this, tr("Get load balance info failed"), _communi.errInfo, tr("OK"));
-            }
-            return;
-        }
-
-        return;
-    }
-    else if (uniqueName.startsWith("2_"))
-    {
-        QDesktopServices::openUrl(QUrl(_iconDict.value(uniqueName)->url()));
-        return;
-    }
-
-#if 0
-    if (!_iconDict.value(uniqueName)->url().isEmpty())
-    {
-
-        QDesktopServices::openUrl(QUrl(_iconDict.value(text)->url()));
-        return;
-    }
-
-    bool isRmote = false;
-    for (int i = 0; i < g_myVappList.count(); i++)
-    {
-        qDebug() << "g_myVappList.at(i).name" << g_myVappList.at(i).name;
-        qDebug() << "text" << text;
-        if(g_myVappList.at(i).name == text)
-        {
-            _appid = g_myVappList.at(i).id;
-            Commui._type = g_myVappList.at(i).type;
-            isRmote = true;
-        }
-    }
-    if(isRmote)
-    {
-        appText = text;
-        _communi.loadBalance(Commui._name,_appid);
-        if(_communi._isNetError)
-        {
-            QMessageBox::warning(this, tr("Get load balance info failed"), _communi.errInfo, tr("OK"));
-        }
-        return;
-    }
-
-    LocalApp *la = _local->getAppByName(text);
-    if (!la)
-        return;
-
-    char command[2048];
-    if (la->type().toInt() == localIcon) {
-        QFileInfo link(la->execname());
-
-        qDebug() << "la->execname():" << la->execname();
-        if (!link.exists()) {
-            AppMessageBox box(true, NULL);
-            box.setText("指向的应用或快捷方式已不存在\n点击\"确定\"删除图标");
-            if (box.exec())
-                LocalAppList::getList()->delApp(la->name());
-            return;
-        }
-        sprintf(command, "\"%s\"", la->execname().toLocal8Bit().data());
-    } else {
-        QFileInfo link(la->execname());
-        //   QString exec = AppDataReadExe::Instance()->getExec(la->execname());
-        if (!link.exists()) {
-//            QString msg = QString("%1没有被正确安装, 请在\n软件商店中重新安装, 是否删除图标?").arg(text);
-//            AppMessageBox box(true, NULL);
-//            box.setText(msg);
-//            if (box.exec())
-//                LocalAppList::getList()->delApp(la->name());
-
-            QMessageBox::information(NULL,"NO","Linke to Function is not OK!!!!");
-            return;
-        }
-        sprintf(command, "\"%s\"", la->execname().toLocal8Bit().data());
-    }
-    ShellExecute(NULL, "open", command, "", "", SW_SHOW);
-#endif
 }
-
+#if 0
 void VirtualDesktop::runServerApp()
 {
 
@@ -2578,7 +2451,7 @@ void VirtualDesktop::runServerApp()
         return;
     }
 }
-
+#endif
 
 void VirtualDesktop::printDesktop()
 {
@@ -3088,7 +2961,7 @@ void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, cons
         app->setIndex(_nextIdx[_count - 1]);
         app->setExecname("");
         app->setDirId(-1);
-        app->setId(QString("%1").arg(_dirMinList.count()));
+        app->setId(QString("%1").arg(_dirShowWidgetList.count()));
         app->setUniqueName(uniqueName);
 
         LocalAppList::getList()->addApp(app);
@@ -3483,6 +3356,9 @@ void VirtualDesktop::showIconContextMenu(bool visiable, QPoint pos, QPoint mPos,
 //        }
 //    }
     _currentUniqueName = uniqueName;
+
+    if (!_iconDict.value(_currentUniqueName))
+        return;
 
     if ( _iconDict.value(_currentUniqueName)->type() == dirIcon)
     {
@@ -4137,18 +4013,26 @@ void VirtualDesktop::addShowWidget(const QString &text, int i, const QString &un
 
     qDebug() << "_dirShowWidgetList.count()" << _dirShowWidgetList.count();
 
-    connect(_dirShowWidget, SIGNAL(dirWidgetDragLeave(const QString &, int)), this, SLOT(hideDirWidget(const QString &, int)));
-    connect(_dirShowWidget, SIGNAL(dirWidgetDelIcon(int, const QString &)), this, SLOT(dirWidgetDelIcon(int, const QString &)));
+    connect(_dirShowWidget, SIGNAL(dirWidgetDragLeave(const QString &, int))
+            , this, SLOT(hideDirWidget(const QString &, int)));
+    connect(_dirShowWidget, SIGNAL(dirWidgetDelIcon(int, const QString &))
+            , this, SLOT(dirWidgetDelIcon(int, const QString &)));
+    connect(_dirShowWidget, SIGNAL(iconItemNameChanged(const QString &, const QString &))
+            , this, SIGNAL(iconItemNameChanged(const QString &, const QString &)));
 }
 
 void VirtualDesktop::changedDirWidgetTitle(int i, const QString &text)
 {
+    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@@^%$#@" << "i" << i << "text" << text;
+
+
     if (_dirShowWidget)
     {
         for (int j = 0; j < _dirShowWidgetList.count(); j++)
         {
             if (_dirShowWidgetList.at(j)->id() == i)
             {
+
                 _dirShowWidgetList.at(j)->showTitle(text);
             }
         }

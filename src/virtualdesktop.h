@@ -210,7 +210,7 @@ public slots:
 
     void upLoad();
 
-    void runServerApp();
+//    void runServerApp();
 
     void arrangeWidgetMove(QPoint pos);
 

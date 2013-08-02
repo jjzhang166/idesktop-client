@@ -935,7 +935,7 @@ void IconItem::addMinWidget(int type)
     connect(_dirMinShowWidget, SIGNAL(openItem()), this, SLOT(openDirWidget()));
     connect(_dirMinShowWidget, SIGNAL(dragEnterMinWidget()), SIGNAL(dragEnterMinWidget()));
     connect(_dirMinShowWidget, SIGNAL(dirMinLineEditFocusOut(int, const QString &))
-            , this, SIGNAL(dirMinLineEditFocusOut(int, const QString &)));
+            , this, SLOT(dirMinLineEditChanged(int, const QString &)));
 }
 
 void IconItem::setMinWidgetDragEnable(bool enable)
@@ -989,6 +989,13 @@ void IconItem::setDirMinItemId(int id)
 //{
 //    emit dirMinFocusOut(text);
 //}
+
+void IconItem::dirMinLineEditChanged(int i, const QString &text)
+{
+    _text = text;
+
+    emit dirMinLineEditFocusOut(i, _text);
+}
 
 //dustbin
 void IconItem::addDustbin()
@@ -1060,10 +1067,20 @@ void IconItem::LineEditFocusOut()
 //    if(_currentStatus == normal)
 //        _lineEdit->setDisabled(true);
 //    changeItemName(_text);
-    setText(_lineEdit->text());
-    _app->setName(_text);
 
-    emit iconItemNameChanged(_uniqueName, _text);
+    if (!_lineEdit->text().isEmpty())
+    {
+        setText(_lineEdit->text());
+        _app->setName(_text);
+        emit iconItemNameChanged(_uniqueName, _text);
+    }
+    else
+    {
+        setText(_text);
+    }
+
+
+
 //    QSqlQuery query(QSqlDatabase::database("local"));
 //    QString qstr = QString("update localapps set name=\'%1\' where uniquename=\'%2\'").arg(_text).arg(_uniqueName);
 //    if(!query.exec(qstr)) {

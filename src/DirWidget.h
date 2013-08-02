@@ -18,7 +18,6 @@ using namespace std;
 #include "commuinication.h"
 #include "switcher.h"
 
-#ifdef Q_WS_WIN
 #include <QLibrary>
 #include <cstdlib>
 #include <cstdio>
@@ -45,38 +44,6 @@ typedef  unsigned long DWORD;
 */
 
 extern QString _icontext;
-
-typedef long (*Dll_InitClass)(LPCWSTR, LPCWSTR);
-typedef void (*Dll_CloseClass)();
-typedef void (*Dll_CloseAppAll)();
-typedef long (*Dll_StartAppEx)(DWORD windowstyle,				//8
-                DWORD printer,					//
-                DWORD localime,					//
-                DWORD AudioRedirectionMode,		//
-                DWORD ColorDepth,				//
-                DWORD WindowHandle,				//28
-                DWORD AppStyle,					//32
-                GUID* guidSessionKey, 			//?
-                LPCWSTR szSessionId,	//		SM_Id,
-                LPCWSTR szPassword,		//password
-                LPCWSTR szUsername,		//username
-                LPCWSTR szServerIp,		//server address
-                LPCWSTR szAppname,		//application name to be open
-                LPCWSTR szApppath,		//application location
-                LPCWSTR szDomainname,	//
-                LPCWSTR szDriverList,	//
-                LPCWSTR szAppParam,
-                DWORD RedirectPorts,
-                DWORD RedirectPrinters,//1:local printer, 0: don't take
-                BOOL  IsTray,
-                DWORD DesktopHeight,
-                DWORD DesktopWidth,
-                DWORD RedirectClipboard,  //clipboard 1:enable 0: disable
-                BOOL  IsSmoothFont, //1: enable 0:disable
-                DWORD dwRDPPort,   //rdp port
-                DWORD dwForbidApps
-                );
-#endif
 
 //class DirItem;
 class DirWidget;
@@ -113,6 +80,7 @@ signals:
     void dirWidgetDragLeave(const QString &uniqueName, int dirId);
     void dirWidgetDelIcon(int id, const QString &uniqueName);
     void delApp(const QString &uniqueName);
+    void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
 public slots:
 //    void scrollBarValueChanged(int val);
@@ -228,13 +196,13 @@ signals:
 
     void dirWidgetDragLeave(const QString &uniqueName);
     void dirWidgetDelIcon(int id, const QString &uniqueName);
+    void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
 public slots:
     void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, const QString &uniqueName);
     void iconMenuRunClicked();
     void iconMenuDelClicked();
     void runApp(const QString &uniqueName);
-    void runServerApp();
     void delIcon(const QString &uniqueName);
 
 protected:
@@ -302,15 +270,15 @@ private:
     MenuWidget *_iconMenu;
 
     //app
-    commuinication _communi;
-    QString appText;
-    QString _appid;
+//    commuinication _communi;
+//    QString appText;
+//    QString _appid;
     QString _currentIconItem;
 
-    Dll_InitClass m_dllInitClass;
-    Dll_CloseClass m_dllCloseClass;
-    Dll_CloseAppAll m_dllCloseAppAll;
-    Dll_StartAppEx m_dllStartAppEx;
+//    Dll_InitClass m_dllInitClass;
+//    Dll_CloseClass m_dllCloseClass;
+//    Dll_CloseAppAll m_dllCloseAppAll;
+//    Dll_StartAppEx m_dllStartAppEx;
 
     QString _uniqueName;
 

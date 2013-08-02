@@ -79,7 +79,8 @@ HEADERS += src/config.h \
     src/nodebutton.h \
     src/toolbarwidget.h \
     src/dustbin.h \
-    src/qitemmanager.h
+    src/qitemmanager.h \
+    src/runapp.h
 
 
 win32 {
@@ -136,7 +137,8 @@ SOURCES += src/config.cpp \
     src/nodebutton.cpp \
     src/toolbarwidget.cpp \
     src/dustbin.cpp \
-    src/qitemmanager.cpp
+    src/qitemmanager.cpp \
+    src/runapp.cpp
 
 
 FORMS +=
