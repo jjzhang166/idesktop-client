@@ -36,6 +36,7 @@
 
 class IconItem;
 extern int ICON_TYPE;
+extern QList<TEMP_LIST> dirWidget_FirstLists;
 
 IconMinItem::IconMinItem(QWidget *parent)
     : QWidget(parent)
@@ -62,6 +63,29 @@ void IconMinItem::paintEvent(QPaintEvent *event)
 
     painter.drawPixmap(0 , 0, _width, _height, _pixmap.scaled(_width, _height,
                        Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+//    switch(ICON_TYPE)
+//    {
+//        case 0 :
+//            painter.drawPixmap(_width - 36 - 26, 36, 10, 10
+//                               , _iconClassPixmap.scaled(10, 10
+//                               , Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+//            break;
+
+//        case 1 :
+
+//            painter.drawPixmap(_width - 29 - 27, 29 + 1,10, 10
+//                               , _iconClassPixmap.scaled(10, 10
+//                               , Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+//            break;
+
+//        default:
+
+//            painter.drawPixmap(_width - 25 - 27, 25 + 1, 10, 10
+//                               ,_iconClassPixmap.scaled(10, 10
+//                               , Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+//            break;
+//    }
 
 
     QWidget::paintEvent(event);
@@ -160,6 +184,24 @@ void IconMinItem::setUniqueName(const QString &uniqueName)
     _uniqueName = uniqueName;
 }
 
+//void IconMinItem::setIconClass(int iconClass)
+//{
+//    if (iconClass == 1)
+//    {
+//        _iconClassPixmap.load(":/images/app_normal.png");
+//    }
+//    else if (iconClass == 2)
+//    {
+//        _iconClassPixmap.load(":/images/paas_normal.png");
+//    }
+//    else
+//    {
+//        _iconClassPixmap.load("");
+//    }
+
+//    update();
+//}
+
 DirMinWidget::DirMinWidget(int type, QWidget *parent)
     : QWidget(parent)
     , _col(2)
@@ -176,12 +218,6 @@ DirMinWidget::DirMinWidget(int type, QWidget *parent)
 //    setAcceptDrops(true);
 
     changeSize();
-//    _local = LocalAppList::getList();
-
-//    for (int i = 0; i < _local->count(); i++)
-//    {
-//        _count = i / _iconsPerPage + 1;
-//    }
 
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _width));
@@ -197,9 +233,7 @@ DirMinWidget::DirMinWidget(int type, QWidget *parent)
                            QRect(x, y, _gridWidth, _gridHeight));
         }
         _gridTable.insert(i, newList);
-
     }
-
 
     for (int i = 0; i < _count; i++) {
         QList<IconMinItem*> newList;
@@ -211,9 +245,6 @@ DirMinWidget::DirMinWidget(int type, QWidget *parent)
     for (int i = 0; i < _count; i++)
         _nextIdx.insert(i, 0);
 
-//    _animation = new QPropertyAnimation(this, "geometry");
-//    _animation->setEasingCurve(QEasingCurve::OutBack);
-
     setAutoFillBackground(true);
     setFixedSize(_width * _count, _height);
 
@@ -221,36 +252,12 @@ DirMinWidget::DirMinWidget(int type, QWidget *parent)
     pal.setColor(QPalette::Background, QColor(255,255,255,0));
     setPalette(pal);
 
-
-//    for (int i = 0; i < _local->count(); i++) {
-//        if (_local->at(i)->hidden())
-//            continue;
-
-//        if(_local->at(i)->isRemote())
-//        {
-//            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-//                    _local->at(i)->page(), _local->at(i)->index(), vappIcon);
-//        }else{
-//            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-//                    _local->at(i)->page(), _local->at(i)->index(), localIcon);
-//        }
-//    }
-
-//    connect(_local, SIGNAL(appAdded(const QString&, const QString&)), this, SLOT(addIcon(const QString&, const QString&)));
-//    connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
-
-
 }
 
 DirMinWidget::~DirMinWidget()
 {
 
 }
-
-//int DirsWidget::addDirIcon(const QString &text, const QString &iconPath, int page, int index)
-//{
-
-//}
 
 void DirMinWidget::paintEvent(QPaintEvent *)
 {
@@ -282,86 +289,6 @@ void DirMinWidget::paintEvent(QPaintEvent *)
     }
 
 }
-#if 0
-void DirMinWidget::dragEnterEvent(QDragEnterEvent *event)
-{
-    if (event->source() != this && event->mimeData()->hasFormat("image/x-iconitem")) {
-//        if (event->source() == this) {
-//            event->setDropAction(Qt::MoveAction);
-//            event->accept();
-//        } else {
-//           event->acceptProposedAction();
-//        }
-
-//        IconDesktopItem *icon = qobject_cast<IconDesktopItem*> (event->source());
-//        if (icon && icon->type() != VirtualDesktop::dirIcon) {
-                event->setDropAction(Qt::MoveAction);
-                event->accept();
-//       }
-
-        emit iconEnter();
-    } else {
-
-        event->ignore();
-    }
-//        qDebug() << "DirMinWidget***************************************************dragEnter";
-
-}
-
-void DirMinWidget::dragMoveEvent(QDragMoveEvent *event)
-{
-//        qDebug() << "DirMinWidget*******dragMoveEvent******************";
-
-    event->setDropAction(Qt::MoveAction);
-    event->accept();
-
-
-    emit iconMove();
-}
-
-void DirMinWidget::dragLeaveEvent(QDragLeaveEvent *event)
-{
-    emit iconLeave();
-}
-
-void DirMinWidget::dropEvent(QDropEvent *event)
-{
-
-    if (event->mimeData()->hasFormat("image/x-iconitem")) {
-        QByteArray itemData = event->mimeData()->data("image/x-iconitem");
-        QDataStream dataStream(&itemData, QIODevice::ReadOnly);
-
-        QString nameText;
-        QString pixText;
-        QString urlText;
-        int page;
-        int index;
-        int type;
-        dataStream >> nameText >> pixText >> page >> index >> urlText >> type;
-
-//         pixText.replace(".png", ".ico");
-//        qDebug() << pixText;
-
-//        if (event->source() == this) {
-//            event->setDropAction(Qt::MoveAction);
-//            event->accept();
-//        } else {
-//            event->acceptProposedAction();
-//        }
-
-//    IconDesktopItem *icon = qobject_cast<IconDesktopItem*> (event->source());
-//    if (icon && icon->type() != VirtualDesktop::dirIcon) {
-            event->setDropAction(Qt::MoveAction);
-            event->accept();
-//    }
-
-    addIcon(nameText, pixText, -1, -1, urlText);
-    emit iconDrop(nameText ,pixText, page, index, urlText, type);
-    } else {
-        event->ignore();
-    }
-}
-#endif
 
 void DirMinWidget::expand()
 {
@@ -438,8 +365,13 @@ int DirMinWidget::addIcon(const QString &text,
                           const QString &url,
                           const QString &uniqueName)
 {
+    if (_iconDict.value(uniqueName))
+        return 1;
 
-    qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
+//    qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
+    if (_iconNum == 4)
+        return 1;
+
     int expandPageCount = _iconNum / _iconsPerPage + 1;
     if (expandPageCount > _count)
         expand();
@@ -515,6 +447,7 @@ int DirMinWidget::addIcon(const QString &text,
     }
     icon->setText(text);
     icon->setPixmap(iconPath);
+//    icon->setIconClass(type);
 
 //    if (IconMinItem::large_size == ICON_TYPE)
 //    {
@@ -546,20 +479,20 @@ int DirMinWidget::addIcon(const QString &text,
 //    connect(icon, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
 
     ++_iconNum;
-    qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
+//    qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
 
      return page;
 }
 
 void DirMinWidget::delIcon(const QString &uniqueName)
 {
+    if (!_iconDict.value(uniqueName))
+        return;
 
     IconMinItem *icon = _iconDict.take(uniqueName);
     //icon->setHidden(true);
     int p = icon->page();
     int s = icon->index();
-    //icon->setPage(-1);
-    //icon->setIndex(-1);
     delete _iconTable[p][s];
 
     moveBackIcons(p, s);
@@ -703,46 +636,6 @@ void DirMinWidget::moveBackIcons(int page, int index)
     _iconNum--;
 }
 
-//void DirMinWidget::mouseMoveEvent(QMouseEvent *event)
-//{
-//    qDebug() << "void DirMinWidget::mouseMoveEvent(QMouseEvent *event)";
-//    _isMouseMove = true;
-
-//    event->ignore();
-//}
-
-//void DirMinWidget::mousePressEvent(QMouseEvent *event)
-//{
-////    QWidget::mousePressEvent(event);
-//    if (event->button() == Qt::LeftButton)
-//    {
-//        QTimer::singleShot(300, this, SLOT(mouseStatus()));
-//    }
-//}
-
-//void DirMinWidget::mouseStatus()
-//{
-//    if (_isMouseMove)
-//    {
-//        _isMouseMove = false;
-//        return;
-//    }
-//    else
-//    {
-//        emit mouseClicked();
-//    }
-//}
-
-//void DirMinWidget::mouseReleaseEvent(QMouseEvent * event)
-//{
-//    if (event->button() == Qt::LeftButton)
-//    {
-//        QTimer::singleShot(1000, this, SLOT(mouseStatus()));
-//        emit mouseClicked();
-//    }
-
-//}
-
 void DirMinWidget::changeSize()
 {
     switch(_type)   //ICON_TYPE
@@ -803,6 +696,33 @@ void DirMinWidget::setUniqueName(const QString &uniqueName)
     _uniqueName = uniqueName;
 }
 
+void DirMinWidget::refresh()
+{
+//    qDebug() << "1111111111111111111111111111111111111111111111111111111";
+    for (int i = 0; i < _count; i++)
+    {
+        for(int j = 0;j < _iconsPerPage; j++)
+        {
+            if(_iconTable[i][j] != NULL)
+            {
+
+                delIcon(_iconTable[i][j]->uniqueName());
+            }
+        }
+    }
+
+    for (int i = 0; i < dirWidget_FirstLists.count(); i++)
+    {
+        qDebug() << dirWidget_FirstLists.count();
+        addIcon(dirWidget_FirstLists.at(i).name
+                , dirWidget_FirstLists.at(i).iconPath
+                , -1, -1
+                , dirWidget_FirstLists.at(i).url
+                , dirWidget_FirstLists.at(i).uniqueName);
+    }
+
+}
+
 DirLineEdit::DirLineEdit(QString hint, QWidget *parent)
     : QLineEdit(parent), _hint(hint), _color(Qt::white)
     , _mousePress(false)
@@ -853,8 +773,8 @@ void DirLineEdit::enterEvent(QEvent *event)
 
 void DirLineEdit::mousePressEvent(QMouseEvent *event)
 {
-            if (!hasFocus())
-                setFocus();
+    if (!hasFocus())
+        setFocus();
 
     QLineEdit::mousePressEvent(event);
 }
@@ -885,15 +805,6 @@ void DirLineEdit::resizeEvent(QResizeEvent *event)
 
     QLineEdit::resizeEvent(event);
 }
-
-//void DirLineEdit::setImgs(QImage *strLeft, QImage *strCenter, QImage *strRight)
-//{
-//    _left = strLeft;
-//    _center = strCenter;
-//    _right = strRight;
-
-//    repaint();
-//}
 
 DirMWidget::DirMWidget(int type, QWidget *parent)
     : QWidget(parent)
@@ -981,6 +892,10 @@ void DirMWidget::setUniqueName(const QString &uniqueName)
 {
     _uniqueName = uniqueName;
     _dirMinWidget->setUniqueName(uniqueName);
+}
+void DirMWidget::refresh()
+{
+    _dirMinWidget->refresh();
 }
 
 DirMinShowWidget::DirMinShowWidget(int type, QWidget *parent)
@@ -1370,8 +1285,9 @@ void DirMinShowWidget::dropEvent(QDropEvent *event)
             event->setDropAction(Qt::MoveAction);
             event->accept();
 //    }
+    if (_dirMWidget->getMinIconNum() < 4)
+        _dirMWidget->addDirMinItem(nameText, pixText, -1, -1, urlText, uniqueName);
 
-    _dirMWidget->addDirMinItem(nameText, pixText, -1, -1, urlText, uniqueName);
     emit iconDrop(nameText ,pixText, page, index, urlText, type, uniqueName);
     } else {
         event->ignore();
@@ -1466,4 +1382,9 @@ void DirMinShowWidget::setUniqueName(const QString &uniqueName)
 void DirMinShowWidget::setText(const QString text)
 {
     _dirLineEdit->setText(text);
+}
+
+void DirMinShowWidget::refresh()
+{
+    _dirMWidget->refresh();
 }

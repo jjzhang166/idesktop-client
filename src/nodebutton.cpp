@@ -198,7 +198,7 @@ void NodeButton::setFont(const QFont &font)
 
 void NodeButton::setText(const QString &text)
 {
-    qDebug() <<"void NodeButton::setText(const QString &text)void NodeButton::setText(const QString &text)"<<text;
+//    qDebug() <<"void NodeButton::setText(const QString &text)void NodeButton::setText(const QString &text)"<<text;
     _text = text;
     update();
 }

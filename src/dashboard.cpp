@@ -245,6 +245,8 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_upMoveWidget, SIGNAL(moveWidgetDrop(IconItem*)), vdesktop, SLOT(moveWidgetDrop(IconItem*)));
 
     _animationUp = new QPropertyAnimation(_upMoveWidget, "geometry");
+    _animationUp->setEasingCurve(QEasingCurve::Linear);
+    _animationUp->setDuration(200);
 
 
 //    QPixmap minToolBarPix(":/images/min_toolbar_mask_icon.png");
@@ -261,15 +263,19 @@ Dashboard::Dashboard(QWidget *parent)
 //    _minDirLabel->setPixmap(minDirPix); //_minDirLabel->width(), _minDirLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
     _minDirLabel->setVisible(false);
     _animationUpMin = new QPropertyAnimation(_minDirLabel, "geometry");
+    _animationUpMin->setEasingCurve(QEasingCurve::Linear);
+    _animationUpMin->setDuration(200);
     connect(_downMoveWidget, SIGNAL(moveWidgetDrop(IconItem*)), vdesktop, SLOT(moveWidgetDrop(IconItem*)));
 
     _animationDown = new QPropertyAnimation(_downMoveWidget, "geometry");
-
+    _animationDown->setEasingCurve(QEasingCurve::Linear);
+    _animationDown->setDuration(200);
     _downMinW = new MoveMinWidget(this);
     _downMinW->setVisible(false);
 
     _animationDownMin = new QPropertyAnimation(_downMinW, "geometry");
-
+    _animationDownMin->setEasingCurve(QEasingCurve::Linear);
+    _animationDownMin->setDuration(200);
     connect(_upMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
     connect(_downMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
 
@@ -490,7 +496,6 @@ void Dashboard::upMove(int x, int y, int w, int h, int distance)
     _upMoveWidget->setPixmap(result);
     _upMoveWidget->setVisible(true);
 
-    _animationUp->setDuration(500);
     _animationUp->setStartValue(QRect(x, y, w, h));
     _animationUp->setEndValue(QRect(x, y - distance, w, h));
     _animationUp->start();
@@ -505,7 +510,6 @@ void Dashboard::upBackMove(int x, int y, int w, int h, int distance)
         return;
     }
 
-    _animationUp->setDuration(500);
     _animationUp->setStartValue(QRect(x, y, w, h));
     _animationUp->setEndValue(QRect(x, y + distance, w, h));
     _animationUp->start();
@@ -551,7 +555,7 @@ void Dashboard::animationFinished()
         vdesktop->setIconMove(true);
 
         vdesktop->dirMovingFinished();
-//        _toolBarWidget->setVisible(true);
+        _toolBarWidget->setVisible(true);
     }
 }
 
@@ -567,6 +571,7 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
     _pageNodes->setVisible(false);
+    _toolBarWidget->setVisible(false);
 
 //    indicator->setVisible(false);
 //    _dirWidget->move(x, y);
@@ -582,7 +587,6 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
     _downMoveWidget->setVisible(true);
 //    _toolBarWidget->setVisible(false);
 
-    _animationDown->setDuration(500);
     _animationDown->setStartValue(QRect(x, y, w, h));
     _animationDown->setEndValue(QRect(x, y + distance, w, h));
     _animationDown->start();
@@ -596,7 +600,6 @@ void Dashboard::downBackMove(int x, int y, int w, int h, int distance)
         return;
     }
 
-    _animationDown->setDuration(500);
     _animationDown->setStartValue(QRect(x, y, w, h));
     _animationDown->setEndValue(QRect(x, y - distance, w, h));
     _animationDown->start();
@@ -641,8 +644,6 @@ void Dashboard::upMinMove(int x, int y, int w, int h, int distance)
         _minDirLabel->setGeometry(x, y + 2, w, h);
         _minDirLabel->setVisible(true);
 
-
-        _animationUpMin->setDuration(500);
         _animationUpMin->setStartValue(QRect(x, y + 2, w, h));
         _animationUpMin->setEndValue(QRect(x, y - distance + 2, w, h));
         _animationUpMin->start();
@@ -671,7 +672,6 @@ void Dashboard::upMinMove(int x, int y, int w, int h, int distance)
         _downMinW->setPixmap(result);
     //    _downMinW->setVisible(true);
 
-        _animationDownMin->setDuration(500);
         _animationDownMin->setStartValue(QRect(x, y, w, h));
         _animationDownMin->setEndValue(QRect(x, y - distance, w, h));
         _animationDownMin->start();
@@ -688,7 +688,7 @@ void Dashboard::upMinBackMove(int x, int y, int w, int h, int distance)
             return;
         }
     //    _downMinW->setVisible(true);
-        _animationUpMin->setDuration(500);
+
         _animationUpMin->setStartValue(QRect(x, y + 2, w, h));
         _animationUpMin->setEndValue(QRect(x, y + 2 + distance, w, h));
         _animationUpMin->start();
@@ -706,7 +706,6 @@ void Dashboard::upMinBackMove(int x, int y, int w, int h, int distance)
             _minUpward = true;
 
         //    _downMinW->setVisible(true);
-            _animationDownMin->setDuration(500);
             _animationDownMin->setStartValue(QRect(x, y, w, h));
             _animationDownMin->setEndValue(QRect(x, y + distance, w, h));
             _animationDownMin->start();
@@ -739,7 +738,6 @@ void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
         _downMinW->setPixmap(result);
     //    _downMinW->setVisible(true);
 
-        _animationDownMin->setDuration(500);
         _animationDownMin->setStartValue(QRect(x, y, w, h));
         _animationDownMin->setEndValue(QRect(x, y + distance, w, h));
         _animationDownMin->start();
@@ -756,8 +754,6 @@ void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
 //        _minDirLabel->raise();
         _minDirLabel->setVisible(true);
 
-
-        _animationUpMin->setDuration(500);
         _animationUpMin->setStartValue(QRect(x, y - 2, w, h));
         _animationUpMin->setEndValue(QRect(x, y + distance - 2, w, h));
         _animationUpMin->start();
@@ -780,7 +776,6 @@ void Dashboard::closeMinWidget(int x, int y, int w, int h, int distance)
         _minUpward = true;
 
     //    _downMinW->setVisible(true);
-        _animationDownMin->setDuration(500);
         _animationDownMin->setStartValue(QRect(x, y, w, h));
         _animationDownMin->setEndValue(QRect(x, y - distance, w, h));
         _animationDownMin->start();
@@ -794,7 +789,6 @@ void Dashboard::closeMinWidget(int x, int y, int w, int h, int distance)
 
         qDebug() << "4444444444444444444444444444444444444" << x << y << w << h;
         //    _downMinW->setVisible(true);
-            _animationUpMin->setDuration(500);
             _animationUpMin->setStartValue(QRect(x, y + 15 - 2, w, h));
             _animationUpMin->setEndValue(QRect(x, y + 15 - distance - 2, w, h));
             _animationUpMin->start();

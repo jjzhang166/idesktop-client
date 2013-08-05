@@ -80,7 +80,8 @@ HEADERS += src/config.h \
     src/toolbarwidget.h \
     src/dustbin.h \
     src/qitemmanager.h \
-    src/runapp.h
+    src/runapp.h \
+    src/struct.h
 
 
 win32 {

@@ -114,10 +114,10 @@ LoginDialog::LoginDialog(QWidget *parent)
     DynamicButton *minButton = new DynamicButton(minIcon, minIconHover, this);
     minButton->setGeometry(width() - 10 * 2 - CLOSE_WIDTH * 2, 10, CLOSE_WIDTH, CLOSE_HEIGHT);
 
-    QPixmap configurationIcon(":images/setup_normal.png");
-    QPixmap configurationIconHover(":images/setup_hover.png");
+    QPixmap configurationIcon = QPixmap(":images/setup_normal.png").scaled(10,10);
+    QPixmap configurationIconHover = QPixmap(":images/setup_hover.png").scaled(10,10);
     DynamicButton *configurationButton = new DynamicButton(configurationIcon, configurationIconHover, this);
-    configurationButton->setGeometry(width() - 10 * 3 - CLOSE_WIDTH * 3, 8, 15, 16);
+    configurationButton->setGeometry(width() - 10 * 3 - CLOSE_WIDTH * 3, 10, 10, 10);
     configurationButton->setVisible(true);
 
 
@@ -136,8 +136,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
     passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
-    userEdit->setText(QString("demo"));
-    passEdit->setText(QString("abc_123"));
+//    userEdit->setText(QString("demo"));
+//    passEdit->setText(QString("abc_123"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");

@@ -120,7 +120,6 @@ void SkinShowWidget::resizeEvent(QResizeEvent *event)
 
 void SkinShowWidget::wheelEvent(QWheelEvent *event)
 {
-    Q_UNUSED(event);
     _scrollBar->event(event);
 }
 

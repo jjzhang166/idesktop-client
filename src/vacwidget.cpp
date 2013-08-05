@@ -985,7 +985,7 @@ int VacWidget::addIcon(QString text,
         icon->setEqualIcon(false);
         icon->setText(text);
     }
-
+    icon->setIconSize(_iconSize);
     icon->setIconClass(type);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
@@ -1000,7 +1000,6 @@ int VacWidget::addIcon(QString text,
     icon->setAcceptDrops(false);
     icon->setEnterEventBool(true);
     icon->setLeaveEventBool(true);
-
 
     if (page == -1) {
         for (int i = 0; i < _count; i++) {
@@ -1036,7 +1035,7 @@ int VacWidget::addIcon(QString text,
 //        else
 //            icon->setEqualIcon(false);
 //    }
-
+    icon->setLineEditReadOnly(true);
     icon->setPixmap(iconPath,text);
     icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
     icon->setPage(page);
@@ -1064,7 +1063,6 @@ int VacWidget::addIcon(QString text,
 
 
      return page;
-    //LocalAppList::getList()->save();
 }
 
 void VacWidget::delIcon(const QString &uniqueName)
@@ -1469,6 +1467,7 @@ void VacWidget::getPaasIcon()
                 -1, i, g_RemotepaasList.at(i).urls, paasIcon, "2_" + g_RemotepaasList.at(i).name);
     }
 
+    qDebug() << "paasIcon init over!";
 }
 
 void VacWidget::getVacIcon()
@@ -1478,6 +1477,7 @@ void VacWidget::getVacIcon()
         addIcon(g_RemoteappList[i].name, WIN_VAPP_IconPath + g_RemoteappList[i].id + ".png", \
                 - 1, -1, QString(""), vacIcon, "1_" + g_RemoteappList[i].id);
     }
+    qDebug() << "VacIcon init over!";
 }
 
 void VacWidget::getLocalIcon()
@@ -1487,6 +1487,8 @@ void VacWidget::getLocalIcon()
         addIcon(g_RemotelocalList[i].name, g_RemotelocalList[i].iconPath, \
                 - 1, -1, QString(""), localIcon, "0_" + g_RemotelocalList[i].uniqueName);
     }
+
+    qDebug() << "LocalIcon init over!";
 }
 
 void VacWidget::largeIcon()
@@ -1527,6 +1529,10 @@ void VacWidget::refresh(QSize size)
     getLocalIcon();
     getVacIcon();
     getPaasIcon();
+
+    qDebug()<<" VacWidget reload all.";
+
+    update();
 }
 
 void VacWidget::movetoFirst()
@@ -1578,8 +1584,6 @@ void VacWidget::reloadApplist(QSize size)
 
     for (int i = 0; i < _count; i++)
         _nextIdx.insert(i, 0);
-
-    qDebug()<<" VacWidget reload all.";
 }
 
 void VacWidget::deleteAllIconItem()

@@ -28,7 +28,6 @@
 #include "strings.h"
 #include <string.h>
 
-//#define KEY "\\Windows\\CurrentVersion\\App Paths\\"
 #define KEY "\\Windows\\CurrentVersion\\Uninstall\\"
 
 //#define CLOSEWIDTH 30
@@ -74,18 +73,16 @@ extern QList<LOCAL_LIST> g_RemotelocalList;
 extern QList<APP_LIST> g_RemoteappList;
 extern QList<PAAS_LIST> g_RemotepaasList;
 
+QList<TEMP_LIST> dirWidget_FirstLists;
+
 static QPoint gap;
 
 //******/////
-//
 DirShowWidget::DirShowWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
     , _id(0)
 {
 //    setContextMenuPolicy(Qt::NoContextMenu);
-//    _rightTopPix.load(":/images/bs_rightbg_top.png");
-//    _rightCenterPix.load(":/images/bs_rightbg_center.png");
-//    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
 
     QTextCodec *codec = QTextCodec::codecForName("System"); //System
     QTextCodec::setCodecForCStrings(codec);
@@ -112,36 +109,30 @@ DirShowWidget::DirShowWidget(QSize pageSize, QWidget *parent)
 
     connect(_clearBtn, SIGNAL(switcherActivated()), this, SLOT(clearAllIcon()));
 
+    _scrollBar = new QScrollBar(this);
 
+    _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}\
+                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 251px; background-image:url(:/images/widget_scrollbar.png);\
+                    background-position: left; background-repeat:none; border-style:flat;}\
+                    QScrollBar::handle:vertical::disabled{background:#232329;}\
+                    QScrollBar::handle:vertical:hover{background-image:url(:/images/widget_scrollbar.png);}\
+                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);height:13px;\
+                                                  subcontrol-position: bottom; subcontrol-origin: margin;}\
+                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);height:13px;\
+                                                  subcontrol-position: top; subcontrol-origin: margin;}\
+                    QScrollBar::add-page:vertical{background-color: rgba(255,255,255,0);}\
+                    QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}\
+                    QScrollBar::up-arrow:vertical{background-color: rgba(255,255,255,0);height:13px;}\
+                    QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);height:13px;}");
 
-//    _scrollBar = new QScrollBar(this);
+    _scrollBar->setVisible(false);
 
-//    _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}\
-//                    QScrollBar::handle:vertical{ min-width: 8px;min-height: 249px; background-image:url(:/images/bs_scrollbar.png);\
-//                    background-position: left; background-repeat:none; border-style:flat;}\
-//                    QScrollBar::handle:vertical::disabled{background:#232329;}\
-//                    QScrollBar::handle:vertical:hover{background-image:url(:/images/bs_scrollbar.png);}\
-//                    QScrollBar::add-line:vertical{background-color: rgba(255,255,255,0);\
-//                                                  subcontrol-position: bottom; subcontrol-origin: margin;}\
-//                    QScrollBar::sub-line:vertical{background-color: rgba(255,255,255,0);\
-//                                                  subcontrol-position: top; subcontrol-origin: margin;}\
-//                    QScrollBar::add-page:vertical{background-color: rgba(255,255,255,0);}\
-//                    QScrollBar::sub-page:vertical{background-color: rgba(255,255,255,0);}\
-//                    QScrollBar::up-arrow:vertical{background-color: rgba(255,255,255,0);}\
-//                    QScrollBar::down-arrow:vertical{background-color: rgba(255,255,255,0);}");
+    _scrollBar->setSingleStep(_dirWidget->getHeight());
+    _scrollBar->setPageStep(_dirWidget->getHeight());
 
+    _animation = new QPropertyAnimation(_dirWidget, "geometry");
 
-//    _scrollBar->setSingleStep(_dirWidget->pageSize().height());
-//    _scrollBar->setPageStep(_dirWidget->pageSize().height());
-
-//    if (_dirWidget->count() > 1)
-//        _scrollBar->setVisible(true);
-//    else
-//        _scrollBar->setVisible(false);
-
-//    _animation = new QPropertyAnimation(_dirWidget, "geometry");
-
-//    connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
+    connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
  //   connect(_dirWidget, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
     connect(_dirWidget, SIGNAL(pageIncreased()), this, SLOT(setSize()));
     connect(_dirWidget, SIGNAL(pageDecreased()), this, SLOT(setSize()));
@@ -151,6 +142,8 @@ DirShowWidget::DirShowWidget(QSize pageSize, QWidget *parent)
             , this, SIGNAL(dirWidgetDelIcon(int, const QString &)));
     connect(_dirWidget, SIGNAL(iconItemNameChanged(const QString &, const QString &))
             , this, SIGNAL(iconItemNameChanged(const QString &, const QString &)));
+    connect(_dirWidget, SIGNAL(refreshDirMinWidget(int))
+            , this, SIGNAL(refreshDirMinWidget(int)));
 }
 
 DirShowWidget::~DirShowWidget()
@@ -193,34 +186,27 @@ void DirShowWidget::removeIcon(const QString &uniqueName)
     _dirWidget->removeIcon(uniqueName);
 }
 
-//void DirShowWidget::scrollBarValueChanged(int val)
-//{
-//    if (val % _dirWidget->pageSize().height() != 0)
-//    {
-//        return;
-//    }
+void DirShowWidget::scrollBarValueChanged(int val)
+{
+    _oldPagePos = _newPagePos;
+    _newPagePos = val / _dirWidget->height();
+    if( _oldPagePos == _newPagePos )
+        return;
 
-//    if (_animation->state() == QAbstractAnimation::Running)
-//    {
-//        return;
-//    }
+    if (_animation->state() == QAbstractAnimation::Running)
+    {
+        return;
+    }
 
-//    _animation->setDuration(80);
-//    _animation->setStartValue(QRect(0, _dirWidget->pos().y(), _dirWidget->pageSize().width(), _dirWidget->pageSize().height()));
-//    _animation->setEndValue(QRect(0, -1 * val, _dirWidget->pageSize().width(), _dirWidget->pageSize().height()));
-
-//    _animation->start();
-//}
+    _animation->setDuration(10);
+    _animation->setStartValue(QRect(0, _dirWidget->pos().y(), _dirWidget->width(), _dirWidget->height()));
+    _animation->setEndValue(QRect(0, -1 * (_newPagePos * _dirWidget->getHeight()) + 20, _dirWidget->width(), _dirWidget->height()));
+    _animation->start();
+}
 
 void DirShowWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-//    painter.drawPixmap(0, 0, _width, 9,
-//                       _rightTopPix.scaled(_width, 9));
-//    painter.drawPixmap(0, 9, _width, _height - 18,
-//                       _rightCenterPix.scaled(_width, _height - 18));
-//    painter.drawPixmap(0, _height - 9, _width, 9,
-//                       _rightBottomPix.scaled(_width, 9));
 
     painter.drawPixmap(0, 0, _width, _height, QPixmap(":images/dir_bg.png").scaled(_width, _height, \
                        Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
@@ -228,51 +214,65 @@ void DirShowWidget::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 }
 
-void DirShowWidget::mousePressEvent(QMouseEvent *event)
+void DirShowWidget::mousePressEvent(QMouseEvent *)
 {
-    if (Qt::RightButton == event->button())
-        return;
+
 }
 
-//void DirShowWidget::resizeEvent(QResizeEvent *event)
-//{
-//    Q_UNUSED(event);
-//    _width = width();
-//    _height = height();
-
-//    if (_dirWidget->count() > 1)
-//        _scrollBar->setVisible(true);
-//    else
-//        _scrollBar->setVisible(false);
-
-//    int w = 15;
-//    int x = width() - w;
-//    x = x < 0 ? 0: x;
-//    int h = height();
-//    _scrollBar->setGeometry(x, 8, w, h - 16);
-
-//    _scrollBar->setRange(0, _dirWidget->count() * _dirWidget->pageSize().height() - h);
-
-//    update();
-//}
-
-void DirShowWidget::setSize()
+void DirShowWidget::mouseMoveEvent(QMouseEvent *)
 {
-    qDebug() << "DirShowWidget::setSize() : ";
-//    _dirWidget->setMaxPage(_maxRow);
 
-    _dirWidget->setGeometry(0, 30, _dirWidget->width() - 5, _dirWidget->getHeight());
-    _height = _dirWidget->width() + 30;
+}
 
-    setFixedSize(_width, _height);
+
+void DirShowWidget::resizeEvent(QResizeEvent *event)
+{
+    Q_UNUSED(event);
+    _width = width();
+
+    int w = 15;
+    int x = width() - w;
+    x = x < 0 ? 0: x;
+    int h = height() - 30;
+    _scrollBar->setGeometry(x, 8, w, h - 16);
+
+//    _scrollBar->setRange(0, _dirWidget->count() * _dirWidget->height() - h);
+
     update();
 }
 
-//void DirShowWidget::wheelEvent(QWheelEvent *event)
-//{
-//    Q_UNUSED(event);
-//    _scrollBar->event(event);
-//}
+void DirShowWidget::setSize()
+{
+    if ( _dirWidget->count() > _maxPage )
+    {
+        _scrollBar->setVisible(true);
+        _height = _dirWidget->getHeight() * _maxPage + 30;
+//        qDebug() << "_maxPage" << _maxPage;
+        setFixedSize(_width, _height);
+        resize(_width, _height);
+
+        _dirWidget->setGeometry(0, 30, _dirWidget->width() - 5, _dirWidget->height());
+    }
+    else
+    {
+        _scrollBar->setVisible(false);
+//        qDebug() << "_dirWidget->count()" << _dirWidget->count();
+        _height = _dirWidget->getHeight() * _dirWidget->count() + 30;
+        setFixedSize(_width, _height);
+        resize(_width, _height);
+
+        _dirWidget->setGeometry(0, 30, _dirWidget->width() - 5, _dirWidget->height());
+    }
+
+    _scrollBar->setRange(0, (_dirWidget->count() - _maxPage + 1) * _dirWidget->height() - height() - 30);
+
+    repaint();
+}
+
+void DirShowWidget::wheelEvent(QWheelEvent *event)
+{
+    _scrollBar->event(event);
+}
 
 void DirShowWidget::showApp(bool localApp)
 {
@@ -287,13 +287,15 @@ void DirShowWidget::addDirIcon(const QString &text, const QString &iconPath,
                                int type, const QString &uniqueName)
 {
 //    _dirWidget->setUrl(url);
-    qDebug() << "void DirShowWidget::addDirIcon(" << text;
+//    qDebug() << "void DirShowWidget::addDirIcon()" << text;
     _dirWidget->addIcon(text, iconPath, page, index, url, type, uniqueName);
 }
 
 void DirShowWidget::setMaxRow(int row)
 {
-    _dirWidget->setMaxPage(row - 1);
+//    qDebug() << "row-------->serMaxRow : " << row;
+    _maxPage = row;
+//    _dirWidget->setMaxPage(row);
 }
 
 int DirShowWidget::getRow()
@@ -349,6 +351,11 @@ void DirShowWidget::clearAllIcon()
     _dirWidget->clearAllIcon();
 }
 
+void DirShowWidget::getFirstIconItem()
+{
+    _dirWidget->getFirstIconItem();
+}
+
 //
 DirWidget::DirWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
@@ -358,14 +365,11 @@ DirWidget::DirWidget(QSize pageSize, QWidget *parent)
     , _iconSize(ICON_TYPE)
     , _dragEvent(false)
 {
-//    setContextMenuPolicy(Qt::NoContextMenu);
     _count = 1;
     _pageSize = pageSize;
     _width = _pageSize.width();
 
     changeSpacing();
-//    gridWidth = ICONITEMWIDTH + HSPACING * 2;
-//    gridHeight = ICONITEMWIDTH + VSPACING + BOTTOMSPACING;
 
     _col = (_width - ICONHSPACING) / gridWidth;
     _row = (_height - ICONVSPACING) / gridHeight;
@@ -373,25 +377,9 @@ DirWidget::DirWidget(QSize pageSize, QWidget *parent)
     _iconsPerPage = _col * _row;
     _current  = 0;
 
-//    for (int i = 0; i < _local->count(); i++) {
-//        if (_local->at(i)->hidden())
-//            continue;
-
-//        if(!_local->at(i)->isRemote())
-//        {
-//            _localCount++;
-//        }
-//    }
-
-
-//    for (int i = 0; i < ICONNUM; i++)
-//    {
-//        _count = i / _iconsPerPage + 1;
-//    }
-
     _local = LocalAppList::getList();
     connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
-//    connect(&_communi, SIGNAL(appRun()), this, SLOT(runServerApp()));//
+
 
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _height));
@@ -421,9 +409,6 @@ DirWidget::DirWidget(QSize pageSize, QWidget *parent)
     for (int i = 0; i < _count; i++)
         _nextIdx.insert(i, 0);
 
-    _animation = new QPropertyAnimation(this, "geometry");
-    _animation->setEasingCurve(QEasingCurve::OutBack);
-
     setAcceptDrops(true);
     setAutoFillBackground(true);
 
@@ -433,24 +418,19 @@ DirWidget::DirWidget(QSize pageSize, QWidget *parent)
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
 
-//    for (int i = 0; i < _local->count(); i++) {
-//        if (_local->at(i)->hidden())
-//            continue;
-
-//        if(!_local->at(i)->isRemote())
-//        {
-//            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-//                    _local->at(i)->page(), -1);
-//        }
-//    }
-
-//    for (int i = 0; i < ICONNUM; i++) {
-//        addIcon("", QString(":images/custom/z_%1.png").arg(i + 15),
-//                -1, i);
-//    }
-//    initIconItem();
     _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
     _iconMenu->setVisible(false);
+
+    dragLeftTimer = new QTimer(this);
+    dragLeftTimer->setInterval(500);
+    dragLeftTimer->setSingleShot(true);
+
+    dragRightTimer = new QTimer(this);
+    dragRightTimer->setInterval(500);
+    dragRightTimer->setSingleShot(true);
+
+    connect(dragLeftTimer, SIGNAL(timeout()), this, SLOT(dragLeft()));
+    connect(dragRightTimer, SIGNAL(timeout()), this, SLOT(dragRight()));
 
     connect(_iconMenu, SIGNAL(run()), this, SLOT(iconMenuRunClicked()));
     connect(_iconMenu, SIGNAL(del()), this, SLOT(iconMenuDelClicked()));
@@ -469,10 +449,8 @@ int DirWidget::addIcon(const QString &text,
                        int type,
                        const QString &uniqueName)
 {
-        qDebug() <<  "DirWidget::addIcon() -->_iconNum" << _iconNum;
+//        qDebug() <<  "DirWidget::addIcon() -->_iconNum" << _iconNum;
     int expandPageCount = _iconNum / _iconsPerPage + 1;
-
-
 
     if (expandPageCount > _count)
         expand();
@@ -496,6 +474,7 @@ int DirWidget::addIcon(const QString &text,
     icon->setSaveDataBool(true);    //  true
     icon->setUniqueName(uniqueName);
     icon->setText(text);
+    icon->setIconSize(_iconSize);
     icon->setIconClass(type);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
@@ -510,7 +489,6 @@ int DirWidget::addIcon(const QString &text,
     icon->setDragEventBool(true);
     icon->setEnterEventBool(false);
     icon->setLeaveEventBool(false);
-
 
     if (page == -1) {
         for (int i = 0; i < _count; i++) {
@@ -575,13 +553,15 @@ int DirWidget::addIcon(const QString &text,
             , this, SIGNAL(iconItemNameChanged(const QString &, const QString &)));
 
     _url = QString("");
+
+    getFirstIconItem();
+
      return page;
     //LocalAppList::getList()->save();
 }
 
 void DirWidget::expand()
 {
-//    qDebug() << "asdlkfjalksjdflkajsdflkjal;sdjf;lkajsdfljasldkfjalk;sjdflasdfas";
     _count++;
     setFixedSize(_pageSize.width(), _count * _height);
     _pages.append(-(_count-1) * _height);
@@ -593,23 +573,22 @@ void DirWidget::expand()
 //    gridHeight = ICONITEMWIDTH + VSPACING + BOTTOMSPACING;
     changeSpacing();
 
-    for (int i = 0; i < _col * _row; i++) {
-        //vertical display
-//        int x =  _pageSize.width() * (_count - 1)\
-//                + (i / _row) * gridWidth;
-//        int y = (i % _row) * gridHeight;
-
-            //horizontal display
-            int x =  (i % _col) * gridWidth + ICONHSPACING;
-            int y = _height * (_count - 1) \
-                    + (i / _col) * gridHeight + ICONVSPACING;
+    for (int i = 0; i < _col * _row; i++)
+    {
+        int x =  (i % _col) * gridWidth + ICONHSPACING;
+        int y = _height * (_count - 1) \
+                + (i / _col) * gridHeight + ICONVSPACING;
         newGridList.insert(i, \
                            QRect(x, y, gridWidth, gridHeight));
     }
+
     _gridTable.append(newGridList);
+
     QList<IconItem*> newIconList;
+
     for (int i = 0; i < _col * _row; i++)
         newIconList.insert(i, NULL);
+
     _iconTable.append(newIconList);
     _nextIdx.append(0);
     emit pageIncreased();
@@ -657,7 +636,7 @@ void DirWidget::delIcon(const QString &_uniqueName)
     if (!_iconDict.value(_uniqueName))
         return;
 
-    qDebug() << _uniqueName;
+//    qDebug() << _uniqueName;
     IconItem *icon = _iconDict.take(_uniqueName);
     //icon->setHidden(true);
     int p = icon->page();
@@ -727,7 +706,7 @@ void DirWidget::moveBackIcons(int page, int index)
     _iconTable[_count - 1][_nextIdx[_count - 1] - 1] = NULL;
     _nextIdx[_count - 1]--;
 
-    qDebug() << "_nextIdx[_count - 1] : " << _nextIdx[_count - 1];
+//    qDebug() << "_nextIdx[_count - 1] : " << _nextIdx[_count - 1];
     if (_nextIdx[_count - 1] == 0)
     {
         if (_count - 1 != 0)
@@ -737,6 +716,7 @@ void DirWidget::moveBackIcons(int page, int index)
     }
 
     _iconNum--;
+    getFirstIconItem();
 }
 
 QString DirWidget::getAppImage(QString appPath)
@@ -984,7 +964,7 @@ void DirWidget::changeSpacing()
             _iconVSpacing = ICONVSPACING;
 
             gridWidth = MEDIUMSIZE.width() + HSPACING * 2;
-            gridHeight = MEDIUMSIZE.height() + BOTTOMSPACING;
+            gridHeight = MEDIUMSIZE.height() + VSPACING + BOTTOMSPACING;
             break;
 
         default:
@@ -995,7 +975,7 @@ void DirWidget::changeSpacing()
             _iconVSpacing = ICONVSPACING;
 
             gridWidth = SMALLSIZE.width() + HSPACING * 2;
-            gridHeight = SMALLSIZE.height() + BOTTOMSPACING;
+            gridHeight = SMALLSIZE.height() + VSPACING + BOTTOMSPACING;
             break;
     }
 }
@@ -1024,20 +1004,20 @@ void DirWidget::dragMoveEvent(QDragMoveEvent *event)
      * on this page, this icon can't be moved to add a page
      */
 
-    /* move to the right page */
-    if (QRect(_pageSize.width() - 20, 0, 20, _pageSize.height())\
-            .contains(mapToGlobal(event->pos()))) {
+    /* move to the next page */
+    if (QRect(0, _pageSize.height() - 10, _pageSize.width(), 10)\
+            .contains(event->pos())) {
         if (p == (_count-1) && _iconTable[p][1] == NULL)
             return;
-        //dragRightTimer->start();
-        //QTimer::singleShot(500, this, SLOT(dragRight()));
+        dragRightTimer->start();
+        QTimer::singleShot(500, this, SLOT(dragRight()));
     }
-    /* move to the left page */
-    else if (QRect(0, 0, 20, _pageSize.height())\
-             .contains(mapToGlobal(event->pos()))) {
+    /* move to the up page */
+    else if (QRect(0, 0, _pageSize.width(), 10)\
+             .contains(event->pos())) {
         if (_current == 0)
             return;
-        //dragLeftTimer->start();
+        dragLeftTimer->start();
     }
     /* move in this page */
     else {
@@ -1083,7 +1063,7 @@ void DirWidget::contextMenuEvent(QContextMenuEvent *event)
 void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
     _dragEvent = false;
-    qDebug() << "DirWidget::dragLeaveEvent(QDragLeaveEvent *event)";
+//    qDebug() << "DirWidget::dragLeaveEvent(QDragLeaveEvent *event)";
 
 
     if (!_inDrag)
@@ -1157,7 +1137,7 @@ void DirWidget::mousePressEvent(QMouseEvent *event)
 
 void DirWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    qDebug() << event->pos();
+
 }
 
 void DirWidget::mouseReleaseEvent(QMouseEvent *)
@@ -1167,7 +1147,7 @@ void DirWidget::mouseReleaseEvent(QMouseEvent *)
 
 void DirWidget::showIconContextMenu(bool visiable,QPoint pos, QPoint mPos, const QString &uniqueName)
 {
-    qDebug() << "void DirWidget::showIconContextMenu(QPoint pos, const QString &text)" << pos << uniqueName;
+//    qDebug() << "void DirWidget::showIconContextMenu(QPoint pos, const QString &text)" << pos << uniqueName;
     Q_UNUSED(mPos);
     _currentIconItem = uniqueName;
 
@@ -1187,7 +1167,7 @@ void DirWidget::iconMenuRunClicked()
 void DirWidget::iconMenuDelClicked()
 {
     _iconMenu->setVisible(false);
-    qDebug() << _currentIconItem;
+//    qDebug() << _currentIconItem;
 //    delIcon(_currentIconItem);
 //    emit delApp(_currentIconItem);
     LocalAppList::getList()->delApp(_currentIconItem);
@@ -1197,14 +1177,15 @@ void DirWidget::iconMenuDelClicked()
 
 void DirWidget::runApp(const QString &uniqueName)
 {
+    if (_id == 1000)
+        return;
+
     RunApp::getRunApp()->runApp(uniqueName);
 }
 
-
-
 void DirWidget::clearAllIcon()
 {
-    qDebug() << "clicked";
+//    qDebug() << "clicked";
 
     if (_clearNames.count() != 0)
         _clearNames.clear();
@@ -1232,4 +1213,201 @@ void DirWidget::clearAllIcon()
 void DirWidget::setUniqueName(const QString &uniqueName)
 {
     _uniqueName = uniqueName;
+}
+
+void DirWidget::setMaxPage(int page)
+{
+    _maxPage = page;
+}
+
+void DirWidget::dragRight()
+{
+    if (!_inDrag)
+        return;
+    if (QRect(0, _pageSize.height() - 10, _pageSize.width(), 10)\
+            .contains(cursor().pos())) {
+        /* last page, expand */
+//        if (_current == _count - 1) {
+//            expand();
+//            qDebug() << "EXPAND";
+//        }
+//        move(_pages[++_current], y());
+//        emit pageChanged(_current);
+        int i;
+        int p = _inDrag->page();
+        int s = _inDrag->index();
+        for (i = s + 1; i < _nextIdx[p]; i++) {
+            QPoint end = _gridTable[p][i-1].translated(HSPACING, VSPACING).topLeft();
+            _iconTable[p][i]->move(end);
+            _iconTable[p][i]->setIndex(i-1);
+            _iconTable[p][i - 1] = _iconTable[p][i];
+            _iconTable[p][i-1]->setIndex(i-1);
+        }
+        _iconTable[p][i-1] = NULL;
+        _nextIdx[p]--;
+        if (_nextIdx[_current] == _iconsPerPage) {
+            int source = _current;
+            int target = _current + 1;
+            IconItem *moving = _inDrag;
+            moving->setPage(source);
+            moving->setIndex(_iconsPerPage - 1);
+            IconItem *last = _iconTable[source][_iconsPerPage - 1];
+            while (true) {
+                if (target == _count) {
+                    expand();
+                    _iconTable[target][0] = last;
+                    last->move(_gridTable[target][0].translated(HSPACING, VSPACING).topLeft());
+                    last->setPage(target);
+                    last->setIndex(0);
+                    _nextIdx[target]++;
+                    if (moving != _inDrag) {
+                        int idx = _nextIdx[source];
+                        if (idx >= _iconsPerPage)
+                            idx = _iconsPerPage - 1;
+                        for (int i = idx; i > 0; i--) {
+                            _iconTable[source][i] = _iconTable[source][i-1];
+                            _iconTable[source][i]->move(_gridTable[source][i].translated(HSPACING, VSPACING).topLeft());
+                            _iconTable[source][i]->setIndex(i);
+                        }
+                        _iconTable[source][0] = moving;
+                        moving->move(_gridTable[source][0].translated(HSPACING, VSPACING).topLeft());
+                        moving->setPage(source);
+                        moving->setIndex(0);
+                    } else {
+                        _iconTable[source][_iconsPerPage-1] = moving;
+                    }
+                    break;
+                }
+                else if (_nextIdx[target] < _iconsPerPage) {
+                    for (int i = _nextIdx[target]; i > 0; i--) {
+                        _iconTable[target][i] = _iconTable[target][i-1];
+                        _iconTable[target][i]->move(_gridTable[target][i].translated(HSPACING, VSPACING).topLeft());
+                        _iconTable[target][i]->setIndex(i);
+                    }
+                    _iconTable[target][0] = last;
+                    last->move(_gridTable[target][0].translated(HSPACING, VSPACING).topLeft());
+                    last->setPage(target);
+                    last->setIndex(0);
+                    _nextIdx[target]++;
+                    if (moving != _inDrag) {
+                        int idx = _nextIdx[source];
+                        if (idx >= _iconsPerPage)
+                            idx = _iconsPerPage - 1;
+                        for (int i = idx; i > 0; i--) {
+                            _iconTable[source][i] = _iconTable[source][i-1];
+                            _iconTable[source][i]->move(_gridTable[source][i].translated(HSPACING, VSPACING).topLeft());
+                            _iconTable[source][i]->setIndex(i);
+                        }
+                        _iconTable[source][0] = moving;
+                        moving->move(_gridTable[source][0].translated(HSPACING, VSPACING).topLeft());
+                        moving->setPage(source);
+                        moving->setIndex(0);
+                    } else {
+                        _iconTable[source][_iconsPerPage-1] = moving;
+                    }
+                    break;
+                }
+                else {
+                    source++;
+                    target++;
+                    moving = last;
+                    last = _iconTable[source][_iconsPerPage - 1];
+                    continue;
+                }
+            }
+        } else {
+            _inDrag->setPage(_current);
+            _inDrag->setIndex(_nextIdx[_current]);
+            _nextIdx[_current]++;
+        }
+        if (_nextIdx[p] == 0) {
+            delPage(p);
+        }
+        cursor().setPos(_pageSize.width()/3, _pageSize.height()/3);
+        qDebug() << "END OF DRAGRIGHT";
+    }
+}
+
+void DirWidget::dragLeft()
+{
+    if (!_inDrag)
+        return;
+    if (!QRect(0, 0, _pageSize.width(), 10)\
+            .contains(cursor().pos()))
+        return;
+    if (_current != 0) {
+//        move(_pages[--_current], y());
+        int i;
+        int p = _inDrag->page();
+        int s = _inDrag->index();
+        for (i = s + 1; i < _nextIdx[p]; i++) {
+            QPoint end = _gridTable[p][i-1].translated(HSPACING, VSPACING).topLeft();
+            _iconTable[p][i]->move(end);
+            _iconTable[p][i]->setIndex(i-1);
+            _iconTable[p][i-1] = _iconTable[p][i];
+            _iconTable[p][i-1]->setIndex(i-1);
+        }
+        _iconTable[p][i-1] = NULL;
+        _nextIdx[p]--;
+        if (_nextIdx[_current] == _iconsPerPage) {
+            int source = _current;
+            int target = _current + 1;
+            IconItem *last = _iconTable[_current][_iconsPerPage-1];
+            for (int i = _nextIdx[target]; i > 0; i--) {
+                _iconTable[target][i] = _iconTable[target][i-1];
+                _iconTable[target][i]->move(_gridTable[target][i].translated(HSPACING, VSPACING).topLeft());
+                _iconTable[target][i]->setIndex(i);
+            }
+            _iconTable[target][0] = last;
+            last->move(_gridTable[target][0].translated(HSPACING, VSPACING).topLeft());
+            last->setPage(target);
+            last->setIndex(0);
+            _nextIdx[target]++;
+            _iconTable[source][_iconsPerPage-1] = _inDrag;
+            _inDrag->setPage(source);
+            _inDrag->setIndex(_iconsPerPage-1);
+        } else {
+            _inDrag->setPage(_current);
+            _inDrag->setIndex(_nextIdx[_current]);
+            _nextIdx[_current]++;
+        }
+        if (_nextIdx[p] == 0) {
+            delPage(p);
+        }
+//        emit pageChanged(_current);
+    }
+    cursor().setPos(_pageSize.width()/3, _pageSize.height()/3);
+}
+
+void DirWidget::getFirstIconItem()
+{
+    dirWidget_FirstLists.clear();
+
+    TEMP_LIST tempList;
+
+    for (int i = 0; i < _count; i++)
+    {
+        for(int j = 0;j < _iconsPerPage; j++) // also you can use _nextIdx[i]
+        {
+            if(_iconTable[i][j] != NULL)
+            {
+                if (dirWidget_FirstLists.count() == 4)
+                    return;
+
+                tempList.name = _iconTable[i][j]->text();
+                tempList.iconPath = _iconTable[i][j]->pix();
+                tempList.page = -1;
+                tempList.index = -1;
+                tempList.url = _iconTable[i][j]->url();
+                tempList.type = _iconTable[i][j]->type();
+                tempList.id = _iconTable[i][j]->id();
+                tempList.uniqueName = _iconTable[i][j]->uniqueName();
+
+                dirWidget_FirstLists.append(tempList);
+
+            }
+        }
+    }
+
+    emit refreshDirMinWidget(_id);
 }

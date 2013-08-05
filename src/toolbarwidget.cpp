@@ -331,6 +331,8 @@ int toolBarWidget::getNearestIndex(const QRect &rect)
 
 void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
 {
+    _refreshToolBar = false;
+
     if (_dragItem)
     {
         event->setDropAction(Qt::MoveAction);
@@ -414,8 +416,6 @@ void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
 
 void toolBarWidget::dragMoveEvent(QDragMoveEvent *event)
 {
-//    qDebug() << "123123123123213213213213213213";
-
 //    event->setDropAction(Qt::MoveAction);
 //    event->accept();
 //    return;
@@ -685,7 +685,7 @@ int toolBarWidget::addIcon(const QString &text,
                             const QString &url,
                             int type, int id, const QString &uniqueName)
 {
-    qDebug() << text << iconPath << page << index << url << type << id;
+//    qDebug() << text << iconPath << page << index << url << type << id;
     _localIconNum ++;
 
     setShowType();
@@ -726,6 +726,8 @@ int toolBarWidget::addIcon(const QString &text,
     icon->setEnterEventBool(true);
     icon->setLeaveEventBool(true);
     icon->setEqualIcon(false);
+    icon->setIconSize(2);
+    icon->setIconClass(type);
 
     if(type == dirIcon)
     {
@@ -752,14 +754,14 @@ int toolBarWidget::addIcon(const QString &text,
 
     /* TODO deal with the icon is full */
     if (page == -1) {
-            qDebug() << "toolBarWidget::addIcon() --> setPage(page) -- > _count" << page << _count;
+//            qDebug() << "toolBarWidget::addIcon() --> setPage(page) -- > _count" << page << _count;
         for (int i = 0; i < _count; i++) {
 
             if (_nextIdx[i] < _iconsPerPage) {
 
                 page = i;
                 index = _nextIdx[i];
-                qDebug() << "toolBarWidget::addIcon() --> setPage(page)" << page  << index;
+//                qDebug() << "toolBarWidget::addIcon() --> setPage(page)" << page  << index;
 
                 break;
             }
@@ -850,7 +852,7 @@ int toolBarWidget::addIcon(const QString &text,
         connect(icon, SIGNAL(dragEnterMinWidget()), this, SLOT(iconDragEnter()));
     //    connect(icon, SIGNAL(showContextMenu(QPoint, QPoint,const QString &))
     //            , this, SLOT(showIconContextMenu(QPoint, QPoint,const QString &)));
-        qDebug() << "toolBarWidget::addIcon() --> setPage(page)" << "2222222"<< type;
+//        qDebug() << "toolBarWidget::addIcon() --> setPage(page)" << "2222222"<< type;
 
 //        connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint,const QString &))
 //                , this, SLOT(showIconContextMenu(bool, QPoint, QPoint,const QString &)));
@@ -1000,9 +1002,9 @@ void toolBarWidget::moveBackIcons(int page, int index)
         {
             int k;
             for (k = s + 1; k < _nextIdx[p]; k++) {
-                QRect start = _gridTable[p][k].translated(HSPACING, VSPACING);
-                QRect end = _gridTable[p][k-1].translated(HSPACING, VSPACING);
-                _iconTable[p][k]->animationMove(start, end);
+//                QRect start = _gridTable[p][k].translated(HSPACING, VSPACING);
+//                QRect end = _gridTable[p][k-1].translated(HSPACING, VSPACING);
+//                _iconTable[p][k]->animationMove(start, end);
                 _iconTable[p][k]->setIndex(k-1);
                 _iconTable[p][k - 1] = _iconTable[p][k];
             }
@@ -1013,18 +1015,18 @@ void toolBarWidget::moveBackIcons(int page, int index)
             {
                 if (j == 0)
                 {
-                    QRect start = _gridTable[i][j].translated(HSPACING, VSPACING);
-                    QRect end = _gridTable[i-1][_nextIdx[i-1] - 1].translated(HSPACING, VSPACING);
-                    _iconTable[i][j]->animationMove(start, end);
+//                    QRect start = _gridTable[i][j].translated(HSPACING, VSPACING);
+//                    QRect end = _gridTable[i-1][_nextIdx[i-1] - 1].translated(HSPACING, VSPACING);
+//                    _iconTable[i][j]->animationMove(start, end);
                     _iconTable[i][j]->setPage(i-1);
                     _iconTable[i][j]->setIndex(_nextIdx[i-1] - 1);
                     _iconTable[i-1][_nextIdx[i-1] - 1] = _iconTable[i][j];
                 }
                 else {
 
-                    QRect start = _gridTable[i][j].translated(HSPACING, VSPACING);
-                    QRect end = _gridTable[i][j-1].translated(HSPACING, VSPACING);
-                    _iconTable[i][j]->animationMove(start, end);
+//                    QRect start = _gridTable[i][j].translated(HSPACING, VSPACING);
+//                    QRect end = _gridTable[i][j-1].translated(HSPACING, VSPACING);
+//                    _iconTable[i][j]->animationMove(start, end);
                     _iconTable[i][j]->setIndex(j-1);
                     _iconTable[i][j - 1] = _iconTable[i][j];
                 }
@@ -1427,37 +1429,6 @@ void toolBarWidget::reloadApplist(QSize size)
 
     _localIconNum= 0;
 
-//    for(int i = 0; i < _iconLists.count(); i++)
-//    {
-//        _tempLists[i] = _iconLists[i];
-////        _iconLists[i] = NULL;
-////        delete _iconLists[i];
-//    }
-
-//    _iconLists.clear();
-
-//    QString name;
-
-//    for(int i = 0; i < _tempLists.count(); i++)
-//    {
-//        qDebug() << _tempLists.count();
-//        qDebug() << _tempLists[i]->text();
-//        qDebug() << _tempLists[i]->url();
-        //_url = _iconLists.at(i)->url();
-
-//        if (_iconLists[i]->type() == toolBarWidget::dirIcon)
-//        {
-//            name = _iconLists[i]->getDirText();
-//        }
-//        else
-//            name = _iconLists[i]->text();
-
-//        addIcon(name, _iconLists[i]->pix()
-//                , _iconLists[i]->page(), _iconLists[i]->index()
-//                , _iconLists[i]->type());
-
-//    }
-
     qDebug()<<"reload all.";
 }
 
@@ -1664,7 +1635,6 @@ void toolBarWidget::initIconItem()
             }
             else
             {
-                qDebug() << "ajsdfjaslkdjflasj;flkajsldkfjal;skdfjalsjdf;alsdf";
                 addIcon(_local->at(i)->name(), _local->at(i)->icon(),
                         _local->at(i)->page(), _local->at(i)->index(),
                         "", 4,
@@ -1714,18 +1684,22 @@ void toolBarWidget::setShowType()
         _iconTable.insert(i, newList);
     }
 
-    for (int i = 0; i < _iconItemLists.count(); i++)
+    for (int i = 0; i < _iconTable.count(); i++)
     {
-        _iconItemLists.at(i)->setGeometry(_gridTable[0][i].translated(HSPACING, VSPACING));
-        qDebug() << _iconItemLists.at(i)->pos().x() << _iconItemLists.at(i)->pos().y();
-        _iconTable[0][i] = _iconItemLists.at(i);
-
+        for (int j = 0; j < _iconItemLists.count(); j++)
+        {
+            if (_iconItemLists.at(j)->index() == i)
+            {
+                _iconItemLists.at(j)->setGeometry(_gridTable[0][i].translated(HSPACING, VSPACING));
+                _iconTable[0][i] = _iconItemLists.at(j);
+            }
+        }
     }
 
 
      repaint();
 
-     _refreshToolBar = false;
+//     _refreshToolBar = false;
 }
 
 void toolBarWidget::moveOutIcon(const QString &uniqueName)
@@ -1775,7 +1749,8 @@ void toolBarWidget::toolBarRemoveDirMinItem(const QString &uniqueName, int dirId
                 if (!_iconDict.value(_local->at(i)->uniqueName()))
                     break;
 
-                _iconDict.value(_local->at(i)->uniqueName())->removeDirMinItem(uniqueName);
+//                _iconDict.value(_local->at(i)->uniqueName())->removeDirMinItem(uniqueName);
+                _iconDict.value(_local->at(i)->uniqueName())->refreshDirMinWidgetIcon();
             }
 
             break;

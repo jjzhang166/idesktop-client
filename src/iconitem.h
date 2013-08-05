@@ -60,6 +60,7 @@ public:
     void setCurrentStatus(status state) { _currentStatus = state ; \
                                           update();}
     QPixmap setTransparentPixmap(const QString &pix);
+    void setUniqueName(const QString &uniqueName);
     void setLargeSize();
     void setMediumSize();
     void setSmallSize();
@@ -90,8 +91,10 @@ public:
     QString url()               { return _url; }
     virtual QString pix()       { return _pixText; }
     int dirId()                 { return _dirId; }
-    void setUniqueName(const QString &uniqueName);
-    QString uniqueName()        { return _uniqueName; }
+    QString uniqueName();//        { return _uniqueName; }
+
+    void setIconSize(int iconSize);
+    int iconSize()              {  return _iconSize; }
 
     const QString & text();
     virtual const QPixmap & pixmap();
@@ -114,6 +117,7 @@ public:
     void removeDirMinItem(const QString &uniqueName);
     void addDirMinItem(const QString &text, const QString &icon, \
                        int page, int index, const QString &url, const QString &uniqueName);
+    void refreshDirMinWidgetIcon();
 
     int getMinIconNum();
     void setDirMinItemId(int id);
@@ -121,6 +125,7 @@ public:
 
     void addDustbin();
     void setIconClass(int iconClass);
+    void setLineEditReadOnly(bool readOnly);
 
 signals:
 //    void clicked();
@@ -247,6 +252,7 @@ private:
     int _height;
     int _iconWidth;
     int _iconHeight;
+    int _iconSize;
 
     bool _isRemote;
 

@@ -119,6 +119,12 @@ void IconItem::setDirId(int dirId)
 
     if (_saveDataBool)
         _app->setDirId(_dirId);
+
+    if (_dirId == 1000)
+    {
+        //_lineEdit->setReadOnly(true);
+        _lineEdit->setEnabled(false);
+    }
 }
 void IconItem::setUniqueName(const QString &uniqueName)
 {
@@ -129,6 +135,11 @@ void IconItem::setUniqueName(const QString &uniqueName)
     if (_saveDataBool)
         _app->setUniqueName(_uniqueName);
 
+}
+QString IconItem::uniqueName()
+{
+//    qDebug() << "_uniqueName" << _uniqueName;
+    return _uniqueName;
 }
 
 void IconItem::setHidden(bool hide)
@@ -439,22 +450,35 @@ void IconItem::paintEvent(QPaintEvent *event)
     painter.drawPixmap(3, 0, _pixmap);
 //    painter.drawPixmap(-1 * (_shadowPixmap.width() - _width) / 2
 //    , -1 * (_shadowPixmap.width() - _width) / 2, QPixmap(":/images/icon_shadow.png"));
-    if (_equalBool)
-        painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT, _selectPixmap);
-    else
-        painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT, QPixmap(""));
-    switch(ICON_TYPE)
+
+    switch(_iconSize)
     {
         case 0 :
+
+            if (_equalBool)
+                painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT, _selectPixmap);
+            else
+                painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT, QPixmap(""));
+
             painter.drawPixmap(_width - 36 - 26, 36, _iconClassPixmap);
             break;
 
         case 1 :
 
+            if (_equalBool)
+                painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT + 6, _selectPixmap);
+            else
+                painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT + 6, QPixmap(""));
+
             painter.drawPixmap(_width - 29 - 27, 29 + 1, _iconClassPixmap);
             break;
 
         default:
+
+            if (_equalBool)
+                painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT + 11, _selectPixmap);
+            else
+                painter.drawPixmap(_width / 4 * 3 - SELECTWIDTH / 2, _height - 25 - SELECTHEIGHT + 11, QPixmap(""));
 
             painter.drawPixmap(_width - 25 - 27, 25 + 1, _iconClassPixmap);
             break;
@@ -492,7 +516,7 @@ void IconItem::mousePressEvent(QMouseEvent *event)
             QItemManager::getManager()->saveSelectedIconItem(this);
         }
         update();
-        emit showContextMenu( false,event->pos(), mapToGlobal(event->pos()), _text);
+//        emit showContextMenu( false,event->pos(), mapToGlobal(event->pos()), _text);
         return;
     }
     if(event->button() == Qt::LeftButton)
@@ -997,6 +1021,12 @@ void IconItem::dirMinLineEditChanged(int i, const QString &text)
     emit dirMinLineEditFocusOut(i, _text);
 }
 
+void IconItem::refreshDirMinWidgetIcon()
+{
+//    qDebug() << "123333333333333333333333333333333333333";
+    _dirMinShowWidget->refresh();
+}
+
 //dustbin
 void IconItem::addDustbin()
 {
@@ -1067,6 +1097,9 @@ void IconItem::LineEditFocusOut()
 //    if(_currentStatus == normal)
 //        _lineEdit->setDisabled(true);
 //    changeItemName(_text);
+
+    if (_dirId == 1000)
+        return;
 
     if (!_lineEdit->text().isEmpty())
     {
@@ -1189,4 +1222,17 @@ void IconItem::setIconClass(int iconClass)
     }
 
     update();
+}
+
+void IconItem::setIconSize(int iconSize)
+{
+    _iconSize = iconSize;
+
+    update();
+}
+
+void IconItem::setLineEditReadOnly(bool readOnly)
+{
+//    _lineEdit->setReadOnly(true);
+    _lineEdit->setEnabled(false);
 }

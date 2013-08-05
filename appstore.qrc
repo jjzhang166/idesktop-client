@@ -229,5 +229,7 @@
         <file>images/wallpager/wp_28.jpg</file>
         <file>images/wallpager/wp_29.jpg</file>
         <file>images/software_normal.png</file>
+        <file>images/setup_hover.png</file>
+        <file>images/setup_normal.png</file>
     </qresource>
 </RCC>

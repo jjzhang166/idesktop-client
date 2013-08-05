@@ -11,6 +11,7 @@
 #include <QtDebug>
 
 #include "localapps.h"
+#include "struct.h"
 
 class IconMinItem;
 class DirLineEdit;
@@ -45,6 +46,7 @@ public:
     int getMinIconNum();
     void setUniqueName(const QString &uniqueName);
     QString uniqueName()          { return _uniqueName; }
+    void refresh();
 
 signals:
 //    void sendUrl(const QString &url);
@@ -170,6 +172,7 @@ public:
 
     void setUniqueName(const QString &uniqueName);
     QString uniqueName()          { return _uniqueName; }
+    void refresh();
 
 signals:
 //    void sendUrl(const QString &url);
@@ -235,6 +238,8 @@ public:
     void setUniqueName(const QString &uniqueName);
     QString uniqueName()          { return _uniqueName; }
 
+    void refresh();
+
 signals:
     void pageIncreased();
     void pageDecreased();
@@ -295,6 +300,7 @@ private:
 
 //    QPropertyAnimation *_animation;
     QString _uniqueName;
+    QList<TEMP_LIST> _tempFirstIconItem;
 
 };
 
@@ -383,6 +389,7 @@ public:
     int _icontype;/*³ÌÐòÍ¼±ê*/
 
     void animationMove(const QRect &start, const QRect &end);
+//    void setIconClass(int iconClass);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -411,6 +418,7 @@ private:
 
     bool _isRemote;
     QString _uniqueName;
+//    QPixmap _iconClassPixmap;
 };
 
 

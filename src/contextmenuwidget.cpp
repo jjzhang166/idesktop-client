@@ -124,7 +124,7 @@ start:
         }
     }
     len = strValue.length();
-    qDebug() << "after aaaaaaaaacccccc";
+//    qDebug() << "after aaaaaaaaacccccc";
     for(int j = 0; j < len ; j++)
         qDebug() << j << " " << strValue.at(j);
 

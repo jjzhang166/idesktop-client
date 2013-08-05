@@ -17,6 +17,7 @@ using namespace std;
 #include "contextmenuwidget.h"
 #include "commuinication.h"
 #include "switcher.h"
+#include "struct.h"
 
 #include <QLibrary>
 #include <cstdlib>
@@ -30,6 +31,8 @@ using namespace std;
 #include <QTimer>
 #include <QPoint>
 #include <QLabel>
+
+extern QList<TEMP_LIST> dirWidget_FirstLists;
 
 typedef  unsigned long DWORD;
 
@@ -75,15 +78,17 @@ public:
 
     void setUniqueName(const QString &uniqueName);
     QString uniqueName()             { return _uniqueName; }
+    void getFirstIconItem();
 
 signals:
     void dirWidgetDragLeave(const QString &uniqueName, int dirId);
     void dirWidgetDelIcon(int id, const QString &uniqueName);
     void delApp(const QString &uniqueName);
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
+    void refreshDirMinWidget(int id);
 
 public slots:
-//    void scrollBarValueChanged(int val);
+    void scrollBarValueChanged(int val);
     void addDirIcon(const QString &text, const QString &iconPath,
                     int page, int index, const QString &url, int type, const QString &uniqueName);
     void setSize();
@@ -97,14 +102,17 @@ public slots:
     void dirWidgetLeave(const QString &uniqueName);
 
 protected:
-//    void resizeEvent(QResizeEvent *event);
-//    void wheelEvent(QWheelEvent *event);
+    void resizeEvent(QResizeEvent *event);
+    void wheelEvent(QWheelEvent *event);
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *);
 
 private:
     int _width;
     int _height;
+    int _oldPagePos;
+    int _newPagePos;
 
     QPixmap _rightTopPix;
     QPixmap _rightCenterPix;
@@ -127,6 +135,8 @@ private:
 
     QString _uniqueName;
     QString _text;
+
+    int _maxPage;
 
 };
 
@@ -160,12 +170,12 @@ public:
     void setId(int id)                  { _id = id; }
     int id()                            { return _id; }
 
-    int getHeight()                    { return _count * _pageSize.height(); }
+    int getHeight()                    { return _height; }
 
     void expand();
     void delPage(int page);
 
-    void setMaxPage(int page)   { _maxPage = page; }
+    void setMaxPage(int page);
 
     void largeIcon();
     void mediumIcon();
@@ -187,6 +197,9 @@ public:
     void setUniqueName(const QString &uniqueName);
     QString uniqueName()             { return _uniqueName; }
 
+    void getFirstIconItem();
+
+
 signals:
 //    void sendUrl(const QString &url);
     void pageChanged(int i);
@@ -197,6 +210,7 @@ signals:
     void dirWidgetDragLeave(const QString &uniqueName);
     void dirWidgetDelIcon(int id, const QString &uniqueName);
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
+    void refreshDirMinWidget(int id);
 
 public slots:
     void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, const QString &uniqueName);
@@ -205,6 +219,8 @@ public slots:
     void runApp(const QString &uniqueName);
     void delIcon(const QString &uniqueName);
 
+    void dragRight();
+    void dragLeft();
 protected:
 
     void dragEnterEvent(QDragEnterEvent *event);
@@ -269,6 +285,9 @@ private:
     LocalAppList *_local;
     MenuWidget *_iconMenu;
 
+    QTimer *dragLeftTimer;
+    QTimer *dragRightTimer;
+
     //app
 //    commuinication _communi;
 //    QString appText;
@@ -281,6 +300,7 @@ private:
 //    Dll_StartAppEx m_dllStartAppEx;
 
     QString _uniqueName;
+//    QList<TEMP_LIST> _tempLists;
 
 };
 

@@ -18,6 +18,8 @@
 #include "contextmenuwidget.h"
 #include "toolbarwidget.h"
 #include "qitemmanager.h"
+
+#include "struct.h"
 class ArrangeWidget;
 
 //app
@@ -93,7 +95,6 @@ class HoverIconItem;
 //#define SPACING 30
 //#define ICONWIDTH 96
 //#define ICONHEIGHT 96
-
 
 /* ####################################################
  * The declaration of VirtualDesktop
@@ -185,6 +186,8 @@ public:
 
     void addShowWidget(const QString &text, int i, const QString &uniqueName);
 
+    void setDirWidgetMaxRow();
+
 public slots:
     void goPage(int page);
 
@@ -263,6 +266,7 @@ public slots:
                           int index, const QString &url, int type, const QString &uniqueName);
 
     void changedDirWidgetTitle(int i, const QString &text);
+    void refreshDirMinWidget(int i);
 
 signals:
     void pageChanged(int i);
@@ -433,6 +437,9 @@ private:
 
     int _toolBarClickedPosX;
     int _toolBarIconItemWidth;
+
+//    QList<IconItem*> _tempIconLists;
+    QList<TEMP_LIST> _tempLists;
 
 public:
     int _current;

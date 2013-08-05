@@ -287,7 +287,6 @@ private:
     int _MaxNum;
 
     QList<IconItem*> _iconItemLists;
-
 public:
     int _current;
     QList<QList<IconItem*> > _iconTable;
