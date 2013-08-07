@@ -101,6 +101,8 @@ public slots:
 
     void dirWidgetLeave(const QString &uniqueName);
 
+    void getParentGlobalPos();
+
 protected:
     void resizeEvent(QResizeEvent *event);
     void wheelEvent(QWheelEvent *event);
@@ -156,7 +158,7 @@ public:
     QString addLocalApp(QString appPath);
     QString getAppImage(QString appPath);
 
-    void showApp(bool localApp);
+//    void showApp(bool localApp);
 
     int iconCount()                     { return _nextIdx[_current]; }
     int currentPage()                   { return _current; }
@@ -199,6 +201,11 @@ public:
 
     void getFirstIconItem();
 
+    void dragDown(QPoint pos);
+    void dragUp(QPoint pos);
+
+    void setGlobalPos(QRect r);
+
 
 signals:
 //    void sendUrl(const QString &url);
@@ -212,6 +219,8 @@ signals:
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
     void refreshDirMinWidget(int id);
 
+    void getParentGlobalPos();
+
 public slots:
     void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, const QString &uniqueName);
     void iconMenuRunClicked();
@@ -219,8 +228,6 @@ public slots:
     void runApp(const QString &uniqueName);
     void delIcon(const QString &uniqueName);
 
-    void dragRight();
-    void dragLeft();
 protected:
 
     void dragEnterEvent(QDragEnterEvent *event);
@@ -285,8 +292,8 @@ private:
     LocalAppList *_local;
     MenuWidget *_iconMenu;
 
-    QTimer *dragLeftTimer;
-    QTimer *dragRightTimer;
+//    QTimer *dragUpTimer;
+//    QTimer *dragDownTimer;
 
     //app
 //    commuinication _communi;
@@ -301,6 +308,12 @@ private:
 
     QString _uniqueName;
 //    QList<TEMP_LIST> _tempLists;
+
+    int _currentPage;
+    bool _dragDown;
+    bool _dragUp;
+
+    QRect _parentRect;
 
 };
 

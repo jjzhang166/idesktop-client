@@ -2656,6 +2656,8 @@ void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, cons
 
 void VirtualDesktop::hideDirWidget(const QString &uniqueName, int dirId)
 {
+
+    qDebug() << "1239084821384091280348018234-081230984012384018234-018923---->ÓÃÍêÉ¾³ýµô£¡£¡£¡";
     if (_openDir)
     {
         closeDir(_dirPage, _dirIndex);
@@ -2682,7 +2684,7 @@ void VirtualDesktop::hideDirWidget(const QString &uniqueName, int dirId)
 
 //               _iconDict.value( _local->at(j)->uniqueName() )->removeDirMinItem(uniqueName);
 //                _iconDict.value( _local->at(j)->uniqueName() )->refreshDirMinWidgetIcon();
-                emit desktopDelIcon(_local->at(j)->uniqueName());
+//                emit desktopDelIcon(_local->at(j)->uniqueName());
             }
             else
             {
@@ -2886,9 +2888,11 @@ void VirtualDesktop::refresh(QSize size)
                 continue;
             if (_local->at(j)->dirId() == _dirShowWidgetList.at(i)->id())
             {
+                qDebug() << "dirShowWidgetAddIcon start!!!";
                 _dirShowWidgetList.at(i)->addDirIcon(_local->at(j)->name(), _local->at(j)->icon(),
                                            _local->at(j)->page(), _local->at(j)->index(),
                                            _local->at(j)->url(), _local->at(j)->type().toInt(), _local->at(j)->uniqueName());
+                qDebug() << "dirShowWidgetAddIcon end!!!";
             }
         }
     }
@@ -3650,11 +3654,11 @@ void VirtualDesktop::toolBarIconToDir(int id, const QString &text, const QString
 void VirtualDesktop::addShowWidget(const QString &text, int i, const QString &uniqueName)
 {
     _dirShowWidget = new DirShowWidget(QSize(_desktopRect.width(), 290), this);
+    _dirShowWidget->setId(i);
     _dirShowWidget->setContextMenuPolicy(Qt::NoContextMenu);
 
     _dirShowWidget->setVisible(false);
     _dirShowWidget->setMaxRow(_row);
-    _dirShowWidget->setId(i);
     _dirShowWidget->setUniqueName(uniqueName);
     _dirShowWidgetList.append(_dirShowWidget);
 
@@ -3676,12 +3680,12 @@ void VirtualDesktop::toolBarAddDirShowWidget()
 {
 
     _dustbinDirShowWidget = new DirShowWidget(QSize(_desktopRect.width(), 290), this);
+    _dustbinDirShowWidget->setId(1000);
     _dustbinDirShowWidget->setContextMenuPolicy(Qt::NoContextMenu);
 
     //    _dirShowWidget->raise();
     _dustbinDirShowWidget->setVisible(false);
     _dustbinDirShowWidget->setMaxRow(_row);
-    _dustbinDirShowWidget->setId(1000);
     _dustbinDirShowWidget->showClearBtn();
     _dustbinDirShowWidget->showTitle(QString("·ÏÖ½Â¨"));
 //    _dirShowWidgetList.append(_dirShowWidget);

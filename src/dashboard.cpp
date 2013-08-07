@@ -1220,7 +1220,7 @@ void Dashboard::setBgImage(QString url)
         qDebug() << "success load dll";
         if(changebg = (DLL_Changebg)lib.resolve("SetMyWallpaper")) {
             qDebug() << "success find func";
-            changebg(path.toLatin1().data(), 0);
+            changebg(path.toLatin1().data() , 2);       //changebg(path.toLatin1().data() , 0);
         } else {
             qDebug() << "failed find func";
         }
