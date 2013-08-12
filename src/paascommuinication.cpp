@@ -7,6 +7,10 @@
 #include <QtScript/QScriptValueIterator>
 #include <QTextCodec>
 
+#include <QVariant>
+#include <QJSon/qjson.h>
+#include <QJSon/serializer.h>
+
 #include "paascommuinication.h"
 #include "PaasCommuinication.h"
 
@@ -94,7 +98,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     qDebug()<<"replyFinished:"<<_reply->error()<<endl;
     if (_reply->error() != QNetworkReply::NoError)
     {
-        errInfo.append(tr("Paas Network error, please check!"));
+        errInfo.append(tr("Network error, please check!"));
         _isNetError = true;
         emit done();
         return;
@@ -102,7 +106,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
 
     if(_buffer.isEmpty())
     {
-        errInfo.append(tr("Paas Network error, please check!"));
+        errInfo.append(tr("Network error, please check!"));
         _isNetError = true;
         emit done();
         return;
@@ -128,28 +132,52 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
         return;
     }
     qDebug() << "replyFinished(QNetworkReply*) /* download finished */";
-    QScriptValue sc;
-    QScriptEngine engine;
-    QString result;
-    QString url;
-    QString logoURL;
-    QString previewURL;
-    QString cnName("");
-    QString name("");
+//    QScriptValue sc;
+//    QScriptEngine engine;
+//    QString result;
+//    QString url;
+//    QString logoURL;
+//    QString previewURL;
+//    QString cnName("");
+//    QString name("");
     PAAS_LIST tempPaasList;
 //    qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 2";
 
-//   QString jsonResult = _buffer;
+//    QString jsonResult = _buffer;
 
     QTextCodec *codec = QTextCodec::codecForName("utf-8"); //utf-8
 
     QString jsonResult = codec->toUnicode(_buffer);
-    jsonResult.replace(QString("[{"), QString("{"));
-//        qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 3";
-    jsonResult.replace(QString("}]"), QString("}"));
-    QStringList jsonSections = jsonResult.split(QString("},{"), QString::SkipEmptyParts);
-//        qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 4";
-//    qDebug() << "jsonSections---->" << jsonSections;
+
+    QJson::QJson parser;
+    bool ok;
+
+    QVariantList result = parser.parse(jsonResult.toAscii(), &ok).toList();
+    if (!ok)
+    {
+        qDebug()<<"json error!@!!";
+        emit done();
+        return;
+    }
+
+    foreach (QVariant plugin, result) {
+
+        QVariantMap mymap = plugin.toMap();
+
+        tempPaasList.name = mymap["name"].toString();
+        tempPaasList.cnName = mymap["cnName"].toString();
+        tempPaasList.logoURL = mymap["logoURL"].toString();
+        tempPaasList.previewURL = mymap["previewURL"].toString();
+        tempPaasList.urls = mymap["urls"].toString();
+        tempPaasList.iconPath = QString("");
+
+//        qDebug() << "------>" <<"tempPaasList.name" << tempPaasList.name;
+
+        _paasList.append(tempPaasList);
+    }
+
+    ////////////////////////////////////
+ #if 0
 
     for (int i = 0; i < jsonSections.size(); i++)
     {
@@ -205,6 +233,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
             _paasList.append(tempPaasList);
         }
     }
+#endif
 
     timeOut->stop();
     qEvent->exit();
@@ -230,7 +259,7 @@ void PaasCommuinication::handleTimeOut()
     qEvent->exit();
 
     errInfo.clear();
-    errInfo.append(tr("Paas Network error, please check!"));
+    errInfo.append(tr("Network error, please check!"));
 
     _isNetError = true;
     emit done();

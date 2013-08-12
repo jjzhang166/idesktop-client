@@ -42,13 +42,18 @@ int main(int argc, char *argv[])
    //     box.setText("    已有一个程序在运行   ");
    //     box.exec();
        //     app.sendMessage("raies");
-        QMessageBox::information(0, "appStore",
-                                 QString::fromLocal8Bit("\n     已有一个程序在运行             "),
-                                 QString::fromLocal8Bit("确定"));
+
+        QMessageBox::information(0, QObject::tr("appStore"),
+                                         QString(QObject::tr("\n A running instance already exists             ")),
+                                         QString(QObject::tr("OK")));
 
             return EXIT_SUCCESS;
     }
 #endif
+
+    QTranslator translator(0);
+    translator.load("idesktop-client.qm",".");
+    app.installTranslator(&translator);
 
     app.setQuitOnLastWindowClosed(false);
     app.setStyle(new QPlastiqueStyle);
@@ -56,7 +61,6 @@ int main(int argc, char *argv[])
     QFont font = app.font();
     font.setPointSize(10);
     app.setFont(font);
-
 
     /*
     app.setStyleSheet(//"QAbstractButton{border:1px solid #515151; "

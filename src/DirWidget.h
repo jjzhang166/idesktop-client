@@ -36,16 +36,6 @@ extern QList<TEMP_LIST> dirWidget_FirstLists;
 
 typedef  unsigned long DWORD;
 
-//typedef  wchar_t * LPCWSTR;
-//#define WINAPI __stdcall
-/*typedef struct _GUID {
-    unsigned long  Data1;
-    unsigned short Data2;
-    unsigned short Data3;
-    unsigned char  Data4[ 8 ];
-} GUID;
-*/
-
 extern QString _icontext;
 
 //class DirItem;
@@ -56,7 +46,7 @@ class DirShowWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit DirShowWidget(QSize pageSize, QWidget *parent = 0);
+    explicit DirShowWidget(int id, QSize pageSize, QWidget *parent = 0);
     ~DirShowWidget();
 
     void showApp(bool localApp);
@@ -79,6 +69,7 @@ public:
     void setUniqueName(const QString &uniqueName);
     QString uniqueName()             { return _uniqueName; }
     void getFirstIconItem();
+    void initIconItem();
 
 signals:
     void dirWidgetDragLeave(const QString &uniqueName, int dirId);
@@ -147,7 +138,7 @@ class DirWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit DirWidget(QSize pageSize, QWidget *parent = 0);
+    explicit DirWidget(int id, QSize pageSize, QWidget *parent = 0);
     ~DirWidget();
 
 
@@ -169,7 +160,7 @@ public:
     int getIconHeight()                 { return gridHeight; }
     void setUrl(const QString &url)     { _url = url; }
 
-    void setId(int id)                  { _id = id; }
+    void setId(int id);
     int id()                            { return _id; }
 
     int getHeight()                    { return _height; }
@@ -206,6 +197,8 @@ public:
 
     void setGlobalPos(QRect r);
 
+    void initIconItem();
+
 
 signals:
 //    void sendUrl(const QString &url);
@@ -220,6 +213,7 @@ signals:
     void refreshDirMinWidget(int id);
 
     void getParentGlobalPos();
+    void heightChanged();
 
 public slots:
     void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, const QString &uniqueName);
@@ -292,22 +286,9 @@ private:
     LocalAppList *_local;
     MenuWidget *_iconMenu;
 
-//    QTimer *dragUpTimer;
-//    QTimer *dragDownTimer;
-
-    //app
-//    commuinication _communi;
-//    QString appText;
-//    QString _appid;
     QString _currentIconItem;
 
-//    Dll_InitClass m_dllInitClass;
-//    Dll_CloseClass m_dllCloseClass;
-//    Dll_CloseAppAll m_dllCloseAppAll;
-//    Dll_StartAppEx m_dllStartAppEx;
-
     QString _uniqueName;
-//    QList<TEMP_LIST> _tempLists;
 
     int _currentPage;
     bool _dragDown;
@@ -315,6 +296,7 @@ private:
 
     QRect _parentRect;
 
+    QList<TEMP_LIST> _dirTempLists;
 };
 
 #endif // DIRWIDGET_H

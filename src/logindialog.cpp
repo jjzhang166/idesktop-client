@@ -136,8 +136,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
     passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
-//    userEdit->setText(QString("demo"));
-//    passEdit->setText(QString("abc_123"));
+    userEdit->setText(QString("demo"));
+    passEdit->setText(QString("abc_123"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -529,7 +529,7 @@ void LoginDialog::auth()
         _finished = false;
         _authSuccess = false;
         //QString loginUrl = "http://" + serverAddr->currentText() + "/api/login";
-        QString loginUrl = Config::get("Server") + ":8080/idesktop/login.action"; //platform/service/ClientServiceLogin.action
+        QString loginUrl = "http://" + verifyLEdit->text() + ":8080/idesktop/login.action"; //platform/service/ClientServiceLogin.action
         qDebug() <<"loginUrl"<<loginUrl;
         QString data = "username=" + userEdit->text() + "&password=" + passEdit->text() + "&tenant=0";
         _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toAscii());
@@ -623,9 +623,11 @@ void LoginDialog::auth()
     ///////////////////////////////////////////////////
 #if 1
     saveVacUserInfo();
+
     QLibrary dllLib("GetApp.dll");
     if(!dllLib.load())
     {
+        qDebug()<< "GetLastError :" << GetLastError();
         qDebug()<<"load failed!";
     }
     else
@@ -634,6 +636,7 @@ void LoginDialog::auth()
         my_getApp2 = (DLL_getApp2)dllLib.resolve("GetApp2");
         if(my_getApp2 == NULL)
         {
+            qDebug()<< "GetLastError :" <<GetLastError();
             qDebug()<<"resolve failed!";
 
         }
@@ -738,8 +741,8 @@ void LoginDialog::auth()
         }
     }
     //qDebug()<<"id"<<_id;
-    QFile b(iniPath);
-    b.remove();
+//    QFile b(iniPath);
+//    b.remove();
     //end
 #else
     QSettings reg(QSettings::NativeFormat, \

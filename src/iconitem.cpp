@@ -1023,7 +1023,7 @@ void IconItem::dirMinLineEditChanged(int i, const QString &text)
 
 void IconItem::refreshDirMinWidgetIcon()
 {
-//    qDebug() << "123333333333333333333333333333333333333";
+    qDebug() << "123333333333333333333333333333333333333";
     _dirMinShowWidget->refresh();
 }
 

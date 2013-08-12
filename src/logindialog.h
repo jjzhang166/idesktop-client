@@ -52,7 +52,7 @@ class LoginDialog : public QDialog
     Q_OBJECT
 public:
     LoginDialog(QWidget *parent);
-    ~LoginDialog() {}
+    ~LoginDialog() { delete _tray;}
 //    void paintEvent(QPaintEvent *event);
 //    void mousePressEvent(QMouseEvent *event);
 //    void mouseReleaseEvent(QMouseEvent *event);

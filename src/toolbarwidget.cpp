@@ -70,6 +70,9 @@ extern QList<APP_LIST> g_myVappList;
 extern QList<LOCAL_LIST> g_RemotelocalList;
 extern QList<APP_LIST> g_RemoteappList;
 extern QList<PAAS_LIST> g_RemotepaasList;
+
+extern QList<TEMP_LIST> dirWidget_FirstLists;
+
 extern int ICON_TYPE;
 
 static QPoint gap;
@@ -584,20 +587,24 @@ void toolBarWidget::dropEvent(QDropEvent *event)
 
     if (_dragItem != NULL)
     {
-
         if (_dragItem->type() == dirIcon)
         {
-            for (int i = 0; i < _local->count(); i++) {
-                if (_local->at(i)->hidden())
-                    continue;
+            if (dirWidget_FirstLists.count() != 0)
+            {
 
-                if (_dragItem->id() == _local->at(i)->dirId())
+                for (int i = 0; i < dirWidget_FirstLists.count(); i++)
                 {
-                    _iconDict.value(_dragItem->uniqueName())->addDirMinItem(_local->at(i)->name(), _local->at(i)->icon(),
-                                                                            _local->at(i)->page(), _local->at(i)->index(),
-                                                                            _local->at(i)->url(), _local->at(i)->uniqueName());
+                    qDebug() << "dirWidget_FirstLists.at(i).name" <<dirWidget_FirstLists.at(i).name
+                             <<dirWidget_FirstLists.count();
+                     _iconDict.value(_dragItem->uniqueName())->addDirMinItem(dirWidget_FirstLists.at(i).name
+                                                                            , dirWidget_FirstLists.at(i).iconPath
+                                                                            , -1, -1
+                                                                            , dirWidget_FirstLists.at(i).url
+                                                                            , dirWidget_FirstLists.at(i).uniqueName);
                 }
+                dirWidget_FirstLists.clear();
             }
+
         }
 
         for (int i = 0; i <_dirMinList.count(); i++)
@@ -731,12 +738,11 @@ int toolBarWidget::addIcon(const QString &text,
 
     if(type == dirIcon)
     {
-
         icon->addMinWidget(2);  //  0 : largeSize, 1 : mediumSize, 2 : smallSize;
         icon->setId(id);
         icon->setDirMinItemId(id);
-//        icon->showSmallSize(true);
-
+        qDebug() << "------> tool bar add Icon--->";
+        emit toolBarDirWidgetRefresh(id);
     }
     else if (type == 4)
     {
@@ -863,7 +869,6 @@ int toolBarWidget::addIcon(const QString &text,
 
 //    _iconLists.append(icon);
 
-
      return page;
 }
 
@@ -899,8 +904,7 @@ void toolBarWidget::delIcon(const QString &uniqueName)
     qDebug() << icon->page();
     int p = icon->page();
     int s = icon->index();
-    //icon->setPage(-1);
-    //icon->setIndex(-1);
+
     delete _iconTable[p][s];
 
     moveBackIcons(p, s);
@@ -1756,4 +1760,12 @@ void toolBarWidget::toolBarRemoveDirMinItem(const QString &uniqueName, int dirId
             break;
         }
     }
+}
+void toolBarWidget::toolBarRefreshDirMinWidget(const QString &uniqueName)
+{
+    if (!_iconDict.value(uniqueName))
+        return;
+
+    _iconDict.value(uniqueName)->refreshDirMinWidgetIcon();
+
 }

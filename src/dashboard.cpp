@@ -367,6 +367,8 @@ Dashboard::Dashboard(QWidget *parent)
             , _toolBarWidget, SLOT(delIcon(const QString&)));
     connect(vdesktop, SIGNAL(toolBarRemoveDirMinItem(const QString &, int))
             , _toolBarWidget, SLOT(toolBarRemoveDirMinItem(const QString &, int)));
+    connect(vdesktop, SIGNAL(toolBarRefreshDirMinWidget(const QString &))
+            , _toolBarWidget, SLOT(toolBarRefreshDirMinWidget(const QString &)));
 
     connect(_animationDown,SIGNAL(finished()), this, SLOT(animationFinished()));
     connect(_animationDownMin,SIGNAL(finished()), this, SLOT(animationMinDownFinished()));
@@ -389,6 +391,9 @@ Dashboard::Dashboard(QWidget *parent)
             , _vacShowWidget, SLOT(iconItemNameChanged(const QString &, const QString &)));
     connect(_toolBarWidget, SIGNAL(changedDirWidgetTitle(int, const QString &))
             , vdesktop, SLOT(changedDirWidgetTitle(int, const QString &)));
+    connect(_toolBarWidget, SIGNAL(toolBarDirWidgetRefresh(int))
+            , vdesktop, SLOT(dirWidgetRefresh(int)));
+
 
 
 //    QPixmap backPix(":images/bs_goback.png");
@@ -532,9 +537,7 @@ void Dashboard::animationFinished()
         vdesktop->setDirHide();
         _downMinW->setVisible(false);
         _minDirLabel->setVisible(false);
-        _downMoveWidget->setVisible(false);
         _upMoveWidget->setVisible(false);
-
 //        indicator->setVisible(true);
 
         if (!panel->isVisible())
@@ -553,6 +556,8 @@ void Dashboard::animationFinished()
 
         vdesktop->setIconEnabled(true);
         vdesktop->setIconMove(true);
+
+        _downMoveWidget->setVisible(false);
 
         vdesktop->dirMovingFinished();
         _toolBarWidget->setVisible(true);
@@ -1225,6 +1230,7 @@ void Dashboard::setBgImage(QString url)
             qDebug() << "failed find func";
         }
     } else {
+        qDebug() << "GetLastError :" << GetLastError();
         qDebug() << "failed load dll";
     }
 }
@@ -1274,11 +1280,11 @@ void Dashboard::refreshVapp()
 #endif
 
 //    if (_commui->errID == "10000") {      // 无 心跳 时注释
-        if (!_Isheartbeat)
-        {
-            _Isheartbeat = true;
-            qDebug() << "虚拟应用服务器已成功连接";
-        }
+//        if (!_Isheartbeat)
+//        {
+//            _Isheartbeat = true;
+//            qDebug() << "虚拟应用服务器已成功连接";
+//        }
         g_myVappList.clear();
 
         //get vapp list
@@ -1306,9 +1312,6 @@ void Dashboard::refreshVapp()
             QString tempPath = QString("%1%2.ico")
                     .arg(iconDirPath)
                     .arg(g_myVappList[i].id);
-
-//            g_RemoteappList.insert(i, g_myVappList[i]);
-//            g_RemoteappList[i].icon = iconPath;
 
             //check if ico file is existed, or dont donwload
             QFile chkFile(iconPath);
@@ -1380,7 +1383,7 @@ void Dashboard::modify()
             {
                 //delete
 //                LocalAppList::getList()->delApp(g_RemoteappList[i].name);
-                _vacShowWidget->delIcon(g_RemoteappList[i].name);
+                _vacShowWidget->delIcon("1_" + g_RemoteappList[i].id);
             }
         }
         // add
@@ -1469,7 +1472,7 @@ void Dashboard::paasModify()
             bool isExist = false;
             for (int j = 0; j < g_myPaasList.count(); j++)
             {
-                if (g_RemotepaasList[i].cnName == g_myPaasList[j].cnName)
+                if (g_RemotepaasList[i].name == g_myPaasList[j].name)
                 {
                     isExist = true;
                     break;
@@ -1479,7 +1482,7 @@ void Dashboard::paasModify()
             {
                 //delete
 //                LocalAppList::getList()->delApp(g_RemoteappList[i].name);
-                _vacShowWidget->delIcon(g_RemotepaasList[i].cnName);
+                _vacShowWidget->delIcon("2_" + g_RemotepaasList[i].name);
             }
         }
         // add
@@ -1488,7 +1491,7 @@ void Dashboard::paasModify()
             bool isExist = false;
             for (int j = 0; j < g_RemotepaasList.count(); j++)
             {
-                if (g_myPaasList[i].cnName == g_RemotepaasList[j].cnName)
+                if (g_myPaasList[i].name == g_RemotepaasList[j].name)
                 {
                     isExist = true;
                     break;

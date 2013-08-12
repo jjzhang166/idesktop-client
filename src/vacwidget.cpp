@@ -1068,6 +1068,8 @@ int VacWidget::addIcon(QString text,
 void VacWidget::delIcon(const QString &uniqueName)
 {
 //    qDebug() << "texttexttexttexttexttexttext" << text;
+    if (!_iconDict.value(uniqueName))
+        return;
 
     IconItem *icon = _iconDict.take(uniqueName);
     //icon->setHidden(true);

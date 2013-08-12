@@ -1,5 +1,6 @@
 TEMPLATE = app
 #CONFIG += release
+CONFIG+=debug_and_release
 CONFIG += qaxcontainer
 DEFINES -= UNICODE
 TARGET = idesktop-client
@@ -25,6 +26,9 @@ QT += script
 QT += core gui
 QT += xml
 
+#Json
+LIBS += -lqjson
+
 CONFIG(debug,debug|release) {
     win32:LIBS += -lQtNetworkD
     win32:LIBS += -lQtSqlD
@@ -35,9 +39,9 @@ CONFIG(debug,debug|release) {
     win32:LIBS += -lQtScript
 }
 
-TRANSLATIONS = appstore.ts
-RESOURCES += appstore.qrc \
-    appstore.qrc
+TRANSLATIONS = idesktop-client.ts
+RESOURCES += appstore.qrc
+
 RC_FILE += icon.rc
 #vac
 RC_FILE += vac.rc
@@ -81,7 +85,16 @@ HEADERS += src/config.h \
     src/dustbin.h \
     src/qitemmanager.h \
     src/runapp.h \
-    src/struct.h
+    src/struct.h \
+    src/json/writer.h \
+    src/json/value.h \
+    src/json/reader.h \
+    src/json/json_batchallocator.h \
+    src/json/json.h \
+    src/json/forwards.h \
+    src/json/features.h \
+    src/json/config.h \
+    src/json/autolink.h
 
 
 win32 {
@@ -101,7 +114,7 @@ SOURCES += src/qtsingleapplication/qtlockedfile_unix.cpp
 }
 
 #vac
-TRANSLATIONS=lang/lang_chn.ts
+#TRANSLATIONS=lang/lang_chn.ts
 
 SOURCES += src/config.cpp \
            src/dashboard.cpp \
@@ -139,10 +152,17 @@ SOURCES += src/config.cpp \
     src/toolbarwidget.cpp \
     src/dustbin.cpp \
     src/qitemmanager.cpp \
-    src/runapp.cpp
+    src/runapp.cpp \
+    src/json/json_writer.cpp \
+    src/json/json_valueiterator.inl \
+    src/json/json_value.cpp \
+    src/json/json_reader.cpp \
+    src/json/json_internalmap.inl \
+    src/json/json_internalarray.inl
 
 
 FORMS +=
 
-OTHER_FILES +=
+OTHER_FILES += \
+    src/json/sconscript
 

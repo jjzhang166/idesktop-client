@@ -267,6 +267,7 @@ public slots:
 
     void changedDirWidgetTitle(int i, const QString &text);
     void refreshDirMinWidget(int i);
+    void dirWidgetRefresh(int i);
 
 signals:
     void pageChanged(int i);
@@ -328,6 +329,7 @@ signals:
     void toolBarRemoveDirMinItem(const QString &uniqueName = "", int dirId = -1);
 
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
+    void toolBarRefreshDirMinWidget(const QString &uniqueName);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);

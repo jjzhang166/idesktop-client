@@ -138,6 +138,8 @@ public slots:
 
     void runApp(const QString &uniqueName);
 
+    void toolBarRefreshDirMinWidget(const QString &uniqueName);
+
 signals:
     void pageChanged(int i);
     void pageIncreased();
@@ -191,6 +193,8 @@ signals:
 
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
     void changedDirWidgetTitle(int i, const QString &text);
+
+    void toolBarDirWidgetRefresh(int i);
 
 protected:
 //    void contextMenuEvent(QContextMenuEvent *event);

@@ -366,11 +366,12 @@ int DirMinWidget::addIcon(const QString &text,
                           const QString &uniqueName)
 {
     if (_iconDict.value(uniqueName))
-        return 1;
+        return -3;
 
+    qDebug() << " dirMinWidget---->addIcon text" << text;
 //    qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
     if (_iconNum == 4)
-        return 1;
+        return -3;
 
     int expandPageCount = _iconNum / _iconsPerPage + 1;
     if (expandPageCount > _count)
@@ -698,22 +699,26 @@ void DirMinWidget::setUniqueName(const QString &uniqueName)
 
 void DirMinWidget::refresh()
 {
-//    qDebug() << "1111111111111111111111111111111111111111111111111111111";
-    for (int i = 0; i < _count; i++)
-    {
-        for(int j = 0;j < _iconsPerPage; j++)
-        {
-            if(_iconTable[i][j] != NULL)
-            {
+    qDebug() << "1111111111111111111111111111111111111111111111111111111";
 
-                delIcon(_iconTable[i][j]->uniqueName());
+    for (int i = 0; i < 1; i++)
+    {
+        for(int j = 4;j > 0; j--)
+        {
+            if(_iconTable[i][j - 1] != NULL)
+            {
+                qDebug() << "_iconTable[i][j]->uniqueName()" << _iconTable[i][j - 1]->uniqueName();
+                delIcon(_iconTable[i][j - 1]->uniqueName());
             }
         }
     }
 
+    update();
+
     for (int i = 0; i < dirWidget_FirstLists.count(); i++)
     {
-        qDebug() << dirWidget_FirstLists.count();
+        qDebug() << "dirWidget_FirstLists.at(i).name" <<dirWidget_FirstLists.at(i).name
+                 <<dirWidget_FirstLists.count();
         addIcon(dirWidget_FirstLists.at(i).name
                 , dirWidget_FirstLists.at(i).iconPath
                 , -1, -1
@@ -950,8 +955,6 @@ DirMinShowWidget::DirMinShowWidget(int type, QWidget *parent)
 
     setFixedSize(_width, _height);
 
-//    _dirMWidget = new DirMWidget(this);
-//    _dirMWidget->move(35, 36);          //((SELECTWIDTH / 2  + 8) / 2, 0)
     _dirMWidget->setVisible(true);
     _dirLineEdit = new DirLineEdit(QString(tr("ÊäÈëÎÄ¼þ¼ÐÃû³Æ")), this);
     _dirLineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
@@ -963,10 +966,6 @@ DirMinShowWidget::DirMinShowWidget(int type, QWidget *parent)
     _dirLineEdit->setGeometry((_width - (72 + 37 / 2 + 8)) / 2, _height - 26, 72 + 37 / 2 + 8, 23);
 
 //    _dirLineEdit->setTextMargins(3, 5, 2, 5);
-
-//    _editLeft = new QImage(":/images/dir_edit_left.png");
-//    _editCenter = new QImage(":/images/dir_edit_center.png");
-//    _editRight = new QImage(":/images/dir_edit_right.png");
 
     _editLeftNormal =  QPixmap("");
     _editCenterNormal =  QPixmap("");
@@ -1357,20 +1356,20 @@ void DirMinShowWidget::setId(int id)
 {
     _id = id;
 
-    for (int i = 0; i < _local->count(); i++) {
-        if (_local->at(i)->hidden())
-            continue;
+//    for (int i = 0; i < _local->count(); i++) {
+//        if (_local->at(i)->hidden())
+//            continue;
 
-        if (_local->at(i)->dirId() == _id)
-        {
+//        if (_local->at(i)->dirId() == _id)
+//        {
 
-            addDirMinItem(_local->at(i)->name(), _local->at(i)->icon(),
-                          _local->at(i)->page(), _local->at(i)->index(),
-                          _local->at(i)->url(), _local->at(i)->uniqueName());
+//            addDirMinItem(_local->at(i)->name(), _local->at(i)->icon(),
+//                          _local->at(i)->page(), _local->at(i)->index(),
+//                          _local->at(i)->url(), _local->at(i)->uniqueName());
 
 
-        }
-    }
+//        }
+//    }
 }
 
 void DirMinShowWidget::setUniqueName(const QString &uniqueName)
