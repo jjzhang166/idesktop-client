@@ -85,16 +85,7 @@ HEADERS += src/config.h \
     src/dustbin.h \
     src/qitemmanager.h \
     src/runapp.h \
-    src/struct.h \
-    src/json/writer.h \
-    src/json/value.h \
-    src/json/reader.h \
-    src/json/json_batchallocator.h \
-    src/json/json.h \
-    src/json/forwards.h \
-    src/json/features.h \
-    src/json/config.h \
-    src/json/autolink.h
+    src/struct.h
 
 
 win32 {
@@ -152,17 +143,10 @@ SOURCES += src/config.cpp \
     src/toolbarwidget.cpp \
     src/dustbin.cpp \
     src/qitemmanager.cpp \
-    src/runapp.cpp \
-    src/json/json_writer.cpp \
-    src/json/json_valueiterator.inl \
-    src/json/json_value.cpp \
-    src/json/json_reader.cpp \
-    src/json/json_internalmap.inl \
-    src/json/json_internalarray.inl
+    src/runapp.cpp
 
 
 FORMS +=
 
-OTHER_FILES += \
-    src/json/sconscript
+OTHER_FILES +=
 
