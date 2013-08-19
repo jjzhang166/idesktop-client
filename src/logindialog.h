@@ -147,7 +147,7 @@ private:
     QAction *_dQuitAction;
 //    QAction *_dHideAction;
 //    QAction *_dShowAction;
-    QAction *_dVacServer;
+//    QAction *_dVacServer;
 
     QMenu *_loginMenu;
     QMenu *_dashboardMenu;
@@ -183,4 +183,9 @@ private:
     void PaasError(QString error);
     void saveVacUserInfo();
     QString _vserverError, _paasError;
+
+    QString _tempVacIp;
+    QString _tempPaasIp;
+    QString _tempVerifyIp;
+    QString _tempVacPort;
 };

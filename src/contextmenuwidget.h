@@ -66,7 +66,7 @@ public:
 
     enum menu_type
     {
-        showIcon = 0, create, iconMenu, normal
+        showIcon = 0, create, iconMenu, normal, dustbinMenu
     };
 
     explicit MenuWidget(const MenuWidget::menu_type &type = MenuWidget::normal,
@@ -75,6 +75,7 @@ public:
 
     MenuButton *_openBtn;
     MenuButton *_delBtn;
+    MenuButton *_restoreBtn;
     MenuButton *_renameBtn;
 
 signals:
@@ -98,6 +99,10 @@ signals:
     void run();
     void del();
     void rename();
+
+    //dustbin
+    void restore();
+
     //miya add
     void hideDesktop();
     void addDesktopLink();

@@ -15,7 +15,7 @@
 
 #include "commuinication.h"
 //#include "personalizationwidget.h"
-#include "bswidget.h"
+//#include "bswidget.h"
 #include "logindialog.h"
 #include "vacserverwidget.h"
 #include "vacwidget.h"
@@ -175,14 +175,14 @@ private:
     Switcher *_switcherLeft;
     Switcher *_switcherRight;
     Panel *panel;
-    Indicator *indicator;
+//    Indicator *indicator;
     QVBoxLayout *layout;
 
     QPixmap _pixmap;
     QString _pixText;
 
 //    PersonalizationWidget *_perWidget;
-    BsWidget *_bsWidget;
+//    BsWidget *_bsWidget;
     QTimer *_refreshTimer;
 
     LoginDialog *_ldialog;

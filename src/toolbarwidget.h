@@ -140,6 +140,8 @@ public slots:
 
     void toolBarRefreshDirMinWidget(const QString &uniqueName);
 
+    void iconItemDragOut();
+
 signals:
     void pageChanged(int i);
     void pageIncreased();

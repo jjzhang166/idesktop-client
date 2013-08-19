@@ -41,8 +41,8 @@ extern QString VacUser;
 extern QString VacPassword;
 
 extern QString xmlPath;
-extern QString iconDirPath;
 extern QString WIN_VAPP_IconPath;
+extern QString WIN_PAAS_IconPath;
 extern QString WIN_TtempPath;
 
 extern QString USERNAME;
@@ -112,19 +112,10 @@ Dashboard::Dashboard(QWidget *parent)
 //    connect(_animationDesktop, SIGNAL(valueChanged(QVariant)), this, SLOT(valueChanged(QVariant)));
 
 
-    indicator = new Indicator(vdesktop, this);
-    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
-    //indicator->setGeometry((_width - indicator->width())/2, _height - indicator->height() - 28 , 20, 80);
-    indicator->setVisible(false);
-
-    _pageNodes = new PageNodes(this);
-//    qDebug() << "vdesktop->count()vdesktop->count()-->" << vdesktop->count();
-//    qDebug() << "vdesktop->currentPage()vdesktop->currentPage()-->" << vdesktop->currentPage();
-
-    _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
-    _pageNodes->move((_width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100 - 45);
-    _pageNodes->setVisible(true);
-
+//    indicator = new Indicator(vdesktop, this);
+//    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
+//    //indicator->setGeometry((_width - indicator->width())/2, _height - indicator->height() - 28 , 20, 80);
+//    indicator->setVisible(false);
 
 
     panel = new Panel(this);
@@ -150,6 +141,20 @@ Dashboard::Dashboard(QWidget *parent)
     _switcherRight->show();
     _switcherRight->activateWindow();
 
+    //vdesktop->setGeometry(QRect(0, 20, _width * vdesktop->count(), _height - indicator->height() - panel->height()));
+    vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height));
+
+    _toolBarWidget = new toolBarWidget(QSize(_width, 103 + 0 + 24), this);
+    _toolBarWidget->move(0,_height - (103 + 0 + 24));//
+    _toolBarWidget->raise();
+    _toolBarWidget->show();
+
+    _pageNodes = new PageNodes(this);
+
+    _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
+    _pageNodes->move((_width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100 - 35);
+    _pageNodes->setVisible(true);
+
     _vacShowWidget = new VacShowWidget(QSize(841, 540), this);
     _vacShowWidget->move((_width - _vacShowWidget->width()) / 2, (_height - _vacShowWidget->height()) / 2);
  //   _vacShowWidget->move(_width - panel->width() - 820 + 10, panel->pos().y());
@@ -157,20 +162,10 @@ Dashboard::Dashboard(QWidget *parent)
     _vacShowWidget->setVisible(false);
 //    _vacShowWidget->getIcon();
 
-
-
-    //vdesktop->setGeometry(QRect(0, 20, _width * vdesktop->count(), _height - indicator->height() - panel->height()));
-    vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height));
-
-    _toolBarWidget = new toolBarWidget(QSize(_width, 143 + 0 + 24), this);
-    _toolBarWidget->move(0,_height - (143 + 0 + 24));//
-    _toolBarWidget->raise();
-    _toolBarWidget->show();
-
-    _bsWidget = new BsWidget(_width, _height, this);
-    //_bsWidget->setGeometry(0, 0, _width, _height);
-    _bsWidget->move(0, 0);
-    _bsWidget->setVisible(false);
+//    _bsWidget = new BsWidget(_width, _height, this);
+//    //_bsWidget->setGeometry(0, 0, _width, _height);
+//    _bsWidget->move(0, 0);
+//    _bsWidget->setVisible(false);
 
 //    _perWidget = new PersonalizationWidget(this);
 //    _perWidget->setGeometry(QRect(0, 0, _width, _height));
@@ -339,7 +334,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_vacShowWidget, SIGNAL(vacCloseBtnClicked()), _vacShowWidget, SLOT(hide()));
 //    connect(vdesktop, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
 //    connect(_dirWidget, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
-    connect(_bsWidget,SIGNAL(goBack()), this, SLOT(goDesktop()));
+//    connect(_bsWidget,SIGNAL(goBack()), this, SLOT(goDesktop()));
     //move
     connect(vdesktop, SIGNAL(upMove(int,int,int,int,int)),
             this, SLOT(upMove(int ,int ,int, int, int)));
@@ -394,32 +389,10 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_toolBarWidget, SIGNAL(toolBarDirWidgetRefresh(int))
             , vdesktop, SLOT(dirWidgetRefresh(int)));
 
+    _nam = new QNetworkAccessManager(this);
 
+    _toolBarWidget->initIconItem();
 
-//    QPixmap backPix(":images/bs_goback.png");
-//    QPixmap backPixHover(":images/bs_goback_hove.png");
-//    _backBtn = new DynamicButton(backPix, backPixHover, this);
-
-//    _backBtn = new QPushButton(this);
-//    _backBtn->setStyleSheet
-//                    ("QPushButton{background-image:url(:images/bs_goback.png);
-//                       border-style:flat;background-color:transparent;}
-//                    QPushButton:hover:pressed{
-//                        background-image:url(:images/bs_goback_hover.png);border-style:flat;background-color:transparent;}
-//                    QPushButton:hover{
-//                        background-image:url(:images/bs_goback.png);border-style:flat;background-color:transparent;}");
-
-//    _backBtn->setGeometry(60, r.height() / 2,
-//                                   50, 50);
-//    _backBtn->setVisible(false);
-//    connect(_backBtn, SIGNAL(clicked()), this, SLOT(goDesktop()));//
-
-//    _blurPicker = new BlurPicker(this);
-//    _blurPicker->setFixedSize(832, 482);
-//    _blurPicker->move(200,200);
-//    _blurPicker->setVisible(true);
-        _nam = new QNetworkAccessManager(this);
-//        connect(_nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(onOutFinished(QNetworkReply*)));
 }
 
 //page nodes
@@ -432,7 +405,7 @@ void Dashboard::updateNodes()
 {
     _pageNodes->setVisible(false);
     _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
-    _pageNodes->move(( _width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100 - 45);
+    _pageNodes->move(( _width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100 - 35);
     _pageNodes->setVisible(true);
 }
 
@@ -556,17 +529,16 @@ void Dashboard::animationFinished()
 
         vdesktop->setIconEnabled(true);
         vdesktop->setIconMove(true);
+        _toolBarWidget->setVisible(true);
 
         _downMoveWidget->setVisible(false);
 
         vdesktop->dirMovingFinished();
-        _toolBarWidget->setVisible(true);
     }
 }
 
 void Dashboard::downMove(int x, int y, int w, int h, int distance)
 {
-    qDebug() << x << y << w << h;
     if (_animationDown->state() == QAbstractAnimation::Running)
     {
         return;
@@ -576,7 +548,7 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
     _pageNodes->setVisible(false);
-    _toolBarWidget->setVisible(false);
+//    _toolBarWidget->setVisible(false);
 
 //    indicator->setVisible(false);
 //    _dirWidget->move(x, y);
@@ -590,7 +562,7 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
                                  w, h); //抓取当前屏幕的图片
     _downMoveWidget->setPixmap(result);
     _downMoveWidget->setVisible(true);
-//    _toolBarWidget->setVisible(false);
+    _toolBarWidget->setVisible(false);
 
     _animationDown->setStartValue(QRect(x, y, w, h));
     _animationDown->setEndValue(QRect(x, y + distance, w, h));
@@ -660,7 +632,6 @@ void Dashboard::upMinMove(int x, int y, int w, int h, int distance)
             return;
         }
 
-        qDebug() << "111111111111111111111111111111" << x << y << w << h;
         _distance = distance;
         _minY = y;
         _minUpward = false;
@@ -705,7 +676,6 @@ void Dashboard::upMinBackMove(int x, int y, int w, int h, int distance)
             return;
         }
 
-        qDebug() << "22222222222222222222222222222222222" << x << y << w << h;
         //    _distance = distance;
             _minY = y;
             _minUpward = true;
@@ -754,7 +724,6 @@ void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
             return;
         }
 
-        qDebug() << "33333333333333333333333333333333333" << x << y << w << h;
         _minDirLabel->setGeometry(x, y + 2, w, h);
 //        _minDirLabel->raise();
         _minDirLabel->setVisible(true);
@@ -791,8 +760,6 @@ void Dashboard::closeMinWidget(int x, int y, int w, int h, int distance)
         {
             return;
         }
-
-        qDebug() << "4444444444444444444444444444444444444" << x << y << w << h;
         //    _downMinW->setVisible(true);
             _animationUpMin->setStartValue(QRect(x, y + 15 - 2, w, h));
             _animationUpMin->setEndValue(QRect(x, y + 15 - distance - 2, w, h));
@@ -811,7 +778,6 @@ void Dashboard::valueChanged(const QVariant &value)
 
     if (((rect.y() - _minY) > 0 ? rect.y() - _minY : _minY - rect.y()) >= _distance / 2)
     {
-        //qDebug() << rect.y() - _minY;
         if (!_minUpward)
         {
             _downMinW->setVisible(false);
@@ -838,10 +804,9 @@ void Dashboard::valueChanged(const QVariant &value)
 
 void Dashboard::showBs(const QString &url)
 {
-//    qDebug() << "url"<< "url" << url;
     vdesktop->setVisible(false);
-    _bsWidget->setUrl(url);
-    _bsWidget->setVisible(true);
+//    _bsWidget->setUrl(url);
+//    _bsWidget->setVisible(true);
 //    _backBtn->setVisible(true);
 //    panel->setVisible(false);
 
@@ -851,7 +816,7 @@ void Dashboard::goDesktop()
 {
 //    _backBtn->setVisible(false);
     vdesktop->setVisible(true);
-    _bsWidget->setVisible(false);
+//    _bsWidget->setVisible(false);
 //    panel->setVisible(true);
 
 
@@ -1118,7 +1083,7 @@ void Dashboard::quit()
     panel->animationHide();
 
     AppMessageBox box(true, NULL);
-    box.setText("           是否确定退出？");
+    box.setText("是否确定退出？");
     if (box.exec()) {
 
         QString quitUrl = Config::get("Server") + ":8080/idesktop/logout.action";
@@ -1137,14 +1102,13 @@ void Dashboard::quit()
             return;
         }
 
-
-        vdesktop->atExit();
-
         _Isheartbeat = false;
-        this->hide();
+//        this->hide();
         _switcherLeft->setVisible(false);
         _switcherRight->setVisible(false);
+        vdesktop->setVisible(false);
         this->hide();
+        vdesktop->atExit();
 
         _commui->logoff();
         while (!_finished)
@@ -1204,15 +1168,14 @@ void Dashboard::setBgPixmap(const QString &pixText)
         return;
     }
 
-    _bsWidget->setPixmap(pixText);
-    qDebug() << "setBgPixmap(const QString &pixText)setBgPixmap(const QString &pixText)setBgPixmap(const QString &pixText)" << pixText;
+//    _bsWidget->setPixmap(pixText);
     setBgImage(pixText);
 
 }
 //miya add change background imgae
 void Dashboard::setBgImage(QString url)
 {
-    qDebug() << "Dashboard::setBgImage(QString url)" << url;
+//    qDebug() << "Dashboard::setBgImage(QString url)" << url;
     QString path = QCoreApplication::applicationDirPath();
     url.replace(QString(":"), QString(""));
     qDebug() << url;
@@ -1296,21 +1259,19 @@ void Dashboard::refreshVapp()
         g_myVappList = _commui->getList();
         qDebug()<<"g_myList.count()="<<g_myVappList.count();
 
-        iconDirPath = WIN_VAPP_IconPath ;
-
-        QDir iconDir(iconDirPath);
+        QDir iconDir(WIN_VAPP_IconPath);
         if(!iconDir.exists())
         {
-            iconDir.mkdir(iconDirPath);
+            iconDir.mkdir(WIN_VAPP_IconPath);
         }
         //store ico file locally
         for(int i = 0; i < g_myVappList.count(); i++)
         {
             QString iconPath = QString("%1%2.png")
-                    .arg(iconDirPath)
+                    .arg(WIN_VAPP_IconPath)
                     .arg(g_myVappList[i].id);
             QString tempPath = QString("%1%2.ico")
-                    .arg(iconDirPath)
+                    .arg(WIN_VAPP_IconPath)
                     .arg(g_myVappList[i].id);
 
             //check if ico file is existed, or dont donwload
@@ -1328,7 +1289,7 @@ void Dashboard::refreshVapp()
                 QApplication::processEvents();
             _finished = false;
 
-            _ldialog->setIcon(iconDirPath, tempPath);
+            _ldialog->setIcon(WIN_VAPP_IconPath, tempPath);
         }
 
         modify();
@@ -1422,7 +1383,7 @@ void Dashboard::modify()
     for(int i = 0; i < g_myVappList.count(); i++)
     {
         QString iconPath = QString("%1%2.png")
-                .arg(iconDirPath)
+                .arg(WIN_VAPP_IconPath)
                 .arg(g_myVappList[i].id);
 
         g_RemoteappList.insert(i, g_myVappList[i]);
@@ -1440,14 +1401,18 @@ void Dashboard::setVacServer()
 
 void Dashboard::updateVacServer()
 {
-    _ldialog->updateVacServer();
+//    _ldialog->updateVacServer();
 //    _ldialog->getPaas();
 
 //    _Isheartbeat = false;
-    if (_commui->errID == "10000")
-        _commui->logoff();
-    else
-        errOut();
+//    if (_commui->errID == "10000")
+//        _commui->logoff();
+//    else
+//        errOut();
+
+    _commui->logoff();
+    _ldialog->updateVacServer();
+    errOut();
 
 }
 
@@ -1511,13 +1476,11 @@ void Dashboard::paasModify()
     for(int i = 0; i < g_myPaasList.count(); i++)
     {
         QString iconPath = QString("%1%2.png")
-                .arg(iconDirPath)
+                .arg(WIN_PAAS_IconPath)
                 .arg(g_myPaasList[i].cnName);
 
         g_RemotepaasList.insert(i, g_myPaasList[i]);
-//        qDebug()<<"g_mylist:"<<g_myVappList[i].icon;
         g_RemotepaasList[i].iconPath = iconPath;
-        qDebug()<<"g_Rmote:"<<g_RemotepaasList.at(i).iconPath;
     }
 }
 

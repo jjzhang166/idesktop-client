@@ -55,8 +55,8 @@ using namespace std;
 #define APPICON 0
 #define ADDICON 1
 #define HSPACING 4
-#define VSPACING 0
-#define BOTTOMSPACING 24
+#define VSPACING 8                  //
+#define BOTTOMSPACING 16            //24
 
 #define LARGESIZE QSize(143, 143)     //72*72
 #define MEDIUMSIZE QSize(119, 119)     //48*48
@@ -111,7 +111,7 @@ toolBarWidget::toolBarWidget(QSize pageSize, QWidget *parent)
 
     _pageSize = pageSize;
     _width = _pageSize.width();
-    _height = LARGESIZE.height() + VSPACING + BOTTOMSPACING;
+    _height = SMALLSIZE.height() + VSPACING + BOTTOMSPACING;
 
     _iconHSpacing = ICONHSPACING;
     _iconVSpacing = ICONVSPACING;
@@ -144,7 +144,7 @@ toolBarWidget::toolBarWidget(QSize pageSize, QWidget *parent)
 //    _desktopRect = _desktopWidget->availableGeometry();
     _local = LocalAppList::getList();
 
-    initIconItem();
+//    initIconItem();
 
 //    if (_iconsPerPage == 0)
 //    {
@@ -334,6 +334,7 @@ int toolBarWidget::getNearestIndex(const QRect &rect)
 
 void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
 {
+
     _refreshToolBar = false;
 
     if (_dragItem)
@@ -342,19 +343,6 @@ void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
         event->accept();
         return;
 
-    }
-
-    if (_localIconNum == _MaxNum)
-    {
- //       QMessageBox::information(NULL, "TIP", tr("¹¤¾ßÀ¸ÒÑÂú"));
-
-        event->ignore();
-        setAcceptDrops(false);
-
-    }
-    else
-    {
-        setAcceptDrops(true);
     }
 
     _dragEvent = true;
@@ -371,18 +359,26 @@ void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
         {
             for (int i = 0; i <_dirMinList.count(); i++)
             {
-                if (_iconDict.value(_dirMinList.at(i)) == _inDrag)
-                    continue;
+//                if (_iconDict.value(_dirMinList.at(i)) == _inDrag)
+//                    continue;
 
                 _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(false);
             }
         }
+        _dragItem = NULL;
 
         event->setDropAction(Qt::MoveAction);
         event->accept();
     }
     else
     {
+
+        if (_localIconNum == _MaxNum)
+        {
+             event->ignore();
+            return;
+        }
+
         event->acceptProposedAction();
 
         if (_isOtherWidgetObject)
@@ -431,12 +427,16 @@ void toolBarWidget::dragMoveEvent(QDragMoveEvent *event)
     if (_iconDragEnter)
         return;
 
+    if (!_inDrag)
+        return;
+
     _dragEvent = true;
 
     event->setDropAction(Qt::MoveAction);
     event->accept();
 
     _itemHeld = false;
+
     int p = _inDrag->page();
     int s = _inDrag->index();
     /* The virtual desktop can only expand to right */
@@ -505,17 +505,9 @@ void toolBarWidget::dragLeaveEvent(QDragLeaveEvent *event)
 
     _iconDragEnter = false;
 
-    qDebug() << "*********************************dragLeaveEventdragLeaveEvent";
+    qDebug() << "toolBarWidget*********************************LeaveEvent";
     _itemHeld = false;
 
- //   hideDirWidget();
-//    _inDrag->show();
-//    int p = _inDrag->page();
-//    int s = _inDrag->index();
-//    _inDrag->move(_gridTable[p][s].translated(HSPACING, VSPACING).topLeft());
-    //drag->setPixmap(QPixmap(""));
-    //icon->show();
-    //event->accept();
 #if 1
     if (_dragItem != NULL)
     {
@@ -531,9 +523,13 @@ void toolBarWidget::dragLeaveEvent(QDragLeaveEvent *event)
 //        moveBackIcons(p, s);
 
         _dragItem = NULL;
+
+        qDebug() << "toolBarWidget-------------------------->LeaveEvent";
+
+        _isOtherWidgetObject = false;
     }
 #endif
-    _isOtherWidgetObject = false;
+//    _isOtherWidgetObject = false;
 
     _dragEvent = false;
 
@@ -543,25 +539,12 @@ void toolBarWidget::dragLeaveEvent(QDragLeaveEvent *event)
 
 void toolBarWidget::dropEvent(QDropEvent *event)
 {
-    qDebug() << "111111111111111111111111111111111111111";
-
     event->setDropAction(Qt::MoveAction);
     event->accept();
-    qDebug() << "222222222222222222222222222222222222222";
     _itemHeld = false;
-    /*
-    IconItem *icon = qobject_cast<IconItem*> (event->source());
-    if (!icon)
-        return;
-    icon->show();
-    int p = icon->page();
-    int s = icon->index();
-    qDebug() << "p: " << p << "\ts: " << s;
-    qDebug() << "inDrag: " << _inDrag->page() << "  " << _inDrag->index();
-    */
+
     if (!_inDrag)
         return;
-    qDebug() << "333333333333333333333333333333333333333";
     dragLeftTimer->stop();
     dragRightTimer->stop();
     int p = _inDrag->page();
@@ -572,18 +555,11 @@ void toolBarWidget::dropEvent(QDropEvent *event)
     _iconTable[p][s] = _inDrag;
     _inDrag->move(end);
     qDebug() << "Pos: " << _inDrag->pos();
-//    _inDrag->show();
-//    qDebug() << "444444444444444444444444444444444444444";
-//    _inDrag=NULL;
-//    qDebug() << "555555555555555555555555555555555555555";
 
     _inDrag->show();
-    qDebug() << "444444444444444444444444444444444444444";
-
     QString dropText = _inDrag->uniqueName();
 
     _inDrag=NULL;
-    qDebug() << "555555555555555555555555555555555555555";
 
     if (_dragItem != NULL)
     {
@@ -594,8 +570,6 @@ void toolBarWidget::dropEvent(QDropEvent *event)
 
                 for (int i = 0; i < dirWidget_FirstLists.count(); i++)
                 {
-                    qDebug() << "dirWidget_FirstLists.at(i).name" <<dirWidget_FirstLists.at(i).name
-                             <<dirWidget_FirstLists.count();
                      _iconDict.value(_dragItem->uniqueName())->addDirMinItem(dirWidget_FirstLists.at(i).name
                                                                             , dirWidget_FirstLists.at(i).iconPath
                                                                             , -1, -1
@@ -621,6 +595,66 @@ void toolBarWidget::dropEvent(QDropEvent *event)
 
     emit iconDropToolWidget(dropText);
 
+}
+
+void toolBarWidget::iconItemDragOut()
+{
+    _itemHeld = false;
+
+    if (!_inDrag)
+        return;
+
+    dragLeftTimer->stop();
+    dragRightTimer->stop();
+    int p = _inDrag->page();
+    int s = _inDrag->index();
+
+    QPoint end = _gridTable[p][s].translated(HSPACING, VSPACING).topLeft();
+
+    _iconTable[p][s] = _inDrag;
+    _inDrag->move(end);
+
+
+    _inDrag->show();
+
+
+    QString dropText = _inDrag->uniqueName();
+
+    _inDrag=NULL;
+
+    if (_dragItem != NULL)
+    {
+        if (_dragItem->type() == dirIcon)
+        {
+            if (dirWidget_FirstLists.count() != 0)
+            {
+
+                for (int i = 0; i < dirWidget_FirstLists.count(); i++)
+                {
+                     _iconDict.value(_dragItem->uniqueName())->addDirMinItem(dirWidget_FirstLists.at(i).name
+                                                                            , dirWidget_FirstLists.at(i).iconPath
+                                                                            , -1, -1
+                                                                            , dirWidget_FirstLists.at(i).url
+                                                                            , dirWidget_FirstLists.at(i).uniqueName);
+                }
+                dirWidget_FirstLists.clear();
+            }
+
+        }
+
+        for (int i = 0; i <_dirMinList.count(); i++)
+        {
+            _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
+        }
+
+        _dragItem = NULL;
+
+    }
+
+    _dragEvent = false;
+    _isOtherWidgetObject = false;
+
+    emit iconDropToolWidget(dropText);
 }
 
 #if 0
@@ -677,12 +711,12 @@ void toolBarWidget::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     QPainter painter(this);
-    painter.drawPixmap((_width - gridWidth * _iconsPerPage) / 2 - 31, _height - 60,
-                       31, 60, QPixmap(":images/toolbar_left.png"));
-    painter.drawPixmap((_width - gridWidth * _iconsPerPage) / 2, _height - 60,
-                       gridWidth * _iconsPerPage , 60, QPixmap(":images/toolbar_center.png"));
-    painter.drawPixmap((_width - gridWidth * _iconsPerPage) / 2 + _iconsPerPage * gridWidth, _height - 60,
-                       31, 60, QPixmap(":images/toolbar_right.png"));
+    painter.drawPixmap((_width - gridWidth * _iconsPerPage) / 2 - 40, _height - 70, 40, 70
+                       , QPixmap(":images/toolbar_left.png").scaled(40, 70, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    painter.drawPixmap((_width - gridWidth * _iconsPerPage) / 2, _height - 70, gridWidth * _iconsPerPage , 70
+                       , QPixmap(":images/toolbar_center.png").scaled(gridWidth * _iconsPerPage , 70, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    painter.drawPixmap((_width - gridWidth * _iconsPerPage) / 2 + _iconsPerPage * gridWidth, _height - 70, 40, 70
+                       , QPixmap(":images/toolbar_right.png").scaled(40, 70, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
 int toolBarWidget::addIcon(const QString &text,
@@ -692,7 +726,12 @@ int toolBarWidget::addIcon(const QString &text,
                             const QString &url,
                             int type, int id, const QString &uniqueName)
 {
-//    qDebug() << text << iconPath << page << index << url << type << id;
+    if (_localIconNum == _MaxNum)
+    {
+        setAcceptDrops(false);
+        return 0;
+    }
+
     _localIconNum ++;
 
     setShowType();
@@ -716,6 +755,7 @@ int toolBarWidget::addIcon(const QString &text,
 //            break;
 //    }
     icon->setSaveDataBool(true);
+    icon->setIconSize(2);
     icon->setUniqueName(uniqueName);
     icon->setText(text);
     icon->setTimeLine(false);
@@ -733,7 +773,7 @@ int toolBarWidget::addIcon(const QString &text,
     icon->setEnterEventBool(true);
     icon->setLeaveEventBool(true);
     icon->setEqualIcon(false);
-    icon->setIconSize(2);
+
     icon->setIconClass(type);
 
     if(type == dirIcon)
@@ -741,8 +781,7 @@ int toolBarWidget::addIcon(const QString &text,
         icon->addMinWidget(2);  //  0 : largeSize, 1 : mediumSize, 2 : smallSize;
         icon->setId(id);
         icon->setDirMinItemId(id);
-        qDebug() << "------> tool bar add Icon--->";
-        emit toolBarDirWidgetRefresh(id);
+//        emit toolBarDirWidgetRefresh(id);
     }
     else if (type == 4)
     {
@@ -760,7 +799,6 @@ int toolBarWidget::addIcon(const QString &text,
 
     /* TODO deal with the icon is full */
     if (page == -1) {
-//            qDebug() << "toolBarWidget::addIcon() --> setPage(page) -- > _count" << page << _count;
         for (int i = 0; i < _count; i++) {
 
             if (_nextIdx[i] < _iconsPerPage) {
@@ -774,24 +812,20 @@ int toolBarWidget::addIcon(const QString &text,
         }
     }
     else {
-//            qDebug() << "toolBarWidget::addIcon() --> setPage(page)-- >1" << page;
-//            qDebug() << "toolBarWidget::addIcon() --> setPage(page)-- >2" << index;
-//            qDebug() << "toolBarWidget::addIcon() --> setPage(page)-- >3" << _nextIdx[page];
-//            qDebug() << "toolBarWidget::addIcon() --> setPage(page)-- >4" << _iconsPerPage;
 //        if (index == -1) {
 
 //            if ((page > 0) && (_nextIdx[page - 1] == _iconsPerPage) && (_nextIdx[page] < _iconsPerPage)) {
 //                index = _nextIdx[page];
 //            }
 //            else if ((page == 0) && (_nextIdx[page] < _iconsPerPage)) {
-//qDebug() << "toolBarWidget::addIcon() --> setPage(page)-- >4" << page;
+
 //                index = _nextIdx[page];
 //            }
 //            else {
-//qDebug() << "toolBarWidget::addIcon() --> setPage(page)-- >5" << page;
+
 //                for (int i = 0; i < _count; i++) {
 //                    if (_nextIdx[i] < _iconsPerPage) {
-//qDebug() << "toolBarWidget::addIcon() --> setPage(page)-- >6" << page;
+
 //                        page = i;
 //                        index = _nextIdx[i];
 //                        move(_pages[page], y());
@@ -830,6 +864,7 @@ int toolBarWidget::addIcon(const QString &text,
     if (!_isOtherWidgetObject)
     {
         icon->show();
+
     }
     else
     {
@@ -844,7 +879,10 @@ int toolBarWidget::addIcon(const QString &text,
         _dirMinList.append(uniqueName);
 
 //        _toolBarDirIndex++;
-
+        if (dirIcon == type)
+        {
+            emit toolBarDirWidgetRefresh(id);
+        }
     }
 
         connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
@@ -858,7 +896,6 @@ int toolBarWidget::addIcon(const QString &text,
         connect(icon, SIGNAL(dragEnterMinWidget()), this, SLOT(iconDragEnter()));
     //    connect(icon, SIGNAL(showContextMenu(QPoint, QPoint,const QString &))
     //            , this, SLOT(showIconContextMenu(QPoint, QPoint,const QString &)));
-//        qDebug() << "toolBarWidget::addIcon() --> setPage(page)" << "2222222"<< type;
 
 //        connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint,const QString &))
 //                , this, SLOT(showIconContextMenu(bool, QPoint, QPoint,const QString &)));
@@ -866,6 +903,7 @@ int toolBarWidget::addIcon(const QString &text,
                 , this, SIGNAL(iconItemNameChanged(const QString &, const QString &)));
         connect(icon, SIGNAL(dirMinLineEditFocusOut(int, const QString &))
                 , this, SIGNAL(changedDirWidgetTitle(int, const QString &)));
+        connect(icon, SIGNAL(dragOut()), this, SLOT(iconItemDragOut()));
 
 //    _iconLists.append(icon);
 
@@ -874,7 +912,6 @@ int toolBarWidget::addIcon(const QString &text,
 
 //void toolBarWidget::test()
 //{
-//    qDebug() << "testttttttttttttttttttttttttttttttttttttttttttttttttt";
 //    emit toolBarAddDirSW(_toolBarDirIndex);
 
 //}
@@ -901,7 +938,6 @@ void toolBarWidget::delIcon(const QString &uniqueName)
     }
 
     //icon->setHidden(true);
-    qDebug() << icon->page();
     int p = icon->page();
     int s = icon->index();
 
@@ -1046,6 +1082,11 @@ void toolBarWidget::moveBackIcons(int page, int index)
 
     _localIconNum--;
 
+    if (_localIconNum < _MaxNum)
+    {
+        setAcceptDrops(true);
+    }
+
     setShowType();
 
 }
@@ -1151,8 +1192,6 @@ void toolBarWidget::reloadApplist()
 //        return;
 
 //    _dirMovingFinished = false;
-
-//        qDebug() << "void toolBarWidget::closeDir(int page, int index)void toolBarWidget::closeDir(int page, int index)";
 
 //    emit toolCloseDir(page, index);
 
@@ -1531,9 +1570,7 @@ void toolBarWidget::iconMenuRunClicked()
 void toolBarWidget::iconMenuDelClicked()
 {
     _iconMenu->setVisible(false);
- //   qDebug() << _currentIconItem;
 //    delIcon(_currentIconItem);
-//    qDebug() << "    if (_iconDict.value(_currentIconItem)->getMinIconNum() != 0)" << _iconDict.value(_currentIconItem)->getMinIconNum();
 //    if (_iconDict.value(_currentIconItem)->getMinIconNum() != 0)
 //    {
 //        return;
@@ -1592,7 +1629,6 @@ void toolBarWidget::refreshMenu()
 
 void toolBarWidget::dirWidgetDelIcon(int id, const QString &uniqueName)
 {
-    qDebug() <<"toolBarWidget::dirWidgetDelIcon"<<id;
     _iconDict.value(_dirMinList.at(id))->removeDirMinItem(uniqueName);
 
     emit desktopDelIcon(uniqueName);
@@ -1636,6 +1672,7 @@ void toolBarWidget::initIconItem()
                         _local->at(i)->page(), _local->at(i)->index(),
                         "", 3,
                         _local->at(i)->id().toInt(), _local->at(i)->uniqueName());
+
             }
             else
             {
@@ -1765,7 +1802,6 @@ void toolBarWidget::toolBarRefreshDirMinWidget(const QString &uniqueName)
 {
     if (!_iconDict.value(uniqueName))
         return;
-
     _iconDict.value(uniqueName)->refreshDirMinWidgetIcon();
 
 }

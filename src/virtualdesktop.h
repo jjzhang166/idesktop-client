@@ -9,7 +9,7 @@
 
 #include "localapps.h"
 #include "commuinication.h"
-#include "arrangewidget.h"
+//#include "arrangewidget.h"
 #include "hovericonitem.h"
 //#include "movewidget.h"
 #include "iconitem.h"
@@ -20,7 +20,7 @@
 #include "qitemmanager.h"
 
 #include "struct.h"
-class ArrangeWidget;
+//class ArrangeWidget;
 
 //app
 #ifdef Q_WS_WIN
@@ -215,7 +215,7 @@ public slots:
 
 //    void runServerApp();
 
-    void arrangeWidgetMove(QPoint pos);
+//    void arrangeWidgetMove(QPoint pos);
 
     //void updateIconTimeOut();
 
@@ -243,7 +243,7 @@ public slots:
 
     void addDirItem();
 
-    void showIconContextMenu(bool,QPoint pos, QPoint mPos, const QString &uniqueName);
+    void showIconContextMenu(bool,QPoint pos, QPoint mPos, IconItem *);
     void iconMenuRunClicked();
     void iconMenuDelClicked();
 
@@ -268,6 +268,9 @@ public slots:
     void changedDirWidgetTitle(int i, const QString &text);
     void refreshDirMinWidget(int i);
     void dirWidgetRefresh(int i);
+
+    void iconItemDragOut();
+    void dustbinRestore(IconItem *iconItem);
 
 signals:
     void pageChanged(int i);
@@ -382,7 +385,7 @@ private:
     bool _dragEvent;
     bool _addAppState;
 
-    ArrangeWidget *_arrangeWidget;
+//    ArrangeWidget *_arrangeWidget;
 
     QPropertyAnimation *_animationScreen;
     bool _animationScreenDown;
@@ -443,6 +446,8 @@ private:
 //    QList<IconItem*> _tempIconLists;
     QList<TEMP_LIST> _tempLists;
 
+    IconItem *_restoreIcon;
+
 public:
     int _current;
     QList<QList<IconItem*> > _iconTable;
@@ -476,12 +481,6 @@ public:
 
     QPoint _mousePos;
     int _menuValue;
-
-//    QList<IconItem*> _iconLists;
-//    QList<IconItem*> _tempLists;
-
-
-
 };
 
 /* #############################################

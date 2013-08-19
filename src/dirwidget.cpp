@@ -92,6 +92,10 @@ DirShowWidget::DirShowWidget(int id, QSize pageSize, QWidget *parent)
     _clearBtn->setPixmap(QString(":images/dushbin_clear_normal.png"));
     _clearBtn->setGeometry(_width - _clearBtn->width() - 15, 15
                            , _clearBtn->width(), _clearBtn->height());
+
+    if (_dirWidget->getIconNum() == 0)
+        _clearBtn->setSwitcherEnabled(false);
+
     _clearBtn->setVisible(false);
 
     connect(_clearBtn, SIGNAL(switcherActivated()), this, SLOT(clearAllIcon()));
@@ -121,9 +125,13 @@ DirShowWidget::DirShowWidget(int id, QSize pageSize, QWidget *parent)
 
     connect(_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarValueChanged(int)));
  //   connect(_dirWidget, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
-    connect(_dirWidget, SIGNAL(pageIncreased()), this, SLOT(setSize()));
-    connect(_dirWidget, SIGNAL(pageDecreased()), this, SLOT(setSize()));
-    connect(_dirWidget, SIGNAL(heightChanged()), this, SLOT(setSize()));
+    if (_id != 1000)
+    {
+        connect(_dirWidget, SIGNAL(pageIncreased()), this, SLOT(setSize()));
+        connect(_dirWidget, SIGNAL(pageDecreased()), this, SLOT(setSize()));
+        connect(_dirWidget, SIGNAL(heightChanged()), this, SLOT(setSize()));
+    }
+
     connect(_dirWidget, SIGNAL(dirWidgetDragLeave(const QString &))
             , this, SLOT(dirWidgetLeave(const QString &)));
     connect(_dirWidget, SIGNAL(dirWidgetDelIcon(int, const QString &))
@@ -134,11 +142,21 @@ DirShowWidget::DirShowWidget(int id, QSize pageSize, QWidget *parent)
             , this, SIGNAL(refreshDirMinWidget(int)));
     connect(_dirWidget, SIGNAL(getParentGlobalPos())
             , this, SLOT(getParentGlobalPos()));
+    connect(_dirWidget, SIGNAL(setClearBtnEnabled(bool))
+            , this, SLOT(setClearBtnEnabled(bool)));
+    connect(_dirWidget, SIGNAL(dustbinRestore(IconItem*))
+            , this, SIGNAL(dustbinRestore(IconItem*)));
+
 }
 
 DirShowWidget::~DirShowWidget()
 {
 
+}
+
+void DirShowWidget::setClearBtnEnabled(bool enabled)
+{
+    _clearBtn->setSwitcherEnabled(enabled);
 }
 
 void DirShowWidget::getParentGlobalPos()
@@ -247,8 +265,6 @@ void DirShowWidget::setSize()
     if (_maxPage == 0)
         return;
 
-    qDebug() << "-----> dirWidget : " << _dirWidget->count();
-    qDebug() << "-----> _maxPage : " << _maxPage;
     if ( count() > _maxPage )
     {
         _height = _dirWidget->getHeight() * _maxPage + 30;
@@ -262,7 +278,6 @@ void DirShowWidget::setSize()
     }
     else
     {
-        qDebug() <<"small than maxPage";
         _height = _dirWidget->getHeight() * _dirWidget->count() + 30;
         setFixedSize(_width, _height);
 
@@ -295,7 +310,6 @@ void DirShowWidget::addDirIcon(const QString &text, const QString &iconPath,
 
 void DirShowWidget::setMaxRow(int row)
 {
-//    qDebug() << "row-------->serMaxRow : " << row;
     _maxPage = row;
 
     setSize();
@@ -367,6 +381,12 @@ void DirShowWidget::initIconItem()
     _dirWidget->initIconItem();
 }
 
+int DirShowWidget::getDustBinNewHeight()
+{
+    setSize();
+    return _height;
+}
+
 //
 DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
     : QWidget(parent)
@@ -378,6 +398,9 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
     , _dragDown(false)
     , _dragUp(false)
     , _id(id)
+    , _iconMenu(NULL)
+    , _dustbinMenu(NULL)
+    , _currentIconItem(NULL)
 {
     _count = 1;
     _pageSize = pageSize;
@@ -410,9 +433,6 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
 
     _iconNum = 0;
 
-    qDebug() << "count -->" << _count;
-
-
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _height));
 
@@ -427,7 +447,7 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
             newList.insert(j, \
                            QRect(x, y, gridWidth, gridHeight));
         }
-        qDebug() << _gridTable.count() << "-0------------0!<< DirWidget::DirWidget ";
+ //       qDebug() << _gridTable.count() << "-0------------0!<< DirWidget::DirWidget ";
         _gridTable.insert(i, newList);
 
     }
@@ -453,11 +473,23 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
 
     initIconItem();
 
-    _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
-    _iconMenu->setVisible(false);
+    if (_id == 1000)
+    {
+        _dustbinMenu = new MenuWidget(MenuWidget::dustbinMenu, this);
+        _dustbinMenu->setVisible(false);
 
-    connect(_iconMenu, SIGNAL(run()), this, SLOT(iconMenuRunClicked()));
-    connect(_iconMenu, SIGNAL(del()), this, SLOT(iconMenuDelClicked()));
+        connect(_dustbinMenu, SIGNAL(restore()), this, SLOT(dustbinMenuRestoreClicked()));
+        connect(_dustbinMenu, SIGNAL(del()), this, SLOT(menuDelClicked()));
+    }
+    else
+    {
+        _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
+        _iconMenu->setVisible(false);
+
+        connect(_iconMenu, SIGNAL(run()), this, SLOT(iconMenuRunClicked()));
+        connect(_iconMenu, SIGNAL(del()), this, SLOT(menuDelClicked()));
+    }
+
     connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
 }
 
@@ -474,7 +506,6 @@ int DirWidget::addIcon(const QString &text,
                        int type,
                        const QString &uniqueName)
 {
-    qDebug() << "dir Widget count" << _count << "page" << page << "index" << index;
     int expandPageCount = _iconNum / _iconsPerPage + 1;
 
     if (expandPageCount > _count)
@@ -497,9 +528,9 @@ int DirWidget::addIcon(const QString &text,
     }
 
     icon->setSaveDataBool(true);
+    icon->setIconSize(_iconSize);
     icon->setUniqueName(uniqueName);
     icon->setText(text);
-    icon->setIconSize(_iconSize);
     icon->setIconClass(type);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
@@ -514,7 +545,7 @@ int DirWidget::addIcon(const QString &text,
     icon->setDragEventBool(true);
     icon->setEnterEventBool(false);
     icon->setLeaveEventBool(false);
-    qDebug() << "add Icon  start!!!!!";
+
     if (page == -1) {
         for (int i = 0; i < _count; i++) {
             if (_nextIdx[i] < _row * _col) {
@@ -561,46 +592,32 @@ int DirWidget::addIcon(const QString &text,
         }
     }
 
-    qDebug() << "add Icon  ing !!!!";
 
     icon->setPixmap(iconPath,text);
-                qDebug() << "add Icon  end -=-------->test000!!!!" << _gridTable.count();
-                qDebug() << "count" << _count;
-                qDebug() << "_iconsPerPage" <<_iconsPerPage;
-
     icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
-            qDebug() << "add Icon  end -=-------->test001!!!!";
     icon->setPage(page);
     icon->setIndex(index);
-            qDebug() << "add Icon  end -=-------->test002!!!!";
     icon->setUrl(url);
     icon->setDirId(_id);
     icon->setId(111);
     icon->setType(type);
-            qDebug() << "add Icon  end -=-------->test003!!!!";
     _iconDict.insert(uniqueName, icon);
     _iconTable[page][index] = icon;
-            qDebug() << "add Icon  end -=-------->test004!!!!";
     _nextIdx[page]++;
-            qDebug() << "add Icon  end -=-------->test005!!!!";
     icon->show();
-        qDebug() << "add Icon  end -=-------->test006!!!!";
 
     _iconNum ++;
    connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
-    connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint,const QString &))
-            , this, SLOT(showIconContextMenu(bool, QPoint, QPoint,const QString &)));
+    connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint, IconItem *))
+            , this, SLOT(showIconContextMenu(bool, QPoint, QPoint,IconItem *)));
     connect(icon, SIGNAL(iconItemNameChanged(const QString &, const QString &))
             , this, SIGNAL(iconItemNameChanged(const QString &, const QString &)));
-        qDebug() << "add Icon  end -=-------->test007!!!!";
     _url = QString("");
 
     getFirstIconItem();
 
-    qDebug() << "page" << page << "index" << index;
-
-
-    qDebug() << "add Icon  end !!!!";
+    if(_iconNum > 0)
+        emit setClearBtnEnabled(true);
 
      return page;
 }
@@ -695,10 +712,13 @@ void DirWidget::removeIcon(const QString &_uniqueName)
 
     int p = _iconDict.value(_uniqueName)->page();
     int s = _iconDict.value(_uniqueName)->index();
-    _iconTable[p][s] = NULL;
-    moveBackIcons(p, s);
 
     _iconDict.take(_uniqueName);
+
+    _iconTable[p][s] = NULL;
+
+    moveBackIcons(p, s);
+
 }
 
 void DirWidget::moveBackIcons(int page, int index)
@@ -759,6 +779,9 @@ void DirWidget::moveBackIcons(int page, int index)
 
     if (_id != 1000)
         getFirstIconItem();
+
+    if(_iconNum == 0)
+        emit setClearBtnEnabled(false);
 }
 void DirWidget::largeIcon()
 {
@@ -813,7 +836,6 @@ void DirWidget::refresh(QSize size)
     _iconNum = 0;
     _count = 1;
 
-    qDebug() << "_tempIconLists.count() : " << _dirTempLists.count();
     for (int i = 0; i < _dirTempLists.count(); i++)
     {
 
@@ -822,8 +844,6 @@ void DirWidget::refresh(QSize size)
                 _dirTempLists.at(i).url, _dirTempLists.at(i).type,
                 _dirTempLists.at(i).uniqueName);
     }
-
-    qDebug() << "dirwidget init iconItem over !!!!";
 
     _dirTempLists.clear();
 
@@ -893,11 +913,9 @@ void DirWidget::reloadApplist(QSize size)
     for (int i = 0; i < _count; i++)
         _nextIdx.insert(i, 0);
 
-    qDebug() << "void DirWidget::reloadApplist(QSize size)v--->height:" << _height;
-
     setFixedSize(_width, _height * _count);
 
-    qDebug()<<" DirWidget reload all.";
+//    qDebug()<<" DirWidget reload all.";
 }
 
 void DirWidget::deleteAllIconItem()
@@ -917,10 +935,6 @@ void DirWidget::deleteAllIconItem()
     _dirTempLists.clear();
 
     TEMP_LIST dirTempList;
-
-    qDebug() << "dirWidget :: _count¡¡£­£­£­£­¡¡£¾" <<_count;
-    qDebug() << "_iconsPerPage---->" << _iconsPerPage;
-    qDebug() << "_iconTable.count" << _iconTable.count();
 
     for (int i = 0; i < _count; i++)
     {
@@ -953,7 +967,6 @@ void DirWidget::changeSpacing()
     {
         case IconItem::large_size :
             _height = LARGESIZE.height() + VSPACING + BOTTOMSPACING;
-            qDebug() << "_height----->large" << _height;
 
             _iconHSpacing = ICONHSPACING;
             _iconVSpacing = ICONVSPACING;
@@ -966,7 +979,6 @@ void DirWidget::changeSpacing()
         case IconItem::medium_size :
 
             _height = MEDIUMSIZE.height() + VSPACING + BOTTOMSPACING;
-            qDebug() << "_height----->MEDIUMSIZE" << _height;
 
             _iconHSpacing = ICONHSPACING;
             _iconVSpacing = ICONVSPACING;
@@ -978,7 +990,6 @@ void DirWidget::changeSpacing()
         default:
 
             _height = SMALLSIZE.height() + VSPACING + BOTTOMSPACING;
-            qDebug() << "_height----->SMALLSIZE" << _height;
 
             _iconHSpacing = ICONHSPACING;
             _iconVSpacing = ICONVSPACING;
@@ -994,7 +1005,6 @@ void DirWidget::changeSpacing()
 void DirWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     emit getParentGlobalPos();
-    qDebug() << "void DirWidget::dragEnterEvent(QDragEnterEvent *event)void DirWidget::dragEnterEvent(QDragEnterEvent *event)";
     _dragEvent = true;
 
      IconItem *icon = qobject_cast<IconItem*> (event->source());
@@ -1025,7 +1035,6 @@ void DirWidget::dragMoveEvent(QDragMoveEvent *event)
     /* move to the next page */
     if ((event->pos().y() > (p + 1) * _height) && (mapFromGlobal(event->pos()).y() < _parentRect.y() + _parentRect.height())){
 
-        qDebug() << "move to the next page!!!!";
 
         if (p + 1 == _count)
             return;
@@ -1034,20 +1043,17 @@ void DirWidget::dragMoveEvent(QDragMoveEvent *event)
     }
     else if ((event->pos().y() > 0) && (event->pos().y() < p * _height))      /* move to the up page */
     {
-        qDebug() << "move to the up page!!!!";
         dragUp(event->pos());
 
     }
     else {          /* move in this page */
 
-         qDebug() << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&_______>move in this page";
         QRect moving(event->pos() - gap, _inDrag->size() * 1.0);
 
         int index = getNearestIndex(moving);
         if (index == -1 || s == index)
         {
-            qDebug() << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&___out";
-            return;
+           return;
         }
 #if 0
         if ((ADDICON == _iconTable[_current][index]->_icontype)||(ADDICON == _iconTable[_current][s]->_icontype))
@@ -1055,7 +1061,6 @@ void DirWidget::dragMoveEvent(QDragMoveEvent *event)
             return;
         }
 #endif
-        qDebug() << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&_______>move in this page33333333";
         index = index > _nextIdx[_currentPage] - 1 ? _nextIdx[_currentPage] - 1: index;
         if (s > index) {
             for (int i = s; i > index; i--) {
@@ -1094,26 +1099,18 @@ void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
     if (_dragDown || _dragUp)
         return;
 
-    _dragEvent = false;
-    qDebug() << "x" << _parentRect.x();
-    qDebug() << " y" << _parentRect.y();
-    qDebug() << "width()" << _parentRect.width();
-    qDebug() << "height" << _parentRect.height();
-    qDebug() << "asdfjlkasdjdflkjasl;djf;alkjsdfl;akjdfla;jdfla;sjdfla;sjdfl;akdfja";
-    qDebug() << "cursor().pos()" << cursor().pos();
     if (_parentRect.width() == 0 || _parentRect.height() == 0)
         return;
 
     if (QRect(_parentRect).contains(cursor().pos())) {
-        qDebug() << "cursor().pos()" << cursor().pos();
         return;
     }
 
-    qDebug() << "_inDrag->page()" << _inDrag->page();
-    qDebug() << "_inDrag->index()" << _inDrag->index();
+    _dragEvent = false;
 
     int p = _inDrag->page();
     int s = _inDrag->index();
+//    _inDrag->hide();
 
     if (!_iconDict.value(_inDrag->uniqueName()))
         return;
@@ -1121,11 +1118,12 @@ void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
     emit dirWidgetDragLeave(_inDrag->uniqueName());
 
     _iconDict.take(_inDrag->uniqueName());
-    _inDrag = NULL;
 
     _iconTable[p][s] = NULL;
 
     moveBackIcons(p, s);
+
+    _inDrag = NULL;
 
 }
 
@@ -1173,7 +1171,11 @@ int DirWidget::getNearestIndex(const QRect &rect)
 
 void DirWidget::mousePressEvent(QMouseEvent *event)
 {
-    _iconMenu->setVisible(false);
+    if (_iconMenu)
+        _iconMenu->setVisible(false);
+    else
+        _dustbinMenu->setVisible(false);
+
     event->accept();
 
     if (Qt::RightButton == event->button())
@@ -1190,34 +1192,79 @@ void DirWidget::mouseReleaseEvent(QMouseEvent *)
 
 }
 
-void DirWidget::showIconContextMenu(bool visiable,QPoint pos, QPoint mPos, const QString &uniqueName)
+void DirWidget::showIconContextMenu(bool visiable,QPoint pos, QPoint mPos, IconItem *iconItem)
 {
-//    qDebug() << "void DirWidget::showIconContextMenu(QPoint pos, const QString &text)" << pos << uniqueName;
     Q_UNUSED(mPos);
-    _currentIconItem = uniqueName;
 
-    _iconMenu->move(pos.x() + _iconDict.value(uniqueName)->pos().x(), pos.y() + _iconDict.value(uniqueName)->pos().y());
-    _iconMenu->raise();
-    _iconMenu->setVisible(visiable);
+    if(!iconItem)
+        return;
+
+    if (_currentIconItem)
+        _currentIconItem = NULL;
+
+    _currentIconItem = iconItem;
+    _currentUniqueName = _currentIconItem->uniqueName();
+
+    if (_iconMenu)
+    {
+        _iconMenu->move(pos.x() + _iconDict.value(_currentUniqueName)->pos().x(), pos.y() + _iconDict.value(_currentUniqueName)->pos().y());
+        _iconMenu->raise();
+        _iconMenu->setVisible(visiable);
+    }
+    else
+    {
+        _dustbinMenu->move(pos.x() + _iconDict.value(_currentUniqueName)->pos().x(), pos.y() + _iconDict.value(_currentUniqueName)->pos().y());
+        _dustbinMenu->raise();
+        _dustbinMenu->setVisible(visiable);
+    }
 }
 
 void DirWidget::iconMenuRunClicked()
 {
-    _iconMenu->setVisible(false);
+    if (_iconMenu)
+        _iconMenu->setVisible(false);
+    else
+        _dustbinMenu->setVisible(false);
 
-    runApp(_currentIconItem);
+    runApp(_currentUniqueName);
 
 }
 
-void DirWidget::iconMenuDelClicked()
+void DirWidget::menuDelClicked()
 {
-    _iconMenu->setVisible(false);
-//    qDebug() << _currentIconItem;
-//    delIcon(_currentIconItem);
-//    emit delApp(_currentIconItem);
-    LocalAppList::getList()->delApp(_currentIconItem);
-    emit dirWidgetDelIcon(_id, _currentIconItem);
+    if (_iconMenu)
+        _iconMenu->setVisible(false);
+    else
+        _dustbinMenu->setVisible(false);
+//    delIcon(_currentUniqueName);
+//    emit delApp(_currentUniqueName);
+    LocalAppList::getList()->delApp(_currentUniqueName);
+    emit dirWidgetDelIcon(_id, _currentUniqueName);
 
+}
+
+void DirWidget::dustbinMenuRestoreClicked()
+{
+    if (_iconMenu)
+        _iconMenu->setVisible(false);
+    else
+        _dustbinMenu->setVisible(false);
+
+    if (!_currentIconItem)
+        return;
+
+    emit dirWidgetDragLeave("");
+
+    _iconDict.take(_currentIconItem->uniqueName());
+    _iconTable[_currentIconItem->page()][_currentIconItem->index()]->hide();
+    _iconTable[_currentIconItem->page()][_currentIconItem->index()] = NULL;
+
+    moveBackIcons(_currentIconItem->page(), _currentIconItem->index());
+
+
+    emit dustbinRestore(_currentIconItem);
+
+//    _currentIconItem = NULL;
 }
 
 void DirWidget::runApp(const QString &uniqueName)
@@ -1230,8 +1277,6 @@ void DirWidget::runApp(const QString &uniqueName)
 
 void DirWidget::clearAllIcon()
 {
-//    qDebug() << "clicked";
-
     if (_clearNames.count() != 0)
         _clearNames.clear();
 
@@ -1246,10 +1291,10 @@ void DirWidget::clearAllIcon()
         }
     }
 
-    for (int i = 0; i < _clearNames.count(); i++)
+    for (int i = _clearNames.count(); i > 0; i--)
     {
-        LocalAppList::getList()->delApp(_clearNames.at(i));
-        emit dirWidgetDelIcon(_id , _clearNames.at(i));
+        LocalAppList::getList()->delApp(_clearNames.at(i - 1));
+        emit dirWidgetDelIcon(_id , _clearNames.at(i - 1));
     }
 
     _clearNames.clear();
@@ -1404,8 +1449,6 @@ void DirWidget::getFirstIconItem()
             {
                 if (dirWidget_FirstLists.count() == 4)
                     return;
-
-                qDebug() << "!@#$%^&**((_)_1233456769870689097-qewrrt" << _iconTable[i][j]->text();
 
                 dirTempList.name = _iconTable[i][j]->text();
                 dirTempList.iconPath = _iconTable[i][j]->pix();

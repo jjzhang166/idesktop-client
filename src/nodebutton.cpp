@@ -145,8 +145,6 @@ void NodeButton::mousePressEvent (QMouseEvent * event)
     if (_style == current_stay && _current)
         return;
 
-    qDebug() << "void NodeButton::mousePressEvent (QMouseEvent * event)void NodeButton::mousePressEvent (QMouseEvent * event)";
-
     emit clicked();
     emit clicked(this);
 
@@ -198,7 +196,6 @@ void NodeButton::setFont(const QFont &font)
 
 void NodeButton::setText(const QString &text)
 {
-//    qDebug() <<"void NodeButton::setText(const QString &text)void NodeButton::setText(const QString &text)"<<text;
     _text = text;
     update();
 }
@@ -302,7 +299,6 @@ void PageNodes::clickNode(NodeButton* node)
     for (int i = 0; i < _nodes.size();i++) {
         if (_nodes.at(i)->isVisible()) {
             if (_nodes.at(i) == node) {
-                    qDebug() << "void PageNodes::clickNode(NodeButton* node) --> i" << i;
                 emit choosePage(i);
                 _current = i;
             }

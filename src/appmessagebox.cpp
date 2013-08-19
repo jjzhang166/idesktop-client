@@ -1,3 +1,5 @@
+#include <QFontMetrics>
+
 #include "appmessagebox.h"
 #include "dynamicbutton.h"
 
@@ -5,7 +7,7 @@
 #define HEIGHT 200
 
 AppMessageBox::AppMessageBox(bool hasCancel, QWidget *parent)
-    : QDialog(parent, /*Qt::WindowStaysOnTopHint |*/ Qt::FramelessWindowHint | Qt::Tool)
+    : QDialog(parent, Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool)
     , _bPressTitle(false)
 {
     QTextCodec *codec = QTextCodec::codecForName("System"); //System
@@ -24,13 +26,13 @@ AppMessageBox::AppMessageBox(bool hasCancel, QWidget *parent)
     DynamicButton *b = new DynamicButton(closePix, closePixHover, this);
     b->move(WIDTH - 45, 30);            //WIDTH - 35, 10
     label = new QLabel(this);
-    label->move(50, 80);                //40, 80
-    label->setFont(QFont("", 12, QFont::Normal));
+//    label->move(50, 80);                //40, 80
+//    label->setFont(QFont("", 12, QFont::Normal));
 
     QPixmap okPix(":images/message/message_submit_normal.png");
     QPixmap okPixHover(":images/message/message_submit_hover.png");
     DynamicButton *okButton = new DynamicButton(okPix, okPixHover, this);
-    okButton->move(121, 140);
+    okButton->setGeometry((WIDTH - 65) / 2, 140, 65, 30);
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
 
     if (hasCancel) {
@@ -47,9 +49,15 @@ AppMessageBox::AppMessageBox(bool hasCancel, QWidget *parent)
 
 void AppMessageBox::setText(const QString &text)
 {
-    label->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), 10, QFont::Normal));
+    QFont font(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), 10, QFont::Normal);
+    QFontMetrics fm(font);
+    int _textWidth = fm.width(text);
+
+    label->resize(_textWidth, 12);
+    label->setFont(font);
     label->setStyleSheet("color:white;");
     label->setText(text);
+    label->move((WIDTH - label->width()) / 2, (HEIGHT - label->height()) / 2 - 5);
 }
 
 void AppMessageBox::paintEvent(QPaintEvent *event)

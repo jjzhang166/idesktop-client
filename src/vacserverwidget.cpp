@@ -10,11 +10,11 @@ VacServerWidget::VacServerWidget(QWidget *parent)
 {
     resize(395, 300);
 
-    _vacLabel = new QLabel(tr("V应用服务器："), this);
+    _vacLabel = new QLabel(tr("应用服务器地址："), this);
     _vacLabel->move(20, height() / 11);
 
     _portLabel = new QLabel(tr(" ："), this);
-    _portLabel->move(2115, height() / 11);
+    _portLabel->move(2118, height() / 11);
 
     _nameLabel = new QLabel(tr("用户名："), this);
     _nameLabel->move(20, height() / 3);
@@ -22,7 +22,7 @@ VacServerWidget::VacServerWidget(QWidget *parent)
     _pwdLabel = new QLabel(tr("密码："), this);
     _pwdLabel->move(20, height() / 11 * 5);
 
-    _paasLabel = new QLabel(tr("P服务器"), this);
+    _paasLabel = new QLabel(tr("平台服务器地址："), this);
     _paasLabel->move(20, height() / 11 * 7);
 
     _vacEdit = new QLineEdit(this);
@@ -80,7 +80,6 @@ VacServerWidget::~VacServerWidget()
 
 void VacServerWidget::saveServer()
 {
-    //qDebug() << "1232132312321";
     QSqlQuery query(QSqlDatabase::database("local"));
 
     QString qstr = QString("update vacservers "\

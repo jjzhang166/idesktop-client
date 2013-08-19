@@ -6,6 +6,7 @@
 
 Switcher::Switcher(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint/* | Qt::Tool | Qt::WindowStaysOnTopHint*/)
+    , _enabled(true)
 {
     setAttribute(Qt::WA_TranslucentBackground, true);
     //setWindowOpacity(0.7);
@@ -114,7 +115,13 @@ void Switcher::mousePressEvent(QMouseEvent *event)
 
 //    repaint();
 
-    _pixmap = _darkRight;
+//    _pixmap = _darkRight;
+
+    if (_enabled)
+        _pixmap = _darkRight;
+    else
+        _pixmap = _transRight;
+
     repaint();
 
     Q_UNUSED(event);
@@ -131,10 +138,20 @@ void Switcher::mouseReleaseEvent(QMouseEvent *event)
 //    }
 //    repaint();
 
-    _pixmap = _normalRight;
+//    _pixmap = _normalRight;
+
+    if (_enabled)
+    {
+        _pixmap = _normalRight;
+        emit switcherActivated();
+    }
+    else
+    {
+        _pixmap = _transRight;
+    }
 
     repaint();
-    emit switcherActivated();
+//    emit switcherActivated();
 
     Q_UNUSED(event);
 }
@@ -148,7 +165,11 @@ void Switcher::enterEvent(QEvent *event)
 //    repaint();
 
     emit switcherHover();
-    _pixmap = _normalRight;
+
+    if (_enabled)
+        _pixmap = _normalRight;
+    else
+        _pixmap = _transRight;
     repaint();
 
     Q_UNUSED(event);
@@ -253,4 +274,8 @@ void Switcher::setPixmap(const QString &pix)
     _pixmap = _transRight;
 //    _direction = RIGHT;
     setFixedSize(normalRight.width(), normalRight.height());
+}
+void Switcher::setSwitcherEnabled(bool enabled)
+{
+    _enabled = enabled;
 }

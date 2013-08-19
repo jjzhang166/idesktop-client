@@ -75,7 +75,6 @@ HEADERS += src/config.h \
     src/dirwidget.h \
     src/movewidget.h \
     src/dirminwidget.h \
-    src/graphicsloginitem.h \
     src/paascommuinication.h \
     src/iconitem.h \
     src/contextmenuwidget.h \
@@ -135,7 +134,6 @@ SOURCES += src/config.cpp \
     src/dirwidget.cpp \
     src/movewidget.cpp \
     src/dirminwidget.cpp \
-    src/graphicsloginitem.cpp \
     src/paascommuinication.cpp \
     src/iconitem.cpp \
     src/contextmenuwidget.cpp \

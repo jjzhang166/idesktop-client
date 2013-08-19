@@ -74,7 +74,7 @@ QList<LOCAL_LIST> g_RemotelocalList;
 QString WIN_LOCAL_IconPath;
 QString WIN_VAPP_IconPath;
 QString WIN_PAAS_IconPath;
-QString iconDirPath;
+//QString iconDirPath;
 QString WIN_TtempPath;
 QString xmlPath;
 
@@ -207,15 +207,15 @@ LoginDialog::LoginDialog(QWidget *parent)
     _dQuitAction = new QAction(tr("ÍË³ö"), this);
     _dShowAction = new QAction(tr("ÏÔÊ¾"), this);
     _dHideAction = new QAction(tr("Òþ²Ø"), this);
-    _dVacServer = new QAction(tr("ÉèÖÃ·þÎñÆ÷µØÖ·"), this);
+//    _dVacServer = new QAction(tr("ÉèÖÃ·þÎñÆ÷µØÖ·"), this);
     _dQuitAction->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
     _dShowAction->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
     _dHideAction->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
-    _dVacServer->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
+//    _dVacServer->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
 
     _dashboardMenu = new QMenu(this);
-    _dashboardMenu->addAction(_dVacServer);
-    _dashboardMenu->addSeparator();
+//    _dashboardMenu->addAction(_dVacServer);
+//    _dashboardMenu->addSeparator();
     _dashboardMenu->addAction(_dShowAction);
     _dashboardMenu->addAction(_dHideAction);
     _dashboardMenu->addSeparator();
@@ -239,7 +239,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(_dHideAction, SIGNAL(triggered()), this, SIGNAL(pHide()));
     //    connect(showAction, SIGNAL(triggered()), panel, SLOT(show()));
     //    connect(hideAction, SIGNAL(triggered()), panel, SLOT(hide()));
-    connect(_dVacServer, SIGNAL(triggered()), this, SIGNAL(dVacServer()));
+//    connect(_dVacServer, SIGNAL(triggered()), this, SIGNAL(dVacServer()));
     connect(_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SIGNAL(dActivated(QSystemTrayIcon::ActivationReason)));
 
@@ -304,7 +304,7 @@ void LoginDialog::paintEvent(QPaintEvent *event)
     }
     if (!_uerror.isEmpty()) {
         painter.setPen(QPen(QColor("#ff0000")));
-        painter.drawText((width() + userEdit->width()) / 2 + 7, 140, _uerror);
+        painter.drawText((width() + userEdit->width()) / 2 + 2, 140, _uerror);
     }
     if (!_perror.isEmpty()) {
         painter.setPen(QPen(QColor("#ff0000")));
@@ -418,6 +418,10 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     {
         userError(tr("ÓÃ»§Ãû»òÃÜÂë´íÎó"));  //
     }
+    else if (result == "-2")//USER IS EXISTS
+    {
+        userError(tr("ÆäËûÓÃ»§ÒÑµÇÂ¼"));  //
+    }
     else
     {
         connError(tr("Á¬½Ó·þÎñÆ÷Ê§°Ü..."));
@@ -529,7 +533,7 @@ void LoginDialog::auth()
         _finished = false;
         _authSuccess = false;
         //QString loginUrl = "http://" + serverAddr->currentText() + "/api/login";
-        QString loginUrl = "http://" + verifyLEdit->text() + ":8080/idesktop/login.action"; //platform/service/ClientServiceLogin.action
+        QString loginUrl = "http://" + verifyLEdit->text() + ":8080/idesktop/login.action";
         qDebug() <<"loginUrl"<<loginUrl;
         QString data = "username=" + userEdit->text() + "&password=" + passEdit->text() + "&tenant=0";
         _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toAscii());
@@ -683,7 +687,7 @@ void LoginDialog::auth()
             if (!fio.exists())
                 continue;
 
-            //qDebug()<<"path"<<strBuff;
+            qDebug()<<"path"<<strBuff;
             QFileInfo fi = QFileInfo(path);
             QString iPath(Config::get("IconDir"));
             iPath = iPath + fi.baseName();
@@ -741,8 +745,8 @@ void LoginDialog::auth()
         }
     }
     //qDebug()<<"id"<<_id;
-//    QFile b(iniPath);
-//    b.remove();
+    QFile b(iniPath);
+    b.remove();
     //end
 #else
     QSettings reg(QSettings::NativeFormat, \
@@ -841,24 +845,24 @@ void LoginDialog::auth()
         qDebug()<<"g_myList.count()="<<g_myVappList.count();
 
 #ifdef Q_WS_WIN
-        iconDirPath = WIN_VAPP_IconPath ;
+//        iconDirPath = WIN_VAPP_IconPath ;
 #else
-        iconDirPath =  xmlPath + "\\App Center\\Vicons";
+        WIN_VAPP_IconPath =  xmlPath + "\\App Center\\Vicons";
 #endif
 
-        QDir iconDir(iconDirPath);
+        QDir iconDir(WIN_VAPP_IconPath);
         if(!iconDir.exists())
         {
-            iconDir.mkdir(iconDirPath);
+            iconDir.mkdir(WIN_VAPP_IconPath);
         }
         //store ico file locally
         for(int i = 0; i < g_myVappList.count(); i++)
         {
             QString iconPath = QString("%1%2.png")
-                    .arg(iconDirPath)
+                    .arg(WIN_VAPP_IconPath)
                     .arg(g_myVappList[i].id);
             QString tempPath = QString("%1%2.ico")
-                    .arg(iconDirPath)
+                    .arg(WIN_VAPP_IconPath)
                     .arg(g_myVappList[i].id);
 
 //            g_myVappList[i].icon = iconPath;
@@ -881,7 +885,7 @@ void LoginDialog::auth()
                 QApplication::processEvents();
             _vacfinished = false;
 
-            setIcon(iconDirPath, tempPath);
+            setIcon(WIN_VAPP_IconPath, tempPath);
         }
     }
     else
@@ -892,83 +896,6 @@ void LoginDialog::auth()
 
     getPaas(true);
 
-#if 0
-    //paas
-    //    g_myPaasList.clear();
-
-    //    QString::SectionFlag flag = QString::SectionSkipEmpty;
-    //    QString url("");
-
-    //get paas list
-    _paasCommui->login(PAASURL);
-    while (!_paasFinished)
-        QApplication::processEvents();
-    _paasFinished = false;
-
-    g_myPaasList = _paasCommui->getList();
-    qDebug() << "********" << g_myPaasList.count();
-
-    if (g_myPaasList.count() == 0)
-        return;
-
-
-    QString iconDirPath = WIN_PAAS_IconPath ;
-
-
-    QDir iconDir(iconDirPath);
-    if(!iconDir.exists())
-    {
-        iconDir.mkdir(iconDirPath);
-    }
-    //store ico file locally
-    for(int i = 0; i < g_myPaasList.count(); i++)
-    {
-        QString iconPath = QString("%1%2.png")
-                .arg(iconDirPath)
-                .arg(g_myPaasList[i].cnName);
-        QString tempPath = QString("%1%2.ico")
-                .arg(iconDirPath)
-                .arg(g_myPaasList[i].cnName);
-        //        qDebug()<<"iconPath="<<iconPath;
-
-        g_RemotepaasList.insert(i, g_myPaasList[i]);
-        g_RemotepaasList[i].iconPath = iconPath;
-        //check if ico file is existed, or dont donwload
-
-        QFile chkFile(iconPath);
-        if(chkFile.exists())
-        {
-            chkFile.close();
-            continue;
-        }
-        chkFile.close();
-
-        //qDebug()<<"iconPath"<<iconPath;
-        if (g_myPaasList[i].logoURL.isEmpty())
-        {
-            //url = g_myPaasList.at(i).urls.section('/', 1, 1, flag);
-            //url = QString("http://" + url + "/Favicon.ico");
-
-            //_paasCommui->downloadIcon(QUrl(url), tempPath);
-
-
-            QPixmap pix(":images/url_normal.png");
-            pix.save(iconPath, "PNG", -1);
-
-            continue;
-        }
-        else
-        {
-            _paasCommui->downloadIcon(QUrl(g_myPaasList[i].logoURL), tempPath);
-
-            while (!_paasFinished)
-                QApplication::processEvents();
-            _paasFinished = false;
-        }
-
-        setIcon(iconDirPath, tempPath);
-    }
-#endif
 }
 
 void LoginDialog::onDone()
@@ -1140,6 +1067,12 @@ void LoginDialog::updateUi()
         passEdit->hide();
         submit->hide();
         cancelBtn->hide();
+
+        _tempVerifyIp = verifyLEdit->text();
+        _tempVacIp = vacLEdit->text();
+        _tempPaasIp = paasLEdit->text();
+        _tempVacPort = vacPortLEdit->text();
+
         verifyLEdit->show();
         vacLEdit->show();
         paasLEdit->show();
@@ -1148,6 +1081,17 @@ void LoginDialog::updateUi()
         returnButton->show();
         verifyLEdit->setFocus();
     }else{
+
+        verifyLEdit->setText(_tempVerifyIp);
+        vacLEdit->setText(_tempVacIp);
+        paasLEdit->setText(_tempPaasIp);
+        vacPortLEdit->setText(_tempVacPort);
+
+        _tempVerifyIp = "";
+        _tempVacIp = "";
+        _tempPaasIp = "";
+        _tempVacPort = "";
+
         verifyLEdit->hide();
         vacLEdit->hide();
         paasLEdit->hide();
@@ -1249,12 +1193,13 @@ void LoginDialog::saveSettingSlot()
     }
 
     updateVacServer();
-    returnSlot();
-}
+   // returnSlot();
 
-void LoginDialog::returnSlot()
-{
-    qDebug()<<"return";
+    verifyLEdit->setText(serverip);
+    vacLEdit->setText(VacServer);
+    paasLEdit->setText(PaasServer);
+    vacPortLEdit->setText(VacPort);
+
     verifyLEdit->hide();
     vacLEdit->hide();
     paasLEdit->hide();
@@ -1266,6 +1211,37 @@ void LoginDialog::returnSlot()
     submit->show();
     cancelBtn->show();
     _isSetting = false;
+
+    repaint();
+}
+
+void LoginDialog::returnSlot()
+{
+    qDebug()<<"return";
+
+    verifyLEdit->setText(_tempVerifyIp);
+    vacLEdit->setText(_tempVacIp);
+    paasLEdit->setText(_tempPaasIp);
+    vacPortLEdit->setText(_tempVacPort);
+
+    verifyLEdit->hide();
+    vacLEdit->hide();
+    paasLEdit->hide();
+    vacPortLEdit->hide();
+    saveButton->hide();
+    returnButton->hide();
+    passEdit->show();
+    userEdit->show();
+    submit->show();
+    cancelBtn->show();
+    _isSetting = false;
+
+
+    _tempVerifyIp = "";
+    _tempVacIp = "";
+    _tempPaasIp = "";
+    _tempVacPort = "";
+
     repaint();
 }
 //end
@@ -1410,7 +1386,6 @@ void LoginDialog::getPaas(bool isLogin)
 {
 
     //paas
-    qDebug() << "void LoginDialog::getPaas(bool isLogin)--->" << PaasServer;
     //    g_myPaasList.clear();
 
     //    QString::SectionFlag flag = QString::SectionSkipEmpty;
@@ -1423,28 +1398,24 @@ void LoginDialog::getPaas(bool isLogin)
     _paasFinished = false;
 
     g_myPaasList = _paasCommui->getList();
-    qDebug() << "********" << g_myPaasList.count();
 
     if (g_myPaasList.count() == 0)
         return;
 
 
-    QString iconDirPath = WIN_PAAS_IconPath ;
-
-
-    QDir iconDir(iconDirPath);
+    QDir iconDir(WIN_PAAS_IconPath);
     if(!iconDir.exists())
     {
-        iconDir.mkdir(iconDirPath);
+        iconDir.mkdir(WIN_PAAS_IconPath);
     }
     //store ico file locally
     for(int i = 0; i < g_myPaasList.count(); i++)
     {
         QString iconPath = QString("%1%2.png")
-                .arg(iconDirPath)
+                .arg(WIN_PAAS_IconPath)
                 .arg(g_myPaasList[i].cnName);
         QString tempPath = QString("%1%2.png")
-                .arg(iconDirPath)
+                .arg(WIN_PAAS_IconPath)
                 .arg(g_myPaasList[i].cnName);
         //        qDebug()<<"iconPath="<<iconPath;
         g_myPaasList[i].iconPath = iconPath;
@@ -1487,6 +1458,6 @@ void LoginDialog::getPaas(bool isLogin)
             _paasFinished = false;
         }
 
-        setIcon(iconDirPath, tempPath);
+        setIcon(WIN_PAAS_IconPath, tempPath);
     }
 }

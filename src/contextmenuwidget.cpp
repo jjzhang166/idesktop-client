@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QDebug>
 #include <QSettings>
+#include <windows.h>
 #include <QFile>
 #include "contextmenuwidget.h"
 //miya add
@@ -98,9 +99,11 @@ QStringList MenuWidget::getAppList()
     QStringList strValue;
     int nCount = list.count();
     qDebug() << "nCount : " << nCount;
+    if (nCount == 0)
+        return list;
     strKey = list.at(0);
     strValue = reg.value(strKey).toStringList();
-    qDebug() << "strKey aaaaaa: " << strKey;
+//    qDebug() << "strKey aaaaaa: " << strKey;
 start:
     int len = strValue.length();
     for(int i = 0; i < len; ++i) {
@@ -178,7 +181,7 @@ QStringList MenuWidget::getAppName()
         }
 
         strAppName.append(strValue);
-        qDebug() << "new name" << strValue;
+//        qDebug() << "new name" << strValue;
      }
     return strAppName;
 }
@@ -250,6 +253,7 @@ void MenuWidget::createNewFile(int value)
             fileName += "(" + QString::number(i) + ")";
         }
         fileName += _appList.at(value);
+        //fileName = _appList.at(value);
         qDebug() << "filename" << fileName;
         QFile newFile(fileName);
         if(newFile.exists()) {
@@ -262,6 +266,9 @@ void MenuWidget::createNewFile(int value)
             }
             if(newFile.open(QIODevice::ReadWrite)) {
                 qDebug() << "createFile success";
+            } else {
+                qDebug() << GetLastError();
+                qDebug() << "createFile Error!";
             }
             newFile.close();
             emit hideDesktop();
@@ -455,11 +462,11 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 
     case MenuWidget::iconMenu :
         _openBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                 tr("打开"), this, false);
+                                 tr("open"), this, false);
         _delBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                  tr("删除"), this, false);
+                                  tr("delete"), this, false);
 //        _renameBtn = new MenuButton("", ":images/menu_btn_hover.png",
-//                                 tr("重命名"), this, false);
+//                                 tr("rename"), this, false);
 
         _openBtn->setGeometry(14, 20, ICON_W, BTN_H);
         _delBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
@@ -476,7 +483,25 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
  //       connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
         break;
+    case MenuWidget::dustbinMenu :
 
+        _restoreBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                                     tr("restore"), this, false);
+        _delBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                                  tr("delete"), this, false);
+
+        _restoreBtn->setGeometry(14, 20, ICON_W, BTN_H);
+        _delBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
+
+        _restoreBtn->setValue(0);
+        _delBtn->setValue(1);
+
+        setFixedSize(ICON_W, 58 + 2 + 20);
+
+        connect(_restoreBtn, SIGNAL(clicked()), this, SIGNAL(restore()));
+        connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
+ //       connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
+        break;
     default:
         break;
     }
@@ -491,9 +516,11 @@ void MenuWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    painter.drawPixmap(0, 0, width(), 20, QPixmap(":images/menu_top.png"));
+    painter.drawPixmap(0, 0, width(), 20
+                       , QPixmap(":images/menu_top.png").scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
-    painter.drawPixmap(0, 20, width(), height() - 40, QPixmap(":images/menu_center.png"));
+    painter.drawPixmap(0, 20, width(), height() - 40
+                       , QPixmap(":images/menu_center.png").scaled(width(), height() - 40, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
     if (_type == MenuWidget::normal)
     {
@@ -502,14 +529,16 @@ void MenuWidget::paintEvent(QPaintEvent *event)
     }
     else if (_type == MenuWidget::create)
     {
-        painter.drawPixmap(0, 20 + 19 * 2 + 2, width(), 2, QPixmap(":images/menu_line.png"));
+        painter.drawPixmap(0, 20 + 19 * 2 + 2, width(), 2
+                           , QPixmap(":images/menu_line.png").scaled(width(), 2, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
     }
     else if (_type == MenuWidget::iconMenu)
     {
         painter.drawPixmap(0, 20 + 19, QPixmap(":images/menu_line.png"));
     }
 
-    painter.drawPixmap(0, height() - 20, width(), 20, QPixmap(":images/menu_bottom.png"));
+    painter.drawPixmap(0, height() - 20, width(), 20
+                       , QPixmap(":images/menu_bottom.png").scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
     QWidget::paintEvent(event);
 }

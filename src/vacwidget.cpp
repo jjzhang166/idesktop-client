@@ -972,6 +972,7 @@ int VacWidget::addIcon(QString text,
     }
 
     icon->setSaveDataBool(false);
+    icon->setIconSize(_iconSize);
     icon->setUniqueName(uniqueName);
     LocalApp * _app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
 
@@ -985,7 +986,6 @@ int VacWidget::addIcon(QString text,
         icon->setEqualIcon(false);
         icon->setText(text);
     }
-    icon->setIconSize(_iconSize);
     icon->setIconClass(type);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
@@ -1053,7 +1053,6 @@ int VacWidget::addIcon(QString text,
 
 //    if (text == "XXµÄÐéÄâ»ú" || text == "IE " || text == "WPP" || text == " Word")
 //    {
-//        qDebug() << text << iconPath << _url;
 //        icon->setEqualIcon(true);
 //        emit addVacApp(text, iconPath, _url);
 //    }
@@ -1067,7 +1066,7 @@ int VacWidget::addIcon(QString text,
 
 void VacWidget::delIcon(const QString &uniqueName)
 {
-//    qDebug() << "texttexttexttexttexttexttext" << text;
+
     if (!_iconDict.value(uniqueName))
         return;
 
@@ -1075,8 +1074,7 @@ void VacWidget::delIcon(const QString &uniqueName)
     //icon->setHidden(true);
     int p = icon->page();
     int s = icon->index();
-//    qDebug() << "texttexttexttexttexttexttext" << p;
-//    qDebug() << "texttexttexttexttexttexttext" << s;
+
     delete _iconTable[p][s];
 
 //    moveBackIcons(p, s);
@@ -1375,7 +1373,6 @@ void VacWidget::delPage(int page)
 
 void VacWidget::getPaasIcon()
 {
-//    qDebug() << "!#@$!@#$@#^%*(&)(*%^$#%@#$!@#$#@!$#";
 //    _paasList.clear();
 
 //    QString::SectionFlag flag = QString::SectionSkipEmpty;
@@ -1642,8 +1639,6 @@ void VacWidget::changeSpacing()
 
 void VacWidget::unChecked(const QString &uniqueName)
 {
-    qDebug() << "void VacWidget::unChecked(const QString &text) : " <<uniqueName;
-
     if (!_iconDict.value(uniqueName))
         return;
 

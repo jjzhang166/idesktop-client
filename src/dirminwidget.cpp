@@ -368,8 +368,6 @@ int DirMinWidget::addIcon(const QString &text,
     if (_iconDict.value(uniqueName))
         return -3;
 
-    qDebug() << " dirMinWidget---->addIcon text" << text;
-//    qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
     if (_iconNum == 4)
         return -3;
 
@@ -480,8 +478,6 @@ int DirMinWidget::addIcon(const QString &text,
 //    connect(icon, SIGNAL(sendUrl(const QString&)), this, SIGNAL(sendUrl(const QString&)));
 
     ++_iconNum;
-//    qDebug() <<"DirMinWidget::addIcon:: iconNum"<<_iconNum;
-
      return page;
 }
 
@@ -699,15 +695,12 @@ void DirMinWidget::setUniqueName(const QString &uniqueName)
 
 void DirMinWidget::refresh()
 {
-    qDebug() << "1111111111111111111111111111111111111111111111111111111";
-
     for (int i = 0; i < 1; i++)
     {
         for(int j = 4;j > 0; j--)
         {
             if(_iconTable[i][j - 1] != NULL)
             {
-                qDebug() << "_iconTable[i][j]->uniqueName()" << _iconTable[i][j - 1]->uniqueName();
                 delIcon(_iconTable[i][j - 1]->uniqueName());
             }
         }
@@ -717,8 +710,6 @@ void DirMinWidget::refresh()
 
     for (int i = 0; i < dirWidget_FirstLists.count(); i++)
     {
-        qDebug() << "dirWidget_FirstLists.at(i).name" <<dirWidget_FirstLists.at(i).name
-                 <<dirWidget_FirstLists.count();
         addIcon(dirWidget_FirstLists.at(i).name
                 , dirWidget_FirstLists.at(i).iconPath
                 , -1, -1
@@ -1227,14 +1218,11 @@ void DirMinShowWidget::dragEnterEvent(QDragEnterEvent *event)
 
     event->ignore();
 }
-//        qDebug() << "DirMinWidget******************DirMinShowWidget********************************dragEnter";
 
 }
 
 void DirMinShowWidget::dragMoveEvent(QDragMoveEvent *event)
 {
-//        qDebug() << "DirMinWidget*******dragMoveEvent**********DirMinShowWidget********";
-
     event->setDropAction(Qt::MoveAction);
     event->accept();
 
@@ -1262,8 +1250,8 @@ void DirMinShowWidget::dropEvent(QDropEvent *event)
         int id;
         QString uniqueName;
         dataStream >> nameText >> pixText >> page >> index >> urlText >> type >> id >> uniqueName;
-        qDebug() << "id"<< id;
-        qDebug() << "_id" << _id;
+//        qDebug() << "id"<< id;
+//        qDebug() << "_id" << _id;
 
         if (id == _id)
             event->ignore();
@@ -1312,7 +1300,6 @@ void DirMinShowWidget::mouseMoveEvent(QMouseEvent *event)
    if(_skipMouseMove)
         return;
 
-    qDebug() << "void DirMinWidget::mouseMoveEvent(QMouseEvent *event)";
     _isMouseMove = true;
 
     event->ignore();

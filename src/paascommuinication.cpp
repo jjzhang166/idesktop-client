@@ -10,6 +10,7 @@
 #include <QVariant>
 #include <QJSon/qjson.h>
 #include <QJSon/serializer.h>
+#include <QMessageBox>
 
 #include "paascommuinication.h"
 #include "PaasCommuinication.h"
@@ -45,7 +46,6 @@ PaasCommuinication::~PaasCommuinication()
 //core post fuction;
 void PaasCommuinication::myPost(const QUrl url, const QByteArray postData)
 {
-    qDebug() << "void PaasCommuinication::myPost() -- >";
     _buffer.clear();
     if (!url.isValid())
     {
@@ -99,6 +99,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     if (_reply->error() != QNetworkReply::NoError)
     {
         errInfo.append(tr("Network error, please check!"));
+        QMessageBox::warning(0, tr("paas login failed"), tr("   Network error, please check!   "), tr("OK"));
         _isNetError = true;
         emit done();
         return;
@@ -107,6 +108,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     if(_buffer.isEmpty())
     {
         errInfo.append(tr("Network error, please check!"));
+        QMessageBox::warning(0, tr("paas login failed"), tr("   Network error, please check!   "), tr("OK"));
         _isNetError = true;
         emit done();
         return;
@@ -131,7 +133,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
 
         return;
     }
-    qDebug() << "replyFinished(QNetworkReply*) /* download finished */";
+
 //    QScriptValue sc;
 //    QScriptEngine engine;
 //    QString result;
@@ -141,21 +143,22 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
 //    QString cnName("");
 //    QString name("");
     PAAS_LIST tempPaasList;
-//    qDebug() << "replyFinished(QNetworkReply*) /* download finished */ -- > 2";
 
 //    QString jsonResult = _buffer;
 
-    QTextCodec *codec = QTextCodec::codecForName("utf-8"); //utf-8
+//    QTextCodec *codec = QTextCodec::codecForName("utf-8"); //utf-8
 
-    QString jsonResult = codec->toUnicode(_buffer);
+//    QString jsonResult = codec->toUnicode(_buffer);
+
+//    qDebug() << jsonResult;
 
     QJson::QJson parser;
     bool ok;
 
-    QVariantList result = parser.parse(jsonResult.toAscii(), &ok).toList();
+    QVariantList result = parser.parse(_buffer, &ok).toList();
     if (!ok)
     {
-        qDebug()<<"json error!@!!";
+        qDebug()<<"json error!!!";
         emit done();
         return;
     }
@@ -168,10 +171,19 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
         tempPaasList.cnName = mymap["cnName"].toString();
         tempPaasList.logoURL = mymap["logoURL"].toString();
         tempPaasList.previewURL = mymap["previewURL"].toString();
+
         tempPaasList.urls = mymap["urls"].toString();
+        if (tempPaasList.urls.isEmpty())
+        {
+            foreach (QVariant pluginUrls, mymap["urls"].toList())
+                tempPaasList.urls = pluginUrls.toString();
+        }
+
         tempPaasList.iconPath = QString("");
 
 //        qDebug() << "------>" <<"tempPaasList.name" << tempPaasList.name;
+//        qDebug() << "------>" <<"tempPaasList.cnName" << tempPaasList.cnName;
+//        qDebug() << "------>" <<"tempPaasList.urls" << tempPaasList.urls;
 
         _paasList.append(tempPaasList);
     }
@@ -260,6 +272,7 @@ void PaasCommuinication::handleTimeOut()
 
     errInfo.clear();
     errInfo.append(tr("Network error, please check!"));
+    QMessageBox::warning(0, tr("paas login failed"), tr("   Network error, please check!   "), tr("OK"));
 
     _isNetError = true;
     emit done();
@@ -273,7 +286,6 @@ void PaasCommuinication::downloadProgress(qint64 bytesReceived, qint64 bytesTota
         return;
     _buffer = _reply->readAll();
 
-    //qDebug()<<"downloadProgress::_buffer"<<_buffer<<endl;
 }
 
 void PaasCommuinication::postfinished()

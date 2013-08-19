@@ -138,7 +138,6 @@ void IconItem::setUniqueName(const QString &uniqueName)
 }
 QString IconItem::uniqueName()
 {
-//    qDebug() << "_uniqueName" << _uniqueName;
     return _uniqueName;
 }
 
@@ -168,7 +167,7 @@ void IconItem::setText(const QString &text)
         return;
     _text = text;
 
-    switch(ICON_TYPE)
+    switch(_iconSize)
     {
     case 0:
     {
@@ -385,7 +384,7 @@ void IconItem::paintEvent(QPaintEvent *event)
     if(_currentStatus == selected)
         painter.drawPixmap(0, 0, width(), height(), _selectedBackgroud.scaled(width(),height()));
 
-    switch(ICON_TYPE)
+    switch(_iconSize)
     {
         case 0 :
 
@@ -483,6 +482,7 @@ void IconItem::paintEvent(QPaintEvent *event)
             painter.drawPixmap(_width - 25 - 27, 25 + 1, _iconClassPixmap);
             break;
     }
+
 
     QWidget::paintEvent(event);
 
@@ -634,7 +634,10 @@ void IconItem::mouseMoveEvent(QMouseEvent *event)
     drag->setPixmap(grayPixmap());
     drag->setHotSpot(event->pos());
     gap = drag->hotSpot();
-    drag->exec(Qt::MoveAction);
+    if (!(drag->exec(Qt::MoveAction) == Qt::MoveAction)) {
+        emit dragOut();
+    }
+//    drag->exec(Qt::MoveAction);
     delete drag;
 }
 
@@ -675,7 +678,7 @@ void IconItem::contextMenuEvent(QContextMenuEvent *event)
 
 //    return;
 
-    emit showContextMenu( true, event->pos(), mapToGlobal(event->pos()), _uniqueName);
+    emit showContextMenu( true, event->pos(), mapToGlobal(event->pos()), this);
 }
 
 void IconItem::enterEvent(QEvent *event)
@@ -921,7 +924,6 @@ void IconItem::openDirWidget()
 void IconItem::iconDropEvent(const QString &text, const QString &iconPath, int page, int index,
                              const QString &url, int type, const QString &uniqueName)
 {
-    qDebug() << "IconItem::iconDropEvent()" << _id;
     emit iconDrop(_id, text, iconPath, page, index, url, type, uniqueName);
 }
 
@@ -983,7 +985,6 @@ void IconItem::removeDirMinItem(const QString &uniqueName)
         return;
 
         _dirMinShowWidget->removeDirMinItem(uniqueName);
-//        qDebug() << "_dirMinShowWidget->removeDirMinItem(text);" <<"text";
 }
 
 void IconItem::addDirMinItem(const QString &text, const QString &icon,
@@ -1023,7 +1024,6 @@ void IconItem::dirMinLineEditChanged(int i, const QString &text)
 
 void IconItem::refreshDirMinWidgetIcon()
 {
-    qDebug() << "123333333333333333333333333333333333333";
     _dirMinShowWidget->refresh();
 }
 
@@ -1031,6 +1031,7 @@ void IconItem::refreshDirMinWidgetIcon()
 void IconItem::addDustbin()
 {
     _dustbin = new Dustbin(this);
+    _id = 1000;
     _dustbin->move(0,0);
 
     connect(_dustbin, SIGNAL(iconEnter()), this, SIGNAL(iconEnter()));
@@ -1050,7 +1051,6 @@ void IconItem::addDustbin()
 //void IconItem::dustbinIconDropEvent(const QString &text, const QString &iconPath, int page, int index,
 //                             const QString &url, int type)
 //{
-//    qDebug() << "IconItem::iconDropEvent()" << _id;
 //    emit iconDrop(_id, text, iconPath, page, index, url, type);
 //}
 void IconItem::changeItemName(QString name)
@@ -1152,7 +1152,7 @@ void IconItem::focusOutEvent(QFocusEvent *event)
 void IconItem::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    switch(ICON_TYPE)
+    switch(_iconSize)
     {
     case 0:
     {
@@ -1228,7 +1228,7 @@ void IconItem::setIconSize(int iconSize)
 {
     _iconSize = iconSize;
 
-    update();
+//    repaint();
 }
 
 void IconItem::setLineEditReadOnly(bool readOnly)

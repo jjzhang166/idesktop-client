@@ -4,17 +4,17 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="src/dashboard.cpp" line="920"/>
+        <location filename="src/dashboard.cpp" line="919"/>
         <source>your seesion has to be ticked out.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="920"/>
+        <location filename="src/dashboard.cpp" line="919"/>
         <source>Your session has to be kicked out by the administrator, please contact the administrator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="920"/>
+        <location filename="src/dashboard.cpp" line="919"/>
         <source>ok</source>
         <translation type="unfinished"></translation>
     </message>
@@ -36,7 +36,7 @@
 <context>
     <name>DirShowWidget</name>
     <message>
-        <location filename="src/dirwidget.cpp" line="170"/>
+        <location filename="src/dirwidget.cpp" line="186"/>
         <source>%1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -156,7 +156,7 @@
     <message>
         <location filename="src/logindialog.cpp" line="889"/>
         <source>vapp login failed</source>
-        <translation type="unfinished">虚拟应用登录失败</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="src/logindialog.cpp" line="889"/>
@@ -164,42 +164,42 @@
         <translation type="unfinished">确定</translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1062"/>
+        <location filename="src/logindialog.cpp" line="985"/>
         <source>ÇëÊäÈëÑéÖ¤·þÎñÆ÷µØÖ·</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1063"/>
+        <location filename="src/logindialog.cpp" line="986"/>
         <source>ÇëÊäÈëÓ¦ÓÃ·þÎñÆ÷µØÖ·</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1064"/>
+        <location filename="src/logindialog.cpp" line="987"/>
         <source>ÇëÊäÈëÆ½Ì¨·þÎñÆ÷µØÖ·</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1065"/>
+        <location filename="src/logindialog.cpp" line="988"/>
         <source>¶Ë¿Ú</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1203"/>
+        <location filename="src/logindialog.cpp" line="1143"/>
         <source>ÑéÖ¤·þÎñÆ÷µØÖ·²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1207"/>
+        <location filename="src/logindialog.cpp" line="1147"/>
         <source>Ó¦ÓÃ·þÎñµØÖ·²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1211"/>
+        <location filename="src/logindialog.cpp" line="1151"/>
         <source>Ó¦ÓÃ·þÎñ¶Ë¿ÚºÅ²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1215"/>
+        <location filename="src/logindialog.cpp" line="1155"/>
         <source>Æ½Ì¨·þÎñÆ÷µØÖ·²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
@@ -207,113 +207,139 @@
 <context>
     <name>MenuWidget</name>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="165"/>
-        <location filename="src/contextmenuwidget.cpp" line="200"/>
-        <location filename="src/contextmenuwidget.cpp" line="314"/>
+        <location filename="src/contextmenuwidget.cpp" line="167"/>
+        <location filename="src/contextmenuwidget.cpp" line="202"/>
+        <location filename="src/contextmenuwidget.cpp" line="316"/>
         <source>ÎÄ¼þ¼Ð</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="167"/>
-        <location filename="src/contextmenuwidget.cpp" line="316"/>
+        <location filename="src/contextmenuwidget.cpp" line="169"/>
+        <location filename="src/contextmenuwidget.cpp" line="318"/>
         <source>¿ì½Ý·½Ê½¡­</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="169"/>
+        <location filename="src/contextmenuwidget.cpp" line="171"/>
         <source>¹«ÎÄ°ü</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="171"/>
+        <location filename="src/contextmenuwidget.cpp" line="173"/>
         <source>BMP Í¼Ïñ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="173"/>
+        <location filename="src/contextmenuwidget.cpp" line="175"/>
         <source>ÁªÏµÈË</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="175"/>
+        <location filename="src/contextmenuwidget.cpp" line="177"/>
         <source>ÈÕ¼Ç±¾ÎÄµµ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="177"/>
+        <location filename="src/contextmenuwidget.cpp" line="179"/>
         <source>ÎÄ±¾ÎÄµµ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="202"/>
+        <location filename="src/contextmenuwidget.cpp" line="204"/>
         <source>¿ì½Ý·½Ê½</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="204"/>
+        <location filename="src/contextmenuwidget.cpp" line="206"/>
         <source>DOC ÎÄµµ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="206"/>
+        <location filename="src/contextmenuwidget.cpp" line="208"/>
         <source>Excel ¹¤×÷±í</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="208"/>
+        <location filename="src/contextmenuwidget.cpp" line="210"/>
         <source>PPT ÑÝÊ¾ÎÄ¸å</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="247"/>
-        <location filename="src/contextmenuwidget.cpp" line="390"/>
+        <location filename="src/contextmenuwidget.cpp" line="249"/>
+        <location filename="src/contextmenuwidget.cpp" line="392"/>
         <source>ÐÂ½¨</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="386"/>
+        <location filename="src/contextmenuwidget.cpp" line="388"/>
         <source>Í¼±êÏÔÊ¾</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="388"/>
+        <location filename="src/contextmenuwidget.cpp" line="390"/>
         <source>Ë¢ÐÂ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="430"/>
+        <location filename="src/contextmenuwidget.cpp" line="432"/>
         <source>´óÍ¼±ê</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="432"/>
+        <location filename="src/contextmenuwidget.cpp" line="434"/>
         <source>ÖÐµÈÍ¼±ê</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="434"/>
+        <location filename="src/contextmenuwidget.cpp" line="436"/>
         <source>Ð¡Í¼±ê</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="458"/>
-        <source>´ò¿ª</source>
-        <translation type="unfinished"></translation>
+        <location filename="src/contextmenuwidget.cpp" line="460"/>
+        <source>open</source>
+        <translation type="unfinished">打开</translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="460"/>
-        <source>É¾³ý</source>
-        <translation type="unfinished"></translation>
+        <location filename="src/contextmenuwidget.cpp" line="462"/>
+        <source>restore</source>
+        <translation type="unfinished">还原</translation>
+    </message>
+    <message>
+        <location filename="src/contextmenuwidget.cpp" line="464"/>
+        <source>delete</source>
+        <translation type="unfinished">删除</translation>
     </message>
 </context>
 <context>
     <name>PaasCommuinication</name>
     <message>
-        <location filename="src/paascommuinication.cpp" line="101"/>
-        <location filename="src/paascommuinication.cpp" line="109"/>
-        <location filename="src/paascommuinication.cpp" line="262"/>
+        <location filename="src/paascommuinication.cpp" line="102"/>
+        <location filename="src/paascommuinication.cpp" line="111"/>
+        <location filename="src/paascommuinication.cpp" line="274"/>
         <source>Network error, please check!</source>
-        <translation type="unfinished">平台服务器网络错误,请检查!</translation>
+        <translation type="unfinished">虚拟应用网络错误，请联系管理员！</translation>
+    </message>
+    <message>
+        <location filename="src/paascommuinication.cpp" line="103"/>
+        <location filename="src/paascommuinication.cpp" line="112"/>
+        <location filename="src/paascommuinication.cpp" line="275"/>
+        <source>paas login failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/paascommuinication.cpp" line="103"/>
+        <location filename="src/paascommuinication.cpp" line="112"/>
+        <location filename="src/paascommuinication.cpp" line="275"/>
+        <source>   Network error, please check!   </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/paascommuinication.cpp" line="103"/>
+        <location filename="src/paascommuinication.cpp" line="112"/>
+        <location filename="src/paascommuinication.cpp" line="275"/>
+        <source>OK</source>
+        <translation type="unfinished">确定</translation>
     </message>
 </context>
 <context>
@@ -340,33 +366,43 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="src/main.cpp" line="46"/>
-        <source>appStore</source>
-        <translation type="unfinished"></translation>
+        <source>i-desktop</source>
+        <translation type="obsolete">普华统一桌面平台</translation>
+    </message>
+    <message>
+        <source>
+ A running instance already exists             </source>
+        <translation type="obsolete">
+ 已有一个程序正在运行        </translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="obsolete">确定</translation>
     </message>
     <message>
         <location filename="src/main.cpp" line="47"/>
-        <source>
- A running instance already exists             </source>
+        <source>A running instance already exists</source>
         <translation type="unfinished">已有一个程序正在运行</translation>
     </message>
     <message>
-        <location filename="src/main.cpp" line="48"/>
-        <source>OK</source>
-        <translation type="unfinished">确定</translation>
+        <location filename="src/main.cpp" line="175"/>
+        <location filename="src/main.cpp" line="176"/>
+        <location filename="src/main.cpp" line="177"/>
+        <source>dustbin</source>
+        <translation type="unfinished">废纸篓</translation>
     </message>
 </context>
 <context>
     <name>RunApp</name>
     <message>
-        <location filename="src/runapp.cpp" line="110"/>
-        <location filename="src/runapp.cpp" line="358"/>
+        <location filename="src/runapp.cpp" line="108"/>
+        <location filename="src/runapp.cpp" line="359"/>
         <source>Get load balance info failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/runapp.cpp" line="110"/>
-        <location filename="src/runapp.cpp" line="358"/>
+        <location filename="src/runapp.cpp" line="108"/>
+        <location filename="src/runapp.cpp" line="359"/>
         <source>OK</source>
         <translation type="unfinished">确定</translation>
     </message>
@@ -375,7 +411,7 @@
     <name>VacServerWidget</name>
     <message>
         <location filename="src/vacserverwidget.cpp" line="13"/>
-        <source>VÓ¦ÓÃ·þÎñÆ÷£º</source>
+        <source>Ó¦ÓÃ·þÎñÆ÷µØÖ·£º</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -395,7 +431,7 @@
     </message>
     <message>
         <location filename="src/vacserverwidget.cpp" line="25"/>
-        <source>P·þÎñÆ÷</source>
+        <source>Æ½Ì¨·þÎñÆ÷µØÖ·£º</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -412,32 +448,32 @@
 <context>
     <name>VirtualDesktop</name>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="566"/>
+        <location filename="src/virtualdesktop.cpp" line="568"/>
         <source>Ìí¼Ó</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="567"/>
+        <location filename="src/virtualdesktop.cpp" line="569"/>
         <source>¿ªÊ¼¶¶¶¯</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="568"/>
+        <location filename="src/virtualdesktop.cpp" line="570"/>
         <source>È¡Ïû¶¶¶¯</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="2243"/>
+        <location filename="src/virtualdesktop.cpp" line="2351"/>
         <source>´´½¨¿ì½Ý·½Ê½</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="2245"/>
+        <location filename="src/virtualdesktop.cpp" line="2353"/>
         <source>app (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="2365"/>
+        <location filename="src/virtualdesktop.cpp" line="2475"/>
         <source>ÐÂ½¨ÎÄ¼þ¼Ð</source>
         <translation type="unfinished"></translation>
     </message>
@@ -449,7 +485,7 @@
         <location filename="src/commuinication.cpp" line="88"/>
         <location filename="src/commuinication.cpp" line="270"/>
         <source>Network error, please check!</source>
-        <translation type="unfinished">网络错误,请检查!</translation>
+        <translation type="unfinished">虚拟应用网络错误，请联系管理员！</translation>
     </message>
 </context>
 </TS>

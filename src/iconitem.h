@@ -144,7 +144,7 @@ signals:
                 const QString &url, int type,
                 const QString &uniqueName);
 
-    void showContextMenu(bool ,QPoint pos, QPoint mPos, const QString &uniqueName);
+    void showContextMenu(bool ,QPoint pos, QPoint mPos, IconItem *iconItem);
 
     void dragEnterMinWidget();
 
@@ -155,6 +155,8 @@ signals:
     void dustbinIconLeave();
 
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
+
+    void dragOut();
 
 public slots:
     void startTremble();

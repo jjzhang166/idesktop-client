@@ -42,21 +42,20 @@ void MoveWidget::setPixmap(const QPixmap &pix)
 
 void MoveWidget::mousePressEvent(QMouseEvent *)
 {
-    qDebug() << "void MoveWidget::mousePressEvent(QMouseEvent *)void MoveWidget::mousePressEvent(QMouseEvent *)";
     emit mousePress();
 }
 
 //void MoveWidget::mouseMoveEvent(QMouseEvent *event)
 //{
-//    qDebug() << event->pos().x();
-//    qDebug() << event->pos().y();
+
 //}
 #if 1
 void MoveWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     _dragEvent = true;
 
-    event->acceptProposedAction();
+    event->setDropAction(Qt::MoveAction);
+    event->accept();
 
     emit moveWidgetDragEnter();
 }
@@ -66,7 +65,8 @@ void MoveWidget::dragMoveEvent(QDragMoveEvent *event)
 {
     _dragEvent = true;
 
-    event->acceptProposedAction();
+    event->setDropAction(Qt::MoveAction);
+    event->accept();
 
     emit moveWidgetDragMove();
 }
@@ -83,11 +83,12 @@ void MoveWidget::dragLeaveEvent(QDragLeaveEvent *event)
 void MoveWidget::dropEvent(QDropEvent *event)
 {
 
-    event->acceptProposedAction();
-
     IconItem *icon = qobject_cast<IconItem*> (event->source());
     if (icon)
         emit moveWidgetDrop(icon);
+
+    event->setDropAction(Qt::MoveAction);
+    event->accept();
 
     _dragEvent = false;
 }

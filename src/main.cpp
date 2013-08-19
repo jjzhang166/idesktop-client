@@ -35,25 +35,27 @@ int main(int argc, char *argv[])
     Config::initiate();
 //    QApplication app(argc, argv);
     QtSingleApplication app(argc, argv);
-#if 1
-    if (app.isRunning())
-    {
-   //     AppMessageBox box(false, NULL);
-   //     box.setText("    ÒÑÓÐÒ»¸ö³ÌÐòÔÚÔËÐÐ   ");
-   //     box.exec();
-       //     app.sendMessage("raies");
-
-        QMessageBox::information(0, QObject::tr("appStore"),
-                                         QString(QObject::tr("\n A running instance already exists             ")),
-                                         QString(QObject::tr("OK")));
-
-            return EXIT_SUCCESS;
-    }
-#endif
 
     QTranslator translator(0);
     translator.load("idesktop-client.qm",".");
     app.installTranslator(&translator);
+
+#if 1
+    if (app.isRunning())
+    {
+        AppMessageBox box(false, NULL);
+        box.setText(QString(QObject::tr("A running instance already exists")));
+        box.raise();
+        box.exec();
+       //     app.sendMessage("raies");
+
+//        QMessageBox::information(0, QObject::tr("i-desktop"),
+//                                         QString(QObject::tr("\n A running instance already exists             ")),
+//                                         QString(QObject::tr("OK")));
+
+            return EXIT_SUCCESS;
+    }
+#endif
 
     app.setQuitOnLastWindowClosed(false);
     app.setStyle(new QPlastiqueStyle);
@@ -170,13 +172,13 @@ int main(int argc, char *argv[])
                                   "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniqueName) values ( " \
                                   "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', \'%8\', "\
                                   "\'%9\', \'%10\',\'%11\',\'%12\',\'%13\',\'%14\', \'%15\');")\
-                                   .arg("·ÏÖ½Â¨").arg("1.0")\
-                                   .arg("·ÏÖ½Â¨").arg(":images/dustbin_normal.png")\
-                                   .arg("·ÏÖ½Â¨").arg(1)\
+                                   .arg(QString(QObject::tr("dustbin"))).arg("1.0")\
+                                   .arg(QString(QObject::tr("dustbin"))).arg(":images/dustbin_normal.png")\
+                                   .arg(QString(QObject::tr("dustbin"))).arg(1)\
                                    .arg(0).arg(0)\
                                    .arg(int(false)).arg(1000)\
                                    .arg("4").arg(int(false))\
-                                    .arg("").arg(-2).arg("4_·ÏÖ½Â¨");
+                                    .arg("").arg(-2).arg("4_·ÏÖ½Â¨");  //·ÏÖ½Â¨
 
        QSqlQuery query(QSqlDatabase::database("local"));
 
@@ -193,22 +195,6 @@ int main(int argc, char *argv[])
         if(!query.exec(qstrWp)) {
             qDebug() <<"query failed";
         }
-
-        //192.168.49.253    //test    //1357.com
-//        QString qstrVacS = QString("insert into vacservers ("\
-//                                  "id, server, port, name, password) values ("\
-//                                  "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\');")\
-//                                  .arg(1).arg("192.168.49.253").arg(80).arg("test").arg("1357.com");
-//         if(!query.exec(qstrVacS)) {
-//             qDebug() <<"query failed";
-//         }
-//         QString qstrPaasS = QString("insert into paasservers ("\
-//                                   "id, server) values ("\
-//                                   "\'%1\', \'%2\');")\
-//                                   .arg(1).arg("http://192.168.49.243:8080/CloudManage/rest/service/getUserAllService");
-//          if(!query.exec(qstrPaasS)) {
-//              qDebug() <<"query failed";
-//          }
 
          QString qstrSizeType = QString("insert into sizetype ("\
                                         "id, type) values ( "\

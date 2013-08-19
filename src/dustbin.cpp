@@ -93,8 +93,6 @@ void Dustbin::dragEnterEvent(QDragEnterEvent *event)
 
 void Dustbin::dragMoveEvent(QDragMoveEvent *event)
 {
-//        qDebug() << "DirMinWidget*******dragMoveEvent**********DirMinShowWidget********";
-
     event->setDropAction(Qt::MoveAction);
     event->accept();
 
@@ -122,8 +120,6 @@ void Dustbin::dropEvent(QDropEvent *event)
         int id;
         QString uniqueName;
         dataStream >> nameText >> pixText >> page >> index >> urlText >> type >> id >> uniqueName;
-        qDebug() << "id"<< id;
-        qDebug() << "_id" << _id;
 
         if (id == _id)
         {
@@ -147,8 +143,6 @@ void Dustbin::mouseMoveEvent(QMouseEvent *event)
  */
    if(_skipMouseMove)
         return;
-
-    qDebug() << "void DirMinWidget::mouseMoveEvent(QMouseEvent *event)";
     _isMouseMove = true;
 
     event->ignore();

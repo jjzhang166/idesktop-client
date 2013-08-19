@@ -15,8 +15,6 @@ using namespace std;
 #include "appmessagebox.h"
 #include "paascommuinication.h"
 
-
-
 extern QList<APP_LIST> g_myVappList;
 extern QList<LOCAL_LIST> g_RemotelocalList;
 extern QList<APP_LIST> g_RemoteappList;
@@ -61,7 +59,7 @@ RunApp::~RunApp()
 
 void RunApp::runApp(const QString &uniqueName)
 {
-
+    qDebug() <<"--------------->uniqueName"<<uniqueName;
     if (uniqueName.startsWith("0_"))
     {
         LocalApp *la = _local->getAppByUniqueName(uniqueName);
@@ -118,8 +116,11 @@ void RunApp::runApp(const QString &uniqueName)
     {
         for (int i = 0; i < g_RemotepaasList.count(); i++)
         {
+            qDebug() << "\"2_\" + g_RemotepaasList.at(i).name" << "2_" + g_RemotepaasList.at(i).name;
+            qDebug() << "uniqueName" << uniqueName;
             if ("2_" + g_RemotepaasList.at(i).name == uniqueName)
             {
+                qDebug() << "g_RemotepaasList.at(i).urls" << g_RemotepaasList.at(i).urls;
                 QDesktopServices::openUrl(QUrl(g_RemotepaasList.at(i).urls));
             }
         }

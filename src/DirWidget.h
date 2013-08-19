@@ -71,12 +71,15 @@ public:
     void getFirstIconItem();
     void initIconItem();
 
+    int getDustBinNewHeight();
+
 signals:
     void dirWidgetDragLeave(const QString &uniqueName, int dirId);
     void dirWidgetDelIcon(int id, const QString &uniqueName);
     void delApp(const QString &uniqueName);
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
     void refreshDirMinWidget(int id);
+    void dustbinRestore(IconItem *iconItem);
 
 public slots:
     void scrollBarValueChanged(int val);
@@ -93,6 +96,8 @@ public slots:
     void dirWidgetLeave(const QString &uniqueName);
 
     void getParentGlobalPos();
+
+    void setClearBtnEnabled(bool enabled);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -199,6 +204,8 @@ public:
 
     void initIconItem();
 
+    int getIconNum()               { return _iconNum; }
+
 
 signals:
 //    void sendUrl(const QString &url);
@@ -215,12 +222,16 @@ signals:
     void getParentGlobalPos();
     void heightChanged();
 
+    void setClearBtnEnabled(bool enabled);
+    void dustbinRestore(IconItem *iconItem);
+
 public slots:
-    void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, const QString &uniqueName);
+    void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, IconItem *iconItem);
     void iconMenuRunClicked();
-    void iconMenuDelClicked();
+    void menuDelClicked();
     void runApp(const QString &uniqueName);
     void delIcon(const QString &uniqueName);
+    void dustbinMenuRestoreClicked();
 
 protected:
 
@@ -285,8 +296,10 @@ private:
 
     LocalAppList *_local;
     MenuWidget *_iconMenu;
+    MenuWidget *_dustbinMenu;
 
-    QString _currentIconItem;
+    QString _currentUniqueName;
+    IconItem *_currentIconItem;
 
     QString _uniqueName;
 

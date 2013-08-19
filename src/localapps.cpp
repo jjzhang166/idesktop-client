@@ -259,6 +259,8 @@ bool LocalAppList::addRemoteApp(LocalApp *app)
 
 bool LocalAppList::addApp(LocalApp *app)
 { 
+
+    qDebug() << "addApp----->app.name" << app->name();
     // write to sqlite and emit datachange
 
     QString qstr = QString("insert into localapps ("\
@@ -312,9 +314,16 @@ void LocalAppList::delApp(QString uniqueName)
 {
     for (int i = 0; i < _list.count(); i++) {
         if (_list.at(i)->uniqueName() == uniqueName) {
+            QSqlQuery query(QSqlDatabase::database("local"));
             QString qstr = QString("delete from localapps "\
                                    "where uniquename=\"%1\";").arg(uniqueName);
-            QSqlQuery query = QSqlDatabase::database("local").exec(qstr);
+//            QSqlQuery query = QSqlDatabase::database("local").exec(qstr);
+
+            if(!query.exec(qstr)) {
+                qDebug() <<"query failed";
+                return;
+            }
+
             _list.remove(i);
             emit appRemoved(uniqueName);
             return;
@@ -368,6 +377,7 @@ void LocalAppList::save()
 
 QString LocalAppList::getAppImage(QString appPath)
 {
+    qDebug() << "appPath--->" << appPath;
     typedef HICON (*tempFuc)(CONST TCHAR *filePath);
     QLibrary myLib;
     #ifdef DEBUG
@@ -385,6 +395,7 @@ QString LocalAppList::getAppImage(QString appPath)
          QFileInfo info = QFileInfo(appPath);
          QString path(Config::get("IconDir"));
          path = path + "\\" + info.baseName();      //"USER_ADDED_"
+         qDebug() << "info.baseName()--->" << info.baseName();
          path += ".png"; //png
          QPixmap newicon =  picon.scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
          newicon.save(path, "PNG",-1);
@@ -441,7 +452,21 @@ void LocalAppList::addLocalApp(QString appPath)
     app->setName(info.baseName());        // "/" + info.baseName()
     app->setIcon(newApp);
     app->setExecname(appPath);
-    if (LocalAppList::getList()->getAppByName(app->name())) {
+
+    QString md5;
+    QByteArray bb;
+    bb = QCryptographicHash::hash(appPath.toAscii(), \
+                                  QCryptographicHash::Md5);
+    md5.append(bb.toHex());
+    app->setUniqueName("0_" + md5);
+
+    app->setType(QString("%1").arg(0));
+    app->setUrl("");
+    app->setDirId(-1);
+    app->setId("111");
+
+
+    if (LocalAppList::getList()->getAppByUniqueName(app->uniqueName())) {
         QApplication::processEvents();
         AppMessageBox box(false, NULL);
         box.setText("已添加该图标"); //    已添加该图标

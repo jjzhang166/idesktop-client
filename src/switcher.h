@@ -20,6 +20,8 @@ public:
     void leaveEvent(QEvent *event);
 
     void setPixmap(const QString &pix);
+
+    void setSwitcherEnabled(bool enabled);
 signals:
     void switcherActivated();
 
@@ -39,6 +41,7 @@ private:
     QPixmap _darkRight;
 //    QPixmap _darkLeft;
 //    int _direction;
+    bool _enabled;
 };
 
 #endif
