@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
     serverip = "in put server ip";
 
     Config::initiate();
-//    QApplication app(argc, argv);
     QtSingleApplication app(argc, argv);
 
     QTranslator translator(0);

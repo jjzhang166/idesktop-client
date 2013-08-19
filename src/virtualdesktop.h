@@ -85,11 +85,9 @@ class MovingDialog;
 class QPropertyAnimation;
 class QTimeLine;
 class QDrag;
-//class IconDesktopItem;
 class QLabel;
 class QPoint;
 
-//class IconAddItem;
 class HoverIconItem;
 
 //#define SPACING 30
@@ -144,16 +142,12 @@ public:
 
     void reload();
     void delPage(int page);
-//    void deleteAllIconItem();
     void movetoFist();
     void reloadApplist();
     int iconCount()             { return _nextIdx[_current]; }
     int currentPage()           { return _current; }
-//    void setCurrentPage(int current) { _current = current; }
 
     int count()                 { return _count; }
-//    void setCount(int count)  {_count = count; }
-    int iconsPerPage()          {  return _iconsPerPage; }
 
     QSize pageSize()            { return _pageSize; }
 
@@ -338,6 +332,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:
+    int iconsPerPage() const { return _col * _row; }
     void printDesktop();
     //void uninstall(const QString &name);
     void expand();
@@ -363,12 +358,8 @@ private:
     int gm2v;
     QPropertyAnimation *_animation;
     LocalAppList *_local;
-//    IconAddItem *g_addIcon;
 
     QMenu *_menu;
-    QAction *_addAction;
-    QAction *_deleteAction;
-    QAction *_cancelAction;
 
 //    BsWidget *_bsWidget;
 //    ManageWidget *_manageWidget;
@@ -460,11 +451,9 @@ public:
     int _height;
     int _col;
     int _row;
-    int _iconsPerPage;
     QSize _pageSize;
     QTimer *dragLeftTimer;
     QTimer *dragRightTimer;
-    //QPoint getPosition(int x, int y);
 
     QLibrary *mylib;
     QLibrary *mylib1;
@@ -473,8 +462,6 @@ public:
     Dll_CloseAppAll m_dllCloseAppAll;
     Dll_StartAppEx m_dllStartAppEx;
 
-    //QTimer *_updateIconTimer;
-
     MenuWidget *_normalMenu;
     MenuWidget *_showIconMenu;
     MenuWidget *_createMenu;
@@ -482,148 +469,5 @@ public:
     QPoint _mousePos;
     int _menuValue;
 };
-
-/* #############################################
- * Declaration of IconItem
- */
-
-//class IconDesktopItem : public IconItem
-//{
-//    Q_OBJECT
-//public:
-//    IconDesktopItem(QWidget *parent = 0);
-//    ~IconDesktopItem();
-
-//    void addMinWidget();
-//    QString getDirText()    { _dirMinShowWidget->getDirText(); }
-
-//signals:
-//    void iconLeave();
-//    void iconEnter();
-//    void iconMove();
-//    void openDir(int id, int page, int index);
-//    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
-//    void dragEnterMinWidget();
-
-//public slots:
-
-//    void openDirWidget();
-//    void iconDropEvent(const QString &text, const QString &iconPath, const QString &url);
-
-//protected:
-
-//private:
-////    LocalApp *_app;
-
-//    DirMinShowWidget *_dirMinShowWidget;
-//};
-
-/* #############################################
- * Declaration of IconAddItem
- */
-#if 0
-class IconAddItem : public QWidget
-{
-    Q_OBJECT
-public:
-	IconAddItem(const QString &text, QWidget *parent = NULL);
-    ~IconAddItem();
-    void setPixmap(const QString &icon);
-    void setText(const QString &text);
-    const QString & text();
-    const QPixmap & pixmap();
-    const QPixmap & originPixmap();
-    const QPixmap & grayPixmap();
-    const QPixmap & darkPixmap();
-
-    bool isUserType();
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-	void contextMenuEvent(QContextMenuEvent *event);
-    void paintEvent(QPaintEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
-    void enterEvent(QEvent *event);
-    void leaveEvent(QEvent *event);
-
-    void animationMove(const QRect &start, const QRect &end);
-    void setPage(int page);
-    void setIndex(int index);
-    void setHidden(bool hide);
-    //virtual void mouseDoubleClickEvent(QMouseEvent *event);//重载鼠标双击事件函数 从QWidget继承
-    int _icontype;/*添加图标*/
-    int page()
-    {
-        return _page;
-    }
-    int index()
-    {
-        return _index;
-    }
-
-    void setGrayPixmap()
-    {
-        _pixmap = _grayPixmap;
-    }
-
-    void setNormalPixmap()
-    {
-        _pixmap = _normalPixmap;
-    }
-
-signals:
-    //void clicked();
-    void addApp();
-
-public slots:
-    void startTremble(); 
-    void stopTremble();
-    void doTremble(qreal);
-    //void addApp();
-private:
-    LocalApp *_app;
-    QDrag *_drag;
-    QTimeLine *_timeline;
-    QPoint dragStartPosition;
-    QPropertyAnimation *_animation;
-    int _textWidth;        
-    QString _text;    
-    int _textHeight;
-    int _page;
-    int _index;
-    int _trembling;
-    QPixmap _pixmap;
-    QPixmap _normalPixmap;
-    QPixmap _grayPixmap;
-    QPixmap _closePixmap;
-    QPixmap _darkPixmap;
-    QPixmap _originPixmap;
-
-    //HoverIconItem *_hoverAddItem;
-};
-
-/* ##############################################
- * Declaration of Indicator
- */
-#endif
-
-class Indicator : public QWidget
-{
-    Q_OBJECT
-public:
-    Indicator(VirtualDesktop *vdesk, QWidget *parent = NULL);
-    ~Indicator() {}
-public slots:
-    void setCurrent(int i);
-    void increase();
-    void decrease();
-    void reset();
-signals:
-    void iNeedMove();
-private:
-    QList<QLabel*> _labels;
-    VirtualDesktop *_vdesk;
-    QSize _itemSize;
-};
-
 
 #endif

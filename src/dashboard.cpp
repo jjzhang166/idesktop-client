@@ -95,37 +95,19 @@ Dashboard::Dashboard(QWidget *parent)
     if (!_ldialog->exec())
         exit(1);
 
-
-
- //   setFocusPolicy(Qt::ClickFocus);
-//    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::Tool);
-
     QDesktopWidget *d = QApplication::desktop();
     QRect r = d->availableGeometry();
     _width = r.width();
     _height = r.height();
 
-    setGeoProper();
+    setGeometry(0, 0, _width, _height);
 
     vdesktop = new VirtualDesktop(QSize(_width, _height), this);
-//    _animationDesktop = new QPropertyAnimation(vdesktop, "pos");
-//    connect(_animationDesktop, SIGNAL(valueChanged(QVariant)), this, SLOT(valueChanged(QVariant)));
-
-
-//    indicator = new Indicator(vdesktop, this);
-//    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
-//    //indicator->setGeometry((_width - indicator->width())/2, _height - indicator->height() - 28 , 20, 80);
-//    indicator->setVisible(false);
-
 
     panel = new Panel(this);
-//    panel->setFixedSize(_width, 28); // 406
-//    panel->move(0,0);
     panel->setGeometry(0, 0, _width, 28);
     panel->setVisible(true);
     panel->animationHide();
-
-//    panel->animationShow();
 
     _switcherLeft = new Switcher(this);
     _switcherLeft->setPixmap(QString(":images/win_normal.png"));
@@ -141,7 +123,6 @@ Dashboard::Dashboard(QWidget *parent)
     _switcherRight->show();
     _switcherRight->activateWindow();
 
-    //vdesktop->setGeometry(QRect(0, 20, _width * vdesktop->count(), _height - indicator->height() - panel->height()));
     vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height));
 
     _toolBarWidget = new toolBarWidget(QSize(_width, 103 + 0 + 24), this);
@@ -157,37 +138,7 @@ Dashboard::Dashboard(QWidget *parent)
 
     _vacShowWidget = new VacShowWidget(QSize(841, 540), this);
     _vacShowWidget->move((_width - _vacShowWidget->width()) / 2, (_height - _vacShowWidget->height()) / 2);
- //   _vacShowWidget->move(_width - panel->width() - 820 + 10, panel->pos().y());
-//    _localShowWidget->showApp(true);
     _vacShowWidget->setVisible(false);
-//    _vacShowWidget->getIcon();
-
-//    _bsWidget = new BsWidget(_width, _height, this);
-//    //_bsWidget->setGeometry(0, 0, _width, _height);
-//    _bsWidget->move(0, 0);
-//    _bsWidget->setVisible(false);
-
-//    _perWidget = new PersonalizationWidget(this);
-//    _perWidget->setGeometry(QRect(0, 0, _width, _height));
-//    _perWidget->setVisible(false);
-
-//    quitAction = new QAction("退出", this);
-//    showAction = new QAction("显示", this);
-//    hideAction = new QAction("隐藏", this);
-//    _setVacServer = new QAction("设置服务器地址", this);
-//    QMenu *trayMenu = new QMenu(this);
-//    trayMenu->addAction(_setVacServer);
-//    trayMenu->addSeparator();
-//    trayMenu->addAction(showAction);
-//    trayMenu->addAction(hideAction);
-//    trayMenu->addSeparator();
-//    trayMenu->addAction(quitAction);
-
-//    tray = new QSystemTrayIcon(this);
-//    QIcon icon(":images/icon.png");
-//    tray->setIcon(icon);
-//    tray->setContextMenu(trayMenu);
-//    tray->show();
 
     _animation = new QPropertyAnimation(this, "pos");
 
@@ -196,43 +147,13 @@ Dashboard::Dashboard(QWidget *parent)
     while (query.next())
         _pixmap = QPixmap(query.value(0).toString());
 
-    _refreshTimer = new QTimer(this);
-//    connect(_refreshTimer, SIGNAL(timeout()), this, SLOT(timeOut()));
-//    _refreshTimer->start(1000 * 60);
-
-    _vacServerWidget = new VacServerWidget();
-    _vacServerWidget->setVisible(false);
-
     _finished = false;
     _commui = new commuinication();
-
-    // heart beat.5s timer
-    heartbeat_timer = new QTimer(this);
-//    connect( heartbeat_timer, SIGNAL(timeout()), this, SLOT(heartbeat()));
-//    heartbeat_timer->start(5000);
-    _retryTimes = 3;
-    _Isheartbeat=true;
-
-//    _localShowWidget = new LocalShowWidget(QSize(820, 484), this);
-//    _localShowWidget->move(_width - panel->width() - _localShowWidget->width(), panel->pos().y());
-////    _localShowWidget->showApp(true);
-//    _localShowWidget->setVisible(false);
-
-
-//    _vacShowWidget = new VacShowWidget(QSize(820, 484), this);
-//    _vacShowWidget->move(_width - panel->width() - 820 + 10, panel->pos().y());
-////    _localShowWidget->showApp(true);
-//    _vacShowWidget->setVisible(false);
-////    _vacShowWidget->getIcon();
 
     _skinShowWidget = new SkinShowWidget(this);
     _skinShowWidget->resize(841, 530);
     _skinShowWidget->move((_width - _skinShowWidget->width()) / 2, (_height - _skinShowWidget->height()) / 2);
     _skinShowWidget->setVisible(false);
-
-
-//    _dirWidget = new DirShowWidget(QSize(r.width() ,290), this);
-//    _dirWidget->setVisible(false);
 
     _upMoveWidget = new MoveWidget(this);
     _upMoveWidget->setVisible(false);
@@ -243,19 +164,10 @@ Dashboard::Dashboard(QWidget *parent)
     _animationUp->setEasingCurve(QEasingCurve::Linear);
     _animationUp->setDuration(200);
 
-
-//    QPixmap minToolBarPix(":/images/min_toolbar_mask_icon.png");
-//    _minToolBarLabel = new QLabel(this);
-//    _minToolBarLabel->setPixmap(minToolBarPix); //_minDirLabel->width(), _minDirLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
-//    _minToolBarLabel->setVisible(false);
-//    _animationUpMin = new QPropertyAnimation(_minDirLabel, "geometry");
-
     _downMoveWidget = new MoveWidget(this);
     _downMoveWidget->setVisible(false);
 
-//    QPixmap minDirPix(":/images/min_mask_icon.png");
     _minDirLabel = new QLabel(this);
-//    _minDirLabel->setPixmap(minDirPix); //_minDirLabel->width(), _minDirLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
     _minDirLabel->setVisible(false);
     _animationUpMin = new QPropertyAnimation(_minDirLabel, "geometry");
     _animationUpMin->setEasingCurve(QEasingCurve::Linear);
@@ -274,7 +186,6 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_upMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
     connect(_downMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
 
-    connect(_vacServerWidget, SIGNAL(serverChanged()), this, SLOT(updateVacServer()));
     connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
     connect(_skinShowWidget, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
 
@@ -286,14 +197,8 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_switcherRight, SIGNAL(switcherLeave()), panel, SLOT(animationHide()));
 
     connect(panel, SIGNAL(quit()), this, SLOT(quit()));
-    connect(panel, SIGNAL(showSkinWidget()), this, SLOT(onShowPerDesktop()));
+    connect(panel, SIGNAL(showSkinWidget()), this, SLOT(onShowSkinDesktop()));
     connect(panel, SIGNAL(showSoftwareWidget()), this, SLOT(onShowVacDesktop()));
-//    connect(panel, SIGNAL(showSwitcherDesktop()), this, SLOT(onShowSwitcherDesktop()));
-//    connect(panel, SIGNAL(showSwitcherDesktop()), this, SLOT(switchBetween()));
-
-//    connect(panel, SIGNAL(showLocalDesktop()), this, SLOT(onShowLocalDesktop()));
- //   connect(panel, SIGNAL(showDirDesktop()), this, SLOT(onShowDirDesktop()));
-//    connect(panel, SIGNAL(pageChanged(int)), this, SLOT(goPage(int)));
     connect(panel, SIGNAL(checkDirState()), vdesktop, SLOT(hideMenuWidget()));
 
     connect(_ldialog, SIGNAL(dQuit()), this, SLOT(quit()));
@@ -317,24 +222,16 @@ Dashboard::Dashboard(QWidget *parent)
     connect(vdesktop, SIGNAL(pageDecreased()), this, SLOT(updateNodes()));
     connect(vdesktop, SIGNAL(refreshVac()), this, SLOT(timeOut()));
     connect(vdesktop, SIGNAL(hideDesktop()), this, SLOT(getOut()));
-//    connect(vdesktop, SIGNAL(bgMove(int, int)), this, SLOT(bgMove(int, int)));
-//    connect(vdesktop, SIGNAL(toOrigin()), switcher, SLOT(changed()));////////
     connect(panel, SIGNAL(setEqual(int)), vdesktop, SLOT(arrangeEqually(int)));
     connect(panel, SIGNAL(setMini()), vdesktop, SLOT(arrangeMinimum()));
-//    connect(indicator, SIGNAL(iNeedMove()), this, SLOT(moveIndicator()));
 
     connect(_pageNodes, SIGNAL(choosePage(int)), vdesktop, SLOT(goPage(int)));
-    //connect(panel, SIGNAL(showDesktop()), this, SLOT(onShowDesktop()));
-    //setGeoProper();
 
     connect(_vacShowWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int,const QString &)),
             vdesktop, SLOT(addDesktopApp(const QString&,const QString&, const QString&, int, const QString &))); //
     connect(_vacShowWidget, SIGNAL(delItem(QString)), vdesktop, SLOT(vacWidgetDelIcon(const QString &)));
     connect(_skinShowWidget, SIGNAL(skinCloseBtnClicked()), _skinShowWidget, SLOT(hide()));
     connect(_vacShowWidget, SIGNAL(vacCloseBtnClicked()), _vacShowWidget, SLOT(hide()));
-//    connect(vdesktop, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
-//    connect(_dirWidget, SIGNAL(sendUrl(const QString&)), this, SLOT(showBs(const QString&)));
-//    connect(_bsWidget,SIGNAL(goBack()), this, SLOT(goDesktop()));
     //move
     connect(vdesktop, SIGNAL(upMove(int,int,int,int,int)),
             this, SLOT(upMove(int ,int ,int, int, int)));
@@ -344,6 +241,7 @@ Dashboard::Dashboard(QWidget *parent)
             this, SLOT(downMove(int ,int ,int, int, int)));
     connect(vdesktop, SIGNAL(desktopCloseMove(int, int, int, int, int)),
             this, SLOT(downBackMove(int ,int ,int, int, int)));
+
     connect(vdesktop, SIGNAL(openMinWidget(int ,int ,int, int, int)),
             this, SLOT(openMinWidget(int ,int ,int, int, int)));
     connect(vdesktop, SIGNAL(closeMinWidget(int, int, int, int, int)),
@@ -373,15 +271,11 @@ Dashboard::Dashboard(QWidget *parent)
 
     connect(_toolBarWidget, SIGNAL(iconDropToolWidget(const QString &))
             , vdesktop, SLOT(iconMoveOtherWidget(const QString &)));
-//    connect(_toolBarWidget, SIGNAL(toolBarAddDirSW(int)), this, SLOT(test(int)));
     connect(_toolBarWidget, SIGNAL(toolOpenDir(int,int,int)), vdesktop, SLOT(toolBarOpenDir(int,int,int)));
-//    connect(_toolBarWidget, SIGNAL(toolBarCloseDir(int, int)), vdesktop, SLOT(toolBarCloseDir(int, int)));
     connect(_toolBarWidget, SIGNAL(toolBarIconToDustbin(const QString &,const QString &, int, int, const QString &, int, const QString &))
             , vdesktop, SLOT(toolBarIconToDustbin(const QString &, const QString &, int, int, const QString &, int, const QString &)));
     connect(_toolBarWidget, SIGNAL(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &))
             , vdesktop, SLOT(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &)));
-    //    connect(vdesktop, SIGNAL(setDirIcon(const QString&, const QString&, const QString&)),
-//            _dirWidget, SLOT(addDirIcon(const QString&, const QString&, const QString&)));
     connect(_toolBarWidget, SIGNAL(iconItemNameChanged(const QString &, const QString &))
             , _vacShowWidget, SLOT(iconItemNameChanged(const QString &, const QString &)));
     connect(_toolBarWidget, SIGNAL(changedDirWidgetTitle(int, const QString &))
@@ -420,7 +314,6 @@ void Dashboard::desktopClicked()
 {
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
-//    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
     panel->show();
     panel->setAutoHide(true);
     panel->animationHide();
@@ -443,10 +336,7 @@ void Dashboard::setMinMoveLabel(bool up)
         minDirPix.load(":/images/min_toolbar_mask_icon.png");
         _downMinW->setPixmapPointF(false);
     }
-    _minDirLabel->setPixmap(minDirPix); //_minDirLabel->width(), _minDirLabel->height(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation
-
-    //    _minDirLabel->setVisible(false);
-//    _animationUpMin = new QPropertyAnimation(_minDirLabel, "geometry");
+    _minDirLabel->setPixmap(minDirPix);
 }
 
 void Dashboard::upMove(int x, int y, int w, int h, int distance)
@@ -455,14 +345,6 @@ void Dashboard::upMove(int x, int y, int w, int h, int distance)
     {
         return;
     }
-
-//    panel->setVisible(false);
-//    _vacShowWidget->setVisible(false);
-//    _skinShowWidget->setVisible(false);
-
-//    indicator->setVisible(false);
-//    _dirWidget->move(x, y);
-//    _dirWidget->setVisible(true);
 
     _upMoveWidget->resize(QSize(w, h));
 
@@ -506,23 +388,19 @@ void Dashboard::animationFinished()
 
     if (_animationDownFinished && _animationUpFinished)
     {
-        //        _dirWidget->setVisible(false);
         vdesktop->setDirHide();
         _downMinW->setVisible(false);
         _minDirLabel->setVisible(false);
         _upMoveWidget->setVisible(false);
-//        indicator->setVisible(true);
 
         if (!panel->isVisible())
         {
             panel->setVisible(true);
-//            panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
             panel->show();
             panel->setAutoHide(true);
             panel->animationHide();
         }
 
-        _animationUpFinished = false;
         _animationUpFinished = false;
 
         _pageNodes->setVisible(true);
@@ -548,12 +426,6 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
     _pageNodes->setVisible(false);
-//    _toolBarWidget->setVisible(false);
-
-//    indicator->setVisible(false);
-//    _dirWidget->move(x, y);
-//    _dirWidget->setVisible(true);
-
     _downMoveWidget->resize(QSize(w, h));
 
     QPixmap result = QPixmap();
@@ -584,31 +456,7 @@ void Dashboard::downBackMove(int x, int y, int w, int h, int distance)
     _animationDownFinished = true;
 
 }
-/*
-void Dashboard::animationDownFinished()
-{
-    if (_animationDownFinished)
-    {
-//        _dirWidget->setVisible(false);
-        _downMinW->setVisible(false);
-        _minDirLabel->setVisible(false);
-        vdesktop->setDirHide();
-        _upMoveWidget->setVisible(false);
-        _downMoveWidget->setVisible(false);
 
-        _animationDownFinished = false;
-        indicator->setVisible(true);
-
-        panel->setVisible(true);
-        panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
-        panel->show();
-        panel->setAutoHide(true);
-        panel->animationHide();
-        vdesktop->setIconEnabled(true);
-        vdesktop->setIconMove(true);
-    }
-}
-*/
 void Dashboard::upMinMove(int x, int y, int w, int h, int distance)
 {
 
@@ -636,9 +484,6 @@ void Dashboard::upMinMove(int x, int y, int w, int h, int distance)
         _minY = y;
         _minUpward = false;
 
-    //    _minDirLabel->setGeometry(x, y + 1, w, h);
-    //    _minDirLabel->setVisible(true);
-
         _downMinW->resize(QSize(w, h));
 
         QPixmap result = QPixmap();
@@ -646,7 +491,6 @@ void Dashboard::upMinMove(int x, int y, int w, int h, int distance)
                                      x, y, \
                                      w, h); //抓取当前屏幕的图片
         _downMinW->setPixmap(result);
-    //    _downMinW->setVisible(true);
 
         _animationDownMin->setStartValue(QRect(x, y, w, h));
         _animationDownMin->setEndValue(QRect(x, y - distance, w, h));
@@ -663,7 +507,6 @@ void Dashboard::upMinBackMove(int x, int y, int w, int h, int distance)
         {
             return;
         }
-    //    _downMinW->setVisible(true);
 
         _animationUpMin->setStartValue(QRect(x, y + 2, w, h));
         _animationUpMin->setEndValue(QRect(x, y + 2 + distance, w, h));
@@ -676,11 +519,9 @@ void Dashboard::upMinBackMove(int x, int y, int w, int h, int distance)
             return;
         }
 
-        //    _distance = distance;
             _minY = y;
             _minUpward = true;
 
-        //    _downMinW->setVisible(true);
             _animationDownMin->setStartValue(QRect(x, y, w, h));
             _animationDownMin->setEndValue(QRect(x, y + distance, w, h));
             _animationDownMin->start();
@@ -701,9 +542,6 @@ void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
         _minY = y;
         _minUpward = false;
 
-    //    _minDirLabel->setGeometry(x, y + 1, w, h);
-    //    _minDirLabel->setVisible(true);
-
         _downMinW->resize(QSize(w, h));
 
         QPixmap result = QPixmap();
@@ -711,7 +549,6 @@ void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
                                      x, y, \
                                      w, h); //抓取当前屏幕的图片
         _downMinW->setPixmap(result);
-    //    _downMinW->setVisible(true);
 
         _animationDownMin->setStartValue(QRect(x, y, w, h));
         _animationDownMin->setEndValue(QRect(x, y + distance, w, h));
@@ -725,7 +562,6 @@ void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
         }
 
         _minDirLabel->setGeometry(x, y + 2, w, h);
-//        _minDirLabel->raise();
         _minDirLabel->setVisible(true);
 
         _animationUpMin->setStartValue(QRect(x, y - 2, w, h));
@@ -745,11 +581,9 @@ void Dashboard::closeMinWidget(int x, int y, int w, int h, int distance)
             return;
         }
 
-    //    _distance = distance;
         _minY = y;
         _minUpward = true;
 
-    //    _downMinW->setVisible(true);
         _animationDownMin->setStartValue(QRect(x, y, w, h));
         _animationDownMin->setEndValue(QRect(x, y - distance, w, h));
         _animationDownMin->start();
@@ -760,7 +594,6 @@ void Dashboard::closeMinWidget(int x, int y, int w, int h, int distance)
         {
             return;
         }
-        //    _downMinW->setVisible(true);
             _animationUpMin->setStartValue(QRect(x, y + 15 - 2, w, h));
             _animationUpMin->setEndValue(QRect(x, y + 15 - distance - 2, w, h));
             _animationUpMin->start();
@@ -778,47 +611,12 @@ void Dashboard::valueChanged(const QVariant &value)
 
     if (((rect.y() - _minY) > 0 ? rect.y() - _minY : _minY - rect.y()) >= _distance / 2)
     {
-        if (!_minUpward)
-        {
-            _downMinW->setVisible(false);
-        }
-        else
-        {
-            _downMinW->setVisible(true);
-        }
+        _downMinW->setVisible(_minUpward);
     }
     else
     {
-        if (!_minUpward)
-        {
-            _downMinW->setVisible(true);
-        }
-        else
-        {
-            _downMinW->setVisible(false);
-        }
+        _downMinW->setVisible(_minUpward);
     }
-
-}
-
-
-void Dashboard::showBs(const QString &url)
-{
-    vdesktop->setVisible(false);
-//    _bsWidget->setUrl(url);
-//    _bsWidget->setVisible(true);
-//    _backBtn->setVisible(true);
-//    panel->setVisible(false);
-
-}
-
-void Dashboard::goDesktop()
-{
-//    _backBtn->setVisible(false);
-    vdesktop->setVisible(true);
-//    _bsWidget->setVisible(false);
-//    panel->setVisible(true);
-
 
 }
 
@@ -828,115 +626,22 @@ void Dashboard::onDone()
     _finished = true;
 }
 
-void Dashboard::heartbeat()
-{
-//    if (vdesktop->dragEventState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->trembleState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->addAppState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->iconDragState())
-//    {
-//        return;
-//    }
-
-    if(!_Isheartbeat)
-        return;
-    _commui->heartBeat();
-
-    if(_commui->_isNetError)
-    {
-        if( _retryTimes > 0)
-        {
-            heartbeat_timer->start(10);
-            _retryTimes--;
-        }
-        else
-        {
-            heartbeat_timer->start(5000);
-        }
-    }
-    else
-    {
-        _retryTimes = 3;
-        heartbeat_timer->start(5000);
-    }
-
-    while (!_finished)
-        QApplication::processEvents();
-    _finished = false;
-
-    if(_commui->errID == "10036")
-    {
-#ifdef Q_WS_WIN
-        m_dllCloseAppAll();
-#endif
-        _Isheartbeat=false;
-        QMessageBox::warning(this, tr("your seesion has to be ticked out."),tr("Your session has to be kicked out by the administrator, please contact the administrator"), tr("ok"));
-        //qApp->quit();
-    }
-}
-
 void Dashboard::goPage(int page)
 {
-//    _perWidget->setVisible(false);
-//    _bsWidget->setVisible(false);
-
     vdesktop->setVisible(true);
     vdesktop->goPage(page);
 }
 
-//void Dashboard::onShowSwitcherDesktop()
-//{
-////    if (_outOfScreen)
-////        getIn();
-//}
-
 void Dashboard::onShowVacDesktop()
 {
-    if (_skinShowWidget->isVisible())
-        _skinShowWidget->setVisible(false);
-
-    if (_vacShowWidget->isVisible())
-    {
-        _vacShowWidget->setVisible(false);
-    }
-    else
-    {
-        _vacShowWidget->setVisible(true);
-    }
-
+    _skinShowWidget->setVisible(false);
+    _vacShowWidget->setVisible(!_vacShowWidget->isVisible());
 }
 
-void Dashboard::onShowPerDesktop()
+void Dashboard::onShowSkinDesktop()
 {
-    if (_vacShowWidget->isVisible())
-        _vacShowWidget->setVisible(false);
-
-    if (_skinShowWidget->isVisible())
-    {
-        _skinShowWidget->setVisible(false);
-    }
-    else
-    {
-        _skinShowWidget->setVisible(true);
-    }
-
-}
-
-void Dashboard::moveIndicator()
-{
-//    indicator->move((_width - indicator->width())/2, _height - indicator->height() - 50);
+    _vacShowWidget->setVisible(false);
+    _skinShowWidget->setVisible(!_skinShowWidget->isVisible());
 }
 
 void Dashboard::getIn()
@@ -950,17 +655,6 @@ void Dashboard::getIn()
     end = QPoint(0, 0);
     _animation->setDuration(300);
     _animation->setEasingCurve(QEasingCurve::InExpo);
-//    panel->setWindowFlags(panel->windowFlags() & ~Qt::WindowStaysOnTopHint);
-//    panel->show();
-//    panel->setAutoHide(false);
-//    panel->animationShow();
-//    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
-//    panel->show();
-//    panel->setAutoHide(true);
-//    panel->animationHide();
-
-//    indicator->show();
-
     _animation->setStartValue(start);
     _animation->setEndValue(end);
     _outOfScreen = !_outOfScreen;
@@ -978,11 +672,6 @@ void Dashboard::getOut()
     end = QPoint(_width, 0);
     _animation->setDuration(900);
     _animation->setEasingCurve(QEasingCurve::OutElastic);
-//    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
-//    panel->show();
-//    panel->setAutoHide(true);
-//    panel->animationHide();
-//    indicator->hide();
     _animation->setStartValue(start);
     _animation->setEndValue(end);
     _outOfScreen = !_outOfScreen;
@@ -991,23 +680,8 @@ void Dashboard::getOut()
 
 void Dashboard::switchBetween()
 {
-//    if (_localShowWidget->isVisible())
-//    {
-//        _localShowWidget->setVisible(false);
-////        return;
-//    }
-
-    if (_vacShowWidget->isVisible())
-    {
-        _vacShowWidget->setVisible(false);
-//        return;
-    }
-
-    if (_skinShowWidget->isVisible())
-    {
-        _skinShowWidget->setVisible(false);
-//        return;
-    }
+    _vacShowWidget->setVisible(false);
+    _skinShowWidget->setVisible(false);
 
     qDebug() <<"********************_outOfScreen"<< _outOfScreen;
     if (_outOfScreen)
@@ -1018,19 +692,8 @@ void Dashboard::switchBetween()
 
 void Dashboard::inOfScreen()
 {
-//    if (_vacShowWidget->isVisible())
-//    {
-//        _vacShowWidget->setVisible(false);
-////        return;
-//    }
-
-    if (_skinShowWidget->isVisible())
-    {
-        _skinShowWidget->setVisible(false);
-//        return;
-    }
-
-//    vdesktop->goPage(0);
+    _skinShowWidget->setVisible(false);
+    _vacShowWidget->setVisible(false);
 
     if (_outOfScreen)
         getIn();
@@ -1038,26 +701,9 @@ void Dashboard::inOfScreen()
 
 void Dashboard::outOfScreen()
 {
-//    if (_vacShowWidget->isVisible())
-//    {
-//        _vacShowWidget->setVisible(false);
-////        return;
-//    }
-
-    if (_skinShowWidget->isVisible())
-    {
-        _skinShowWidget->setVisible(false);
-//        return;
-    }
-
+    _skinShowWidget->setVisible(false);
     if (!_outOfScreen)
         getOut();
-}
-
-void Dashboard::setGeoProper()
-{
-    setGeometry(0, 0, _width, _height);
-	setFixedSize(_width, _height);
 }
 
 void Dashboard::iconActivated(QSystemTrayIcon::ActivationReason)
@@ -1072,12 +718,9 @@ void Dashboard::iconActivated(QSystemTrayIcon::ActivationReason)
 
 void Dashboard::quit()
 {
-
-//    _localShowWidget->setVisible(false);
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
 
-//    panel->setWindowFlags(panel->windowFlags() | Qt::WindowStaysOnTopHint);
     panel->show();
     panel->setAutoHide(true);
     panel->animationHide();
@@ -1091,7 +734,6 @@ void Dashboard::quit()
         QString data = "username=" + USERNAME;
 
         _nam->post(QNetworkRequest(QUrl(quitUrl)), data.toAscii());
-#if 1
         QSqlQuery query(QSqlDatabase::database("local"));
 
         QString updateIconType = QString("update sizetype "\
@@ -1102,8 +744,6 @@ void Dashboard::quit()
             return;
         }
 
-        _Isheartbeat = false;
-//        this->hide();
         _switcherLeft->setVisible(false);
         _switcherRight->setVisible(false);
         vdesktop->setVisible(false);
@@ -1117,7 +757,6 @@ void Dashboard::quit()
         }
 
         qApp->quit();
-#endif
     }
 
 } 
@@ -1143,6 +782,7 @@ void Dashboard::paintEvent(QPaintEvent *event)
 
     painter.drawPixmap(0, 0, _width, _height, _pixmap);
 }
+
 //miya add
 typedef bool (*DLL_Changebg)(char* path, int flag);
 DLL_Changebg changebg;
@@ -1153,9 +793,6 @@ void Dashboard::setBgPixmap(const QString &pixText)
 
     _pixmap.load(_pixText);
     repaint();
-//    QPalette palette;
-//    palette.setBrush(backgroundRole(), QBrush(_pixmap.scaled(width(), height())));
-//    setPalette(palette);
 
     QSqlQuery query(QSqlDatabase::database("local"));
 
@@ -1168,10 +805,9 @@ void Dashboard::setBgPixmap(const QString &pixText)
         return;
     }
 
-//    _bsWidget->setPixmap(pixText);
     setBgImage(pixText);
-
 }
+
 //miya add change background imgae
 void Dashboard::setBgImage(QString url)
 {
@@ -1205,49 +841,11 @@ void Dashboard::errOut()
     while (!_finished)
         QApplication::processEvents();
     _finished = false;
-
-    _Isheartbeat = true;
 }
 
 void Dashboard::refreshVapp()
 {
-//    if (vdesktop->dragEventState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->trembleState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->addAppState())
-//    {
-//        return;
-//    }
-
-    qDebug() << "refresh Vapp";
-#if 0
-    if (!_Isheartbeat)
-    {
-        qDebug() << "_commui->errID:" << _commui->errID;
-        if(_commui->errID == "10036")
-        {
-            qDebug() << "虚拟应用服务连接失败，正在重新连接。。。";
-
-            QTimer::singleShot(1000 * 5, this, SLOT(errOut()));
-        }
-
-        return;
-    }
-#endif
-
-//    if (_commui->errID == "10000") {      // 无 心跳 时注释
-//        if (!_Isheartbeat)
-//        {
-//            _Isheartbeat = true;
-//            qDebug() << "虚拟应用服务器已成功连接";
-//        }
+        qDebug() << "refresh Vapp";
         g_myVappList.clear();
 
         //get vapp list
@@ -1299,28 +897,7 @@ void Dashboard::refreshVapp()
 
 void Dashboard::timeOut()
 {
-//    if (vdesktop->dragEventState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->trembleState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->addAppState())
-//    {
-//        return;
-//    }
-
-//    if (vdesktop->iconDragState())
-//    {
-//        return;
-//    }
-
     refreshVapp();
-
     refreshPaas();
 }
 
@@ -1343,7 +920,6 @@ void Dashboard::modify()
             if(!isExist)
             {
                 //delete
-//                LocalAppList::getList()->delApp(g_RemoteappList[i].name);
                 _vacShowWidget->delIcon("1_" + g_RemoteappList[i].id);
             }
         }
@@ -1362,16 +938,6 @@ void Dashboard::modify()
 
             if (!isExist)
             {
-//                LocalApp *RemoteApp = new LocalApp();
-//                RemoteApp->setName(g_myVappList[i].name);
-//                RemoteApp->setId(g_myVappList[i].id);
-//                RemoteApp->setIcon(WIN_VAPP_IconPath + g_myVappList[i].id + ".ico");
-//                RemoteApp->setPage(vdesktop->count() - 1);
-//                RemoteApp->setIndex(-1);
-//                RemoteApp->setType(g_myVappList[i].type);
-//                RemoteApp->setIsRemote(true);
- //               LocalAppList::getList()->addRemoteApp(RemoteApp);
-
                 _vacShowWidget->addIcon(g_myVappList[i].name, WIN_VAPP_IconPath + g_myVappList[i].id + ".png", \
                                         vdesktop->count() - 1, -1, QString(""), 1, "1_" + g_myVappList[i].id);
             }
@@ -1387,35 +953,11 @@ void Dashboard::modify()
                 .arg(g_myVappList[i].id);
 
         g_RemoteappList.insert(i, g_myVappList[i]);
-//        qDebug()<<"g_mylist:"<<g_myVappList[i].icon;
         g_RemoteappList[i].icon = iconPath;
         qDebug()<<"g_Rmote:"<<g_RemoteappList.at(i).icon;
     }
 
 }
-
-void Dashboard::setVacServer()
-{
-    _vacServerWidget->setVisible(true);
-}
-
-void Dashboard::updateVacServer()
-{
-//    _ldialog->updateVacServer();
-//    _ldialog->getPaas();
-
-//    _Isheartbeat = false;
-//    if (_commui->errID == "10000")
-//        _commui->logoff();
-//    else
-//        errOut();
-
-    _commui->logoff();
-    _ldialog->updateVacServer();
-    errOut();
-
-}
-
 
 void Dashboard::refreshPaas()
 {
@@ -1498,28 +1040,3 @@ void Dashboard::smallIcon()
 {
     _vacShowWidget->smallIcon();
 }
-
-//void Dashboard::onOutFinished(QNetworkReply *reply)
-//{
-//    QSqlQuery query(QSqlDatabase::database("local"));
-
-//    QString updateIconType = QString("update sizetype "\
-//                                "set type=%1 where id=1;")\
-//                                .arg(ICON_TYPE);
-//    if(!query.exec(updateIconType)) {
-//        qDebug() <<"query failed";
-//        return;
-//    }
-
-
-////    vdesktop->atExit();
-
-//    _Isheartbeat = false;
-//    _commui->logoff();
-//    while (!_finished)
-//    {
-//        QApplication::processEvents();
-//    }
-
-//    qApp->quit();
-//}

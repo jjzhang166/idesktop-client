@@ -56,44 +56,21 @@ public slots:
     void outOfScreen();
     void inOfScreen();
     void iconActivated(QSystemTrayIcon::ActivationReason);
-    void moveIndicator();
-	//vac
-//	void fadeaway();
-//	void changepwd();
-//	void autologin();
-//	void showhide();
-//	void onDone();
-//	void setmenu();
-//	void menuhide();
-//	void RefreshMenu();
-//	void heartbeat();
-    //void MenuTest();
-	//vac end
-//    void onShowSwitcherDesktop();
     void onShowVacDesktop();
-    void onShowPerDesktop();
-    //void onShowStore();
+    void onShowSkinDesktop();
 
     void setBgPixmap(const QString &pixText);
     void goPage(int page);
 
     void timeOut();
     //vac
-    void heartbeat();
     void onDone();
     void errOut();
 
-    void setVacServer();
-    void updateVacServer();
-
-    void showBs(const QString &url);
-    void goDesktop();
     void upMove(int x, int y, int w, int h, int distance);
     void upBackMove(int x, int y, int w, int h, int distance);
     void downMove(int x, int y, int w, int h, int distance);
     void downBackMove(int x, int y, int w, int h, int distance);
-//    void animationUpFinished();
-//    void animationDownFinished();
     void animationFinished();
     void openMinWidget(int x, int y, int w, int h, int distance);
     void closeMinWidget(int x, int y, int w, int h, int distance);
@@ -110,7 +87,6 @@ public slots:
 
     void desktopPageChanged(int page);
 
-//    void onOutFinished(QNetworkReply *reply);
     void updateNodes();
 
     void setMinMoveLabel(bool up);
@@ -138,7 +114,6 @@ private:
     bool _outOfScreen;
 	//vac
 	bool _showHide;
-    void setGeoProper();
 	//vac
 	QMenu *menu;
 	QPushButton *setPushButton;
@@ -150,8 +125,6 @@ private:
     QAction *menu_refresh;
 
     QAction *menu_hideAction;
-//    void getIn();
-//    void getOut();
      //??//
     int _wid;
     QAction *changepwdAction;
@@ -159,9 +132,6 @@ private:
     QString _sID;
     QString _smIP;
     commuinication *_commui;
-    QTimer *heartbeat_timer;  //heart beat.
-    bool  _Isheartbeat;    // check if send the heart beat packet
-    int _retryTimes;
     bool _finished;
 	 //??//
     TopWidget *topWidget;
@@ -175,20 +145,13 @@ private:
     Switcher *_switcherLeft;
     Switcher *_switcherRight;
     Panel *panel;
-//    Indicator *indicator;
     QVBoxLayout *layout;
 
     QPixmap _pixmap;
     QString _pixText;
 
-//    PersonalizationWidget *_perWidget;
-//    BsWidget *_bsWidget;
-    QTimer *_refreshTimer;
-
     LoginDialog *_ldialog;
-    VacServerWidget *_vacServerWidget;
 
-//    LocalShowWidget *_localShowWidget;
     VacShowWidget *_vacShowWidget;
     SkinShowWidget *_skinShowWidget;
 
@@ -200,7 +163,6 @@ private:
     MoveWidget *_downMoveWidget;
     MoveMinWidget *_downMinW;
 
-//    MoveMinWidget *_minW;
     DirShowWidget *_dirWidget;
     bool _animationDownFinished;
     bool _animationUpFinished;
@@ -218,7 +180,7 @@ private:
     toolBarWidget *_toolBarWidget;
 
     bool _minMoveLabelUp;
-//miya add
+
 public:
     void setBgImage(QString url);
 
