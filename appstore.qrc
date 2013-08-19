@@ -231,5 +231,9 @@
         <file>images/software_normal.png</file>
         <file>images/setup_hover.png</file>
         <file>images/setup_normal.png</file>
+        <file>images/iconmenu_select.png</file>
+        <file>images/1280bg.png</file>
+        <file>images/login_save_hover.png</file>
+        <file>images/login_save_normal.png</file>
     </qresource>
 </RCC>

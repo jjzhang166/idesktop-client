@@ -1647,5 +1647,8 @@ void VacWidget::unChecked(const QString &uniqueName)
 
 void VacWidget::iconItemNameChanged(const QString &uniqueName, const QString &name)
 {
+    if (!_iconDict.value(uniqueName))
+        return;
+
     _iconDict.value(uniqueName)->setText(name);
 }

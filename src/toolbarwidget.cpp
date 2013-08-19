@@ -159,6 +159,12 @@ toolBarWidget::toolBarWidget(QSize pageSize, QWidget *parent)
     dragRightTimer->setInterval(500);
     dragRightTimer->setSingleShot(true);
 
+    _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
+    _iconMenu->setVisible(false);
+
+//    connect(_iconMenu, SIGNAL(run()), this, SLOT(iconMenuRunClicked()));
+//    connect(_iconMenu, SIGNAL(del()), this, SLOT(iconMenuDelClicked()));
+
 //    connect(dragLeftTimer, SIGNAL(timeout()), this, SLOT(dragLeft()));
 //    connect(dragRightTimer, SIGNAL(timeout()), this, SLOT(dragRight()));
 
@@ -461,7 +467,7 @@ void toolBarWidget::dragMoveEvent(QDragMoveEvent *event)
     }
     /* move in this page */
     else {
-        qDebug() << "move in this page start";
+//        qDebug() << "move in this page start";
         QRect moving(event->pos() - gap, _inDrag->size() * 1.0);
         int index = getNearestIndex(moving);
         if (index == -1 || s == index)
@@ -494,7 +500,7 @@ void toolBarWidget::dragMoveEvent(QDragMoveEvent *event)
         _inDrag->setPage(_current);
         _inDrag->setIndex(index);
 
-                qDebug() << "move in this page end";
+//                qDebug() << "move in this page end";
     }
 
 }
@@ -904,6 +910,8 @@ int toolBarWidget::addIcon(const QString &text,
         connect(icon, SIGNAL(dirMinLineEditFocusOut(int, const QString &))
                 , this, SIGNAL(changedDirWidgetTitle(int, const QString &)));
         connect(icon, SIGNAL(dragOut()), this, SLOT(iconItemDragOut()));
+//        connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint,IconItem *))
+//                , this, SLOT(showIconContextMenu(bool, QPoint, QPoint, IconItem *)));
 
 //    _iconLists.append(icon);
 
@@ -1526,89 +1534,7 @@ void toolBarWidget::changeSpacing()
             break;
     }
 }
-#if 0
-void toolBarWidget::showIconContextMenu(QPoint pos, QPoint mPos, const QString &text)
-{
-    Q_UNUSED(pos);
-    _currentIconItem = text;
 
-    if ( _iconDict.value(_currentIconItem)->type() == toolBarWidget::dirIcon)
-    {
-        if (_iconDict.value(_currentIconItem)->getMinIconNum() != 0)
-        {
-            _iconMenu->_delBtn->setEnabled(false);
-        }
-        else
-            _iconMenu->_delBtn->setEnabled(true);
-    }
-    else
-    {
-        _iconMenu->_delBtn->setEnabled(true);
-    }
-
-    _iconMenu->move(mPos);
-    _iconMenu->raise();
-    _iconMenu->setVisible(true);
-}
-
-void toolBarWidget::iconMenuRunClicked()
-{
-    _iconMenu->setVisible(false);
-
-    if (_iconDict.value(_currentIconItem)->type() == toolBarWidget::dirIcon)
-    {
-//        IconItem *iconItem = _iconDict.value(_currentIconItem);
-        openDir(_iconDict.value(_currentIconItem)->id(), _iconDict.value(_currentIconItem)->page(), _iconDict.value(_currentIconItem)->index());
-//        iconItem = NULL;
-    }
-    else
-    {
-        runApp(_currentIconItem);
-    }
-}
-
-void toolBarWidget::iconMenuDelClicked()
-{
-    _iconMenu->setVisible(false);
-//    delIcon(_currentIconItem);
-//    if (_iconDict.value(_currentIconItem)->getMinIconNum() != 0)
-//    {
-//        return;
-//    }
-
-    if ( _iconDict.value(_currentIconItem)->type() == toolBarWidget::dirIcon)
-    {
-        int index = _iconDict.value(_currentIconItem)->id();
-
-        QList<DirShowWidget*>::iterator iter = _dirList.begin() + index;
-        _dirList.at(index)->setParent(NULL);
-        _dirList.at(index)->deleteLater();
-        _dirList.erase(iter);
-
-        _dirMinList.removeAt(index);
-
-        for (int i = index; i < _dirList.count(); i++)
-        {
-            _dirList.at(i)->setId(i);
-
-            _iconDict.value(_dirMinList.at(i))->setId(i);
-
-            for (int j = 0; j < _local->count(); j++) {
-                if (_local->at(j)->hidden())
-                    continue;
-                if (_local->at(j)->dirId() == i + 1)
-                {
-                    _local->at(j)->setDirId(i);
-                }
-            }
-        }
-    }
-
-    LocalAppList::getList()->delApp(_currentIconItem);
-
-    emit desktopDelIcon(_currentIconItem);
-}
-#endif
 void toolBarWidget::refreshMenu()
 {
     switch(ICON_TYPE)
@@ -1805,3 +1731,114 @@ void toolBarWidget::toolBarRefreshDirMinWidget(const QString &uniqueName)
     _iconDict.value(uniqueName)->refreshDirMinWidgetIcon();
 
 }
+
+//void toolBarWidget::showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, IconItem *iconItem)
+//{
+//    Q_UNUSED(pos);
+
+//    if (!iconItem)
+//        return;
+
+//    _currentUniqueName = iconItem->uniqueName();
+
+//    if (!_iconDict.value(_currentUniqueName))
+//        return;
+
+//    if ( _iconDict.value(_currentUniqueName)->type() == dirIcon)
+//    {
+//        if (_iconDict.value(_currentUniqueName)->getMinIconNum() != 0)
+//        {
+//            _iconMenu->_delBtn->setEnabled(false);
+//        }
+//        else
+//            _iconMenu->_delBtn->setEnabled(true);
+//    }
+//    else
+//    {
+//        _iconMenu->_delBtn->setEnabled(true);
+//    }
+
+//    _iconMenu->move(mPos.x(), mPos.y());
+//    _iconMenu->raise();
+//    _iconMenu->setVisible(visiable);
+//}
+
+//void toolBarWidget::iconMenuRunClicked()
+//{
+//    _iconMenu->setVisible(false);
+
+//    if (_iconDict.value(_currentUniqueName)->type() == dirIcon)
+//    {
+
+//    }
+//    else
+//    {
+//        if(QItemManager::getManager()->getItemListSize() == 0)
+//            runApp(_currentUniqueName);
+//        else
+//        {
+//            for(int i = 0; i < QItemManager::getManager()->getItemListSize(); i++)
+//            {
+//                  runApp(QItemManager::getManager()->itemAt(i)->text());
+//            }
+//        }
+//    }
+//}
+
+//void toolBarWidget::iconMenuDelClicked()
+//{
+//    _iconMenu->setVisible(false);
+
+//    if(QItemManager::getManager()->getSelectIconItemText().size() == 0)
+//    {
+//        if ( _iconDict.value(_currentUniqueName)->type() == dirIcon)
+//        {
+//            int index = _iconDict.value(_currentUniqueName)->id();
+
+//            emit delDirShowWidget(index);
+
+//            _dirMinList.removeOne(_iconDict.value(_currentUniqueName)->uniqueName());
+
+//            LocalAppList::getList()->delApp(_currentUniqueName);
+
+////            emit desktopDelIcon(_currentUniqueName);
+
+//        }
+//        else
+//        {
+//            LocalAppList::getList()->delApp(_currentUniqueName);
+
+////            emit desktopDelIcon(_currentUniqueName);
+//        }
+//    }
+//    else
+//    {
+//        QList<QString> list = QItemManager::getManager()->getSelectIconItemText();
+//        for(int i = 0; i < list.size(); i++)
+//        {
+//            _currentUniqueName = list.at(i);
+
+//            if ( _iconDict.value(_currentUniqueName)->type() == dirIcon)
+//            {
+//                int index = _iconDict.value(_currentUniqueName)->id();
+
+
+//                _dirMinList.removeOne(_iconDict.value(_currentUniqueName)->uniqueName());
+
+//                QItemManager::getManager()->removeByUniqueName(_currentUniqueName);
+//                LocalAppList::getList()->delApp(_currentUniqueName);
+
+////                emit desktopDelIcon(_currentUniqueName);
+
+//            }
+//            else
+//            {
+//                QItemManager::getManager()->removeByUniqueName(_currentUniqueName);
+//                LocalAppList::getList()->delApp(_currentUniqueName);
+
+////                emit desktopDelIcon(_currentUniqueName);
+//            }
+
+//        }
+//    }
+//}

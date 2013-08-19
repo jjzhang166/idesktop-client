@@ -950,10 +950,10 @@ DirMinShowWidget::DirMinShowWidget(int type, QWidget *parent)
     _dirLineEdit = new DirLineEdit(QString(tr("ÊäÈëÎÄ¼þ¼ÐÃû³Æ")), this);
     _dirLineEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
     QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(_dirLineEdit);
-        effect->setBlurRadius(8);
-        effect->setColor(QColor(0, 0, 0));
-        effect->setOffset(-1,1);
-        _dirLineEdit->setGraphicsEffect(effect);
+    effect->setBlurRadius(8);
+    effect->setColor(QColor(0, 0, 0));
+    effect->setOffset(-1,1);
+    _dirLineEdit->setGraphicsEffect(effect);
     _dirLineEdit->setGeometry((_width - (72 + 37 / 2 + 8)) / 2, _height - 26, 72 + 37 / 2 + 8, 23);
 
 //    _dirLineEdit->setTextMargins(3, 5, 2, 5);
@@ -980,7 +980,7 @@ DirMinShowWidget::DirMinShowWidget(int type, QWidget *parent)
     connect(_dirMWidget, SIGNAL(mouseClicked()), this, SIGNAL(openItem()));
     connect(_dirLineEdit, SIGNAL(focusIn()), this, SLOT(editFocusIn()));
     connect(_dirLineEdit, SIGNAL(focusOut()), this, SLOT(editFocusOut()));
-    connect(_dirLineEdit, SIGNAL(textChanged(QString)), this ,SIGNAL(lineEditValueChange(QString)));
+//    connect(_dirLineEdit, SIGNAL(textChanged(QString)), this ,SIGNAL(lineEditValueChange(QString)));
 }
 
 DirMinShowWidget::~DirMinShowWidget()

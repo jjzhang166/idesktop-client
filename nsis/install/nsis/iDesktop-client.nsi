@@ -4,6 +4,14 @@
 !include LogicLib.nsh
 !include WinVer.nsh
 !include WinMessages.nsh
+!include FileFunc.nsh
+!include WordFunc.nsh
+
+; my header
+!include iDesktopInit.nsh
+!include SharedMacro.nsh
+
+
 ; old header
 !include old\EnvVarUpdate.nsh
 !include old\WindowsVersion.nsh
@@ -16,12 +24,20 @@
 !define PRODUCT_VERSION "0.1"
 !define PRODUCT_PUBLISHER "i-SOFT"
 !define PRODUCT_WEB_SITE "www.i-soft.com.cn"
-!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}.exe"
+!define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 !define SETUP_NAME "普华统一桌面平台"
 
 SetCompressor lzma
+
+;  ***********    ?    ******************
+!insertmacro GetParameters
+!insertmacro GetOptions
+
+; ***************** On i-Desktop init ******************
+Var  WinVersionLbl
+!insertmacro iDesktopInit
 
 ; ------ MUI 现代界面定义 (1.67 版本以上兼容) ------
 !include "MUI.nsh"
@@ -73,25 +89,12 @@ ShowInstDetails show
 ShowUnInstDetails show
 BrandingText www.i-soft.com.cn
 
+
 Section "MainSection" SEC01
 	SetShellVarContext all
 	SetOutPath "$INSTDIR"
-	SetOutPath "$INSTDIR\imageformats"
-  File "..\release\imageformats\*.*"
-  SetOutPath "$INSTDIR\sqldrivers"
-	File "..\release\sqldrivers\*.*"
-	SetOutPath "$INSTDIR\codecs"
-	File "..\release\codecs\*.*"
-	#SetOutPath "$INSTDIR\system_manage"
-	#File "..\release\system_manage\*.*"
-	#SetOutPath "$INSTDIR\system_manage\js"
-	#File "..\release\system_manage\js\*.*"
-	#SetOutPath "$INSTDIR\system_manage\css"
-	#File "..\release\system_manage\css\*.*"
-	#SetOutPath "$INSTDIR\system_manage\images"
-	#File "..\release\system_manage\images\*.*"
-	SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
+  File "..\release\idesktop-client.qm"
   File "..\release\${EXE_NAME}.exe"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\${SETUP_NAME}.lnk" "$INSTDIR\${EXE_NAME}.exe"
@@ -107,7 +110,6 @@ Section "MainSection" SEC01
   File "..\release\libgcc_s_dw2-1.dll"
   File "..\release\IconGet.dll"
   File "..\release\ChildWaitDlg.dll"
-  #File "..\release\ClientEngineChild.exe"
   File "..\release\connet.exe"
   File "..\release\DllClientEngineMain.dll"
   File "..\release\L4CMain.dll"
@@ -117,6 +119,8 @@ Section "MainSection" SEC01
   File "..\release\QtXml4.dll"
   File "..\release\changebg.dll"
   File "..\release\GetApp.dll"
+  File "..\release\QJson.dll"
+  !insertmacro AddVcRedist_X86
   ${If} ${IsWinXP}
   ${AndIf} ${AtLeastServicePack} 3
     File "..\files\higher\ClientEngineChildHigher.exe"
@@ -136,15 +140,20 @@ Section "MainSection" SEC01
     File "..\files\higher\ClientEngineChildHigher.exe"
     Rename "ClientEngineChildHigher.exe" "ClientEngineChild.exe"
   ${EndIf}
-
   ${If} ${IsWinXP}
   ${AndIf} ${AtMostServicePack} 2
   ${OrIf} ${IsWin2003}
     File "..\files\lower\ClientEngineChildEarly.exe"
     Rename "ClientEngineChildEarly.exe" "ClientEngineChild.exe"
   ${EndIf}
+  SetOutPath "$INSTDIR\imageformats"
+  	File "..\release\imageformats\*.*"
+  SetOutPath "$INSTDIR\sqldrivers"
+		File "..\release\sqldrivers\*.*"
+	SetOutPath "$INSTDIR\codecs"
+		File "..\release\codecs\*.*"
 	SetOutPath "$INSTDIR\images\wallpager"
-  File "..\release\images\wallpager\*.*"
+  	File "..\release\images\wallpager\*.*"
   
 SectionEnd
 
@@ -183,7 +192,9 @@ Section Uninstall
 	SetShellVarContext all
   Delete "$INSTDIR\${SETUP_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
+  Delete "$INSTDIR\QJson.dll"
   Delete "$INSTDIR\IconGet.dll"
+  Delete "$INSTDIR\${EXE_NAME}.qm"
   Delete "$INSTDIR\${EXE_NAME}.exe"
   Delete "$INSTDIR\libgcc_s_dw2-1.dll"
   Delete "$INSTDIR\libstdc++-6.dll"
@@ -233,30 +244,30 @@ SectionEnd
 
 #-- 根据 NSIS 脚本编辑规则，所有 Function 区段必须放置在 Section 区段之后编写，以避免安装程序出现未可预知的问题。--#
 
-Function un.onInit
-/*
-	FindProcDLL::FindProc "ClientEngineChild.exe"
-	Pop $R0
-	${If} $R0 != 0
-	  KillProcDLL::KillProc "ClientEngineChild.exe"
-	${EndIf}
-	
-	FindProcDLL::FindProc "${EXE_NAME}.exe"
-	Pop $R0
-	${If} $R0 != 0
-	KillProcDLL::KillProc "${EXE_NAME}.exe"
-	  MessageBox MB_ICONSTOP "$(^Name)正在运行，请先关闭程序!"
-	  Quit
-	${EndIf}
-*/
-
-  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "您确实要完全移除 $(^Name) ，及其所有的组件？" IDYES +2
-  Abort
+;Function un.onInit
+;/*
+;	FindProcDLL::FindProc "ClientEngineChild.exe"
+;	Pop $R0
+;	${If} $R0 != 0
+;	  KillProcDLL::KillProc "ClientEngineChild.exe"
+;	${EndIf}
+;
+;	FindProcDLL::FindProc "${EXE_NAME}.exe"
+;	Pop $R0
+;	${If} $R0 != 0
+;	KillProcDLL::KillProc "${EXE_NAME}.exe"
+;	  MessageBox MB_ICONSTOP "$(^Name)正在运行，请先关闭程序!"
+;	  Quit
+;	${EndIf}
+;*/
+;
+;  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "您确实要完全移除 $(^Name) ，及其所有的组件？" IDYES +2
+;  Abort
   
-  nsExec::ExecToLog 'taskkill /f /im ClientEngineChild.exe'
-  nsExec::ExecToLog 'taskkill /f /im ${EXE_NAME}.exe'
-
-FunctionEnd
+;  nsExec::ExecToLog 'taskkill /f /im ClientEngineChild.exe'
+;  nsExec::ExecToLog 'taskkill /f /im ${EXE_NAME}.exe'
+;
+;FunctionEnd
 
 Function un.onUninstSuccess
   HideWindow

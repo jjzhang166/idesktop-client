@@ -4,31 +4,31 @@
 <context>
     <name>Dashboard</name>
     <message>
-        <location filename="src/dashboard.cpp" line="919"/>
+        <location filename="src/dashboard.cpp" line="885"/>
         <source>your seesion has to be ticked out.</source>
-        <translation type="unfinished"></translation>
+        <translation>当前会话已被中断，请联系管理员！</translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="919"/>
+        <location filename="src/dashboard.cpp" line="885"/>
         <source>Your session has to be kicked out by the administrator, please contact the administrator</source>
-        <translation type="unfinished"></translation>
+        <translation>当前会话已被中断，请联系管理员！</translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="919"/>
+        <location filename="src/dashboard.cpp" line="885"/>
         <source>ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">确定</translation>
     </message>
 </context>
 <context>
     <name>DirMinShowWidget</name>
     <message>
-        <location filename="src/dirminwidget.cpp" line="959"/>
+        <location filename="src/dirminwidget.cpp" line="950"/>
         <source>ÊäÈëÎÄ¼þ¼ÐÃû³Æ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/dirminwidget.cpp" line="1126"/>
-        <location filename="src/dirminwidget.cpp" line="1127"/>
+        <location filename="src/dirminwidget.cpp" line="1117"/>
+        <location filename="src/dirminwidget.cpp" line="1118"/>
         <source>ÐÂ½¨ÎÄ¼þ¼Ð</source>
         <translation type="unfinished"></translation>
     </message>
@@ -36,7 +36,7 @@
 <context>
     <name>DirShowWidget</name>
     <message>
-        <location filename="src/dirwidget.cpp" line="186"/>
+        <location filename="src/dirwidget.cpp" line="188"/>
         <source>%1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -44,12 +44,12 @@
 <context>
     <name>IconItem</name>
     <message>
-        <location filename="src/iconitem.cpp" line="268"/>
+        <location filename="src/iconitem.cpp" line="267"/>
         <source>ÔËÐÐ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/iconitem.cpp" line="278"/>
+        <location filename="src/iconitem.cpp" line="277"/>
         <source>É¾³ý</source>
         <translation type="unfinished"></translation>
     </message>
@@ -57,149 +57,148 @@
 <context>
     <name>LoginDialog</name>
     <message>
-        <location filename="src/logindialog.cpp" line="128"/>
+        <location filename="src/logindialog.cpp" line="130"/>
         <source>ÇëÊäÈëÄúµÄÓÃ»§Ãû</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="129"/>
+        <location filename="src/logindialog.cpp" line="131"/>
         <source>ÇëÊäÈëÄúµÄÃÜÂë</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="163"/>
+        <location filename="src/logindialog.cpp" line="165"/>
         <source>Ô¶³ÌÑéÖ¤</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="197"/>
-        <location filename="src/logindialog.cpp" line="208"/>
+        <location filename="src/logindialog.cpp" line="199"/>
+        <location filename="src/logindialog.cpp" line="210"/>
         <source>ÏÔÊ¾</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="199"/>
-        <location filename="src/logindialog.cpp" line="207"/>
+        <location filename="src/logindialog.cpp" line="201"/>
+        <location filename="src/logindialog.cpp" line="209"/>
         <source>ÍË³ö</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="209"/>
+        <location filename="src/logindialog.cpp" line="211"/>
         <source>Òþ²Ø</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="210"/>
-        <source>ÉèÖÃ·þÎñÆ÷µØÖ·</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/logindialog.cpp" line="278"/>
+        <location filename="src/logindialog.cpp" line="280"/>
         <source>ÓÃ»§Ãû</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="279"/>
+        <location filename="src/logindialog.cpp" line="281"/>
         <source>ÃÜ  Âë</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="284"/>
+        <location filename="src/logindialog.cpp" line="286"/>
         <source>ÑéÖ¤·þÎñÆ÷µØÖ·</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="285"/>
+        <location filename="src/logindialog.cpp" line="287"/>
         <source>Ó¦ÓÃ·þÎñÆ÷µØÖ·</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="286"/>
+        <location filename="src/logindialog.cpp" line="288"/>
         <source>Æ½Ì¨·þÎñÆ÷µØÖ·</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="419"/>
+        <location filename="src/logindialog.cpp" line="422"/>
         <source>ÓÃ»§Ãû»òÃÜÂë´íÎó</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="423"/>
+        <location filename="src/logindialog.cpp" line="426"/>
+        <source>ÆäËûÓÃ»§ÒÑµÇÂ¼</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/logindialog.cpp" line="430"/>
         <source>Á¬½Ó·þÎñÆ÷Ê§°Ü...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="498"/>
+        <location filename="src/logindialog.cpp" line="505"/>
         <source>ÓÃ»§Ãû²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="502"/>
+        <location filename="src/logindialog.cpp" line="509"/>
         <source>ÃÜÂë²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="536"/>
+        <location filename="src/logindialog.cpp" line="543"/>
         <source>ÕýÔÚÁ¬½Ó·þÎñÆ÷...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="577"/>
+        <location filename="src/logindialog.cpp" line="585"/>
         <source>¸ÃÓÃ»§²»´æÔÚ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="581"/>
+        <location filename="src/logindialog.cpp" line="589"/>
         <source>ÃÜÂëÑéÖ¤Ê§°Ü</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="889"/>
-        <source>vapp login failed</source>
-        <translation type="unfinished"></translation>
+        <location filename="src/logindialog.cpp" line="1494"/>
+        <source>vapp login failed, please contact the administrator.</source>
+        <translation>虚拟应用服务器链接失败，请联系管理员！</translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="889"/>
         <source>OK</source>
-        <translation type="unfinished">确定</translation>
+        <translation type="obsolete">确定</translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="985"/>
+        <location filename="src/logindialog.cpp" line="929"/>
         <source>ÇëÊäÈëÑéÖ¤·þÎñÆ÷µØÖ·</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="986"/>
+        <location filename="src/logindialog.cpp" line="930"/>
         <source>ÇëÊäÈëÓ¦ÓÃ·þÎñÆ÷µØÖ·</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="987"/>
+        <location filename="src/logindialog.cpp" line="931"/>
         <source>ÇëÊäÈëÆ½Ì¨·þÎñÆ÷µØÖ·</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="988"/>
+        <location filename="src/logindialog.cpp" line="932"/>
         <source>¶Ë¿Ú</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1143"/>
+        <location filename="src/logindialog.cpp" line="1093"/>
         <source>ÑéÖ¤·þÎñÆ÷µØÖ·²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1147"/>
+        <location filename="src/logindialog.cpp" line="1097"/>
         <source>Ó¦ÓÃ·þÎñµØÖ·²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1151"/>
+        <location filename="src/logindialog.cpp" line="1101"/>
         <source>Ó¦ÓÃ·þÎñ¶Ë¿ÚºÅ²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/logindialog.cpp" line="1155"/>
+        <location filename="src/logindialog.cpp" line="1105"/>
         <source>Æ½Ì¨·þÎñÆ÷µØÖ·²»ÄÜÎª¿Õ</source>
         <translation type="unfinished"></translation>
     </message>
@@ -209,13 +208,13 @@
     <message>
         <location filename="src/contextmenuwidget.cpp" line="167"/>
         <location filename="src/contextmenuwidget.cpp" line="202"/>
-        <location filename="src/contextmenuwidget.cpp" line="316"/>
+        <location filename="src/contextmenuwidget.cpp" line="320"/>
         <source>ÎÄ¼þ¼Ð</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="src/contextmenuwidget.cpp" line="169"/>
-        <location filename="src/contextmenuwidget.cpp" line="318"/>
+        <location filename="src/contextmenuwidget.cpp" line="322"/>
         <source>¿ì½Ý·½Ê½¡­</source>
         <translation type="unfinished"></translation>
     </message>
@@ -266,47 +265,48 @@
     </message>
     <message>
         <location filename="src/contextmenuwidget.cpp" line="249"/>
-        <location filename="src/contextmenuwidget.cpp" line="392"/>
+        <location filename="src/contextmenuwidget.cpp" line="396"/>
         <source>ÐÂ½¨</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="388"/>
+        <location filename="src/contextmenuwidget.cpp" line="392"/>
         <source>Í¼±êÏÔÊ¾</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="390"/>
+        <location filename="src/contextmenuwidget.cpp" line="394"/>
         <source>Ë¢ÐÂ</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="432"/>
+        <location filename="src/contextmenuwidget.cpp" line="436"/>
         <source>´óÍ¼±ê</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="434"/>
+        <location filename="src/contextmenuwidget.cpp" line="438"/>
         <source>ÖÐµÈÍ¼±ê</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="436"/>
+        <location filename="src/contextmenuwidget.cpp" line="440"/>
         <source>Ð¡Í¼±ê</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="460"/>
+        <location filename="src/contextmenuwidget.cpp" line="490"/>
         <source>open</source>
         <translation type="unfinished">打开</translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="462"/>
+        <location filename="src/contextmenuwidget.cpp" line="514"/>
         <source>restore</source>
         <translation type="unfinished">还原</translation>
     </message>
     <message>
-        <location filename="src/contextmenuwidget.cpp" line="464"/>
+        <location filename="src/contextmenuwidget.cpp" line="492"/>
+        <location filename="src/contextmenuwidget.cpp" line="516"/>
         <source>delete</source>
         <translation type="unfinished">删除</translation>
     </message>
@@ -314,32 +314,18 @@
 <context>
     <name>PaasCommuinication</name>
     <message>
-        <location filename="src/paascommuinication.cpp" line="102"/>
-        <location filename="src/paascommuinication.cpp" line="111"/>
-        <location filename="src/paascommuinication.cpp" line="274"/>
+        <location filename="src/paascommuinication.cpp" line="103"/>
+        <location filename="src/paascommuinication.cpp" line="106"/>
+        <location filename="src/paascommuinication.cpp" line="116"/>
+        <location filename="src/paascommuinication.cpp" line="119"/>
+        <location filename="src/paascommuinication.cpp" line="284"/>
+        <location filename="src/paascommuinication.cpp" line="287"/>
         <source>Network error, please check!</source>
-        <translation type="unfinished">虚拟应用网络错误，请联系管理员！</translation>
+        <translation type="unfinished">平台服务器链接失败，请联系管理员！</translation>
     </message>
     <message>
-        <location filename="src/paascommuinication.cpp" line="103"/>
-        <location filename="src/paascommuinication.cpp" line="112"/>
-        <location filename="src/paascommuinication.cpp" line="275"/>
-        <source>paas login failed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/paascommuinication.cpp" line="103"/>
-        <location filename="src/paascommuinication.cpp" line="112"/>
-        <location filename="src/paascommuinication.cpp" line="275"/>
-        <source>   Network error, please check!   </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/paascommuinication.cpp" line="103"/>
-        <location filename="src/paascommuinication.cpp" line="112"/>
-        <location filename="src/paascommuinication.cpp" line="275"/>
         <source>OK</source>
-        <translation type="unfinished">确定</translation>
+        <translation type="obsolete">确定</translation>
     </message>
 </context>
 <context>
@@ -398,7 +384,7 @@
         <location filename="src/runapp.cpp" line="108"/>
         <location filename="src/runapp.cpp" line="359"/>
         <source>Get load balance info failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">负载均衡失败</translation>
     </message>
     <message>
         <location filename="src/runapp.cpp" line="108"/>
@@ -448,32 +434,32 @@
 <context>
     <name>VirtualDesktop</name>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="568"/>
+        <location filename="src/virtualdesktop.cpp" line="569"/>
         <source>Ìí¼Ó</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="569"/>
+        <location filename="src/virtualdesktop.cpp" line="570"/>
         <source>¿ªÊ¼¶¶¶¯</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="570"/>
+        <location filename="src/virtualdesktop.cpp" line="571"/>
         <source>È¡Ïû¶¶¶¯</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="2351"/>
+        <location filename="src/virtualdesktop.cpp" line="2347"/>
         <source>´´½¨¿ì½Ý·½Ê½</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="2353"/>
+        <location filename="src/virtualdesktop.cpp" line="2349"/>
         <source>app (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/virtualdesktop.cpp" line="2475"/>
+        <location filename="src/virtualdesktop.cpp" line="2471"/>
         <source>ÐÂ½¨ÎÄ¼þ¼Ð</source>
         <translation type="unfinished"></translation>
     </message>
@@ -485,7 +471,7 @@
         <location filename="src/commuinication.cpp" line="88"/>
         <location filename="src/commuinication.cpp" line="270"/>
         <source>Network error, please check!</source>
-        <translation type="unfinished">虚拟应用网络错误，请联系管理员！</translation>
+        <translation type="unfinished">虚拟应用链接失败，请联系管理员！</translation>
     </message>
 </context>
 </TS>

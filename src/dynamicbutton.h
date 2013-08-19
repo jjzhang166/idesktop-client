@@ -8,7 +8,7 @@ class DynamicButton : public QLabel
 public:
     DynamicButton(QPixmap normal, QPixmap hover, QWidget *parent = NULL)
         : QLabel(parent), _normal(normal), _hover(hover), \
-          _entered(false), _value(0)
+          _entered(false), _value(0),_enabled(true)
     {
         setPixmap(_normal);
     }
@@ -25,6 +25,8 @@ public:
         repaint();
     }
 
+    void setEnable(bool enabled);
+
 signals:
     void clicked();
     void valueClicked(int);
@@ -37,6 +39,7 @@ private:
     QPixmap _hover;
     bool _entered;
     int _value;
+    bool _enabled;
 };
 
 #endif // DYNAMICBUTTON_H

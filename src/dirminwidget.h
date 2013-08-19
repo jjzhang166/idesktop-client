@@ -61,7 +61,7 @@ signals:
 //    void openItem(int id, int page, int index);
     void openItem();
     void dragEnterMinWidget();
-    void lineEditValueChange(QString);
+//    void lineEditValueChange(QString);
 //    void delIcon(const QString &text);
     void dirMinLineEditFocusOut(int i, const QString &text);
 

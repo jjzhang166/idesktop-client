@@ -4,7 +4,11 @@
 void DynamicButton::enterEvent(QEvent *event)
 {
     _entered = true;
-    setPixmap(_hover);
+
+    if (_enabled)
+        setPixmap(_hover);
+    else
+        setPixmap(_normal);
     repaint();
     Q_UNUSED(event);
 }
@@ -26,9 +30,22 @@ void DynamicButton::mousePressEvent(QMouseEvent *event)
 
 void DynamicButton::mouseReleaseEvent(QMouseEvent *event)
 {
-    setPixmap(_hover);
+    if (_enabled)
+    {
+        setPixmap(_hover);
+        emit clicked();
+        emit valueClicked(_value);
+    }
+    else
+    {
+        setPixmap(_normal);
+    }
+
     repaint();
-    emit clicked();
-    emit valueClicked(_value);
     Q_UNUSED(event);
+}
+
+void DynamicButton::setEnable(bool enabled)
+{
+    _enabled = enabled;
 }

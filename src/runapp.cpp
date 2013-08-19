@@ -59,7 +59,7 @@ RunApp::~RunApp()
 
 void RunApp::runApp(const QString &uniqueName)
 {
-    qDebug() <<"--------------->uniqueName"<<uniqueName;
+//    qDebug() <<"--------------->uniqueName"<<uniqueName;
     if (uniqueName.startsWith("0_"))
     {
         LocalApp *la = _local->getAppByUniqueName(uniqueName);

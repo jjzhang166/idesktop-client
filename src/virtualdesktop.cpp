@@ -1560,9 +1560,8 @@ void VirtualDesktop::dragMoveEvent(QDragMoveEvent *event)
             update();
         }
         else {
-            qDebug() << "s" << s << "index" << index;
             for (int i = s; i < index; i++) {
-               qDebug () << "s" << s << "i" << i;
+
                 QPoint end = _gridTable[_current][i].translated(HSPACING, VSPACING).topLeft();
                 _iconTable[_current][i+1]->move(end);
                 _iconTable[_current][i] = _iconTable[_current][i+1];
@@ -1922,7 +1921,7 @@ int VirtualDesktop::addIcon(const QString &text, \
         qDebug() << text << "is already exist!!!";
         return -3;
     }
-    qDebug() << "addIcon()" << "------> text" << text;
+//    qDebug() << "addIcon()" << "------> text" << text;
 
 
     _localIconNum ++;
@@ -2286,7 +2285,7 @@ void VirtualDesktop::printDesktop()
 void VirtualDesktop::contextMenuEvent(QContextMenuEvent *event)
 {
     _mousePos = event->pos();
-    _normalMenu->move(_mousePos);
+    _normalMenu->move(_mousePos.x(), _mousePos.y());
 
     hideMenuWidget();
     _normalMenu->raise();
@@ -2294,14 +2293,14 @@ void VirtualDesktop::contextMenuEvent(QContextMenuEvent *event)
     _mousePos = event->pos();
     if(QItemManager::getManager()->getItemListSize() != 0)
     {
-        _iconMenu->move(_mousePos);
+        _iconMenu->move(_mousePos.x() + _current * _width, _mousePos.y());
         hideMenuWidget();
         _iconMenu->raise();
         _iconMenu->setVisible(true);
     }
     else
     {
-        _normalMenu->move(_mousePos);
+        _normalMenu->move(_mousePos.x(), _mousePos.y());
         hideMenuWidget();
         _normalMenu->raise();
         _normalMenu->setVisible(true);
@@ -3167,7 +3166,7 @@ void VirtualDesktop::showIconContextMenu(bool visiable, QPoint pos, QPoint mPos,
         _iconMenu->_delBtn->setEnabled(true);
     }
 
-    _iconMenu->move(mPos);
+    _iconMenu->move(mPos.x() + _current * _width, mPos.y());
     _iconMenu->raise();
     _iconMenu->setVisible(visiable);
 }
@@ -3240,32 +3239,9 @@ void VirtualDesktop::iconMenuDelClicked()
                 {
                     _dirShowWidgetList.at(i)->setId(index);
 
-                    _iconDict.value(_dirMinList.at(i))->setId(index);
-
-//                    if (LocalAppList::getList()->getAppByUniqueName(_dirMinList.at(i)))
-//                        LocalAppList::getList()->getAppByUniqueName(_dirMinList.at(i))->setName(QString("_%1").arg(index));
-
-//                    QSqlQuery query(QSqlDatabase::database("local"));
-
-//                    QString qstr = QString("update localapps "\
-//                                           "set name=\'%1\' where id=\'%2\';")\
-//                            .arg(QString("_%1").arg(index))\
-//                            .arg(QString("%1").arg(index + 1));
-
-//                    if(!query.exec(qstr)) {
-//                        qDebug() <<"query failed";
-//                        return;
-//                    }
+//                    _iconDict.value(_dirMinList.at(i))->setId(index);
 
 
-//                    for (int j = 0; j < _local->count(); j++) {
-//                        if (_local->at(j)->hidden())
-//                            continue;
-//                        if (_local->at(j)->dirId() == index + 1)
-//                        {
-//                            _local->at(j)->setDirId(index);
-//                        }
-//                    }
 
                     index ++;
                 }
@@ -3431,7 +3407,6 @@ void VirtualDesktop::dirWidgetDelIcon(int id, const QString &uniqueName)
 
 void VirtualDesktop::moveWidgetDrop(IconItem *iconItem)
 {
-    qDebug() << "-0--0-0-0-0-0-0-0-0-00------->moveWidgetDrop()--->text" << iconItem->text();
     if (!iconItem)
         return;
 
@@ -3439,7 +3414,6 @@ void VirtualDesktop::moveWidgetDrop(IconItem *iconItem)
 
     if (_iconDict.value(iconItem->uniqueName()))
     {
-        qDebug() << "iconItem----------------->is is is exist";
         _iconTable[_iconDict.value(iconItem->uniqueName())->page()][_iconDict.value(iconItem->uniqueName())->index()]->show();
         if (_inDrag)
             _inDrag=NULL;

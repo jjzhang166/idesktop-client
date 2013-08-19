@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QEvent>
 #include <QPixmap>
+#include <QLabel>
 
 //miya add
 #define MAX_LEN 50;
@@ -107,6 +108,11 @@ signals:
     void hideDesktop();
     void addDesktopLink();
 
+public slots:
+    void largeBtnClicked();
+    void mediumBtnClicked();
+    void smallBtnClicked();
+
 protected:
     void paintEvent(QPaintEvent *event);
 
@@ -160,6 +166,8 @@ public:
     void setValue(int value);
     bool hasSubMenu();
     int getValue();
+
+    void setMenuSelect(bool select);
 signals:
 //    void clicked();
     void valueClicked(int value);
@@ -188,6 +196,8 @@ private:
     int _value;
     int _width;
     int _height;
+
+    QLabel *_menuSelectLabel;
 };
 
 #endif // CONTEXTMENUWIDGET_H

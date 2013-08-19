@@ -15,6 +15,8 @@
 #include "paascommuinication.h"
 #include "PaasCommuinication.h"
 
+#include "appmessagebox.h"
+
 //#define PAASURL "http://192.168.30.128/dongfang.php"
 //#define PAASURL "http://192.168.49.243:8080/CloudManage/rest/service/getUserAllService"
 
@@ -99,7 +101,11 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     if (_reply->error() != QNetworkReply::NoError)
     {
         errInfo.append(tr("Network error, please check!"));
-        QMessageBox::warning(0, tr("paas login failed"), tr("   Network error, please check!   "), tr("OK"));
+
+        AppMessageBox box(false, NULL);
+        box.setText(tr("Network error, please check!"));
+        box.exec();
+
         _isNetError = true;
         emit done();
         return;
@@ -108,7 +114,11 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     if(_buffer.isEmpty())
     {
         errInfo.append(tr("Network error, please check!"));
-        QMessageBox::warning(0, tr("paas login failed"), tr("   Network error, please check!   "), tr("OK"));
+
+        AppMessageBox box(false, NULL);
+        box.setText(tr("Network error, please check!"));
+        box.exec();
+
         _isNetError = true;
         emit done();
         return;
@@ -272,7 +282,10 @@ void PaasCommuinication::handleTimeOut()
 
     errInfo.clear();
     errInfo.append(tr("Network error, please check!"));
-    QMessageBox::warning(0, tr("paas login failed"), tr("   Network error, please check!   "), tr("OK"));
+
+    AppMessageBox box(false, NULL);
+    box.setText(tr("Network error, please check!"));
+    box.exec();
 
     _isNetError = true;
     emit done();

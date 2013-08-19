@@ -67,8 +67,10 @@ public:
     QAction *_dHideAction;
     QAction *_dShowAction;
 
+    void getVac();
     void getPaas(bool isLogin);
-        void setIcon(const QString &dirPath, const QString &iconPath);
+
+    void setIcon(const QString &dirPath, const QString &iconPath);
 
 signals:
     void dQuit();
@@ -188,4 +190,6 @@ private:
     QString _tempPaasIp;
     QString _tempVerifyIp;
     QString _tempVacPort;
+
+    DynamicButton *configurationButton;
 };

@@ -121,7 +121,7 @@ public slots:
 
 //    void addDirItem();
 
-////    void showIconContextMenu(QPoint pos, QPoint mPos, const QString &text);
+//   void showIconContextMenu(QPoint pos, QPoint mPos, const QString &text);
 //    void iconMenuRunClicked();
 //    void iconMenuDelClicked();
 
@@ -278,7 +278,7 @@ private:
 
     QString _currentIconItem;
 
-//    MenuWidget *_iconMenu;
+    MenuWidget *_iconMenu;
 //    DirWidget object to this
     bool _isIconMove;
     bool _isOtherWidgetObject;
@@ -334,6 +334,7 @@ public:
 
     bool _refreshToolBar;
 
+    QString _currentUniqueName;
 
 };
 

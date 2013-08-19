@@ -260,7 +260,8 @@ bool LocalAppList::addRemoteApp(LocalApp *app)
 bool LocalAppList::addApp(LocalApp *app)
 { 
 
-    qDebug() << "addApp----->app.name" << app->name();
+//    qDebug() << "addApp----->app.name" << app->name();
+//    qDebug() << "addApp----->app->execname()" << app->execname();
     // write to sqlite and emit datachange
 
     QString qstr = QString("insert into localapps ("\

@@ -35,6 +35,8 @@
 #include <shellapi.h>
 #include "ShlObj.h "
 
+#include "appmessagebox.h"
+
 #include "public.h"
 
 #include <QtScript/QScriptEngine>
@@ -116,7 +118,7 @@ LoginDialog::LoginDialog(QWidget *parent)
 
     QPixmap configurationIcon = QPixmap(":images/setup_normal.png").scaled(10,10);
     QPixmap configurationIconHover = QPixmap(":images/setup_hover.png").scaled(10,10);
-    DynamicButton *configurationButton = new DynamicButton(configurationIcon, configurationIconHover, this);
+    configurationButton = new DynamicButton(configurationIcon, configurationIconHover, this);
     configurationButton->setGeometry(width() - 10 * 3 - CLOSE_WIDTH * 3, 10, 10, 10);
     configurationButton->setVisible(true);
 
@@ -136,8 +138,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
     passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
-    userEdit->setText(QString("demo"));
-    passEdit->setText(QString("abc_123"));
+//    userEdit->setText(QString("demo"));
+//    passEdit->setText(QString("abc_123"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -247,7 +249,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
     connect(minButton, SIGNAL(clicked()), this, SLOT(minimized()));
     connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(configurationButton, SIGNAL(clicked()), this, SLOT(flip()));
+//    connect(configurationButton, SIGNAL(clicked()), this, SLOT(flip()));
     connect(userEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
     connect(passEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
     connect(_nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(onLoginFinished(QNetworkReply*)));
@@ -390,6 +392,7 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     passEdit->setEnabled(true);
     submit->setEnabled(true);
     remoteAuth->setEnabled(true);
+    configurationButton->setEnable(true);
     connMsg("");
 
     QString jsonResult = reply->readAll();
@@ -543,6 +546,7 @@ void LoginDialog::auth()
         passEdit->setEnabled(false);
         submit->setEnabled(false);
         remoteAuth->setEnabled(false);
+        configurationButton->setEnable(false);
         while(!_finished)
             QApplication::processEvents();
         if (!_authSuccess)
@@ -649,7 +653,7 @@ void LoginDialog::auth()
             my_getApp2();
         }
     }
-    qDebug()<<"inipath:"<<iniPath;
+//    qDebug()<<"inipath:"<<iniPath;
     //vc ini
     char  chSectionNames[8192]={0};       //所有节名组成的字符数组
     char *pSectionName; //保存找到的某个节名字符串的首地址
@@ -687,7 +691,7 @@ void LoginDialog::auth()
             if (!fio.exists())
                 continue;
 
-            qDebug()<<"path"<<strBuff;
+//            qDebug()<<"path"<<strBuff;
             QFileInfo fi = QFileInfo(path);
             QString iPath(Config::get("IconDir"));
             iPath = iPath + fi.baseName();
@@ -828,71 +832,7 @@ void LoginDialog::auth()
     _vacfinished = false;
     qDebug()<<"login3";
 
-    if(_commui->errID == "10000")
-    {
-        //        char folder[MAX_PATH] = {0};
-        //        SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
-        //        WIN_TtempPath = QString(folder);
-        //        WIN_VAPP_IconPath=WIN_TtempPath+"\\App Center\\Vicons\\";
-
-        //get vapp list
-        _commui->getAppList();
-        while (!_vacfinished)
-            QApplication::processEvents();
-        _vacfinished = false;
-
-        g_myVappList = _commui->getList();
-        qDebug()<<"g_myList.count()="<<g_myVappList.count();
-
-#ifdef Q_WS_WIN
-//        iconDirPath = WIN_VAPP_IconPath ;
-#else
-        WIN_VAPP_IconPath =  xmlPath + "\\App Center\\Vicons";
-#endif
-
-        QDir iconDir(WIN_VAPP_IconPath);
-        if(!iconDir.exists())
-        {
-            iconDir.mkdir(WIN_VAPP_IconPath);
-        }
-        //store ico file locally
-        for(int i = 0; i < g_myVappList.count(); i++)
-        {
-            QString iconPath = QString("%1%2.png")
-                    .arg(WIN_VAPP_IconPath)
-                    .arg(g_myVappList[i].id);
-            QString tempPath = QString("%1%2.ico")
-                    .arg(WIN_VAPP_IconPath)
-                    .arg(g_myVappList[i].id);
-
-//            g_myVappList[i].icon = iconPath;
-
-            g_RemoteappList.insert(i, g_myVappList[i]);
-            g_RemoteappList[i].icon = iconPath;
-
-            //check if ico file is existed, or dont donwload
-            QFile chkFile(iconPath);
-            if(chkFile.exists())
-            {
-                chkFile.close();
-                continue;
-            }
-            chkFile.close();
-
-            //qDebug()<<"iconPath"<<iconPath;
-            _commui->downloadIcon(QUrl(g_myVappList[i].icon), tempPath);
-            while (!_vacfinished)
-                QApplication::processEvents();
-            _vacfinished = false;
-
-            setIcon(WIN_VAPP_IconPath, tempPath);
-        }
-    }
-    else
-    {
-        QMessageBox::warning(this, tr("vapp login failed"), _commui->errInfo, tr("OK"));
-        //        return;
-    }
+    getVac();
 
     getPaas(true);
 
@@ -1004,8 +944,8 @@ void LoginDialog::settingUi()
     vacLEdit->setGeometry((width() - 188) / 2, 145, 188, 27);
     paasLEdit->setGeometry((width() - 188) / 2, 175, 188, 27);
     vacPortLEdit->setGeometry((width() - 188) / 2 + 195, 145, 50, 27);
-    QPixmap loginButton(":images/login_btn.png");
-    QPixmap loginButtonHover(":images/login_btn_hover.png");
+    QPixmap loginButton(":images/login_save_normal.png");
+    QPixmap loginButtonHover(":images/login_save_hover.png");
     QPixmap cancelButton(":images/cancel_btn.png");
     QPixmap cancelButtonHover(":images/cancel_btn_hover.png");
 
@@ -1063,10 +1003,16 @@ void LoginDialog::updateUi()
 {
     if(_isSetting)
     {
+
         userEdit->hide();
         passEdit->hide();
         submit->hide();
         cancelBtn->hide();
+
+        _uerror = "";
+        _perror = "";
+        _cerror = "";
+        _cmsg = "";
 
         _tempVerifyIp = verifyLEdit->text();
         _tempVacIp = vacLEdit->text();
@@ -1460,4 +1406,95 @@ void LoginDialog::getPaas(bool isLogin)
 
         setIcon(WIN_PAAS_IconPath, tempPath);
     }
+}
+
+void LoginDialog::getVac()
+{
+    if(_commui->errID == "10000")
+    {
+        //        char folder[MAX_PATH] = {0};
+        //        SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
+        //        WIN_TtempPath = QString(folder);
+        //        WIN_VAPP_IconPath=WIN_TtempPath+"\\App Center\\Vicons\\";
+
+        //get vapp list
+
+        _commui->getAppList();
+        while (!_vacfinished)
+            QApplication::processEvents();
+        _vacfinished = false;
+
+        g_myVappList = _commui->getList();
+        qDebug()<<"g_myList.count()="<<g_myVappList.count();
+
+#ifdef Q_WS_WIN
+//        iconDirPath = WIN_VAPP_IconPath ;
+#else
+        WIN_VAPP_IconPath =  xmlPath + "\\App Center\\Vicons";
+#endif
+
+        QDir iconDir(WIN_VAPP_IconPath);
+        if(!iconDir.exists())
+        {
+            iconDir.mkdir(WIN_VAPP_IconPath);
+        }
+        //store ico file locally
+        for(int i = 0; i < g_myVappList.count(); i++)
+        {
+            QString iconPath = QString("%1%2.png")
+                    .arg(WIN_VAPP_IconPath)
+                    .arg(g_myVappList[i].id);
+            QString tempPath = QString("%1%2.ico")
+                    .arg(WIN_VAPP_IconPath)
+                    .arg(g_myVappList[i].id);
+
+//            g_myVappList[i].icon = iconPath;
+
+            g_RemoteappList.insert(i, g_myVappList[i]);
+            g_RemoteappList[i].icon = iconPath;
+
+            //check if ico file is existed, or dont donwload
+            QFile chkFile(iconPath);
+            if(chkFile.exists())
+            {
+                chkFile.close();
+                continue;
+            }
+            chkFile.close();
+
+            //qDebug()<<"iconPath"<<iconPath;
+            _commui->downloadIcon(QUrl(g_myVappList[i].icon), tempPath);
+            while (!_vacfinished)
+                QApplication::processEvents();
+            _vacfinished = false;
+
+            setIcon(WIN_VAPP_IconPath, tempPath);
+        }
+    }
+    else
+    {
+        if ((_commui->errInfo == "会话已存在") || (_commui->errID == "10045"))
+        {
+            _commui->logoff();
+
+            _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
+
+            while (!_finished)
+                QApplication::processEvents();
+            _finished = false;
+
+            getVac();
+
+        }
+        else
+        {
+//            QMessageBox::warning(this, tr("vapp login failed"), _commui->errInfo, tr("OK"));
+
+            AppMessageBox box(false, NULL);
+            box.setText(tr("vapp login failed, please contact the administrator."));
+            box.exec();
+        }
+
+    }
+
 }

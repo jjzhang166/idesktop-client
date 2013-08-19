@@ -10,11 +10,10 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 
-//#define ICONTOP_H 54
-//#define ICONCENTER_H 42
-//#define ICONBOTTOM_H 55
 #define BTN_H 19
 #define ICON_W 162
+
+extern int ICON_TYPE;
 
 //ContextMenuWidget::ContextMenuWidget(menu_type & type, QWidget *parent)
 //    : QWidget(parent)
@@ -450,9 +449,35 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 
         setFixedSize(ICON_W, 78 + 2 * 2 + 20);
 
-        connect(_largeBtn, SIGNAL(clicked()), this, SIGNAL(largeIcon()));
-        connect(_mediumBtn, SIGNAL(clicked()), this, SIGNAL(mediumIcon()));
-        connect(_smallBtn, SIGNAL(clicked()), this, SIGNAL(smallIcon()));
+        connect(_largeBtn, SIGNAL(clicked()), this, SLOT(largeBtnClicked()));
+        connect(_mediumBtn, SIGNAL(clicked()), this, SLOT(mediumBtnClicked()));
+        connect(_smallBtn, SIGNAL(clicked()), this, SLOT(smallBtnClicked()));
+
+        switch(ICON_TYPE)
+        {
+            case 0 :
+                _largeBtn->setMenuSelect(true);
+                _mediumBtn->setMenuSelect(false);
+                _smallBtn->setMenuSelect(false);
+                break;
+
+            case 1 :
+                _largeBtn->setMenuSelect(false);
+                _mediumBtn->setMenuSelect(true);
+                _smallBtn->setMenuSelect(false);
+
+                break;
+
+            case 2 :
+                _largeBtn->setMenuSelect(false);
+                _mediumBtn->setMenuSelect(false);
+                _smallBtn->setMenuSelect(true);
+
+                break;
+
+            default:
+                break;
+        }
 
         break;
 
@@ -543,6 +568,32 @@ void MenuWidget::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
 }
 
+void MenuWidget::largeBtnClicked()
+{
+    _largeBtn->setMenuSelect(true);
+    _mediumBtn->setMenuSelect(false);
+    _smallBtn->setMenuSelect(false);
+    emit largeIcon();
+
+}
+
+void MenuWidget::mediumBtnClicked()
+{
+    _largeBtn->setMenuSelect(false);
+    _mediumBtn->setMenuSelect(true);
+    _smallBtn->setMenuSelect(false);
+    emit mediumIcon();
+}
+
+void MenuWidget::smallBtnClicked()
+{
+
+    _largeBtn->setMenuSelect(false);
+    _mediumBtn->setMenuSelect(false);
+    _smallBtn->setMenuSelect(true);
+    emit smallIcon();
+}
+
 //MenuButton
 
 MenuButton::MenuButton(QString normal, QString hover, const QString &hint, QWidget *parent, bool subMenu)
@@ -566,6 +617,11 @@ MenuButton::MenuButton(QString normal, QString hover, const QString &hint, QWidg
         _subPixmap.load(":images/sub_menu.png");
     else
         _subPixmap.load("");
+
+    _menuSelectLabel = new QLabel(this);
+    _menuSelectLabel->setGeometry(5, 3, 9, 10);
+    _menuSelectLabel->setPixmap(QPixmap(":images/iconmenu_select.png"));
+    _menuSelectLabel->setVisible(false);
 }
 
 MenuButton::~MenuButton()
@@ -678,4 +734,9 @@ void MenuButton::setValue(int value)
 bool MenuButton::hasSubMenu()
 {
     return _subMenu;
+}
+
+void MenuButton::setMenuSelect(bool select)
+{
+    _menuSelectLabel->setVisible(select);
 }
