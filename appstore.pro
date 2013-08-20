@@ -84,7 +84,8 @@ HEADERS += src/config.h \
     src/dustbin.h \
     src/qitemmanager.h \
     src/runapp.h \
-    src/struct.h
+    src/struct.h \
+    src/idesktopsettings.h
 
 
 win32 {
@@ -141,7 +142,8 @@ SOURCES += src/config.cpp \
     src/toolbarwidget.cpp \
     src/dustbin.cpp \
     src/qitemmanager.cpp \
-    src/runapp.cpp
+    src/runapp.cpp \
+    src/idesktopsettings.cpp
 
 
 FORMS +=
