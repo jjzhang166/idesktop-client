@@ -89,6 +89,7 @@ class QLabel;
 class QPoint;
 
 class HoverIconItem;
+class IDesktopSettings;
 
 //#define SPACING 30
 //#define ICONWIDTH 96
@@ -408,7 +409,6 @@ private:
     bool _openDir;
     bool _openToolBar;
 
-    int _iconSize;
     int _iconHSpacing;
     int _iconVSpacing;
 
@@ -468,6 +468,8 @@ public:
 
     QPoint _mousePos;
     int _menuValue;
+
+    IDesktopSettings *_settings;
 };
 
 #endif

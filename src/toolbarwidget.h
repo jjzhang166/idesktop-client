@@ -115,17 +115,12 @@ public slots:
 //    void menuChanged(int value);
 //    void hideMenuWidget();
 
-    void setLargeIcon();
-    void setMediumIcon();
-    void setSmallIcon();
-
 //    void addDirItem();
 
 //   void showIconContextMenu(QPoint pos, QPoint mPos, const QString &text);
 //    void iconMenuRunClicked();
 //    void iconMenuDelClicked();
 
-   void refreshMenu();
     void dirWidgetDelIcon(int id, const QString &uniqueName);
 
 //    void moveWidgetDrop(IconItem *iconItem);
@@ -166,10 +161,6 @@ signals:
     void desktopTheme();
     void del();
 //    void refresh();
-    //showIconMenu
-    void largeIcon();
-    void mediumIcon();
-    void smallIcon();
     //createMenu
     void createDir();
     void createLink();
@@ -268,7 +259,6 @@ private:
     int _dirIndex;
     bool _openDir;
 
-    int _iconSize;
     int _iconHSpacing;
     int _iconVSpacing;
 

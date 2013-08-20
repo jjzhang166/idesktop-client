@@ -1,28 +1,5 @@
-#include <QApplication>
-#include <QPixmap>
-#include <QCheckBox>
-#include <QDialog>
-#include <QDebug>
-#include <QPushButton>
-#include <QCryptographicHash>
-#include <QVBoxLayout>
-#include <QRadioButton>
-#include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlQuery>
-#include <QVariant>
-#include <QBitmap>
-#include <QByteArray>
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
-#include <QDir>
-#include <QMenu>
-#include <QTransform>
-//#include <QApplication>
-#include <QLibrary>
-#include <QTextCodec>
-#include <QSettings>
-#include <QProcess>
-#include <QFile>
+#include <QtGui>
+#include <QtSql/QtSql>
 
 #include "logindialog.h"
 #include "hintlineEdit.h"
@@ -33,7 +10,7 @@
 //#include "vappvirtualdesktop.h"
 #include <windows.h>
 #include <shellapi.h>
-#include "ShlObj.h "
+#include "ShlObj.h"
 
 #include "appmessagebox.h"
 
@@ -83,8 +60,6 @@ QString xmlPath;
 
 typedef void (*DLL_getApp2)();
 DLL_getApp2 my_getApp2;
-
-int ICON_TYPE;
 
 LoginDialog::LoginDialog(QWidget *parent)
     : QDialog(parent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint| Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint)
@@ -511,11 +486,11 @@ void LoginDialog::auth()
     }
 //    QString md5;
 //    QByteArray bb;
-//    bb = QCryptographicHash::hash(passEdit->text().toAscii(), \
+//    bb = QCryptographicHash::hash(passEdit->text().toAscii(),
 //                                  QCryptographicHash::Md5);
 //    md5.append(bb.toHex());
 
-    QString statement = QString("select password from users where name='%1'")\
+    QString statement = QString("select password from users where name='%1'")
             .arg(userEdit->text());
     QSqlDatabase localDb = QSqlDatabase::database("local");
 
@@ -563,8 +538,8 @@ void LoginDialog::auth()
 
         //        QSqlQuery query = localDb.exec(statement);
         //        if (!query.next()) {
-        //            QString replaceNamePwd = QString("insert into users ("\
-        //                                             "name, password) values ( " \
+        //            QString replaceNamePwd = QString("insert into users ("
+        //                                             "name, password) values ( "
         //                                             "\'%1\', \'%2\');")
         //                                    .arg(userEdit->text()).arg(passEdit->text());
         //            localDb.exec(replaceNamePwd);
@@ -618,8 +593,6 @@ void LoginDialog::auth()
     iniPath = WIN_TtempPath + "\\App Center\\app.ini";
     qDebug()<<"icon path:"<<WIN_VAPP_IconPath;
 
-    getIconType();
-    qDebug()<<"after getIconType";
     //local
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -910,16 +883,6 @@ QString LoginDialog::GetSystemInfo()
     sysInfo = "linux";
 #endif
     return sysInfo;
-}
-
-
-void LoginDialog::getIconType()
-{
-    QSqlQuery query = \
-            QSqlDatabase::database("local").exec(QString("SELECT type FROM sizetype where id=1;"));
-    while (query.next())
-        ICON_TYPE = query.value(0).toInt();
-
 }
 
 //setting by zj

@@ -45,8 +45,6 @@ extern QList<LOCAL_LIST> g_RemotelocalList;
 extern QList<APP_LIST> g_RemoteappList;
 extern QList<PAAS_LIST> g_RemotepaasList;
 
-extern int ICON_TYPE;
-
 class LoginDialog : public QDialog
 {
     Q_OBJECT
@@ -62,7 +60,6 @@ public:
     void debugPrintVariant (QVariant const& v);
 
     void updateVacServer();
-    void getIconType();
 
     QAction *_dHideAction;
     QAction *_dShowAction;

@@ -1,20 +1,3 @@
-#include <QLabel>
-#include <QTimeLine>
-#include <QColor>
-#include <QTimer>
-#include <QApplication>
-#include <QPainter>
-#include <QHBoxLayout>
-#include <QResizeEvent>
-#include <QPixmap>
-#include <QWidget>
-#include <QDebug>
-#include <QMouseEvent>
-#include <QPropertyAnimation>
-#include <QPushButton>
-#include <QProcess>
-#include <QSettings>
-#include <QTextEdit>
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>
@@ -22,12 +5,12 @@
 #include <windows.h>
 #include <shellapi.h>
 #include "strings.h"
-using namespace std;
-#include <QMessageBox>
-#include <QCursor>
-#include <QDesktopServices>
-#include <QMessageBox>
 
+using namespace std;
+
+#include <QtGui>
+
+#include "idesktopsettings.h"
 #include "toolBarWidget.h"
 #include "localapps.h"
 #include "movingdialog.h"
@@ -73,8 +56,6 @@ extern QList<PAAS_LIST> g_RemotepaasList;
 
 extern QList<TEMP_LIST> dirWidget_FirstLists;
 
-extern int ICON_TYPE;
-
 static QPoint gap;
 
 toolBarWidget::toolBarWidget(QSize pageSize, QWidget *parent)
@@ -92,7 +73,6 @@ toolBarWidget::toolBarWidget(QSize pageSize, QWidget *parent)
     , _upDistance(0)
     , _distance(0)
     , _openDir(false)
-//    , _iconSize(ICON_TYPE)
     , _dragEnterMinWidget(false)
     , _isIconMove(true)
     , _isOtherWidgetObject(false)
@@ -745,21 +725,7 @@ int toolBarWidget::addIcon(const QString &text,
     qDebug() << "addIcon";
 
     IconItem *icon = new IconItem(this);
-
-//    switch(_iconSize)
-//    {
-//        case IconItem::large_size :
-//           icon->setLargeSize();
-//            break;
-
-//        case IconItem::medium_size :
-//            icon->setMediumSize();
-//            break;
-
-//        default:
     icon->setSmallSize();
-//            break;
-//    }
     icon->setSaveDataBool(true);
     icon->setIconSize(2);
     icon->setUniqueName(uniqueName);
@@ -1320,88 +1286,6 @@ void toolBarWidget::hideMenuWidget()
         _iconMenu->setVisible(false);
 }
 #endif
-void toolBarWidget::setLargeIcon()
-{
-//    hideMenuWidget();
-
-//    LocalAppList::getList()->save();
-
-    _iconSize = IconItem::large_size;
-    ICON_TYPE = _iconSize;
-
-//    for (int i = 0; i < _dirList.count(); i++)
-//    {
-//        _dirList.at(i)->largeIcon();
-//    }
-
-
-    refresh(LARGESIZE);
-
-    emit largeIcon();
-
-//    for (int i = 0; i < _local->count(); i++)
-//    {
-//        addIcon(_local->at(i)->name(), _local->at(i)->icon()
-//                , _local->at(i)->page(),_local->at(i)->index()
-//                , _local->at(i)->url(), _local->at(i)->type().toInt());
-//    }
-    initIconItem();
-}
-
-void toolBarWidget::setMediumIcon()
-{
-//    hideMenuWidget();
-
-//    LocalAppList::getList()->save();
-
-    _iconSize = IconItem::medium_size;
-    ICON_TYPE = _iconSize;
-//    for (int i = 0; i < _dirList.count(); i++)
-//    {
-//        _dirList.at(i)->mediumIcon();
-//    }
-
-    refresh(MEDIUMSIZE);
-
-    emit mediumIcon();
-
-//    for (int i = 0; i < _local->count(); i++)
-//    {
-//        addIcon(_local->at(i)->name(), _local->at(i)->icon()
-//                , _local->at(i)->page(),_local->at(i)->index()
-//                , _local->at(i)->url(), _local->at(i)->type().toInt());
-//    }
-
-    initIconItem();
-}
-
-void toolBarWidget::setSmallIcon()
-{
-//    hideMenuWidget();
-
-//    LocalAppList::getList()->save();
-
-    _iconSize = IconItem::small_size;
-    ICON_TYPE = _iconSize;
-
-//    for (int i = 0; i < _dirList.count(); i++)
-//    {
-//        _dirList.at(i)->smallIcon();
-//    }
-
-    refresh(SMALLSIZE);
-
-    emit smallIcon();
-
-//    for (int i = 0; i < _local->count(); i++)
-//    {
-//        addIcon(_local->at(i)->name(), _local->at(i)->icon()
-//                , _local->at(i)->page(),_local->at(i)->index()
-//                , _local->at(i)->url(), _local->at(i)->type().toInt());
-//    }
-
-    initIconItem();
-}
 
 void toolBarWidget::refresh(QSize size)
 {
@@ -1439,10 +1323,6 @@ void toolBarWidget::movetoFirst()
 void toolBarWidget::reloadApplist(QSize size)
 {
     _count = 1;
-
-//    gridWidth = size.width() + HSPACING * 2;
-//    gridHeight = size.height() + BOTTOMSPACING;
-
     changeSpacing();
 
     _col = (_width - _iconHSpacing) / gridWidth;
@@ -1503,7 +1383,7 @@ void toolBarWidget::deleteAllIconItem()
 
 void toolBarWidget::changeSpacing()
 {
-    switch(_iconSize)
+    switch(IDesktopSettings::instance()->iconSize())
     {
         case IconItem::large_size :
 
@@ -1531,24 +1411,6 @@ void toolBarWidget::changeSpacing()
 
             gridWidth = SMALLSIZE.width() + HSPACING * 2;
             gridHeight = SMALLSIZE.height() + BOTTOMSPACING;
-            break;
-    }
-}
-
-void toolBarWidget::refreshMenu()
-{
-    switch(ICON_TYPE)
-    {
-        case IconItem::large_size :
-            setLargeIcon();
-            break;
-
-        case IconItem::medium_size :
-            setMediumIcon();
-            break;
-
-        default:
-            setSmallIcon();
             break;
     }
 }

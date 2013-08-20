@@ -164,8 +164,8 @@ private:
     MoveMinWidget *_downMinW;
 
     DirShowWidget *_dirWidget;
-    bool _animationDownFinished;
     bool _animationUpFinished;
+    bool _animationDownFinished;
     QLabel *_minDirLabel;
     QLabel *_minToolBarLabel;
 

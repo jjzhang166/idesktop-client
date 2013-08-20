@@ -734,15 +734,6 @@ void Dashboard::quit()
         QString data = "username=" + USERNAME;
 
         _nam->post(QNetworkRequest(QUrl(quitUrl)), data.toAscii());
-        QSqlQuery query(QSqlDatabase::database("local"));
-
-        QString updateIconType = QString("update sizetype "\
-                                    "set type=%1 where id=1;")\
-                                    .arg(ICON_TYPE);
-        if(!query.exec(updateIconType)) {
-            qDebug() <<"query failed";
-            return;
-        }
 
         _switcherLeft->setVisible(false);
         _switcherRight->setVisible(false);
@@ -778,6 +769,7 @@ void Dashboard::resizeEvent(QResizeEvent *event)
 
 void Dashboard::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event)
     QPainter painter(this);
 
     painter.drawPixmap(0, 0, _width, _height, _pixmap);
@@ -822,7 +814,7 @@ void Dashboard::setBgImage(QString url)
 
     if(lib.load()) {
         qDebug() << "success load dll";
-        if(changebg = (DLL_Changebg)lib.resolve("SetMyWallpaper")) {
+        if((changebg = (DLL_Changebg)lib.resolve("SetMyWallpaper"))) {
             qDebug() << "success find func";
             changebg(path.toLatin1().data() , 2);       //changebg(path.toLatin1().data() , 0);
         } else {

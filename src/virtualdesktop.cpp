@@ -1,20 +1,3 @@
-#include <QLabel>
-#include <QTimeLine>
-#include <QColor>
-#include <QTimer>
-#include <QApplication>
-#include <QPainter>
-#include <QHBoxLayout>
-#include <QResizeEvent>
-#include <QPixmap>
-#include <QWidget>
-#include <QDebug>
-#include <QMouseEvent>
-#include <QPropertyAnimation>
-#include <QPushButton>
-#include <QProcess>
-#include <QSettings>
-#include <QTextEdit>
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>
@@ -24,11 +7,11 @@
 #include "strings.h"
 #include "qitemmanager.h"
 using namespace std;
-#include <QMessageBox>
-#include <QCursor>
-#include <QDesktopServices>
+
+#include <QtGui>
 #include <QUuid>
 
+#include "idesktopsettings.h"
 #include "virtualdesktop.h"
 #include "localapps.h"
 #include "movingdialog.h"
@@ -74,7 +57,6 @@ extern QList<APP_LIST> g_RemoteappList;
 extern QList<PAAS_LIST> g_RemotepaasList;
 
 extern QList<TEMP_LIST> dirWidget_FirstLists;
-extern int ICON_TYPE;
 
 static QPoint gap;
 
@@ -98,7 +80,6 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     , _upDistance(0)
     , _distance(0)
     , _openDir(false)
-    , _iconSize(ICON_TYPE)
     , _dragEnterMinWidget(true)
     , _isIconMove(true)
     , _isDirWidgetObject(false)
@@ -111,7 +92,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     , _restoreIcon(NULL)
 
 {
-
+    _settings = IDesktopSettings::instance();
     setFocusPolicy(Qt::ClickFocus);
 
     _count = 1;
@@ -1523,7 +1504,7 @@ int VirtualDesktop::addIcon(const QString &text, \
 
     IconItem *icon = new IconItem(this);
 
-    switch(_iconSize)
+    switch(_settings->iconSize())
     {
         case IconItem::large_size :
             icon->setLargeSize();
@@ -1539,7 +1520,7 @@ int VirtualDesktop::addIcon(const QString &text, \
     }
 
     icon->setSaveDataBool(true);
-    icon->setIconSize(_iconSize);
+    icon->setIconSize(_settings->iconSize());
     icon->setUniqueName(uniqueName);
     icon->setText(text);
     icon->setTimeLine(false);
@@ -1548,7 +1529,7 @@ int VirtualDesktop::addIcon(const QString &text, \
 
     if(type == dirIcon)
     {
-        icon->addMinWidget(ICON_TYPE);
+        icon->addMinWidget(_settings->iconSize());
     }
     icon->setIconClass(type);
 
@@ -2382,11 +2363,10 @@ void VirtualDesktop::setLargeIcon()
 {
     hideMenuWidget();
 
-    if (ICON_TYPE == IconItem::large_size)
+    if (_settings->iconSize() == IconItem::large_size)
         return;
 
-    _iconSize = IconItem::large_size;
-    ICON_TYPE = _iconSize;
+    _settings->setIconSize(IconItem::large_size);
 
     for (int i = 0; i < _dirShowWidgetList.count(); i++)
     {
@@ -2408,11 +2388,10 @@ void VirtualDesktop::setMediumIcon()
 {
     hideMenuWidget();
 
-    if (ICON_TYPE == IconItem::medium_size)
+    if (_settings->iconSize() == IconItem::medium_size)
         return;
 
-    _iconSize = IconItem::medium_size;
-    ICON_TYPE = _iconSize;
+    _settings->setIconSize(IconItem::medium_size);
 
     for (int i = 0; i < _dirShowWidgetList.count(); i++)
     {
@@ -2432,11 +2411,10 @@ void VirtualDesktop::setSmallIcon()
 {
     hideMenuWidget();
 
-    if (ICON_TYPE == IconItem::small_size)
+    if (_settings->iconSize() == IconItem::small_size)
         return;
 
-    _iconSize = IconItem::small_size;
-    ICON_TYPE = _iconSize;
+    _settings->setIconSize(IconItem::small_size);
 
     for (int i = 0; i < _dirShowWidgetList.count(); i++)
     {
@@ -2606,7 +2584,7 @@ void VirtualDesktop::deleteAllIconItem()
 
 void VirtualDesktop::changeSpacing()
 {
-    switch(_iconSize)
+    switch(_settings->iconSize())
     {
         case IconItem::large_size :
 

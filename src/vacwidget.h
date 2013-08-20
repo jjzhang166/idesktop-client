@@ -26,6 +26,7 @@
 //class VacItem;
 class VacWidget;
 class VacScrollBarWidget;
+class IDesktopSettings;
 
 class VacShowWidget : public QWidget
 {
@@ -241,14 +242,13 @@ private:
     bool _vFinished;
     commuinication *_commui;
 
-    int _iconSize;
     int _iconHSpacing;
     int _iconVSpacing;
 
     void changeSpacing();
 
     LocalAppList *_local;
-
+    IDesktopSettings *_settings;
 //    QList<PAAS_LIST> _paasList;
 
 

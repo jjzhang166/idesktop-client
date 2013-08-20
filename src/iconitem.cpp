@@ -28,7 +28,6 @@
 #define SMALL_S_SIZE QSize(30, 30)    //32*32
 #define HOVERALPHA  0
 #define SELECTALPHA 25
-extern int ICON_TYPE;
 static QPoint gap;
 
 IconItem::IconItem(QWidget *parent)

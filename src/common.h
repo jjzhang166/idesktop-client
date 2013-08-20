@@ -21,7 +21,7 @@ typedef struct _APP_LIST
     bool hidden;
 } APP_LIST, *PAPP_LIST;
 
-typedef struct _Commui
+struct _Commui
 {
     QString _userType;//用户类型，0，工作组，1，ad
     QString _domain;//Ad用户类型下对应的ad域名

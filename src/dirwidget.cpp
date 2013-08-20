@@ -18,6 +18,7 @@
 #include <QDrag>
 #include <QDesktopServices>
 
+#include "idesktopsettings.h"
 #include "DirWidget.h"
 #include "config.h"
 #include "dirwidget.h"
@@ -55,7 +56,6 @@
 #define ICONHSPACING (88 - 40)
 #define ICONVSPACING (36 - 36)
 
-extern int ICON_TYPE;
 extern QString WIN_VAPP_IconPath;
 extern QList<APP_LIST> g_myVappList;
 extern QList<LOCAL_LIST> g_RemotelocalList;
@@ -393,7 +393,6 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
     , _localCount(0)
     , _iconNum(0)
     , _url("")
-    , _iconSize(ICON_TYPE)
     , _dragEvent(false)
     , _dragDown(false)
     , _dragUp(false)
@@ -402,6 +401,7 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
     , _dustbinMenu(NULL)
     , _currentIconItem(NULL)
 {
+    _iconSize = IDesktopSettings::instance()->iconSize();
     _count = 1;
     _pageSize = pageSize;
     _width = _pageSize.width();

@@ -35,7 +35,6 @@
 #define SMALL_S_SIZE QSize(30, 30)    //32*32
 
 class IconItem;
-extern int ICON_TYPE;
 extern QList<TEMP_LIST> dirWidget_FirstLists;
 
 IconMinItem::IconMinItem(QWidget *parent)

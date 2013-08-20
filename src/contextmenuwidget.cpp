@@ -10,10 +10,10 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 
+#include "idesktopsettings.h"
 #define BTN_H 19
 #define ICON_W 162
 
-extern int ICON_TYPE;
 
 //ContextMenuWidget::ContextMenuWidget(menu_type & type, QWidget *parent)
 //    : QWidget(parent)
@@ -453,7 +453,7 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         connect(_mediumBtn, SIGNAL(clicked()), this, SLOT(mediumBtnClicked()));
         connect(_smallBtn, SIGNAL(clicked()), this, SLOT(smallBtnClicked()));
 
-        switch(ICON_TYPE)
+        switch(IDesktopSettings::instance()->iconSize())
         {
             case 0 :
                 _largeBtn->setMenuSelect(true);

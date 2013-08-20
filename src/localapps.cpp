@@ -292,7 +292,7 @@ bool LocalAppList::addApp(LocalApp *app)
 //{
 //    for (int i = 0; i < _list.count(); i++) {
 //        if (_list.at(i)->name() == name) {
-//            QString qstr = QString("delete from localapps "\
+//            QString qstr = QString("delete from localapps "
 //                                   "where name=\"%1\";").arg(name);
 //            QSqlQuery query = QSqlDatabase::database("local").exec(qstr);
 //            _list.remove(i);
@@ -421,7 +421,7 @@ void LocalAppList::addLocalApp(QString appPath)
 //        for (int j = 0; j < normal.height(); j++) {
 //            QRgb pixel = normal.pixel(i,j);
 //            int a = qAlpha(pixel);
-//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel),
 //                                    qBlue(pixel), a * 117 / 255);
 //            normal.setPixel(i, j, lightPixel);
 //        }

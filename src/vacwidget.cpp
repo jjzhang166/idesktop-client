@@ -21,6 +21,7 @@
 //#include <QtScript/QScriptEngine>
 //#include <QtScript/QScriptValueIterator>
 
+#include "idesktopsettings.h"
 #include "vacwidget.h"
 #include "config.h"
 #include "commuinication.h"
@@ -34,7 +35,6 @@ extern QList<PAAS_LIST> g_RemotepaasList;
 extern QList<APP_LIST> g_myVappList;
 extern QList<PAAS_LIST> g_myPaasList;
 
-extern int ICON_TYPE;
 
 //#define ICONWIDTH 72
 //#define ICONHEIGHT 72
@@ -824,8 +824,8 @@ void VacScrollBarWidget::iconItemNameChanged(const QString &uniqueName, const QS
 VacWidget::VacWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
     , _localCount(0)
-    , _iconSize(ICON_TYPE)
 {
+    _settings = IDesktopSettings::instance();
     _count = 1;
     _pageSize = pageSize;
     _width = _pageSize.width();
@@ -833,30 +833,11 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
 
     changeSpacing();
 
-//    gridWidth = ICONITEMWIDTH + HSPACING * 2;
-//    gridHeight = ICONITEMWIDTH + BOTTOMSPACING;
-
     _col = (_width - _iconHSpacing) / gridWidth;
     _row = (_height - _iconVSpacing) / gridHeight;
     _iconsPerPage = _col * _row;
     _current  = 0;
 
-
-//    for (int i = 0; i < _local->count(); i++) {
-//        if (_local->at(i)->hidden())
-//            continue;
-
-//        if(_local->at(i)->isRemote())
-//        {
-//            _localCount++;
-//        }
-//    }
-
-
-//    for (int i = 0; i < ICONNUM; i++)
-//    {
-//        _count = i / _iconsPerPage + 1;
-//    }
 
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _height));
@@ -897,35 +878,6 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
     QPalette pal = palette();
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
-
-//    _pFinished = false;
-//    _commui = new commuinication();
-
-//    _vFinished = false;
-//    _paasCommui = new PaasCommuinication();
-
-//    connect(_commui, SIGNAL(done()), this, SLOT(onVacDone()));
-//    connect(_paasCommui, SIGNAL(done()), this, SLOT(onPaasDone()));
-
-//    for (int i = 0; i < _local->count(); i++) {
-//        if (_local->at(i)->hidden())
-//            continue;
-
-//        if(_local->at(i)->isRemote())
-//        {
-//            addIcon(_local->at(i)->name(), _local->at(i)->icon(),
-//                    _local->at(i)->page(), -1);
-//        }
-//    }
-
-
-
-
-//    for (int i = 0; i < ICONNUM; i++) {
-//        addIcon("", QString(":images/custom/z_%1.png").arg(i),
-//                -1, i);
-//    }
-    getLocalIcon();
     getVacIcon();
     getPaasIcon();
 }
@@ -956,7 +908,7 @@ int VacWidget::addIcon(QString text,
     _url = url;
 
     IconItem *icon = new IconItem(this);
-    switch(_iconSize)
+    switch(_settings->iconSize())
     {
         case IconItem::large_size :
             icon->setLargeSize();
@@ -972,7 +924,7 @@ int VacWidget::addIcon(QString text,
     }
 
     icon->setSaveDataBool(false);
-    icon->setIconSize(_iconSize);
+    icon->setIconSize(_settings->iconSize());
     icon->setUniqueName(uniqueName);
     LocalApp * _app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
 
@@ -1492,19 +1444,19 @@ void VacWidget::getLocalIcon()
 
 void VacWidget::largeIcon()
 {
-    _iconSize = IconItem::large_size;
+    _settings->setIconSize(IconItem::large_size);
     refresh(LARGESIZE);
 }
 
 void VacWidget::mediumIcon()
 {
-    _iconSize = IconItem::medium_size;
+    _settings->setIconSize(IconItem::medium_size);
     refresh(MEDIUMSIZE);
 }
 
 void VacWidget::smallIcon()
 {
-    _iconSize = IconItem::small_size;
+    _settings->setIconSize(IconItem::small_size);
     refresh(SMALLSIZE);
 }
 
@@ -1605,7 +1557,7 @@ void VacWidget::deleteAllIconItem()
 
 void VacWidget::changeSpacing()
 {
-    switch(_iconSize)
+    switch(_settings->iconSize())
     {
         case IconItem::large_size :
 
