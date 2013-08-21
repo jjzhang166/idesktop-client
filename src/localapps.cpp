@@ -20,6 +20,7 @@
 #include <windows.h>
 #include <stdio.h>
 
+#include "idesktopsettings.h"
 #include "localapps.h"
 //#include "constants.h"
 #include "common.h"
@@ -45,7 +46,6 @@
 #define DIRID   13
 #define UNIQUENAME 14
 
-extern QList<APP_LIST> g_RemoteappList;
 LocalAppList * LocalAppList::_l = NULL;
 
 LocalApp::LocalApp()
@@ -113,6 +113,7 @@ void LocalAppList::updateQList()
 
 void LocalAppList::updateAppList()
 {
+    QList<APP_LIST>& remoteAppList = _settings->remoteAppList();
     bool isRemote = false;
     for(int i=0; i< _list.count(); i++)
     {
@@ -132,30 +133,30 @@ void LocalAppList::updateAppList()
         {
 
             int j= query1.value(0).toInt();
-            for(int i=0; i< g_RemoteappList.count(); i++)
+            for(int i=0; i< remoteAppList.count(); i++)
             {
                 LocalApp *RemoteApp = new LocalApp();
-                RemoteApp->setName(g_RemoteappList[i].name);
-                RemoteApp->setId(g_RemoteappList[i].id);
-                RemoteApp->setIcon(g_RemoteappList[i].icon);
+                RemoteApp->setName(remoteAppList[i].name);
+                RemoteApp->setId(remoteAppList[i].id);
+                RemoteApp->setIcon(remoteAppList[i].icon);
                 RemoteApp->setPage(-1);
                 RemoteApp->setIndex(i+j+1);
-                RemoteApp->setType(g_RemoteappList[i].type);
+                RemoteApp->setType(remoteAppList[i].type);
                 RemoteApp->setIsRemote(true);
                 addRemoteApp(RemoteApp);
                 //_list.append(RemoteApp);
             }
         }else{
-            qDebug()<<"remoteList:"<<g_RemoteappList.count();
-            for(int i=0; i< g_RemoteappList.count(); i++)
+            qDebug()<<"remoteList:"<<remoteAppList.count();
+            for(int i=0; i< remoteAppList.count(); i++)
             {
                 LocalApp *RemoteApp = new LocalApp();
-                RemoteApp->setName(g_RemoteappList[i].name);
-                RemoteApp->setId(g_RemoteappList[i].id);
-                RemoteApp->setIcon(g_RemoteappList[i].icon);
+                RemoteApp->setName(remoteAppList[i].name);
+                RemoteApp->setId(remoteAppList[i].id);
+                RemoteApp->setIcon(remoteAppList[i].icon);
                 RemoteApp->setPage(-1);
                 RemoteApp->setIndex(i);
-                RemoteApp->setType(g_RemoteappList[i].type);
+                RemoteApp->setType(remoteAppList[i].type);
                 RemoteApp->setIsRemote(true);
                 addRemoteApp(RemoteApp);
                 //_list.append(RemoteApp);
@@ -167,9 +168,9 @@ void LocalAppList::updateAppList()
         QSqlQuery query = QSqlDatabase::database("local").exec("select name from localapps where isRemote=1");
         while (query.next()) {
             bool isExist = false;
-            for(int i=0; i < g_RemoteappList.count(); i++)
+            for(int i=0; i < remoteAppList.count(); i++)
             {
-                if(query.value(0).toString() == g_RemoteappList[i].name)
+                if(query.value(0).toString() == remoteAppList[i].name)
                 {
                     isExist = true;
                     break;
@@ -194,11 +195,11 @@ void LocalAppList::updateAppList()
         }
         //
         QSqlQuery Rquery = QSqlDatabase::database("local").exec("select name from localapps where isRemote=1");
-        for(int j=0; j < g_RemoteappList.count(); j++)
+        for(int j=0; j < remoteAppList.count(); j++)
         {
             bool isRExist = false;
             while(Rquery.next()){
-                if(g_RemoteappList[j].name == Rquery.value(0).toString())
+                if(remoteAppList[j].name == Rquery.value(0).toString())
                 {
                     isRExist = true;
                     break;
@@ -211,12 +212,12 @@ void LocalAppList::updateAppList()
                int index = maxQuery.value(0).toInt() + 1;
 //               qDebug()<<"maxQuery:"<<index;
                LocalApp *RemoteApp = new LocalApp();
-               RemoteApp->setName(g_RemoteappList[j].name);
-               RemoteApp->setId(g_RemoteappList[j].id);
-               RemoteApp->setIcon(g_RemoteappList[j].icon);
+               RemoteApp->setName(remoteAppList[j].name);
+               RemoteApp->setId(remoteAppList[j].id);
+               RemoteApp->setIcon(remoteAppList[j].icon);
                RemoteApp->setPage(-1);
                RemoteApp->setIndex(index);
-               RemoteApp->setType(g_RemoteappList[j].type);
+               RemoteApp->setType(remoteAppList[j].type);
                RemoteApp->setIsRemote(true);
                addRemoteApp(RemoteApp);
             }

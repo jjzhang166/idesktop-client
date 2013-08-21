@@ -51,10 +51,6 @@ using namespace std;
 
 #define KEY "\\Windows\\CurrentVersion\\App Paths\\"
 extern QString WIN_VAPP_IconPath;
-extern QList<APP_LIST> g_myVappList;
-extern QList<LOCAL_LIST> g_RemotelocalList;
-extern QList<APP_LIST> g_RemoteappList;
-extern QList<PAAS_LIST> g_RemotepaasList;
 
 extern QList<TEMP_LIST> dirWidget_FirstLists;
 
@@ -2152,11 +2148,12 @@ void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, cons
             app->setId("111");
             app->setUniqueName(uniqueName);
 
-            for (int i = 0; i < g_RemotelocalList.count(); i++)
+            QList<LOCAL_LIST>& remoteLocalList = _settings->remoteLocalList();
+            for (int i = 0; i < remoteLocalList.count(); i++)
             {
-                if("0_" + g_RemotelocalList.at(i).uniqueName == uniqueName)
+                if("0_" + remoteLocalList.at(i).uniqueName == uniqueName)
                 {
-                    app->setExecname(g_RemotelocalList.at(i).execname);
+                    app->setExecname(remoteLocalList.at(i).execname);
                     break;
                 }
             }
@@ -2175,12 +2172,13 @@ void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, cons
     {
             LocalApp *RemoteApp = new LocalApp();
 
-            for (int i = 0; i < g_myVappList.count(); i++)
+            QList<APP_LIST>& myVappList = _settings->vappList();
+            for (int i = 0; i < myVappList.count(); i++)
             {
-                if(g_myVappList.at(i).name == text)
+                if(myVappList.at(i).name == text)
                 {
-                    RemoteApp->setName(g_myVappList[i].name);
-                    RemoteApp->setId(g_myVappList[i].id);
+                    RemoteApp->setName(myVappList[i].name);
+                    RemoteApp->setId(myVappList[i].id);
                     RemoteApp->setIcon(pix);
                     RemoteApp->setPage(-1);
                     RemoteApp->setIndex(-1);

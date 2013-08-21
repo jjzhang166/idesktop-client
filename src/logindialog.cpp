@@ -1,6 +1,7 @@
 #include <QtGui>
 #include <QtSql/QtSql>
 
+#include "idesktopsettings.h"
 #include "logindialog.h"
 #include "hintlineEdit.h"
 #include "dynamicbutton.h"
@@ -43,12 +44,9 @@ QString PaasServer;
 
 QString USERNAME;
 
-QList<APP_LIST> g_myVappList;
-QList<PAAS_LIST> g_myPaasList;
-
-QList<APP_LIST> g_RemoteappList;
-QList<PAAS_LIST> g_RemotepaasList;
-QList<LOCAL_LIST> g_RemotelocalList;
+QList<PAAS_LIST> myPaasList;
+QList<PAAS_LIST> remotepaasList;
+QList<LOCAL_LIST> remotelocalList;
 
 QString WIN_LOCAL_IconPath;
 QString WIN_VAPP_IconPath;
@@ -69,6 +67,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     , _flip(false)
     ,_isSetting(false)
 {
+
+    _settings = IDesktopSettings::instance();
 
     QTextCodec *codec = QTextCodec::codecForName("utf-8"); //System
     QTextCodec::setCodecForCStrings(codec);
@@ -533,25 +533,6 @@ void LoginDialog::auth()
 
         USERNAME = userEdit->text();
 
-        //        QString statement = QString("select name from users");
-        //        QSqlDatabase localDb = QSqlDatabase::database("local");
-
-        //        QSqlQuery query = localDb.exec(statement);
-        //        if (!query.next()) {
-        //            QString replaceNamePwd = QString("insert into users ("
-        //                                             "name, password) values ( "
-        //                                             "\'%1\', \'%2\');")
-        //                                    .arg(userEdit->text()).arg(passEdit->text());
-        //            localDb.exec(replaceNamePwd);
-        //        }
-        //        else            // if(query.value(0).toString() != userEdit->text())
-        //        {
-        //            QString replaceNamePwd = QString("update users set name=%1, password=%2;")
-        //                                    .arg(userEdit->text()).arg(passEdit->text());
-        //            localDb.exec(replaceNamePwd);
-        //        }
-
-
         /* TODO: check the return value */
     }
     else {
@@ -596,12 +577,6 @@ void LoginDialog::auth()
     //local
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-    //   GetAppList();
-
-
-    ///////////////////////////////////////////////////
 #if 1
     saveVacUserInfo();
 
@@ -713,7 +688,7 @@ void LoginDialog::auth()
 
             tempLocalList.uniqueName = md5;
 
-            g_RemotelocalList.append(tempLocalList);
+            remotelocalList.append(tempLocalList);
             _id++;
             if(chSectionNames[i+1]==0)
             {
@@ -721,7 +696,10 @@ void LoginDialog::auth()
             }
         }
     }
-    //qDebug()<<"id"<<_id;
+    _settings->setRemoteLocalList(remotelocalList);
+
+    qDebug() << "load " << _settings->remoteLocalList().size() << " local apps";
+
     QFile b(iniPath);
     b.remove();
     //end
@@ -789,10 +767,12 @@ void LoginDialog::auth()
         tempLocalList.name = info.baseName();
         tempLocalList.execname = path;
 
-        g_RemotelocalList.append(tempLocalList);
+        remotelocalList.append(tempLocalList);
 
     }
+    _settings->setRemoteLocalList(remotelocalList);
 #endif
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //vac
@@ -1295,22 +1275,16 @@ void LoginDialog::getPaas(bool isLogin)
 {
 
     //paas
-    //    g_myPaasList.clear();
-
-    //    QString::SectionFlag flag = QString::SectionSkipEmpty;
-    //    QString url("");
-
     //get paas list
     _paasCommui->login(PaasServer);
     while (!_paasFinished)
         QApplication::processEvents();
     _paasFinished = false;
 
-    g_myPaasList = _paasCommui->getList();
+    myPaasList = _paasCommui->getList();
 
-    if (g_myPaasList.count() == 0)
+    if (myPaasList.count() == 0)
         return;
-
 
     QDir iconDir(WIN_PAAS_IconPath);
     if(!iconDir.exists())
@@ -1318,21 +1292,21 @@ void LoginDialog::getPaas(bool isLogin)
         iconDir.mkdir(WIN_PAAS_IconPath);
     }
     //store ico file locally
-    for(int i = 0; i < g_myPaasList.count(); i++)
+    for(int i = 0; i < myPaasList.count(); i++)
     {
         QString iconPath = QString("%1%2.png")
                 .arg(WIN_PAAS_IconPath)
-                .arg(g_myPaasList[i].cnName);
+                .arg(myPaasList[i].cnName);
         QString tempPath = QString("%1%2.png")
                 .arg(WIN_PAAS_IconPath)
-                .arg(g_myPaasList[i].cnName);
+                .arg(myPaasList[i].cnName);
         //        qDebug()<<"iconPath="<<iconPath;
-        g_myPaasList[i].iconPath = iconPath;
+        myPaasList[i].iconPath = iconPath;
 
         if (isLogin)
         {
-            g_RemotepaasList.insert(i, g_myPaasList[i]);
-            g_RemotepaasList[i].iconPath = iconPath;
+            remotepaasList.insert(i, myPaasList[i]);
+            remotepaasList[i].iconPath = iconPath;
         }
         //check if ico file is existed, or dont donwload
 
@@ -1345,9 +1319,9 @@ void LoginDialog::getPaas(bool isLogin)
         chkFile.close();
 
         //qDebug()<<"iconPath"<<iconPath;
-        if (g_myPaasList[i].logoURL.isEmpty())
+        if (myPaasList[i].logoURL.isEmpty())
         {
-            //url = g_myPaasList.at(i).urls.section('/', 1, 1, flag);
+            //url = myPaasList.at(i).urls.section('/', 1, 1, flag);
             //url = QString("http://" + url + "/Favicon.ico");
 
             //_paasCommui->downloadIcon(QUrl(url), tempPath);
@@ -1360,7 +1334,7 @@ void LoginDialog::getPaas(bool isLogin)
         }
         else
         {
-            _paasCommui->downloadIcon(QUrl(g_myPaasList[i].logoURL), tempPath);
+            _paasCommui->downloadIcon(QUrl(myPaasList[i].logoURL), tempPath);
 
             while (!_paasFinished)
                 QApplication::processEvents();
@@ -1369,6 +1343,8 @@ void LoginDialog::getPaas(bool isLogin)
 
         setIcon(WIN_PAAS_IconPath, tempPath);
     }
+    _settings->setPaasList(myPaasList);
+    _settings->setRemotePaasList(remotepaasList);
 }
 
 void LoginDialog::getVac()
@@ -1387,8 +1363,12 @@ void LoginDialog::getVac()
             QApplication::processEvents();
         _vacfinished = false;
 
-        g_myVappList = _commui->getList();
-        qDebug()<<"g_myList.count()="<<g_myVappList.count();
+        QList<APP_LIST> myVappList;
+        myVappList = _commui->getList();
+        qDebug()<<"g_myList.count()="<<myVappList.count();
+        _settings->setVappList(myVappList);
+
+        QList<APP_LIST> remoteAppList;
 
 #ifdef Q_WS_WIN
 //        iconDirPath = WIN_VAPP_IconPath ;
@@ -1402,19 +1382,17 @@ void LoginDialog::getVac()
             iconDir.mkdir(WIN_VAPP_IconPath);
         }
         //store ico file locally
-        for(int i = 0; i < g_myVappList.count(); i++)
+        for(int i = 0; i < myVappList.count(); i++)
         {
             QString iconPath = QString("%1%2.png")
                     .arg(WIN_VAPP_IconPath)
-                    .arg(g_myVappList[i].id);
+                    .arg(myVappList[i].id);
             QString tempPath = QString("%1%2.ico")
                     .arg(WIN_VAPP_IconPath)
-                    .arg(g_myVappList[i].id);
+                    .arg(myVappList[i].id);
 
-//            g_myVappList[i].icon = iconPath;
-
-            g_RemoteappList.insert(i, g_myVappList[i]);
-            g_RemoteappList[i].icon = iconPath;
+            remoteAppList.insert(i, myVappList[i]);
+            remoteAppList[i].icon = iconPath;
 
             //check if ico file is existed, or dont donwload
             QFile chkFile(iconPath);
@@ -1426,13 +1404,14 @@ void LoginDialog::getVac()
             chkFile.close();
 
             //qDebug()<<"iconPath"<<iconPath;
-            _commui->downloadIcon(QUrl(g_myVappList[i].icon), tempPath);
+            _commui->downloadIcon(QUrl(myVappList[i].icon), tempPath);
             while (!_vacfinished)
                 QApplication::processEvents();
             _vacfinished = false;
 
             setIcon(WIN_VAPP_IconPath, tempPath);
         }
+        _settings->setRemoteAppList(remoteAppList);
     }
     else
     {

@@ -12,13 +12,10 @@
 using namespace std;
 #include <QMessageBox>
 
+#include "idesktopsettings.h"
 #include "appmessagebox.h"
 #include "paascommuinication.h"
 
-extern QList<APP_LIST> g_myVappList;
-extern QList<LOCAL_LIST> g_RemotelocalList;
-extern QList<APP_LIST> g_RemoteappList;
-extern QList<PAAS_LIST> g_RemotepaasList;
 RunApp * RunApp::_runApp = NULL;
 
 RunApp * RunApp::getRunApp()
@@ -87,17 +84,18 @@ void RunApp::runApp(const QString &uniqueName)
     }
     else if(uniqueName.startsWith("1_"))
     {
+        QList<APP_LIST>& myVappList = IDesktopSettings::instance()->vappList();
         bool isRmote = false;
-        for (int i = 0; i < g_myVappList.count(); i++)
+        for (int i = 0; i < myVappList.count(); i++)
         {
-//                qDebug() << "g_myVappList.at(i).name" << g_myVappList.at(i).name;
+//                qDebug() << "myVappList.at(i).name" << myVappList.at(i).name;
 //                qDebug() << "text" << text;
-            if(g_myVappList.at(i).id == uniqueName.right(uniqueName.length() - 2))
+            if(myVappList.at(i).id == uniqueName.right(uniqueName.length() - 2))
             {
-                _appid = g_myVappList.at(i).id;
-                Commui._type = g_myVappList.at(i).type;
+                _appid = myVappList.at(i).id;
+                Commui._type = myVappList.at(i).type;
                 isRmote = true;
-                appText = g_myVappList.at(i).name;
+                appText = myVappList.at(i).name;
             }
         }
         if(isRmote)
@@ -114,14 +112,16 @@ void RunApp::runApp(const QString &uniqueName)
     }
     else if (uniqueName.startsWith("2_"))
     {
-        for (int i = 0; i < g_RemotepaasList.count(); i++)
+
+        QList<PAAS_LIST>& remotePaasList = IDesktopSettings::instance()->remotePaasList();
+        for (int i = 0; i < remotePaasList.count(); i++)
         {
-            qDebug() << "\"2_\" + g_RemotepaasList.at(i).name" << "2_" + g_RemotepaasList.at(i).name;
+            qDebug() << "\"2_\" + remotePaasList.at(i).name" << "2_" + remotePaasList.at(i).name;
             qDebug() << "uniqueName" << uniqueName;
-            if ("2_" + g_RemotepaasList.at(i).name == uniqueName)
+            if ("2_" + remotePaasList.at(i).name == uniqueName)
             {
-                qDebug() << "g_RemotepaasList.at(i).urls" << g_RemotepaasList.at(i).urls;
-                QDesktopServices::openUrl(QUrl(g_RemotepaasList.at(i).urls));
+                qDebug() << "remotePaasList.at(i).urls" << remotePaasList.at(i).urls;
+                QDesktopServices::openUrl(QUrl(remotePaasList.at(i).urls));
             }
         }
 
@@ -130,20 +130,21 @@ void RunApp::runApp(const QString &uniqueName)
 }
 void RunApp::runServerApp()
 {
-
     QString tmp;
     QString pram;
     QString _appid;
 
-    qDebug()<<appText;
-    for (int i = 0; i < g_myVappList.count(); i++)
-    {
-        if(g_myVappList.at(i).name == appText)
-        {
-            qDebug() << g_myVappList.at(i).name;
+    QList<APP_LIST>& myVappList = IDesktopSettings::instance()->vappList();
 
-            _appid = g_myVappList.at(i).id;
-            Commui._type = g_myVappList.at(i).type;
+    qDebug()<<appText;
+    for (int i = 0; i < myVappList.count(); i++)
+    {
+        if(myVappList.at(i).name == appText)
+        {
+            qDebug() << myVappList.at(i).name;
+
+            _appid = myVappList.at(i).id;
+            Commui._type = myVappList.at(i).type;
         }
     }
 

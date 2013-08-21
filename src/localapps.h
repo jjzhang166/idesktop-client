@@ -8,6 +8,8 @@
 #include <QVector>
 #include <QtSql/QSqlQuery>
 
+class IDesktopSettings;
+
 //enum Status {havenot, downloaded, installed, old};
 
 class LocalApp
@@ -96,6 +98,7 @@ private:
     LocalAppList(QObject *parent = NULL);
     QVector<LocalApp*> _list;
     static LocalAppList *_l;
+    IDesktopSettings *_settings;
 };
 
 #endif

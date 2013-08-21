@@ -45,3 +45,29 @@ void IDesktopSettings::setIconSize(int newSize)
     _iconSize = newSize;
     emit iconSizeUpdated(old, newSize);
 }
+
+
+void IDesktopSettings::setRemoteLocalList(const QList<LOCAL_LIST>& list)
+{
+    _remoteLocalList = list;
+}
+
+void IDesktopSettings::setRemoteAppList(const QList<APP_LIST>& list)
+{
+    _remoteAppList = list;
+}
+
+void IDesktopSettings::setRemotePaasList(const QList<PAAS_LIST>& list)
+{
+    _remotePaasList = list;
+}
+
+void IDesktopSettings::setVappList(const QList<APP_LIST>& list)
+{
+    _vappList = list;
+}
+
+void IDesktopSettings::setPaasList(const QList<PAAS_LIST>& list)
+{
+    _paasList = list;
+}

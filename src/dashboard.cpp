@@ -1,22 +1,5 @@
-#include <QPropertyAnimation>
-#include <QRect>
-#include <QDesktopWidget>
-#include <QPalette>
-#include <QEvent>
-#include <QLabel>
-#include <QPushButton>
-#include <QDebug>
-#include <QWidget>
-#include <QX11Info>
-#include <QResizeEvent>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QApplication>
-#include <QAction>
-#include <QMenu>
-#include <QDialog>
-#include <QtSql/QSqlDatabase>
-#include <QtSql/QSqlQuery>
+#include <QtGui>
+#include <QtSql/QtSql>
 
 #include <iostream>
 
@@ -28,6 +11,7 @@
 #include <windows.h>
 #include <shldisp.h>
 
+#include "idesktopsettings.h"
 #include "dashboard.h"
 #include "virtualdesktop.h"
 #include "switcher.h"
@@ -47,12 +31,6 @@ extern QString WIN_TtempPath;
 
 extern QString USERNAME;
 
-extern QList<APP_LIST> g_myVappList;
-extern QList<APP_LIST> g_RemoteappList;
-
-extern QList<PAAS_LIST> g_myPaasList;
-extern QList<PAAS_LIST> g_RemotepaasList;
-
 #ifdef Q_WS_WIN
     QLibrary *mylib;   //
     Dll_CloseAppAll m_dllCloseAppAll;
@@ -65,6 +43,8 @@ Dashboard::Dashboard(QWidget *parent)
     , _animationDownFinished(false)
     , _minUpward(false)
 {
+    _settings = IDesktopSettings::instance();
+
 #ifdef Q_WS_WIN
 
     mylib= new QLibrary("DllClientEngineMain.dll");   //
@@ -837,54 +817,54 @@ void Dashboard::errOut()
 
 void Dashboard::refreshVapp()
 {
-        qDebug() << "refresh Vapp";
-        g_myVappList.clear();
+    qDebug() << "refresh Vapp";
 
-        //get vapp list
-        _commui->getAppList();
+    _settings->vappList().clear();
+
+    //get vapp list
+    _commui->getAppList();
+    while (!_finished)
+        QApplication::processEvents();
+    _finished = false;
+
+    QList<APP_LIST> myVappList = _commui->getList();
+    qDebug()<<"myList.count()="<<myVappList.count();
+
+    QDir iconDir(WIN_VAPP_IconPath);
+    if(!iconDir.exists())
+    {
+        iconDir.mkdir(WIN_VAPP_IconPath);
+    }
+    //store ico file locally
+    for(int i = 0; i < myVappList.count(); i++)
+    {
+        QString iconPath = QString("%1%2.png")
+                .arg(WIN_VAPP_IconPath)
+                .arg(myVappList[i].id);
+        QString tempPath = QString("%1%2.ico")
+                .arg(WIN_VAPP_IconPath)
+                .arg(myVappList[i].id);
+
+        //check if ico file is existed, or dont donwload
+        QFile chkFile(iconPath);
+        if(chkFile.exists())
+        {
+            chkFile.close();
+            continue;
+        }
+        chkFile.close();
+
+        //qDebug()<<"iconPath"<<iconPath;
+        _commui->downloadIcon(QUrl(myVappList[i].icon), tempPath);
         while (!_finished)
             QApplication::processEvents();
         _finished = false;
 
-        g_myVappList = _commui->getList();
-        qDebug()<<"g_myList.count()="<<g_myVappList.count();
+        _ldialog->setIcon(WIN_VAPP_IconPath, tempPath);
+    }
 
-        QDir iconDir(WIN_VAPP_IconPath);
-        if(!iconDir.exists())
-        {
-            iconDir.mkdir(WIN_VAPP_IconPath);
-        }
-        //store ico file locally
-        for(int i = 0; i < g_myVappList.count(); i++)
-        {
-            QString iconPath = QString("%1%2.png")
-                    .arg(WIN_VAPP_IconPath)
-                    .arg(g_myVappList[i].id);
-            QString tempPath = QString("%1%2.ico")
-                    .arg(WIN_VAPP_IconPath)
-                    .arg(g_myVappList[i].id);
-
-            //check if ico file is existed, or dont donwload
-            QFile chkFile(iconPath);
-            if(chkFile.exists())
-            {
-                chkFile.close();
-                continue;
-            }
-            chkFile.close();
-
-            //qDebug()<<"iconPath"<<iconPath;
-            _commui->downloadIcon(QUrl(g_myVappList[i].icon), tempPath);
-            while (!_finished)
-                QApplication::processEvents();
-            _finished = false;
-
-            _ldialog->setIcon(WIN_VAPP_IconPath, tempPath);
-        }
-
-        modify();
-//    }
-
+    _settings->setVappList(myVappList);
+    modify();
 }
 
 void Dashboard::timeOut()
@@ -895,15 +875,18 @@ void Dashboard::timeOut()
 
 void Dashboard::modify()
 {
-    if (g_myVappList.count() > 0 || g_RemoteappList.count() > 0)
+    QList<APP_LIST>& myVappList = _settings->vappList();
+    QList<APP_LIST>& remoteAppList = _settings->remoteAppList();
+
+    if (myVappList.count() > 0 || remoteAppList.count() > 0)
     {
     //delete
-        for (int i = 0; i < g_RemoteappList.count(); i++)
+        for (int i = 0; i < remoteAppList.count(); i++)
         {
             bool isExist = false;
-            for (int j = 0; j < g_myVappList.count(); j++)
+            for (int j = 0; j < myVappList.count(); j++)
             {
-                if (g_RemoteappList[i].id == g_myVappList[j].id)
+                if (remoteAppList[i].id == myVappList[j].id)
                 {
                     isExist = true;
                     break;
@@ -912,16 +895,16 @@ void Dashboard::modify()
             if(!isExist)
             {
                 //delete
-                _vacShowWidget->delIcon("1_" + g_RemoteappList[i].id);
+                _vacShowWidget->delIcon("1_" + remoteAppList[i].id);
             }
         }
         // add
-        for (int i = 0; i < g_myVappList.count(); i++)
+        for (int i = 0; i < myVappList.count(); i++)
         {
             bool isExist = false;
-            for (int j = 0; j < g_RemoteappList.count(); j++)
+            for (int j = 0; j < remoteAppList.count(); j++)
             {
-                if (g_myVappList[i].id == g_RemoteappList[j].id)
+                if (myVappList[i].id == remoteAppList[j].id)
                 {
                     isExist = true;
                     break;
@@ -930,23 +913,23 @@ void Dashboard::modify()
 
             if (!isExist)
             {
-                _vacShowWidget->addIcon(g_myVappList[i].name, WIN_VAPP_IconPath + g_myVappList[i].id + ".png", \
-                                        vdesktop->count() - 1, -1, QString(""), 1, "1_" + g_myVappList[i].id);
+                _vacShowWidget->addIcon(myVappList[i].name, WIN_VAPP_IconPath + myVappList[i].id + ".png", \
+                                        vdesktop->count() - 1, -1, QString(""), 1, "1_" + myVappList[i].id);
             }
         }
     }
 
-    g_RemoteappList.clear();
+    remoteAppList.clear();
 
-    for(int i = 0; i < g_myVappList.count(); i++)
+    for(int i = 0; i < myVappList.count(); i++)
     {
         QString iconPath = QString("%1%2.png")
                 .arg(WIN_VAPP_IconPath)
-                .arg(g_myVappList[i].id);
+                .arg(myVappList[i].id);
 
-        g_RemoteappList.insert(i, g_myVappList[i]);
-        g_RemoteappList[i].icon = iconPath;
-        qDebug()<<"g_Rmote:"<<g_RemoteappList.at(i).icon;
+        remoteAppList.insert(i, myVappList[i]);
+        remoteAppList[i].icon = iconPath;
+        qDebug()<<"g_Rmote:"<<remoteAppList.at(i).icon;
     }
 
 }
@@ -954,7 +937,8 @@ void Dashboard::modify()
 void Dashboard::refreshPaas()
 {
     qDebug() << "refresh paas";
-    g_myPaasList.clear();
+    QList<PAAS_LIST>& myPaasList = _settings->paasList();
+    myPaasList.clear();
 
     _ldialog->getPaas(false);
 
@@ -963,15 +947,18 @@ void Dashboard::refreshPaas()
 
 void Dashboard::paasModify()
 {
-    if (g_myPaasList.count() > 0 || g_RemotepaasList.count() > 0)
+    QList<PAAS_LIST>& myPaasList = _settings->paasList();
+    QList<PAAS_LIST>& remotePaasList = _settings->remotePaasList();
+
+    if (myPaasList.count() > 0 || remotePaasList.count() > 0)
     {
     //delete
-        for (int i = 0; i < g_RemotepaasList.count(); i++)
+        for (int i = 0; i < remotePaasList.count(); i++)
         {
             bool isExist = false;
-            for (int j = 0; j < g_myPaasList.count(); j++)
+            for (int j = 0; j < myPaasList.count(); j++)
             {
-                if (g_RemotepaasList[i].name == g_myPaasList[j].name)
+                if (remotePaasList[i].name == myPaasList[j].name)
                 {
                     isExist = true;
                     break;
@@ -980,17 +967,17 @@ void Dashboard::paasModify()
             if(!isExist)
             {
                 //delete
-//                LocalAppList::getList()->delApp(g_RemoteappList[i].name);
-                _vacShowWidget->delIcon("2_" + g_RemotepaasList[i].name);
+//                LocalAppList::getList()->delApp(remoteAppList[i].name);
+                _vacShowWidget->delIcon("2_" + remotePaasList[i].name);
             }
         }
         // add
-        for (int i = 0; i < g_myPaasList.count(); i++)
+        for (int i = 0; i < myPaasList.count(); i++)
         {
             bool isExist = false;
-            for (int j = 0; j < g_RemotepaasList.count(); j++)
+            for (int j = 0; j < remotePaasList.count(); j++)
             {
-                if (g_myPaasList[i].name == g_RemotepaasList[j].name)
+                if (myPaasList[i].name == remotePaasList[j].name)
                 {
                     isExist = true;
                     break;
@@ -999,22 +986,22 @@ void Dashboard::paasModify()
 
             if (!isExist)
             {
-                _vacShowWidget->addIcon(g_myPaasList[i].cnName, g_myPaasList[i].iconPath, \
-                                        - 1, -1, g_myPaasList[i].urls, 2, "2_" + g_myPaasList[i].name);
+                _vacShowWidget->addIcon(myPaasList[i].cnName, myPaasList[i].iconPath, \
+                                        - 1, -1, myPaasList[i].urls, 2, "2_" + myPaasList[i].name);
             }
         }
     }
 
-    g_RemotepaasList.clear();
+    remotePaasList.clear();
 
-    for(int i = 0; i < g_myPaasList.count(); i++)
+    for(int i = 0; i < myPaasList.count(); i++)
     {
         QString iconPath = QString("%1%2.png")
                 .arg(WIN_PAAS_IconPath)
-                .arg(g_myPaasList[i].cnName);
+                .arg(myPaasList[i].cnName);
 
-        g_RemotepaasList.insert(i, g_myPaasList[i]);
-        g_RemotepaasList[i].iconPath = iconPath;
+        remotePaasList.insert(i, myPaasList[i]);
+        remotePaasList[i].iconPath = iconPath;
     }
 }
 

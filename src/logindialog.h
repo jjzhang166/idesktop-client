@@ -41,9 +41,7 @@ extern QString USERNAME;
 class HintLineEdit;
 class QCheckBox;
 class DynamicButton;
-extern QList<LOCAL_LIST> g_RemotelocalList;
-extern QList<APP_LIST> g_RemoteappList;
-extern QList<PAAS_LIST> g_RemotepaasList;
+class IDesktopSettings;
 
 class LoginDialog : public QDialog
 {
@@ -189,4 +187,5 @@ private:
     QString _tempVacPort;
 
     DynamicButton *configurationButton;
+    IDesktopSettings *_settings;
 };

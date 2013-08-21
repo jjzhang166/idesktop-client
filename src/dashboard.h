@@ -36,6 +36,7 @@ class TopWidget;
 class Switcher;
 class Panel;
 class Indicator;
+class IDesktopSettings;
 
 class Dashboard : public QWidget
 {
@@ -180,6 +181,8 @@ private:
     toolBarWidget *_toolBarWidget;
 
     bool _minMoveLabelUp;
+
+    IDesktopSettings *_settings;
 
 public:
     void setBgImage(QString url);

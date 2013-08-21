@@ -49,10 +49,6 @@ using namespace std;
 #define ICONVSPACING (88 - 36)
 
 extern QString WIN_VAPP_IconPath;
-extern QList<APP_LIST> g_myVappList;
-extern QList<LOCAL_LIST> g_RemotelocalList;
-extern QList<APP_LIST> g_RemoteappList;
-extern QList<PAAS_LIST> g_RemotepaasList;
 
 extern QList<TEMP_LIST> dirWidget_FirstLists;
 

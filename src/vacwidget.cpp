@@ -29,11 +29,6 @@
 extern QString WIN_LOCAL_IconPath;
 extern QString WIN_VAPP_IconPath;
 extern QString WIN_PAAS_IconPath;
-extern QList<LOCAL_LIST> g_RemotelocalList;
-extern QList<APP_LIST> g_RemoteappList;
-extern QList<PAAS_LIST> g_RemotepaasList;
-extern QList<APP_LIST> g_myVappList;
-extern QList<PAAS_LIST> g_myPaasList;
 
 
 //#define ICONWIDTH 72
@@ -255,15 +250,6 @@ void VacScrollBarWidget::scrollBarValueChanged(int val)
     _animation->start();
 }
 
-//void VacScrollBarWidget::paintEvent(QPaintEvent *event)
-//{
-//    QPainter painter(this);;
-//    painter.drawPixmap(0, 0, _width, _height,\
-//                       _bgPix.scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-
-//    QWidget::paintEvent(event);
-//}
-
 void VacScrollBarWidget::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event);
@@ -344,483 +330,6 @@ void VacScrollBarWidget::iconItemNameChanged(const QString &uniqueName, const QS
 }
 
 //
-//VacItem::VacItem(const QString &text, QWidget *parent)
-//    : QWidget(parent)
-//    , _text(text)
-//    , _trembling(0)
-//    ,_equal(false)
-//{
-////    int width, height;
-//    QFontMetrics fm(QFont("", FONTSIZE, QFont::Black));
-
-//    _width = ICONITEMWIDTH;
-//    _height = ICONITEMHEIGHT;
-
-//    setFixedSize(_width, _height);
-//    _textWidth = fm.width(_text);
-
-//    if (_text.startsWith("/")) {
-//        _texticon = _text.right(_text.length() - 1);
-//        _textWidth = fm.width(_text.right(_text.length() - 1));
-//    }
-//    else
-//        _texticon = _text;
-///*
-////    _texticon = _text;
-//    _texticon_firstrow = _texticon;
-//    _texticon_secondrow = _texticon;
-//    _texticon_thirdrow = _texticon;
-
-//    int i;
-//    for (i = 0; i < _textWidth; i++)
-//    {
-//        _textWidth_firstrow = fm.width(_texticon_firstrow);
-
-//        if (_textWidth_firstrow > width - 20)
-//        {
-//            _texticon_firstrow.chop(1);
-//        }
-//        else{
-//            //_texticon.chop(1);
-//            //_texticon.append("...");
-//            break;
-//        }
-//    }
-//    _texticon_secondrow = _texticon.right(_texticon.length() - _texticon_firstrow.length());
-
-//    _textWidth_secondrow = fm.width(_texticon_secondrow);
-//    for (i = 0; i < _textWidth_secondrow; i++)
-//    {
-//        _textWidth_secondrow = fm.width(_texticon_secondrow);
-
-//        if (_textWidth_secondrow > width - 20)
-//        {
-//            _texticon_secondrow.chop(1);
-//        }
-//        else{
-//            //_texticon.chop(1);
-//            //_texticon.append("...");
-//            break;
-//        }
-//    }
-//    _texticon_thirdrow = _texticon.right(_texticon.length() - _texticon_firstrow.length() - _texticon_secondrow.length());
-
-//    _textWidth_thirdrow = fm.width(_texticon_thirdrow);
-//    if (_textWidth_thirdrow > width)
-//    {
-//        for (i = 0; i < _textWidth_thirdrow; i++)
-//        {
-//            _textWidth_thirdrow = fm.width(_texticon_thirdrow);
-//            if (_textWidth_thirdrow > width - 20)
-//            {
-//                _texticon_thirdrow.chop(1);
-//            }else{
-//                _texticon_thirdrow.chop(3);
-//                _texticon_thirdrow.append("...");
-//                break;
-//            }
-//        }
-//    }
-
-//    _textHeight = fm.height();
-//*/
-//    int i;
-
-//    if (_textWidth > _width)
-//    {
-//        for (i = 0; i < _textWidth; i++)
-//        {
-//            _textWidth_firstrow = fm.width(_texticon);
-//            if (_textWidth_firstrow > _width)
-//            {
-//                _texticon.chop(1);
-//            }else{
-//                _texticon.chop(3);
-//                _texticon.append("...");
-//                break;
-//            }
-//        }
-//    }
-
-//    _textHeight = fm.height();
-
-////    _app = LocalAppList::getList()->getAppByName(_text);
-//    _animation = new QPropertyAnimation(this, "geometry");
-//    _animation->setDuration(200);
-//    _animation->setEasingCurve(QEasingCurve::OutBack);
-
-////    _timeline = new QTimeLine(5000, this);
-////    _timeline->setLoopCount(0);
-////    _timeline->setUpdateInterval(65);
-
-//    _icontype = APPICON;
-
-////    _hoverVacItem = new HoverIconItem(this->width(), this->height(), this);
-////    _hoverVacItem->setVisible(false);
-
-////    _openAction = new QAction(tr("ÔËÐÐ"), this);
-////    connect(_openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
-
-////    if (_style == VirtualDesktop::localIcon)
-////    {
-////        _delAction = new QAction(tr("É¾³ý"), this);
-////        connect(_delAction, SIGNAL(triggered()), this, SLOT(delClicked()));
-////    }
-
-////    connect(_timeline, SIGNAL(valueChanged(qreal)), this, SLOT(doTremble(qreal)));
-////    if (parent) {
-////        if (_style == VirtualDesktop::localIcon)
-////        {
-////            connect(static_cast<VacWidget*>(parent), \
-////                    SIGNAL(trembleStarted()), \
-////                    this, SLOT(startTremble()));
-////            connect(static_cast<VacWidget*>(parent), \
-////                    SIGNAL(trembleStoped()), \
-////                    this, SLOT(stopTremble()));
-////        }
-////    }
-//}
-
-//VacItem::~VacItem()
-//{
-////    delete _openAction;
-////    delete _hoverVacItem;
-
-////    delete _timeline;
-////    delete _animation;
-//}
-
-//void VacItem::setUrl(const QString &url)
-//{
-//    _url = url;
-//}
-
-//void VacItem::setPage(int page)
-//{
-//    _page = page;
-////    _app->setPage(page);
-//}
-//void VacItem::setIndex(int index)
-//{
-//    _index= index;
-////   _app->setIndex(index);
-//}
-//void VacItem::setHidden(bool hide)
-//{
-//    Q_UNUSED(hide);
-////    _app->setHidden(hide);
-//}
-
-//void VacItem::animationMove(const QRect &start, const QRect &end)
-//{
-//    _animation->setStartValue(start);
-//    _animation->setEndValue(end);
-//    _animation->start();
-//}
-
-////void VacItem::doTremble(qreal value)
-////{
-////    Q_UNUSED(value);
-
-////#define LEFT -1
-////#define RIGHT 1
-////    static int direction = LEFT;
-////    if (_trembling == -1) {
-////        _trembling = 0;
-////        direction = RIGHT;
-////    }
-////    else if (_trembling == 0) {
-////        if (direction == LEFT) {
-////            _trembling = -1;
-////        } else {
-////            _trembling = 1;
-////        }
-////    }
-////    else {
-////        _trembling = 0;
-////        direction = LEFT;
-////    }
-////    repaint();
-////#undef LEFT
-////#undef RIGHT
-////}
-
-////void VacItem::startTremble()
-////{
-////    _timeline->start();
-////    _pixmap = _closePixmap;
-////}
-
-////void VacItem::stopTremble()
-////{
-////    _timeline->stop();
-////    _trembling = 0;
-////    _pixmap = _normalPixmap;
-////    repaint();
-////}
-
-//void VacItem::paintEvent(QPaintEvent *event)
-//{
-//    QPainter painter(this);
-//    painter.setRenderHint(QPainter::SmoothPixmapTransform);
-////    if (_trembling)
-////        painter.translate(width()/2, height()/2);
-////    painter.rotate(2*_trembling);
-////    if (_trembling)
-////        painter.translate(-1*width()/2, -1*height()/2);
-
-//    painter.drawPixmap(3, 0, ICONWIDTH, ICONHEIGHT,_pixmap);
-
-//    painter.drawPixmap(_width - ICONWIDTH / 4 - SELECTWIDTH / 2, height() - 25 - SELECTHEIGHT, _selectPixmap);
-
-//    QWidget::paintEvent(event);
-//}
-
-//void VacItem::mousePressEvent(QMouseEvent *event)
-//{
-//    qDebug()  << event->pos();
-//    if (event->button() == Qt::LeftButton) {
-//        if (QRect(35, 36, 72, 72 + 35).contains(event->pos())) {
-
-//            if (!_equal)
-//            {
-//                _selectPixmap.load(":/images/select_icon.png");
-//                update();
-//                _equal = true;
-//                emit addVacApp(_text, _pix, _url);
-//            }
-//        }
-//    }
-//    event->ignore();
-
-//}
-
-//void VacItem::mouseDoubleClickEvent(QMouseEvent *event)
-//{
-//    if ((event->button() == Qt::LeftButton))
-//    {
-////        openClicked();
-//    }
-//}
-
-//void VacItem::mouseMoveEvent(QMouseEvent *event)
-//{
-//    if (!(event->buttons() & Qt::LeftButton))
-//        return;
-//    if ((event->pos() - dragStartPosition).manhattanLength() < QApplication::startDragDistance()) {
-//        return;
-//    }
-////    _drag = new QDrag(this);
-////    QMimeData *mimeData = new QMimeData;
-////    mimeData->setText(_text);
-////    _drag->setMimeData(mimeData);
-////    _drag->setPixmap(grayPixmap());
-////    _drag->setHotSpot(event->pos());
-////    gap = _drag->hotSpot();
-////    _drag->exec(Qt::MoveAction);
-//}
-
-////void VacItem::contextMenuEvent(QContextMenuEvent *event)
-////{
-////    Q_UNUSED(event);
-
-
-////    QCursor cur=this->cursor();
-////    QMenu *iconItemcontextMenu = new QMenu(this);
-
-////    iconItemcontextMenu->addAction(_openAction);
-
-//////    if (_style == VirtualDesktop::localIcon)
-//////    {
-////        iconItemcontextMenu->addAction(_delAction);
-//////    }
-
-////    iconItemcontextMenu->setContextMenuPolicy(Qt::ActionsContextMenu);
-
-////    iconItemcontextMenu->exec(cur.pos());
-
-////    return;
-////}
-
-
-//void VacItem::enterEvent(QEvent *event)
-//{
-//    _pixmap = darkPixmap();
-////    _hoverIconItem->setVisible(true);
-//    repaint();
-
-//    Q_UNUSED(event);
-//}
-
-//void VacItem::leaveEvent(QEvent *event)
-//{
-
-////    if (_timeline->state() == QTimeLine::Running)
-////        _pixmap = _closePixmap;
-////    else
-//        _pixmap = _normalPixmap;
-
-////    _hoverIconItem->setVisible(false);
-//    repaint();
-
-//    Q_UNUSED(event);
-//}
-
-//const QPixmap& VacItem::originPixmap()
-//{
-//    return _originPixmap;
-//}
-
-//void VacItem::setPixmap(const QString &icon)
-//{
-
-//    _pix = icon;
-////    int begin;
-//    QString text = _text;
-//    if (isUserType())
-//        text = _text.right(_text.length() - 1);
-//    _originPixmap = QPixmap(icon);
-//    QImage image = QImage(icon);
-//    QImage normal = QImage(width(), height(), QImage::Format_ARGB32_Premultiplied);
-
-//    //    image.scaled(ICONWIDTH, ICONHEIGHT);
-//    //    normal.scaled(ICONWIDTH, ICONHEIGHT);
-
-//    QPainter pt1(&normal);
-//    pt1.setPen(Qt::white);
-//    //pt1.setFont(QFont("", FONTSIZE, QFont::Black));
-//    pt1.setRenderHint(QPainter::HighQualityAntialiasing);
-//    pt1.setCompositionMode(QPainter::CompositionMode_Source);
-//    pt1.fillRect(normal.rect(), Qt::transparent);
-////    pt1.drawImage((SELECTWIDTH / 2  + 8) / 2, 0, image);
-//    pt1.drawImage(0, 0, image);
-
-//        QFont font("", FONTSIZE, QFont::Normal);
-////        QFont font(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal);
-
-//        QFontMetrics fm(font);
-//        _textWidth_firstrow = fm.width(_texticon);
-//        pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  ICONHEIGHT - FONTSIZE * 2,\
-//                            _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
-
-//    //    QFontMetrics fm(font);
-//    //    _textWidth_firstrow = fm.width(_texticon_firstrow);
-//    //    QString tx = _texticon_firstrow;
-//    //    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_firstrow) / 2 , height() - _textHeight * 3 - 8, _textWidth_firstrow, _textHeight), Qt::TextSingleLine, tx);
-//    //    _textWidth_secondrow = fm.width(_texticon_secondrow);
-//    //    tx = _texticon_secondrow;
-//    //    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_secondrow) / 2, height() - _textHeight * 2 - 8, _textWidth_secondrow, _textHeight), Qt::TextSingleLine, tx);
-//    //    _textWidth_thirdrow = fm.width(_texticon_thirdrow);
-//    //    tx = _texticon_thirdrow;
-//    //    pt1.drawText( QRect(((ICONWIDTH + CLOSEWIDTH/2) + 8 - _textWidth_thirdrow) / 2 , height() - _textHeight - 8, _textWidth_thirdrow, _textHeight), Qt::TextSingleLine, tx);
-//        pt1.end();
-
-//    QImage light = QImage(width(), height(), QImage::Format_ARGB32);
-//    QImage dark =  QImage(width(), height(), QImage::Format_ARGB32);
-
-//    for (int i = 0; i < width(); i++) {
-//        for (int j = 0; j < height(); j++) {
-//            QRgb pixel = normal.pixel(i,j);
-//            int a = qAlpha(pixel);
-//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
-//                                    qBlue(pixel), a/2);
-//            light.setPixel(i, j, lightPixel);
-
-
-//            QRgb darkPixel = qRgba(qRed(pixel)*0.8, qGreen(pixel)*0.8, \
-//                                   qBlue(pixel)*0.8, a);
-//            dark.setPixel(i, j, darkPixel);
-//        }
-//    }
-//    QPainter pt2(&dark);
-//    pt2.setPen(Qt::white);
-//    pt2.setFont(QFont("", FONTSIZE, QFont::Black));
-//    pt2.setRenderHint(QPainter::HighQualityAntialiasing);
-
-//    pt2.end();
-//    _grayPixmap = QPixmap::fromImage(light).scaled(width() * 1.0, height() * 1.0);
-//    _darkPixmap = QPixmap::fromImage(dark);
-//    _normalPixmap = QPixmap::fromImage(normal);
-//    _pixmap = _normalPixmap;
-//    QImage resultImage(width(), height(),  \
-//                       QImage::Format_ARGB32_Premultiplied);
-
-//    QPainter painter(&resultImage);
-//    painter.setCompositionMode(QPainter::CompositionMode_Source);
-//    painter.fillRect(resultImage.rect(), Qt::transparent);
-//    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//    painter.drawImage(0, 0, normal);
-
-////    QImage closeImage(":images/close_icon.png");
-////    painter.drawImage(width() - 20, height() -50, closeImage);
-
-//    painter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
-//    painter.end();
-//    //_closePixmap = QPixmap::fromImage(resultImage);
-
-//}
-
-//void VacItem::setText(const QString &text)
-//{
-//    _text = text;
-//}
-
-//bool VacItem::isUserType()
-//{
-//    if (_text.startsWith("/"))
-//        return true;
-//    return false;
-//}
-
-//const QString & VacItem::text()
-//{
-//    return _text;
-//}
-
-//const QPixmap & VacItem::pixmap()
-//{
-//    return _pixmap;
-//}
-
-//const QPixmap & VacItem::grayPixmap()
-//{
-//    return _grayPixmap;
-//}
-
-//const QPixmap & VacItem::darkPixmap()
-//{
-////    if (_timeline->state() == QTimeLine::Running)
-////        return _closePixmap;
-//    return _darkPixmap;
-//}
-
-//void VacItem::openClicked()
-//{
-//    emit runItem(_text);
-//}
-
-//void VacItem::delClicked()
-//{
-//    emit delItem(_text);
-//}
-
-//void VacItem::setEqualIcon(bool equal)
-//{
-//    if (equal)
-//    {
-//        _equal = true;
-//        _selectPixmap.load(":/images/select_icon.png");
-//    }
-//    else
-//    {
-//        _equal = false;
-//        _selectPixmap.load("");
-//    }
-
-//    repaint();
-//}
-
-//
 VacWidget::VacWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
     , _localCount(0)
@@ -878,6 +387,8 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
     QPalette pal = palette();
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
+
+    getLocalIcon();
     getVacIcon();
     getPaasIcon();
 }
@@ -896,7 +407,7 @@ int VacWidget::addIcon(QString text,
                        const QString &uniqueName)
 {
     int expandPageCount;
-    int iconNum = g_RemotelocalList.count() + g_myPaasList.count() + g_myVappList.count();
+    int iconNum = _settings->remoteLocalList().count() + _settings->paasList().count() + _settings->vappList().count();
     if (iconNum % _iconsPerPage == 0)
         expandPageCount = iconNum / _iconsPerPage;
     else
@@ -978,15 +489,6 @@ int VacWidget::addIcon(QString text,
         }
     }
 
-//    for (int i = 0; i < ICONNUM; i++)
-//    {
-//        if (_local->at(i)->name() == text)
-//        {
-//            icon->setEqualIcon(true);
-//        }
-//        else
-//            icon->setEqualIcon(false);
-//    }
     icon->setLineEditReadOnly(true);
     icon->setPixmap(iconPath,text);
     icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
@@ -1075,103 +577,16 @@ void VacWidget::delIcon(const QString &uniqueName)
     if (_nextIdx[_count - 1] == 0)
         delPage(_count - 1);
 
-//    if (_local->count() == 0) {
-//        appCancel();
-//    }
-
-//    bool trembling = true;
-
-//    for (int i = 0; i < _local->count(); i++)
-//    {
-//        if (!_local->at(i)->isRemote())
-//        {
-//            trembling = false;
-//            break;
-//        }
-//    }
-
-//    if (trembling) {
-//        appCancel();
-//    }
-
 }
 
 void VacWidget::moveBackIcons(int page, int index)
 {
-//    int p = page;
-//    int s = index;
-
-//    for(int i = p; i < _count; i++)
-//    {
-//        if (i == p)
-//        {
-//            int k;
-//            for (k = s + 1; k < _nextIdx[p]; k++) {
-//                QRect start = _gridTable[p][k].translated(HSPACING, VSPACING);
-//                QRect end = _gridTable[p][k-1].translated(HSPACING, VSPACING);
-//                _iconTable[p][k]->animationMove(start, end);
-//                _iconTable[p][k]->setIndex(k-1);
-//                _iconTable[p][k - 1] = _iconTable[p][k];
-//            }
-//        }
-//        else {
-
-//            for (int j = 0; j < _nextIdx[i]; j++)
-//            {
-//                if (j == 0)
-//                {
-//                    QRect start = _gridTable[i][j].translated(HSPACING, VSPACING);
-//                    QRect end = _gridTable[i-1][_nextIdx[i-1] - 1].translated(HSPACING, VSPACING);
-//                    _iconTable[i][j]->animationMove(start, end);
-//                    _iconTable[i][j]->setPage(i-1);
-//                    _iconTable[i][j]->setIndex(_nextIdx[i-1] - 1);
-//                    _iconTable[i-1][_nextIdx[i-1] - 1] = _iconTable[i][j];
-//                }
-//                else {
-
-//                    QRect start = _gridTable[i][j].translated(HSPACING, VSPACING);
-//                    QRect end = _gridTable[i][j-1].translated(HSPACING, VSPACING);
-//                    _iconTable[i][j]->animationMove(start, end);
-//                    _iconTable[i][j]->setIndex(j-1);
-//                    _iconTable[i][j - 1] = _iconTable[i][j];
-//                }
-//            }
-//        }
-//    }
-
-//    _iconTable[_count - 1][_nextIdx[_count - 1] - 1] = NULL;
-//    _nextIdx[_count - 1]--;
-
-//    if (_nextIdx[_count - 1] == 0)
-//        delPage(_count - 1);
-
 }
 
 void VacWidget::showApp(bool localApp)
 {
         Q_UNUSED(localApp);
 }
-
-
-/*
-QIcon VacWidget::icon(const QUrl &url)
-{
-    qDebug() << "url" << url;
-    QIcon icon = QWebSettings::iconForUrl(url);
-    if (!icon.isNull()) {
-        return icon.pixmap(16, 16);
-        }
-    if (icon.isNull()) {
-        QPixmap pixmap = QWebSettings::webGraphic(QWebSettings::DefaultFrameIconGraphic);
-        if (pixmap.isNull()) {
-            pixmap = QPixmap(QLatin1String(":/images/icon.png"));
-            QWebSettings::setWebGraphic(QWebSettings::DefaultFrameIconGraphic, pixmap);
-        }
-        return pixmap;
-    }
-    return icon;
-}
-*/
 
 QString VacWidget::getAppImage(QString appPath)
 {
@@ -1325,121 +740,37 @@ void VacWidget::delPage(int page)
 
 void VacWidget::getPaasIcon()
 {
-//    _paasList.clear();
-
-//    QString::SectionFlag flag = QString::SectionSkipEmpty;
-//    QString url;
-
-//    //get vapp list
-//    _paasCommui->getAppList();
-//    while (!_pFinished)
-//        QApplication::processEvents();
-//    _pFinished = false;
-
-//    _paasList = _paasCommui->getList();
-//    qDebug() << "********" << _paasList.count();
-
-//    if (_paasList.count() == 0)
-//        return;
-
-
-//    QString iconDirPath = WIN_PAAS_IconPath ;
-
-
-//    QDir iconDir(iconDirPath);
-//    if(!iconDir.exists())
-//    {
-//        iconDir.mkdir(iconDirPath);
-//    }
-//    //store ico file locally
-//    for(int i = 0; i < _paasList.count(); i++)
-//    {
-//        QString iconPath = QString("%1%2.ico")
-//                .arg(iconDirPath)
-//                .arg(_paasList[i].cnName);
-////        qDebug()<<"iconPath="<<iconPath;
-
-//        //check if ico file is existed, or dont donwload
-
-//        QFile chkFile(iconPath);
-//        if(chkFile.exists())
-//        {
-//            chkFile.close();
-//            continue;
-//        }
-//        chkFile.close();
-
-//        //qDebug()<<"iconPath"<<iconPath;
-//        if (_paasList[i].logoURL.isEmpty())
-//        {
-//            url = _paasList.at(i).urls.section('/', 1, 1, flag);
-//            url = QString("http://" + url + "/Favicon.ico");
-
-//            _paasCommui->downloadIcon(QUrl(url), iconPath);
-//            while (!_pFinished)
-//            {
-//               QApplication::processEvents();
-//            }
-//           _pFinished = false;
-//        }
-//        else
-//        {
-//            _paasCommui->downloadIcon(QUrl(_paasList[i].logoURL), iconPath);
-//            while (!_pFinished)
-//                QApplication::processEvents();
-//            _pFinished = false;
-//        }
-
-//         QString newApp = iconPath;
-
-//         if (newApp.isEmpty())
-//             return;
-
-//        QImage image = QImage(newApp).scaled(59, 59);
-//        QImage normal = QImage(":images/icon_shadow.png").scaled(143, 143);
-//        QImage middle = QImage(":images/icon_middle_shadow.png").scaled(72, 72);
-
-//        QPainter pt1(&normal);
-//        pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//        pt1.drawImage(QRect(35, 36, 72, 72), middle);
-//        pt1.drawImage(QRect(35 + 7, 36 + 3, 59, 59), image);
-
-//        pt1.end();
-//        QPixmap pix = QPixmap::fromImage(normal);
-//        pix.save(newApp, "ICO", -1);
-
-//    }
-
-    for(int i = 0; i < g_RemotepaasList.count(); i++)
+    QList<PAAS_LIST>& remotePaasList = _settings->remotePaasList();
+    for(int i = 0; i < remotePaasList.count(); i++)
     {
-//        addIcon(g_RemotepaasList.at(i).cnName, WIN_PAAS_IconPath + g_RemotepaasList.at(i).cnName +".png",
-//                -1, i, g_RemotepaasList.at(i).urls);
-        addIcon(g_RemotepaasList.at(i).cnName, g_RemotepaasList.at(i).iconPath,
-                -1, i, g_RemotepaasList.at(i).urls, paasIcon, "2_" + g_RemotepaasList.at(i).name);
+        addIcon(remotePaasList.at(i).cnName, remotePaasList.at(i).iconPath,
+                -1, i, remotePaasList.at(i).urls, paasIcon, "2_" + remotePaasList.at(i).name);
     }
 
-    qDebug() << "paasIcon init over!";
+    qDebug() << remotePaasList.size() << " paasIcon init over!";
 }
 
 void VacWidget::getVacIcon()
 {
-    for(int i = 0; i < g_RemoteappList.count(); i++)
+    QList<APP_LIST>& remoteAppList = _settings->remoteAppList();
+    for(int i = 0; i < remoteAppList.count(); i++)
     {
-        addIcon(g_RemoteappList[i].name, WIN_VAPP_IconPath + g_RemoteappList[i].id + ".png", \
-                - 1, -1, QString(""), vacIcon, "1_" + g_RemoteappList[i].id);
+        addIcon(remoteAppList[i].name, WIN_VAPP_IconPath + remoteAppList[i].id + ".png", \
+                - 1, -1, QString(""), vacIcon, "1_" + remoteAppList[i].id);
     }
-    qDebug() << "VacIcon init over!";
+    qDebug() << remoteAppList.size() << " VacIcon init over!";
 }
 
 void VacWidget::getLocalIcon()
 {
-    for(int i = 0; i < g_RemotelocalList.count(); i++)
+    QList<LOCAL_LIST>& remoteLocalList = _settings->remoteLocalList();
+    for(int i = 0; i < remoteLocalList.count(); i++)
     {
-        addIcon(g_RemotelocalList[i].name, g_RemotelocalList[i].iconPath, \
-                - 1, -1, QString(""), localIcon, "0_" + g_RemotelocalList[i].uniqueName);
+        addIcon(remoteLocalList[i].name, remoteLocalList[i].iconPath, \
+                - 1, -1, QString(""), localIcon, "0_" + remoteLocalList[i].uniqueName);
     }
 
-    qDebug() << "LocalIcon init over!";
+    qDebug() << remoteLocalList.size() << " LocalIcon init over!";
 }
 
 void VacWidget::largeIcon()
