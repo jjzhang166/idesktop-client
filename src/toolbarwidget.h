@@ -56,8 +56,6 @@ public:
     int addDirIcon(int page, int index);
     void setDirHide();
 
-    void setIconEnabled(bool enabled);
-
     void refresh(QSize size);
 
     void movetoFirst();
@@ -136,6 +134,8 @@ public slots:
     void toolBarRefreshDirMinWidget(const QString &uniqueName);
 
     void iconItemDragOut();
+
+    void changedDirId(const QString &uniqueName, int index);
 
 signals:
     void pageChanged(int i);

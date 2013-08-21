@@ -11,7 +11,6 @@
 #include <cassert>
 using namespace std;
 
-#include "hovericonitem.h"
 #include "localapps.h"
 #include "iconitem.h"
 #include "contextmenuwidget.h"
@@ -48,8 +47,6 @@ class DirShowWidget : public QWidget
 public:
     explicit DirShowWidget(int id, QSize pageSize, QWidget *parent = 0);
     ~DirShowWidget();
-
-    void showApp(bool localApp);
 
     void setId(int id);
     int id()                        { return _id; }
@@ -154,8 +151,6 @@ public:
     QString addLocalApp(QString appPath);
     QString getAppImage(QString appPath);
 
-//    void showApp(bool localApp);
-
     int iconCount()                     { return _nextIdx[_current]; }
     int currentPage()                   { return _current; }
     int count()                         { return _count; }
@@ -188,8 +183,6 @@ public:
 
     void removeIcon(const QString &uniqueName);
     void moveBackIcons(int page, int index);
-
-//    void initIconItem();
     void clearAllIcon();
 
     void setUniqueName(const QString &uniqueName);
@@ -208,9 +201,8 @@ public:
 
 
 signals:
-//    void sendUrl(const QString &url);
+
     void pageChanged(int i);
-//    void sizeChanged();
     void pageIncreased();
     void pageDecreased();
 
@@ -245,9 +237,6 @@ protected:
     void contextMenuEvent(QContextMenuEvent *);
 
 private:
-
-
-//    LocalAppList *_local;
 
     QSize _pageSize;
 

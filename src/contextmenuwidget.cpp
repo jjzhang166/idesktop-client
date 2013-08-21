@@ -15,78 +15,6 @@
 #define ICON_W 162
 
 
-//ContextMenuWidget::ContextMenuWidget(menu_type & type, QWidget *parent)
-//    : QWidget(parent)
-//    ,_type(type)
-//{
-//    switch(_type)
-//    {
-//        case normal :
-//            _normalMenu = new MenuWidget(normal,this);
-
-//            connect(_normalMenu, SIGNAL(showIcons()), this, SLOT(showIcons()));
-//            connect(_normalMenu, SIGNAL(createIcons()), this, SLOT(createIcons()));
-//            connect(_normalMenu, SIGNAL(leaveShowIcons()), this, SLOT(leaveShowIcons()));
-//            connect(_normalMenu, SIGNAL(leaveCreateIcons()), this, SLOT(leaveCreateIcons()));
-//            connect(_normalMenu, SIGNAL(changeSkin()), this, SIGNAL(changeSkin()));
-//            connect(_normalMenu, SIGNAL(desktopTheme()), this, SIGNAL(desktopTheme()));
-//            connect(_normalMenu, SIGNAL(del()), this, SIGNAL(del()));
-//            connect(_normalMenu, SIGNAL(refresh()), this, SIGNAL(refresh()));
-
-//            break;
-//        case showIcon :
-//            _showIconMenu = new MenuWidget(showIcon, this);
-
-//            connect(_showIconMenu, SIGNAL(bigIcon()), this, SIGNAL(bigIcon()));
-//            connect(_showIconMenu, SIGNAL(hitIcon()), this, SIGNAL(hitIcon()));
-//            connect(_showIconMenu, SIGNAL(smallIcon()), this, SIGNAL(smallIcon()));
-
-//            break;
-//        case create :
-//            _createMenu = new MenuWidget(create, this);
-
-//            connect(_createMenu, SIGNAL(createDir()), this, SIGNAL(createDir()));
-//            connect(_createMenu, SIGNAL(createLink()), this, SIGNAL(createLink()));
-//            connect(_createMenu, SIGNAL(createDOC()), this, SIGNAL(createDOC()));
-//            connect(_createMenu, SIGNAL(createEXCEL()), this, SIGNAL(createEXCEL()));
-//            connect(_createMenu, SIGNAL(createPPT()), this, SIGNAL(createPPT()));
-
-//            break;
-
-//        default:
-//            break;
-//    }
-//}
-
-//ContextMenuWidget::~ContextMenuWidget()
-//{
-
-//}
-
-//void ContextMenuWidget::showIcons()
-//{
-//    _showIconMenu->setGeometry(_normalMenu->pos().x() + ICON_W - 40, _normalMenu->pos().y(),
-//                               _showIconMenu->width(), _showIconMenu->height());
-//    _showIconMenu->setVisible(true);
-//}
-
-//void ContextMenuWidget::createIcons()
-//{
-//    _createMenu->setGeometry(_normalMenu->pos().x() + ICON_W - 40, _normalMenu->pos().y() + ICONTOP_H,
-//                             _createMenu->width(), _createMenu->height());
-//    _createMenu->setVisible(true);
-//}
-
-//void ContextMenuWidget::leaveShowIcons()
-//{
-//    _showIconMenu->setVisible(false);
-//}
-
-//void ContextMenuWidget::leaveCreateIcons()
-//{
-//    _createMenu->setVisible(false);
-//}
-
 //miya add
 QStringList MenuWidget::getAppList()
 {
@@ -224,8 +152,6 @@ void MenuWidget::oldCreateMenu()
     _excelBtn->setValue(3);
     _pptBtn->setValue(4);
 
-
-    //setFixedSize(ICON_W, 96 + 19 + 2 * 5 + 20);
     setFixedSize(ICON_W, 40 + 19 * 6 + 2 * 5);
 
     connect(_dirBtn, SIGNAL(clicked()), this, SIGNAL(createDir()));

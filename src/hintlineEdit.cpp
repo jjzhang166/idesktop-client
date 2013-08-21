@@ -7,17 +7,7 @@
 HintLineEdit::HintLineEdit(QString hint, QString pixmap, QWidget *parent)
     : QLineEdit(parent), _hint(hint)
 {
-    //setFixedSize(300, 35);
-    //setTextMargins(32, 5, 2, 5);
-//    setStyleSheet("QLineEdit{border-width:0;border-style:outset;font:18px;}");
-    //setStyleSheet("border: 0px solid gray; background:rgba(255,255,255,0); margin-left:5px;");
-    //setStyleSheet("QLineEdit{border: 2px solid white;border-radius: 3px;padding: 0 2px;selection-background-color: darkgray;}");
     setStyleSheet("QLineEdit:focus{border-color: rgba(133,192,241,255);}");
-    //_pixmap.load(":images/login_input.png");
-
-    //QPalette pal;
-    //pal.setBrush(backgroundRole(), QBrush(QPixmap(":images/login_input_bg.png")));
-    //setPalette(pal);
 }
 
 void HintLineEdit::paintEvent(QPaintEvent* event)

@@ -37,8 +37,6 @@ public:
 
     const QString & getDirText();
 
-    void setMinDragEnable( bool dragEnable);
-
     void removeDirMinItem(const QString &uniqueName);
     void addDirMinItem(const QString &text, const QString &icon, \
                        int page, int index, const QString &url, const QString &uniqueName);
@@ -49,24 +47,19 @@ public:
     void refresh();
 
 signals:
-//    void sendUrl(const QString &url);
 
     void iconEnter();
     void iconLeave();
     void iconMove();
-//    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
     void iconDrop(const QString &text, const QString &iconPath, int page, int index,
                   const QString &url, int type, const QString &uniqueName);
 
-//    void openItem(int id, int page, int index);
     void openItem();
     void dragEnterMinWidget();
-//    void lineEditValueChange(QString);
-//    void delIcon(const QString &text);
     void dirMinLineEditFocusOut(int i, const QString &text);
 
 public slots:
-    void mouseClicked();
+
     void iconDropEvent(const QString &text, const QString &iconPath, const QString &url, const QString &uniqueName);
 
     void editFocusIn();
@@ -90,10 +83,6 @@ protected:
 private:
     DirMWidget *_dirMWidget;
     DirLineEdit *_dirLineEdit;
-
-//    QDrag *_drag;
-
-//    QPoint dragStartPosition;
     QPropertyAnimation *_animation;
 
     int _page;
@@ -102,18 +91,6 @@ private:
 
     int _width;
     int _height;
-
-//    QImage *_editLeft;
-//    QImage *_editCenter;
-//    QImage *_editRight;
-
-//    QImage *_editLeftNormal;
-//    QImage *_editCenterNormal;
-//    QImage *_editRightNormal;
-
-//    QImage *_left;
-//    QImage *_center;
-//    QImage *_right;
 
     QPixmap _editLeft;
     QPixmap _editCenter;
@@ -125,15 +102,12 @@ private:
     QPixmap _editCenterNormal;
     QPixmap _editRightNormal;
 
-//    void setImgs(QImage *strLeft, QImage *strCenter, QImage *strRight);
     void setImgs(QPixmap strLeft, QPixmap strCenter, QPixmap strRight);
-//    QImage setTransparentPixmap(const QString &pix);
     QPixmap setTransparentPixmap(const QString &pix);
 
     int _iconWidth;
     int _iconHeight;
 
-//    bool _dragEnable;
     bool _isMouseMove;
     bool _isMousePress;
     bool _skipMouseMove;
@@ -154,16 +128,6 @@ public:
     DirMWidget(int type, QWidget *parent = 0);
     ~DirMWidget();
 
-//    void setPage(int page)      { _page = page; }
-//    void setIndex(int index)    { _index = index; }
-//    void setId(int id)          { _id = id; }
-////    void setHidden(bool hide);
-
-//    int page()                  { return _dirMWidget->page(); }
-//    int index()                 { return _dirMWidget->index(); }
-//    int id()                    { return _dirMWidget->id(); }
-    void setMinDragEnable( bool dragEnable);
-
     void removeDirMinItem(const QString &uniqueName);
     void addDirMinItem(const QString &text, const QString &icon, \
                        int page, int index, const QString &url, const QString &uniqueName);
@@ -175,36 +139,21 @@ public:
     void refresh();
 
 signals:
-//    void sendUrl(const QString &url);
-
     void iconEnter();
     void iconLeave();
     void iconMove();
-//    void iconDrop(int id, const QString &text, const QString &iconPath, const QString &url);
     void iconDrop(const QString &text, const QString &iconPath,
                   int page, int index,
                   const QString &url, int type, const QString &uniqueName);
 
-//    void mouseClicked(int id, int page, int index);
     void mouseClicked();
 
 public slots:
 
 protected:
-//    void dragEnterEvent(QDragEnterEvent *event);
-//    void dragMoveEvent(QDragMoveEvent *event);
-//    void dragLeaveEvent(QDragLeaveEvent *event);
-//    void dropEvent(QDropEvent *event);
-//    void mousePressEvent(QMouseEvent *);
-//    void mouseDoubleClickEvent(QMouseEvent *);
-
 
 private:
     DirMinWidget *_dirMinWidget;
-
-//    int _page;
-//    int _index;
-//    int _id;
 
     int _width;
     int _height; 
@@ -254,19 +203,8 @@ signals:
 
     void mouseClicked();
 
-public slots:
-//    void mouseStatus();
-
 protected:
     void paintEvent(QPaintEvent *);
-//    void dragEnterEvent(QDragEnterEvent *event);
-//    void dragMoveEvent(QDragMoveEvent *event);
-//    void dragLeaveEvent(QDragLeaveEvent *event);
-//    void dropEvent(QDropEvent *event);
-//    void mousePressEvent(QMouseEvent *event);
-//    void mouseMoveEvent(QMouseEvent *event);
-//    void mouseDoubleClickEvent(QMouseEvent *);
-//    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     int _width;
@@ -298,7 +236,6 @@ private:
 
     int _type;
 
-//    QPropertyAnimation *_animation;
     QString _uniqueName;
     QList<TEMP_LIST> _tempFirstIconItem;
 
@@ -316,12 +253,6 @@ signals:
     void focusIn();
     void focusOut();
 
-public slots:
-//    void setHint(const QString &hint)
-//    {
-//        _hint = hint;
-//        repaint();
-//    }
 protected:
     virtual void paintEvent(QPaintEvent* event);
     void focusInEvent(QFocusEvent *event);
@@ -336,9 +267,6 @@ private:
 
 private:
     QString _hint;
-//    QPixmap _pixmap;
-
-
     QString _fullName;
     QColor _color;
 
@@ -389,7 +317,6 @@ public:
     int _icontype;/*³ÌÐòÍ¼±ê*/
 
     void animationMove(const QRect &start, const QRect &end);
-//    void setIconClass(int iconClass);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -418,7 +345,6 @@ private:
 
     bool _isRemote;
     QString _uniqueName;
-//    QPixmap _iconClassPixmap;
 };
 
 

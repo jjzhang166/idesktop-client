@@ -14,15 +14,11 @@
 #include <QMenu>
 
 #include "commuinication.h"
-//#include "personalizationwidget.h"
-//#include "bswidget.h"
 #include "logindialog.h"
-#include "vacserverwidget.h"
 #include "vacwidget.h"
 #include "skinwidget.h"
 #include "movewidget.h"
 #include "dirwidget.h"
-#include "blurpicker.h"
 #include "nodebutton.h"
 #include "toolbarwidget.h"
 
@@ -174,7 +170,6 @@ private:
     int _distance;
     int _minY;
     bool _minUpward;
-    BlurPicker *_blurPicker;
 
     QNetworkAccessManager *_nam;
     PageNodes *_pageNodes;

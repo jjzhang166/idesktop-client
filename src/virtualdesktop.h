@@ -9,9 +9,6 @@
 
 #include "localapps.h"
 #include "commuinication.h"
-//#include "arrangewidget.h"
-#include "hovericonitem.h"
-//#include "movewidget.h"
 #include "iconitem.h"
 #include "dirwidget.h"
 #include "dirminwidget.h"
@@ -164,8 +161,6 @@ public:
     int addDirIcon(int page, int index);
     void setDirHide();
 
-    void setIconEnabled(bool enabled);
-
     void refresh(QSize size);
 
     void movetoFirst();
@@ -205,14 +200,6 @@ public slots:
 
     void runApp(const QString &uniqueName);
     void uninstall(const QString &uniqueName);
-
-    void upLoad();
-
-//    void runServerApp();
-
-//    void arrangeWidgetMove(QPoint pos);
-
-    //void updateIconTimeOut();
 
     void openDir(int id, int page, int index);
     void closeDir(int page, int index);
@@ -328,6 +315,7 @@ signals:
 
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
     void toolBarRefreshDirMinWidget(const QString &uniqueName);
+    void changedDirId(const QString &uniqueName, int index);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);

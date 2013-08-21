@@ -13,52 +13,6 @@
 #define ICON_W_NEW 300
 
 class MenuButton;
-//class MenuWidget;
-
-//class ContextMenuWidget : public QWidget
-//{
-//    Q_OBJECT
-    
-//public:
-//    enum menu_type
-//    {
-//        showIcon, create, normal
-//    };
-
-//    explicit ContextMenuWidget(menu_type & type = normal,QWidget *parent = 0);
-//    ~ContextMenuWidget();
-//signals:
-//    //normal
-//    void changeSkin();
-//    void desktopTheme();
-//    void del();
-//    void refresh();
-//    //showIcon
-//    void bigIcon();
-//    void hitIcon();
-//    void smallIcon();
-//    //create
-//    void createDir();
-//    void createLink();
-//    void createDOC();
-//    void createEXCEL();
-//    void createPPT();
-
-//public slots:
-//    void showIcons();
-//    void createIcons();
-//    void leaveShowIcons();
-//    void leaveCreateIcons();
-
-//private:
-
-//    MenuWidget *_normalMenu;
-//    MenuWidget *_showIconMenu;
-//    MenuWidget *_createMenu;
-
-//    int _type;
-
-//};
 
 class MenuWidget : public QWidget
 {

@@ -291,14 +291,6 @@ void DirShowWidget::wheelEvent(QWheelEvent *event)
     _scrollBar->event(event);
 }
 
-void DirShowWidget::showApp(bool localApp)
-{
-//    if (localApp)
-//        _dirWidget->showApp(true);
-//    else
-//        _dirWidget->showApp(false);
-}
-
 void DirShowWidget::addDirIcon(const QString &text, const QString &iconPath,
                                int page, int index, const QString &url,
                                int type, const QString &uniqueName)
@@ -799,7 +791,6 @@ void DirWidget::mediumIcon()
 {
     _iconSize = IconItem::medium_size;
     refresh(MEDIUMSIZE);
-//    _iconNum = 0;
 
     emit heightChanged();
 }
@@ -808,7 +799,6 @@ void DirWidget::smallIcon()
 {
     _iconSize = IconItem::small_size;
     refresh(SMALLSIZE);
-//    _iconNum = 0;
 
     emit heightChanged();
 }
@@ -868,21 +858,6 @@ void DirWidget::reloadApplist(QSize size)
     _iconsPerPage = _col * _row;
     _current  = 0;
 
-//    for (int i = 0; i < _local->count(); i++) {
-//        if (_local->at(i)->hidden())
-//            continue;
-
-//        if (_local->at(i)->dirId() == _id)
-//        {
-//            _iconNum ++;
-//        }
-//    }
-
-//    for (int i = 0; i < _iconNum; i++)   //_local->count()
-//    {
-//        _count = i / _iconsPerPage + 1;
-//    }
-
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _height));
 
@@ -918,18 +893,6 @@ void DirWidget::reloadApplist(QSize size)
 
 void DirWidget::deleteAllIconItem()
 {
-//    for (int i=0;i<_count;i++)
-//    {
-//        for(int j=0;j<_iconsPerPage;j++) // also you can use _nextIdx[i]
-//        {
-//            if(_iconTable[i][j]!=NULL)
-//            {
-//                delete _iconTable[i][j];
-//                _iconTable[i][j]=NULL;
-//            }
-//        }
-//        _nextIdx[i]=0;
-//    }
     _dirTempLists.clear();
 
     TEMP_LIST dirTempList;
@@ -1496,7 +1459,10 @@ void DirWidget::setId(int id)
             continue;
         if (_local->at(i)->dirId() == oldId)
         {
-            _local->at(i)->setDirId(_id);
+            if (_iconDict.value(_local->at(i)->uniqueName()))
+            {
+                _iconDict.value(_local->at(i)->uniqueName())->setDirId(_id);
+            }
         }
     }
 }

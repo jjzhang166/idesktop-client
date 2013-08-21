@@ -14,8 +14,7 @@
 #include "dustbin.h"
 #define APPICON 0
 #define FONTSIZE 10
-#define ICONX 35
-#define ICONY 36
+
 #define SELECTWIDTH 37
 #define SELECTHEIGHT 37
 #include "qitemmanager.h"
@@ -283,6 +282,9 @@ void IconItem::setLargeSize()
     _width = LARGESIZE.width();
     _height = LARGESIZE.height();
 
+    _iconX = 37;
+    _iconY = 36;
+
     _iconWidth = 72;
     _iconHeight = 72;
     init();
@@ -296,6 +298,9 @@ void IconItem::setMediumSize()
     _width = MEDIUMSIZE.width();
     _height = MEDIUMSIZE.height();
 
+    _iconX = 32;
+    _iconY = 30;
+
     _iconWidth = 60;
     _iconHeight = 60;
     init();
@@ -308,6 +313,9 @@ void IconItem::setSmallSize()
 {
     _width = SMALLSIZE.width();
     _height = SMALLSIZE.height();
+
+    _iconX = 28;
+    _iconY = 24;
 
     _iconWidth = 52;
     _iconHeight = 52;
@@ -564,7 +572,7 @@ void IconItem::mousePressEvent(QMouseEvent *event)
     {
         if (event->button() == Qt::LeftButton)
         {
-            if (QRect(ICONX, ICONY, _iconWidth, _iconHeight).contains(event->pos())) {
+            if (QRect(_iconX, _iconY, _iconWidth, _iconHeight).contains(event->pos())) {
                 if (!_equalBool)
                 {
                     setEqualIcon(true);
@@ -573,8 +581,8 @@ void IconItem::mousePressEvent(QMouseEvent *event)
                 }
                 else
                 {
-                    emit delItem(_uniqueName);
-
+                    //emit delItem(_uniqueName);
+                    LocalAppList::getList()->delApp(_uniqueName);
                     setEqualIcon(false);
 
                 }
@@ -587,24 +595,27 @@ void IconItem::mousePressEvent(QMouseEvent *event)
 
 void IconItem::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    if (!_doubleClickeBool)
+    if (QRect(_iconX, _iconY, _iconWidth, _iconHeight).contains(event->pos()))
     {
-        QWidget::mouseDoubleClickEvent(event);
-        return;
-    }
-
-    if (!_url.isEmpty())
-    {
-        qDebug() << _url;
-        QDesktopServices::openUrl(QUrl(_url));
-        return;
-    }
-    else
-    {
-        //if ((event->button() == Qt::LeftButton) && (_timeline->state() != QTimeLine::Running))
-        if (event->button() == Qt::LeftButton)
+        if (!_doubleClickeBool)
         {
-            runClicked();
+            QWidget::mouseDoubleClickEvent(event);
+            return;
+        }
+
+        if (!_url.isEmpty())
+        {
+            qDebug() << _url;
+            QDesktopServices::openUrl(QUrl(_url));
+            return;
+        }
+        else
+        {
+            //if ((event->button() == Qt::LeftButton) && (_timeline->state() != QTimeLine::Running))
+            if (event->button() == Qt::LeftButton)
+            {
+                runClicked();
+            }
         }
     }
 }
@@ -617,27 +628,32 @@ void IconItem::mouseMoveEvent(QMouseEvent *event)
     if (!(event->buttons() & Qt::LeftButton))
         return;
 
-    if ((event->pos() - _dragStartPosition).manhattanLength() < QApplication::startDragDistance())
-        return;
+    if (QRect(_iconX, _iconY, _iconWidth, _iconHeight).contains(event->pos()))
+    {
+        if ((event->pos() - _dragStartPosition).manhattanLength() < QApplication::startDragDistance())
+            return;
 
-    QByteArray itemData;
-    QDataStream dataStream(&itemData, QIODevice::WriteOnly);
-    dataStream << _text << _pixText << _page << _index << _url << _type << _id << _uniqueName;
+        QByteArray itemData;
+        QDataStream dataStream(&itemData, QIODevice::WriteOnly);
+        dataStream << _text << _pixText << _page << _index << _url << _type << _id << _uniqueName;
 
-    QMimeData *mimeData = new QMimeData;
-    mimeData->setData("image/x-iconitem", itemData);
-    if(_type == 3)
-        setDirBackground();
-    QDrag *drag = new QDrag(this);
-    drag->setMimeData(mimeData);
-    drag->setPixmap(grayPixmap());
-    drag->setHotSpot(event->pos());
-    gap = drag->hotSpot();
-    if (!(drag->exec(Qt::MoveAction) == Qt::MoveAction)) {
-        emit dragOut();
+        _drag = new QDrag(this);
+        QMimeData *mimeData = new QMimeData;
+        mimeData->setData("image/x-iconitem", itemData);
+        if(_type == 3)
+            setDirBackground();
+
+        _drag->setMimeData(mimeData);
+        _drag->setPixmap(grayPixmap());
+        _drag->setHotSpot(event->pos());
+        gap = _drag->hotSpot();
+        if (!(_drag->exec(Qt::MoveAction) == Qt::MoveAction)) {
+            emit dragOut();
+        }
+    //    drag->exec(Qt::MoveAction);
+        delete _drag;
     }
-//    drag->exec(Qt::MoveAction);
-    delete drag;
+
 }
 
 void IconItem::contextMenuEvent(QContextMenuEvent *event)
@@ -645,39 +661,10 @@ void IconItem::contextMenuEvent(QContextMenuEvent *event)
     if (!_contextMenuBool)
         return;
 
-
-//    Q_UNUSED(event);
-
-//    QCursor cur=this->cursor();
-//    QMenu *iconItemcontextMenu = new QMenu(this);
-//    /*
-//    QPalette pal = iconItemcontextMenu->palette();
-//    pal.setColor(QPalette::Background, QColor(0x00,0x00,0x00,0x00));
-//    iconItemcontextMenu->setPalette(pal);
-
-//    iconItemcontextMenu->setStyleSheet("QMenu{color:#FFFFFF;}\
-//                                        QMenu::item{color:#FFFFFF;}");
-//*/
-//    if (_runBool)
-//        iconItemcontextMenu->addAction(_runAction);
-
-//    if (_delBool)
-//        iconItemcontextMenu->addAction(_delAction);
-
-//    iconItemcontextMenu->setContextMenuPolicy(Qt::ActionsContextMenu);
-
-//    iconItemcontextMenu->exec(cur.pos());
-
-//    _mousePos = event->pos();
-//    _iconMenu->move(event->pos());
-
-//    hideMenuWidget();
-//    _iconMenu->raise();
-//    _iconMenu->setVisible(true);
-
-//    return;
-
-    emit showContextMenu( true, event->pos(), mapToGlobal(event->pos()), this);
+    if (QRect(_iconX, _iconY, _iconWidth, _iconHeight).contains(event->pos()))
+    {
+        emit showContextMenu( true, event->pos(), mapToGlobal(event->pos()), this);
+    }
 }
 
 void IconItem::enterEvent(QEvent *event)

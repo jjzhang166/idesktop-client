@@ -17,8 +17,6 @@ SkinShowWidget::SkinShowWidget(QWidget *parent)
     , _oldPagePos(0)
     , _newPagePos(0)
 {
-    //resize(20, 20);
-
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_NoSystemBackground, true);
@@ -52,24 +50,7 @@ SkinShowWidget::SkinShowWidget(QWidget *parent)
 
     _animation = new QPropertyAnimation(_pixWidget, "geometry");
 
-//    _rightTopPix.load(":/images/bs_rightbg_top.png");
-//    _rightCenterPix.load(":/images/bs_rightbg_center.png");
-//    _rightBottomPix.load(":/images/bs_rightbg_bottom.png");
-
     _bgPix.load(":/images/widget_bg.png");
-
-//    QImage normal = QImage(":/images/skin_bg.png");
-
-//    for (int i = 0; i < normal.width(); i++) {
-//        for (int j = 0; j < normal.height(); j++) {
-//            QRgb pixel = normal.pixel(i,j);
-//            int a = qAlpha(pixel);
-//            QRgb lightPixel = qRgba(qRed(pixel) * 1, qGreen(pixel) * 1, \
-//                                    qBlue(pixel) * 1, a * 150 / 255);
-//            normal.setPixel(i, j, lightPixel);
-//        }
-//    }
-//    _bgPix = QPixmap::fromImage(normal);
 
     _closePix.load(":images/widget_close_normal.png");
     _closeHoverPix.load(":images/widget_close_hover.png");
@@ -126,19 +107,10 @@ void SkinShowWidget::wheelEvent(QWheelEvent *event)
 void SkinShowWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-
-//    painter.drawPixmap(0, 0, _width, 9,\
-//                       _rightTopPix.scaled(_width, 9));
-//    painter.drawPixmap(0, 9, _width, _height - 18,\
-//                       _rightCenterPix.scaled(_width, _height - 18));
-//    painter.drawPixmap(0, _height - 9, _width, 9,\
-//                       _rightBottomPix.scaled(_width, 9));
-
     painter.drawPixmap(0, 0, _width, _height, _bgPix.scaled(_width, _height));
     painter.drawPixmap(10, 20, QPixmap(":images/skin_normal.png"));
 
-//    painter.setPen(QPen(QBrush(Qt::white), 1, Qt::DashLine));
-//    painter.drawLine(15, 40, _width - 25, 40);
+
 
     QWidget::paintEvent(event);
 }
@@ -362,11 +334,7 @@ int PixWidget::addIcon(const QString &iconPath, \
     icon->show();
 
     connect(icon, SIGNAL(mouseClicked(const QString&)), this, SLOT(itemClicked(const QString&)));
-//    connect(icon, SIGNAL(delItem(const QString&)), this, SLOT(uninstall(const QString&)));
-
-
-     return page;
-    //LocalAppList::getList()->save();
+    return page;
 }
 
 void PixWidget::itemClicked(const QString &pixText)

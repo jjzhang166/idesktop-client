@@ -8,7 +8,7 @@
 #include "config.h"
 #include "qtipaddressedit/qipaddressedit.h"
 #include "qtipaddressedit/qipaddressedititem.h"
-//#include "vappvirtualdesktop.h"
+
 #include <windows.h>
 #include <shellapi.h>
 #include "ShlObj.h"
@@ -405,68 +405,6 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
         connError(tr("连接服务器失败..."));
 
     }
-
-    //    else if (result == "WRONG PASSWORD")
-    //    {
-    //        passError(tr("密码验证失败"));
-    //    }
-}
-
-void GetAppList()
-{
-#if 0
-    QLibrary dllLib("GetApp.dll");
-    if(!dllLib.load())
-    {
-        qDebug()<<"load failed!";
-        return;
-    }
-    else
-    {
-        qDebug()<<"load succeed!";
-        my_getApp = (DLL_getApp)dllLib.resolve("GetApp");
-        my_getApp2 = (DLL_getApp2)dllLib.resolve("GetApp2");
-        if(my_getApp == NULL)
-        {
-            qDebug()<<"resolve failed!";
-            return;
-        }
-        else
-        {
-            qDebug()<<"resolve succeed!";
-            MY_APP_StructList* mylist = new MY_APP_StructList;
-            char p[20];
-            sprintf(p, "list add:%x", mylist);
-            qDebug()<<"before my_getApp"<< p;
-#if 1
-            *mylist = my_getApp2();
-#else
-            my_getApp(mylist);
-#endif
-            sprintf(p, "list add:%x", mylist);
-            qDebug()<<"after my_getApp"<< p;
-            FILE* hf = NULL;
-            hf = fopen("c:\\Temp\\log.txt", "wb");
-            fputs("hello..", hf);
-            fclose(hf);
-            hf = NULL;
-            for(MY_APP_StructIter it = mylist->begin(); it != mylist->end(); ++it)
-            {
-                hf = fopen("c:\\Temp\\log.txt", "a");
-                //qDebug()<< "app name:" << (char*)it->strAppName;
-                fputs("app name:", hf);
-                fputs(it->strAppName, hf);
-                fputs("\n", hf);
-                fputs("app path:", hf);
-                fputs(it->strExePath, hf);
-                fputs("\n", hf);
-
-                fclose(hf);
-            }
-
-        }
-    }
-#endif
 }
 
 void LoginDialog::auth()

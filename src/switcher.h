@@ -32,15 +32,11 @@ public slots:
     void changed();
 private:
     QPixmap _pixmap;
-//    QPixmap _pixmapLeft;
     QPixmap _pixmapRight;
     QPixmap _normalRight;
-//    QPixmap _normalLeft;
     QPixmap _transRight;
-//    QPixmap _transLeft;
     QPixmap _darkRight;
-//    QPixmap _darkLeft;
-//    int _direction;
+
     bool _enabled;
 };
 

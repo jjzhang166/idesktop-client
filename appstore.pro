@@ -64,12 +64,8 @@ HEADERS += src/config.h \
     src/qtsingleapplication/qtlockedfile.h \
     src/qtipaddressedit/qipaddressedit.h \
     src/qtipaddressedit/qipaddressedititem.h \
-    src/bswidget.h \
     src/commuinication.h \
     src/common.h \
-    src/arrangewidget.h \
-    src/vacserverwidget.h \
-    src/hovericonitem.h \
     src/vacwidget.h \
     src/skinwidget.h \
     src/dirwidget.h \
@@ -124,12 +120,8 @@ SOURCES += src/config.cpp \
     src/qtsingleapplication/qtlockedfile.cpp \
     src/qtipaddressedit/qipaddressedit.cpp \
     src/qtipaddressedit/qipaddressedititem.cpp \
-    src/bswidget.cpp \
     src/main.cpp \
     src/commuinication.cpp \
-    src/arrangewidget.cpp \
-    src/vacserverwidget.cpp \
-    src/hovericonitem.cpp \
     src/vacwidget.cpp \
     src/skinwidget.cpp \
     src/dirwidget.cpp \

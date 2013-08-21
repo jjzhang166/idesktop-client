@@ -52,11 +52,6 @@ Dustbin::Dustbin(QWidget *parent)
     _width = LARGESIZE.width();
     _height = LARGESIZE.height();
 
-//    _iconWidth = ICONLSIZE.width();
-//    _iconHeight = ICONLSIZE.height();
-
-//    _dirMWidget->move(35, 36);
-
     setFixedSize(_width, _height);
 
 }

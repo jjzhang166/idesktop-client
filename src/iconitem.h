@@ -282,6 +282,9 @@ private:
     QPixmap _iconClassPixmap;
     QString _uniqueName;
 
+    int _iconX;
+    int _iconY;
+
 };
 
 #endif // ICONITEM_H

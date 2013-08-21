@@ -17,7 +17,6 @@
 #include <QTime>
 
 #include "localapps.h"
-#include "hovericonitem.h"
 #include "commuinication.h"
 #include "paascommuinication.h"
 #include "iconitem.h"

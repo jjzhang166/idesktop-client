@@ -146,8 +146,7 @@ toolBarWidget::toolBarWidget(QSize pageSize, QWidget *parent)
 
 //    connect(_local, SIGNAL(appAdded(const QString&, const QString&, const QString &, int))
 //            , this, SLOT(addIcon(const QString&, const QString&, const QString &, int)));
-//    connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
-
+    connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
 //    connect(&_communi, SIGNAL(appRun()), this, SLOT(runServerApp()));//
 
 }
@@ -1212,23 +1211,6 @@ void toolBarWidget::hideDirWidget()
 //    }
 }
 
-void toolBarWidget::setIconEnabled(bool enabled)
-{
-//    for (int i = 0; i < _count; i++)
-//    {
-//        for(int j = 0; j < _nextIdx[i]; j++)
-//        {
-//            if ((i == _dirPage) && (j == _dirIndex))
-//                continue;
-
-//            _iconTable[i][j]->setEnabled(enabled);
-//            if(enabled)
-//                _iconTable[i][j]->setNormalPixmap();
-//            else
-//                _iconTable[i][j]->setGrayPixmap();
-//        }
-//    }
-}
 #if 0
 void toolBarWidget::menuChanged(int value)
 {
@@ -1700,3 +1682,11 @@ void toolBarWidget::toolBarRefreshDirMinWidget(const QString &uniqueName)
 //        }
 //    }
 //}
+
+void toolBarWidget::changedDirId(const QString &uniqueName, int index)
+{
+    if (_iconDict.value(uniqueName))
+    {
+        _iconDict.value(uniqueName)->setId(index);
+    }
+}

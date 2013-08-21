@@ -26,8 +26,6 @@ AppMessageBox::AppMessageBox(bool hasCancel, QWidget *parent)
     DynamicButton *b = new DynamicButton(closePix, closePixHover, this);
     b->move(WIDTH - 45, 30);            //WIDTH - 35, 10
     label = new QLabel(this);
-//    label->move(50, 80);                //40, 80
-//    label->setFont(QFont("", 12, QFont::Normal));
 
     QPixmap okPix(":images/message/message_submit_normal.png");
     QPixmap okPixHover(":images/message/message_submit_hover.png");
@@ -65,15 +63,6 @@ void AppMessageBox::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
 
     QPainter pt(this);
-//    pt.drawPixmap(21, 21, QPixmap(":images/message/bg.png").scaled(WIDTH - 21 * 2, HEIGHT - 21 * 2));
-//    pt.drawPixmap(0, 0, QPixmap(":images/message/top_left_bg.png"));
-//    pt.drawPixmap(WIDTH - 21, 0, QPixmap(":images/message/top_right_bg.png"));
-//    pt.drawPixmap(0, HEIGHT - 21, QPixmap(":images/message/bottom_left_bg.png"));
-//    pt.drawPixmap(WIDTH - 21, HEIGHT - 21, QPixmap(":images/message/bottom_right_bg.png"));
-//    pt.drawPixmap(21, 0, QPixmap(":images/message/top_bg.png").scaled(WIDTH-21*2, 21));
-//    pt.drawPixmap(21, HEIGHT - 21, QPixmap(":images/message/bottom_bg.png").scaled(WIDTH-21*2, 21));
-//    pt.drawPixmap(0, 21, QPixmap(":images/message/left_bg.png").scaled(21, HEIGHT-21*2));
-//    pt.drawPixmap(WIDTH - 21, 21, QPixmap(":images/message/right_bg.png").scaled(21, HEIGHT-21*2));
     pt.drawPixmap(0, 0, WIDTH, HEIGHT, QPixmap(":images/message/message_bg.png").scaled(WIDTH
                   , HEIGHT, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }

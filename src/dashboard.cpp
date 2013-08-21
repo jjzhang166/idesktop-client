@@ -186,7 +186,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_ldialog, SIGNAL(dHide()), this, SLOT(hide()));
     connect(_ldialog, SIGNAL(pShow()), panel, SLOT(show()));
     connect(_ldialog, SIGNAL(pHide()), panel, SLOT(hide()));
-    connect(_ldialog, SIGNAL(dVacServer()), this, SLOT(setVacServer()));
+
     connect(_ldialog, SIGNAL(dActivated(QSystemTrayIcon::ActivationReason)),
         this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
     connect(vdesktop, SIGNAL(toOrigin()), this, SLOT(switchBetween()));
@@ -242,6 +242,8 @@ Dashboard::Dashboard(QWidget *parent)
             , _toolBarWidget, SLOT(toolBarRemoveDirMinItem(const QString &, int)));
     connect(vdesktop, SIGNAL(toolBarRefreshDirMinWidget(const QString &))
             , _toolBarWidget, SLOT(toolBarRefreshDirMinWidget(const QString &)));
+    connect(vdesktop, SIGNAL(changedDirId(const QString&, int))
+            , _toolBarWidget, SLOT(changedDirId(const QString&, int)));
 
     connect(_animationDown,SIGNAL(finished()), this, SLOT(animationFinished()));
     connect(_animationDownMin,SIGNAL(finished()), this, SLOT(animationMinDownFinished()));
@@ -297,7 +299,6 @@ void Dashboard::desktopClicked()
     panel->show();
     panel->setAutoHide(true);
     panel->animationHide();
-    vdesktop->setIconEnabled(true);
 }
 
 void Dashboard::setMinMoveLabel(bool up)
@@ -384,8 +385,6 @@ void Dashboard::animationFinished()
         _animationUpFinished = false;
 
         _pageNodes->setVisible(true);
-
-        vdesktop->setIconEnabled(true);
         vdesktop->setIconMove(true);
         _toolBarWidget->setVisible(true);
 
@@ -896,6 +895,7 @@ void Dashboard::modify()
             {
                 //delete
                 _vacShowWidget->delIcon("1_" + remoteAppList[i].id);
+				LocalAppList::getList()->delApp("1_" + remoteAppList[i].id);
             }
         }
         // add
@@ -967,8 +967,8 @@ void Dashboard::paasModify()
             if(!isExist)
             {
                 //delete
-//                LocalAppList::getList()->delApp(remoteAppList[i].name);
                 _vacShowWidget->delIcon("2_" + remotePaasList[i].name);
+				LocalAppList::getList()->delApp("2_" + remotePaasList[i].name);
             }
         }
         // add
