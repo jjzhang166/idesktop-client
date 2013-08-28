@@ -105,7 +105,7 @@ StrCmp '"${EXE_NAME}.exe"' $R2 0 ContinueUninstall
 MessageBox   MB_RETRYCANCEL|MB_ICONEXCLAMATION \
 '检测到${SETUP_NAME}正在运行,卸载无法继续！\
 请关闭${SETUP_NAME}，并单击[重试]。\
-或者单击[取消]退出安装。'  IDRETRY  CheckRunning IDCANCEL 0
+或者单击[取消]退出卸载。'  IDRETRY  CheckRunning IDCANCEL 0
 Quit
 ContinueUninstall:
 

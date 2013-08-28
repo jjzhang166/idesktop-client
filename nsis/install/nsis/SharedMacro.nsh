@@ -41,10 +41,12 @@ VC_X86_Loop:
   ReadRegStr $2 HKCR "Installer\Products\$1" "${PRODUCT_NAME}"
   StrCmp $2 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729" VC_X86_Exist VC_X86_Loop ; ;版本
 VC_X86_Install:
-  ;Messagebox mb_ok "正在安装"
   SetOutPath $INSTDIR
+  nsExec::exec "regedit /E $TEMP\backupreg_idesktop.reg HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Discardable\PostSetup\ShellNew"
   File "..\files\vcredist_x86.exe"
   nsExec::exec "$INSTDIR\vcredist_x86.exe /q"
+  nsExec::exec "regedit.exe /s $TEMP\backupreg_idesktop.reg"
+  Delete "$TEMP\backupreg_idesktop.reg"
   goto VC_X86_End
 VC_X86_Exist:
   ;Messagebox mb_ok "已经安装"
