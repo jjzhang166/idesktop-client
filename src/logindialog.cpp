@@ -35,7 +35,6 @@ LoginDialog::LoginDialog(QWidget *parent)
     , _flip(false)
     ,_isSetting(false)
 {
-
     _settings = IDesktopSettings::instance();
 
     QTextCodec *codec = QTextCodec::codecForName("utf-8"); //System
@@ -65,19 +64,18 @@ LoginDialog::LoginDialog(QWidget *parent)
     configurationButton->setGeometry(width() - 10 * 3 - CLOSE_WIDTH * 3, 10, 10, 10);
     configurationButton->setVisible(true);
 
-
     ipAddrEdit = new QIpAddressEdit(serverip, this);
     ipAddrEdit->setGeometry(75, 55, 208, 35);
     ipAddrEdit->setVisible(false);
-
     userEdit = new HintLineEdit(tr("ÇëÊäÈëÄúµÄÓÃ»§Ãû"), ":images/user_icon.png", this);
     passEdit = new HintLineEdit(tr("ÇëÊäÈëÄúµÄÃÜÂë"), ":images/password_icon.png", this);
     userEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
     passEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
 
+
     passEdit->setEchoMode(QLineEdit::Password);
-    userEdit->setTextMargins(5, 5, 2, 5);
-    passEdit->setTextMargins(5, 5, 2, 5);
+    userEdit->setTextMargins(5, 0, 2, 3);
+    passEdit->setTextMargins(5, 0, 2, 3);
     userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
     passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
@@ -552,10 +550,10 @@ void LoginDialog::settingUi()
     vacPortLEdit->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
 
 
-    verifyLEdit->setTextMargins(5, 5, 2, 5);
-    vacLEdit->setTextMargins(5, 5, 2, 5);
-    paasLEdit->setTextMargins(5, 5, 2, 5);
-    vacPortLEdit->setTextMargins(5, 5, 2, 5);
+    verifyLEdit->setTextMargins(5, 0, 2, 3);
+    vacLEdit->setTextMargins(5, 0, 2, 3);
+    paasLEdit->setTextMargins(5, 0, 2, 3);
+    vacPortLEdit->setTextMargins(5, 0, 2, 3);
     verifyLEdit->setGeometry((width() - 188) / 2, 115, 188, 27);
     vacLEdit->setGeometry((width() - 188) / 2, 145, 188, 27);
     paasLEdit->setGeometry((width() - 188) / 2, 175, 188, 27);
@@ -573,6 +571,14 @@ void LoginDialog::settingUi()
     returnButton->setGeometry(submit->pos().x() + submit->width() + 20, passEdit->pos().y() + passEdit->height() + 30,\
                               89, 34);
     //returnButton->hide();
+    returnButton->setEnable(false);
+    returnButton->setEnabled(false);
+
+    connect(verifyLEdit, SIGNAL(returnPressed()), saveButton, SIGNAL(clicked()));
+    connect(vacLEdit, SIGNAL(returnPressed()), saveButton, SIGNAL(clicked()));
+    connect(paasLEdit, SIGNAL(returnPressed()), saveButton, SIGNAL(clicked()));
+    connect(vacPortLEdit, SIGNAL(returnPressed()), saveButton, SIGNAL(clicked()));
+
     connect(saveButton, SIGNAL(clicked()), this, SLOT(saveSettingSlot()));
     connect(returnButton, SIGNAL(clicked()), this, SLOT(returnSlot()));
     VacServer = "";
@@ -612,6 +618,9 @@ void LoginDialog::readSetting()
         vacLEdit->setText(VacServer);
         vacPortLEdit->setText(VacPort);
         paasLEdit->setText(PaasServer);
+
+        returnButton->setEnable(true);
+        returnButton->setEnabled(true);
     }
 }
 
@@ -619,11 +628,11 @@ void LoginDialog::updateUi()
 {
     if(_isSetting)
     {
-
         userEdit->hide();
         passEdit->hide();
         submit->hide();
         cancelBtn->hide();
+        configurationButton->hide();
 
         _uerror = "";
         _perror = "";
@@ -664,6 +673,7 @@ void LoginDialog::updateUi()
         userEdit->show();
         submit->show();
         cancelBtn->show();
+        configurationButton->show();
     }
 
 }
@@ -722,6 +732,9 @@ void LoginDialog::saveSettingSlot()
         return;
     }
 
+    returnButton->setEnable(true);
+    returnButton->setEnabled(true);
+
     QSqlQuery query(QSqlDatabase::database("local"));
     if(VacServer.isEmpty() || PaasServer.isEmpty())
     {
@@ -772,6 +785,7 @@ void LoginDialog::saveSettingSlot()
     userEdit->show();
     submit->show();
     cancelBtn->show();
+    configurationButton->show();
     _isSetting = false;
 
     repaint();
@@ -796,6 +810,7 @@ void LoginDialog::returnSlot()
     userEdit->show();
     submit->show();
     cancelBtn->show();
+    configurationButton->show();
     _isSetting = false;
 
 

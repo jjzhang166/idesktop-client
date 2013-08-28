@@ -94,7 +94,6 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
-
 private:
     void userError(QString text);
     void passError(QString text);

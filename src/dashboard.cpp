@@ -87,8 +87,8 @@ Dashboard::Dashboard(QWidget *parent)
 //    QTextCodec::setCodecForCStrings(codec);
 
     _ldialog = new LoginDialog(this);
-//    if (!_ldialog->exec())
-//        exit(1);
+    if (!_ldialog->exec())
+        exit(1);
 
     char folder[MAX_PATH] = {0};
     SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
