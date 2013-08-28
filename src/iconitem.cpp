@@ -63,11 +63,11 @@ IconItem::IconItem(QWidget *parent)
     _pixmap.load("");
 
 //       if (parent) {
-//            connect(static_cast<VirtualDesktop*>(parent), \
-//                    SIGNAL(trembleStarted()), \
+//            connect(static_cast<VirtualDesktop*>(parent),
+//                    SIGNAL(trembleStarted()),
 //                    this, SLOT(startTremble()));
-//            connect(static_cast<VirtualDesktop*>(parent), \
-//                    SIGNAL(trembleStoped()), \
+//            connect(static_cast<VirtualDesktop*>(parent),
+//                    SIGNAL(trembleStoped()),
 //                    this, SLOT(stopTremble()));
 //        }
     _lineEdit = new DirLineEdit(QString(""),this);
@@ -141,6 +141,7 @@ QString IconItem::uniqueName()
 
 void IconItem::setHidden(bool hide)
 {
+    Q_UNUSED(hide);
 //    _app->setHidden(hide);
 }
 
@@ -215,7 +216,7 @@ void IconItem::chopText(QFontMetrics fm, int width)
     }
     else
         _texticon = _text;
-    int x = width;
+//    int x = width;
     if (_textWidth > width)
     {
         for (int i = 0; i < _textWidth; i++)
@@ -664,6 +665,11 @@ void IconItem::contextMenuEvent(QContextMenuEvent *event)
     if (QRect(_iconX, _iconY, _iconWidth, _iconHeight).contains(event->pos()))
     {
         emit showContextMenu( true, event->pos(), mapToGlobal(event->pos()), this);
+        event->accept();
+    }
+    else
+    {
+        QWidget::contextMenuEvent(event);
     }
 }
 
@@ -721,6 +727,8 @@ void IconItem::leaveEvent(QEvent *event)
 
 void IconItem::setPixmap(const QString &icon, const QString &text)
 {
+    Q_UNUSED(text);
+
     if (icon.isEmpty())
     {
         if(_type == 3)
@@ -729,7 +737,7 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
     }
     _pixText = icon;
 
-    _originPixmap = QPixmap(icon);
+    _originPixmap.load(icon);
 
     QImage image = QImage(icon).scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     QImage normal(width(), height(), QImage::Format_ARGB32_Premultiplied);
@@ -748,7 +756,7 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
     textsize.setWidth(textsize.width() + 2 * margin);
     textsize.setHeight(textsize.height() + 2 * margin);
     QPainterPath pp(QPointF(x, y));
-    qreal px = x, py = y + fm.ascent();
+//    qreal px = x, py = y + fm.ascent();
 //    //    foreach(const QString& line, text_lines) {
 //     pp.addText(px, py, font, _texticon);
 //    //        py += fm2.lineSpacing();
@@ -777,7 +785,7 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
     font.setStyleStrategy(QFont::PreferAntialias);
     pt1.setFont(font);
     pt1.setRenderHint(QPainter::HighQualityAntialiasing);
-//       pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,\
+//       pt1.drawText( QRect((_width - _textWidth_firstrow) / 2,  _height - FONTSIZE * 2,
 //                        _textWidth_firstrow, _textHeight), Qt::TextSingleLine, _texticon);
     pt1.fillPath(path, glow_color);
     pt1.setPen(glow_color.lighter(66));
@@ -804,17 +812,17 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
             light.setPixel(i, j, lightPixel);
 
             QRgb darkPixel;
-            if (j < height() - FONTSIZE * 2)
-            {
+//            if (j < height() - FONTSIZE * 2)
+//            {
                 darkPixel = qRgba(qRed(pixel) * 0.8, qGreen(pixel)* 0.8, \
                                        qBlue(pixel)* 0.8, a);
-            }
-            else
-            {
-                //darkPixel = qRgba(0, 0, \
-                //                    0, 0);
-                 darkPixel = pixel;
-            }
+//            }
+//            else
+//            {
+//                //darkPixel = qRgba(0, 0,
+//                //                    0, 0);
+//                 darkPixel = pixel;
+//            }
             dark.setPixel(i, j, darkPixel);
 
             QRgb transparentPixel = qRgba(qRed(pixel), qGreen(pixel), \
@@ -952,7 +960,7 @@ void IconItem::addMinWidget(int type)
 
 void IconItem::setMinWidgetDragEnable(bool enable)
 {
-    if (_dirMinShowWidget == NULL)
+    if (!_dirMinShowWidget)
         return;
 
     if (enable)
@@ -967,7 +975,7 @@ void IconItem::setMinWidgetDragEnable(bool enable)
 
 void IconItem::removeDirMinItem(const QString &uniqueName)
 {
-    if (_dirMinShowWidget == NULL)
+    if (!_dirMinShowWidget)
         return;
 
         _dirMinShowWidget->removeDirMinItem(uniqueName);
@@ -976,7 +984,7 @@ void IconItem::removeDirMinItem(const QString &uniqueName)
 void IconItem::addDirMinItem(const QString &text, const QString &icon,
                              int page, int index, const QString &url, const QString &uniqueName)
 {
-    if (_dirMinShowWidget == NULL)
+    if (!_dirMinShowWidget)
         return;
 
         _dirMinShowWidget->addDirMinItem(text, icon, page, index, url, uniqueName);
@@ -1039,6 +1047,15 @@ void IconItem::addDustbin()
 //{
 //    emit iconDrop(_id, text, iconPath, page, index, url, type);
 //}
+
+void IconItem::setDustbinDragEnable(bool enable)
+{
+    if (!_dustbin)
+        return;
+
+    _dustbin->setAcceptDrops(enable);
+
+}
 void IconItem::changeItemName(QString name)
 {
     setText(name);
@@ -1125,6 +1142,8 @@ QPixmap IconItem::setTransparentPixmap(const QString &pix)
 }
 void IconItem::focusOutEvent(QFocusEvent *event)
 {
+    Q_UNUSED(event);
+
     if(_currentStatus == selected && QItemManager::getManager()->containsItem(this))
     {
         _currentStatus = selected;
@@ -1219,6 +1238,8 @@ void IconItem::setIconSize(int iconSize)
 
 void IconItem::setLineEditReadOnly(bool readOnly)
 {
+    Q_UNUSED(readOnly);
 //    _lineEdit->setReadOnly(true);
+
     _lineEdit->setEnabled(false);
 }

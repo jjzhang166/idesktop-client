@@ -43,6 +43,7 @@ void commuinication::myPost(const QUrl url, const QByteArray postData)
     connect(_reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64,qint64)));
 
     timeOut->start(5000);
+    _isNetTimeout = false;
     qEvent->exec();
     delete request;
     return;
@@ -60,10 +61,11 @@ void commuinication::myGet(const QUrl url, const QString path)
     _dest = path;
     QNetworkRequest* request=new QNetworkRequest(url);
     _reply = _nam->get(*request);
-    qDebug() << "get : slotError";
+//    qDebug() << "get : slotError";
     connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
 
     timeOut->start(5000);
+    _isNetTimeout = false;
     qEvent->exec();
     delete request;
     return;
@@ -106,6 +108,7 @@ void commuinication::replyFinished(QNetworkReply*) /* download finished */
 	qEvent->exit();
 	timeOut->stop();
         emit done();
+        _isNetTimeout = false;
         _isNetError = false;
         return;
     }
@@ -245,6 +248,7 @@ void commuinication::replyFinished(QNetworkReply*) /* download finished */
     }
     timeOut->stop();
     qEvent->exit();
+    _isNetTimeout = false;
     _isNetError = false;
     emit done();
 }
@@ -254,6 +258,7 @@ void commuinication::slotError(QNetworkReply::NetworkError)
     qDebug()<<"post slotError:"<<_reply->error()<<endl;
     timeOut->stop();
     qEvent->exit();
+    _isNetTimeout = false;
 }
 
 
@@ -265,6 +270,8 @@ void commuinication::handleTimeOut()
 
     timeOut->stop();
     qEvent->exit();
+
+    _isNetTimeout = true;
 
     errInfo.clear();
     errInfo.append(tr("Network error, please check!"));

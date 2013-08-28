@@ -127,6 +127,8 @@ void NodeButton::paintEvent(QPaintEvent *event)
 
 void NodeButton::enterEvent (QEvent *event)
 {
+    Q_UNUSED(event);
+
     if (_enable)
     {
          _hovered = true;
@@ -136,6 +138,8 @@ void NodeButton::enterEvent (QEvent *event)
 
 void NodeButton::mousePressEvent (QMouseEvent * event)
 {
+    Q_UNUSED(event);
+
     if (!_enable)
         return;
 
@@ -156,6 +160,7 @@ void NodeButton::mousePressEvent (QMouseEvent * event)
 
 void NodeButton::leaveEvent(QEvent *event)
 {
+    Q_UNUSED(event);
     _hovered = false;
     this->update();
 }

@@ -2,6 +2,7 @@
 #include <QtSql/QtSql>
 
 #include <iostream>
+#include <QFile>
 
 #ifdef LINUX_X11
 #include <X11/Xlib.h>
@@ -11,6 +12,8 @@
 #include <windows.h>
 #include <shldisp.h>
 
+#include "public.h"
+#include "ShlObj.h"
 #include "idesktopsettings.h"
 #include "dashboard.h"
 #include "virtualdesktop.h"
@@ -23,13 +26,22 @@ extern QString VacServer;
 extern QString VacPort;
 extern QString VacUser;
 extern QString VacPassword;
+extern QString PaasServer;
 
-extern QString xmlPath;
-extern QString WIN_VAPP_IconPath;
-extern QString WIN_PAAS_IconPath;
-extern QString WIN_TtempPath;
+QList<PAAS_LIST> myPaasList;
+QList<PAAS_LIST> remotepaasList;
+QList<LOCAL_LIST> remotelocalList;
+
+QString WIN_LOCAL_IconPath;
+QString WIN_VAPP_IconPath;
+QString WIN_PAAS_IconPath;
+QString WIN_TtempPath;
+QString iniPath;
 
 extern QString USERNAME;
+
+typedef void (*DLL_getApp2)();
+ DLL_getApp2 my_getApp2;
 
 #ifdef Q_WS_WIN
     QLibrary *mylib;   //
@@ -71,9 +83,22 @@ Dashboard::Dashboard(QWidget *parent)
     ::SetParent(winId(),hWnd);
 #endif
 
+//    QTextCodec *codec = QTextCodec::codecForName("utf-8"); //System
+//    QTextCodec::setCodecForCStrings(codec);
+
     _ldialog = new LoginDialog(this);
-    if (!_ldialog->exec())
-        exit(1);
+//    if (!_ldialog->exec())
+//        exit(1);
+
+    char folder[MAX_PATH] = {0};
+    SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
+    WIN_TtempPath = QString(folder);
+
+    WIN_LOCAL_IconPath=WIN_TtempPath+"\\App Center\\Licons\\";
+    WIN_VAPP_IconPath=WIN_TtempPath+"\\App Center\\Vicons\\";
+    WIN_PAAS_IconPath=WIN_TtempPath+"\\App Center\\Picons\\";
+    iniPath = WIN_TtempPath + "\\App Center\\app.ini";
+    qDebug()<<"icon path:"<<WIN_VAPP_IconPath;
 
     QDesktopWidget *d = QApplication::desktop();
     QRect r = d->availableGeometry();
@@ -86,21 +111,21 @@ Dashboard::Dashboard(QWidget *parent)
 
     panel = new Panel(this);
     panel->setGeometry(0, 0, _width, 28);
-    panel->setVisible(true);
-    panel->animationHide();
+    panel->setVisible(false);
+//    panel->animationHide();
 
     _switcherLeft = new Switcher(this);
     _switcherLeft->setPixmap(QString(":images/win_normal.png"));
     _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool | Qt::WindowStaysOnTopHint);
     _switcherLeft->setGeometry(_width / 2 - _switcherLeft->width(), 0, _switcherLeft->width(), _switcherLeft->height());
-    _switcherLeft->show();
+    _switcherLeft->setVisible(false);
     _switcherLeft->activateWindow();
 
     _switcherRight = new Switcher(this);
     _switcherRight->setPixmap(QString(":images/isoft_normal.png"));
     _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool | Qt::WindowStaysOnTopHint);
     _switcherRight->setGeometry(_switcherLeft->pos().x() + _switcherLeft->width(), 0, _switcherRight->width(), _switcherRight->height());
-    _switcherRight->show();
+    _switcherRight->setVisible(false);
     _switcherRight->activateWindow();
 
     vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height));
@@ -108,13 +133,13 @@ Dashboard::Dashboard(QWidget *parent)
     _toolBarWidget = new toolBarWidget(QSize(_width, 103 + 0 + 24), this);
     _toolBarWidget->move(0,_height - (103 + 0 + 24));//
     _toolBarWidget->raise();
-    _toolBarWidget->show();
+    _toolBarWidget->setVisible(false);
 
     _pageNodes = new PageNodes(this);
 
     _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
     _pageNodes->move((_width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100 - 35);
-    _pageNodes->setVisible(true);
+    _pageNodes->setVisible(false);
 
     _vacShowWidget = new VacShowWidget(QSize(841, 540), this);
     _vacShowWidget->move((_width - _vacShowWidget->width()) / 2, (_height - _vacShowWidget->height()) / 2);
@@ -129,6 +154,10 @@ Dashboard::Dashboard(QWidget *parent)
 
     _finished = false;
     _commui = new commuinication();
+
+    //paas
+    _paasFinished = false;
+    _paasCommui = new PaasCommuinication();
 
     _skinShowWidget = new SkinShowWidget(this);
     _skinShowWidget->resize(841, 530);
@@ -163,10 +192,67 @@ Dashboard::Dashboard(QWidget *parent)
     _animationDownMin = new QPropertyAnimation(_downMinW, "geometry");
     _animationDownMin->setEasingCurve(QEasingCurve::Linear);
     _animationDownMin->setDuration(200);
+
+    _normalMenu = new MenuWidget(MenuWidget::normal, this);
+    _normalMenu->setVisible(false);
+
+    _showIconMenu = new MenuWidget(MenuWidget::showIcon, this);
+    _showIconMenu->setVisible(false);
+
+    _createMenu = new MenuWidget(MenuWidget::create, this);
+    _createMenu->setVisible(false);
+
+    _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
+    _iconMenu->setVisible(false);
+
+    _dustbinMenu = new MenuWidget(MenuWidget::dustbinMenu, this);
+    _dustbinMenu->setVisible(false);
+
+    _dirMenu = new MenuWidget(MenuWidget::dirMenu, this);
+    _dirMenu->setVisible(false);
+
+    _mask = new Mask(_width, _height, this);
+    _mask->raise();
+    _mask->setVisible(true);
+
+    _local = LocalAppList::getList();
+
+    connect(_normalMenu, SIGNAL(menuChanged(int)), this, SLOT(menuChanged(int)));
+    connect(_normalMenu, SIGNAL(createDir()), this, SLOT(virtualDesktopAddDirItem()));
+    connect(_normalMenu, SIGNAL(refresh()), this, SLOT(refreshMenu()));
+
+    connect(_showIconMenu, SIGNAL(largeIcon()), this, SLOT(largeIcon()));
+    connect(_showIconMenu, SIGNAL(mediumIcon()), this, SLOT(mediumIcon()));
+    connect(_showIconMenu, SIGNAL(smallIcon()), this, SLOT(smallIcon()));
+
+    connect(_createMenu, SIGNAL(createDir()),vdesktop, SLOT(addDirItem()));
+    connect(_createMenu, SIGNAL(hideDesktop()), this, SLOT(getOut()));
+    connect(_createMenu, SIGNAL(addDesktopLink()), vdesktop, SLOT(appAdd()));
+
+    connect(_iconMenu, SIGNAL(run()), this, SLOT(menuIconRun()));
+    connect(_iconMenu, SIGNAL(del()), this, SLOT(menuIconDel()));
+
+    connect(_dirMenu, SIGNAL(open()), this, SLOT(menuDirOpen()));
+    connect(_dirMenu, SIGNAL(clear()), this, SLOT(menuDirClear()));
+    connect(_dirMenu, SIGNAL(del()), this, SLOT(menuDirDel()));
+
+    connect(vdesktop, SIGNAL(vdesktopNormalMenu(QPoint)), this, SLOT(showNormalMenu(QPoint)));
+    connect(vdesktop, SIGNAL(hideMenu()), this, SLOT(hideMenuWidget()));
+
+    connect(vdesktop, SIGNAL(vdesktopShowDirMenu(QPoint, const QString &))
+            , this, SLOT(showDirMenu(QPoint, const QString &)));
+    connect(vdesktop, SIGNAL(vdesktopShowIconMenu(QPoint, const QString &))
+            , this, SLOT(showIconMenu(QPoint, const QString &)));
+    connect(_toolBarWidget, SIGNAL(tBarWidgetDirMenu(QPoint, const QString &))
+            , this, SLOT(showDirMenu(QPoint, const QString &)));
+    connect(_toolBarWidget, SIGNAL(tBarWidgetIconMenu(QPoint, const QString &))
+            , this, SLOT(showIconMenu(QPoint, const QString &)));
+
     connect(_upMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
     connect(_downMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
 
     connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
+    connect(_paasCommui, SIGNAL(done()), this, SLOT(onPaasDone()));
     connect(_skinShowWidget, SIGNAL(setBgPixmap(const QString&)), this, SLOT(setBgPixmap(const QString&)));
 
     connect(_switcherLeft, SIGNAL(switcherActivated()), this, SLOT(outOfScreen()));
@@ -190,9 +276,9 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_ldialog, SIGNAL(dActivated(QSystemTrayIcon::ActivationReason)),
         this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
     connect(vdesktop, SIGNAL(toOrigin()), this, SLOT(switchBetween()));
-    connect(vdesktop, SIGNAL(largeIcon()), this, SLOT(largeIcon()));
-    connect(vdesktop, SIGNAL(mediumIcon()), this, SLOT(mediumIcon()));
-    connect(vdesktop, SIGNAL(smallIcon()), this, SLOT(smallIcon()));
+//    connect(vdesktop, SIGNAL(largeIcon()), this, SLOT(largeIcon()));
+//    connect(vdesktop, SIGNAL(mediumIcon()), this, SLOT(mediumIcon()));
+//    connect(vdesktop, SIGNAL(smallIcon()), this, SLOT(smallIcon()));
     connect(vdesktop, SIGNAL(desktopDelIcon(const QString &))
             , _vacShowWidget, SLOT(desktopDelIcon(const QString &)));
     connect(vdesktop, SIGNAL(iconItemNameChanged(const QString &, const QString &))
@@ -200,7 +286,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(vdesktop, SIGNAL(pageChanged(int)), this, SLOT(desktopPageChanged(int)));
     connect(vdesktop, SIGNAL(pageIncreased()), this, SLOT(updateNodes()));
     connect(vdesktop, SIGNAL(pageDecreased()), this, SLOT(updateNodes()));
-    connect(vdesktop, SIGNAL(refreshVac()), this, SLOT(timeOut()));
+//    connect(vdesktop, SIGNAL(refreshVac()), this, SLOT(timeOut()));
     connect(vdesktop, SIGNAL(hideDesktop()), this, SLOT(getOut()));
     connect(panel, SIGNAL(setEqual(int)), vdesktop, SLOT(arrangeEqually(int)));
     connect(panel, SIGNAL(setMini()), vdesktop, SLOT(arrangeMinimum()));
@@ -267,8 +353,44 @@ Dashboard::Dashboard(QWidget *parent)
 
     _nam = new QNetworkAccessManager(this);
 
-    _toolBarWidget->initIconItem();
+    QTimer::singleShot(100, this, SLOT(initIconItem()));
+}
 
+void Dashboard::initIconItem()
+{
+#if 1
+    _mask->setText(tr("加载本地应用..."));
+    getLocalIcon();
+    _mask->setText(tr("加载虚拟应用..."));
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //vac
+    _ldialog->updateVacServer();
+    _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
+    while (!_finished)
+        QApplication::processEvents();
+    _finished = false;
+//    qDebug()<<"login3";
+    getVacIcon();
+    _mask->setText(tr("加载平台服务应用..."));
+    getPaasIcon(true);
+
+    _mask->setText(tr("加载软件库..."));
+    _vacShowWidget->initIconItem();
+    _mask->setText(tr("加载壁纸库..."));
+    _skinShowWidget->initIconItem();
+    _mask->setText(tr("加载桌面..."));
+    vdesktop->initIconItem();
+    _toolBarWidget->initIconItem();
+#endif
+
+    _mask->setVisible(false);
+    _mask->setText(tr(""));
+    panel->setVisible(true);
+    panel->animationHide();
+    _toolBarWidget->setVisible(true);
+    _pageNodes->setVisible(true);
+    _switcherLeft->setVisible(true);
+    _switcherRight->setVisible(true);
 }
 
 //page nodes
@@ -714,6 +836,10 @@ void Dashboard::quit()
 
         _nam->post(QNetworkRequest(QUrl(quitUrl)), data.toAscii());
 
+//        QString jsonUrl = "http://192.168.30.37:9080/idesktop/saveUserStatusData.action";
+//        QString dataJson = "username=" + USERNAME + "&jsondata=" + LocalAppList::getList()->uploadJson();
+//        _nam->post(QNetworkRequest(QUrl(jsonUrl)), dataJson.toAscii());
+
         _switcherLeft->setVisible(false);
         _switcherRight->setVisible(false);
         vdesktop->setVisible(false);
@@ -782,12 +908,15 @@ void Dashboard::setBgPixmap(const QString &pixText)
 //miya add change background imgae
 void Dashboard::setBgImage(QString url)
 {
-//    qDebug() << "Dashboard::setBgImage(QString url)" << url;
-    QString path = QCoreApplication::applicationDirPath();
-    url.replace(QString(":"), QString(""));
-    qDebug() << url;
-    path += url;
-    path.replace(QString("/"), QString("\\"));
+    qDebug() << "Dashboard::setBgImage(QString url)" << url;
+//    QString path = QCoreApplication::applicationDirPath();
+//    url.replace(QString(":"), QString(""));
+//    qDebug() << url;
+//    qDebug() << path;
+//    path += url;
+//    path.replace(QString("/"), QString("\\"));
+
+    QString path = url;
 
     QLibrary lib("changebg.dll");
 
@@ -807,7 +936,7 @@ void Dashboard::setBgImage(QString url)
 
 void Dashboard::errOut()
 {
-    _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, _ldialog->GetSystemInfo());
+    _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
 
     while (!_finished)
         QApplication::processEvents();
@@ -859,17 +988,34 @@ void Dashboard::refreshVapp()
             QApplication::processEvents();
         _finished = false;
 
-        _ldialog->setIcon(WIN_VAPP_IconPath, tempPath);
+        setIcon(WIN_VAPP_IconPath, tempPath);
     }
 
     _settings->setVappList(myVappList);
-    modify();
+
+    if (!_commui->_isNetTimeout)
+        modify();
 }
 
-void Dashboard::timeOut()
+void Dashboard::refreshMenu()
 {
+    hideMenuWidget();
+
+    panel->setVisible(false);
+    _switcherLeft->setSwitcherEnabled(false);
+    _switcherRight->setSwitcherEnabled(false);
+
+    _mask->setVisible(true);
+    _mask->setText(tr("正在刷新虚拟应用..."));
     refreshVapp();
+    _mask->setText(tr("正在刷新平台服务应用..."));
     refreshPaas();
+    _mask->setVisible(false);
+    _mask->setText(tr(""));
+
+    panel->setVisible(true);
+    _switcherLeft->setSwitcherEnabled(true);
+    _switcherRight->setSwitcherEnabled(true);
 }
 
 void Dashboard::modify()
@@ -940,9 +1086,10 @@ void Dashboard::refreshPaas()
     QList<PAAS_LIST>& myPaasList = _settings->paasList();
     myPaasList.clear();
 
-    _ldialog->getPaas(false);
+    getPaasIcon(false);
 
-    paasModify();
+    if (!_paasCommui->_isNetTimeout)
+        paasModify();
 }
 
 void Dashboard::paasModify()
@@ -1007,15 +1154,659 @@ void Dashboard::paasModify()
 
 void Dashboard::largeIcon()
 {
+    hideMenuWidget();
+    vdesktop->setLargeIcon();
     _vacShowWidget->largeIcon();
 }
 
 void Dashboard::mediumIcon()
 {
+    hideMenuWidget();
+    vdesktop->setMediumIcon();
     _vacShowWidget->mediumIcon();
 }
 
 void Dashboard::smallIcon()
 {
+    hideMenuWidget();
+    vdesktop->setSmallIcon();
     _vacShowWidget->smallIcon();
+}
+
+void Dashboard::onPaasDone()
+{
+    //get the Application List;
+    _paasFinished = true;
+}
+
+void Dashboard::getPaasIcon(bool isLogin)
+{
+
+    //paas
+    //get paas list
+    _paasCommui->login(PaasServer);
+    while (!_paasFinished)
+        QApplication::processEvents();
+    _paasFinished = false;
+
+    myPaasList = _paasCommui->getList();
+
+    if (myPaasList.count() == 0)
+    {
+        return;
+    }
+
+    QDir iconDir(WIN_PAAS_IconPath);
+    if(!iconDir.exists())
+    {
+        iconDir.mkdir(WIN_PAAS_IconPath);
+    }
+    //store ico file locally
+    for(int i = 0; i < myPaasList.count(); i++)
+    {
+        QString iconPath = QString("%1%2.png")
+                .arg(WIN_PAAS_IconPath)
+                .arg(myPaasList[i].cnName);
+        QString tempPath = QString("%1%2.png")
+                .arg(WIN_PAAS_IconPath)
+                .arg(myPaasList[i].cnName);
+        //        qDebug()<<"iconPath="<<iconPath;
+        myPaasList[i].iconPath = iconPath;
+
+        if (isLogin)
+        {
+            remotepaasList.insert(i, myPaasList[i]);
+            remotepaasList[i].iconPath = iconPath;
+        }
+        //check if ico file is existed, or dont donwload
+
+        QFile chkFile(iconPath);
+        if(chkFile.exists())
+        {
+            chkFile.close();
+            continue;
+        }
+        chkFile.close();
+
+        //qDebug()<<"iconPath"<<iconPath;
+        if (myPaasList[i].logoURL.isEmpty())
+        {
+            //url = myPaasList.at(i).urls.section('/', 1, 1, flag);
+            //url = QString("http://" + url + "/Favicon.ico");
+
+            //_paasCommui->downloadIcon(QUrl(url), tempPath);
+
+
+            QPixmap pix(":images/url_normal.png");
+            pix.save(iconPath, "PNG", -1);
+
+            continue;
+        }
+        else
+        {
+            _paasCommui->downloadIcon(QUrl(myPaasList[i].logoURL), tempPath);
+
+            while (!_paasFinished)
+                QApplication::processEvents();
+            _paasFinished = false;
+        }
+
+        setIcon(WIN_PAAS_IconPath, tempPath);
+    }
+    _settings->setPaasList(myPaasList);
+    _settings->setRemotePaasList(remotepaasList);
+}
+
+void Dashboard::getVacIcon()
+{
+    if(_commui->errID == "10000")
+    {
+        //        char folder[MAX_PATH] = {0};
+        //        SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
+        //        WIN_TtempPath = QString(folder);
+        //        WIN_VAPP_IconPath=WIN_TtempPath+"\\App Center\\Vicons\\";
+
+        //get vapp list
+
+        _commui->getAppList();
+        while (!_finished)
+            QApplication::processEvents();
+        _finished = false;
+
+        QList<APP_LIST> myVappList;
+        myVappList = _commui->getList();
+        qDebug()<<"g_myList.count()="<<myVappList.count();
+        _settings->setVappList(myVappList);
+
+        QList<APP_LIST> remoteAppList;
+
+        QDir iconDir(WIN_VAPP_IconPath);
+        if(!iconDir.exists())
+        {
+            iconDir.mkdir(WIN_VAPP_IconPath);
+        }
+        //store ico file locally
+        for(int i = 0; i < myVappList.count(); i++)
+        {
+            QString iconPath = QString("%1%2.png")
+                    .arg(WIN_VAPP_IconPath)
+                    .arg(myVappList[i].id);
+            QString tempPath = QString("%1%2.ico")
+                    .arg(WIN_VAPP_IconPath)
+                    .arg(myVappList[i].id);
+
+            remoteAppList.insert(i, myVappList[i]);
+            remoteAppList[i].icon = iconPath;
+
+            //check if ico file is existed, or dont donwload
+            QFile chkFile(iconPath);
+            if(chkFile.exists())
+            {
+                chkFile.close();
+                continue;
+            }
+            chkFile.close();
+
+            //qDebug()<<"iconPath"<<iconPath;
+            _commui->downloadIcon(QUrl(myVappList[i].icon), tempPath);
+            while (!_finished)
+                QApplication::processEvents();
+            _finished = false;
+
+            setIcon(WIN_VAPP_IconPath, tempPath);
+        }
+        _settings->setRemoteAppList(remoteAppList);
+    }
+    else
+    {
+        if ((_commui->errInfo == "会话已存在") || (_commui->errID == "10045"))
+        {
+            _commui->logoff();
+
+            _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
+
+            while (!_finished)
+                QApplication::processEvents();
+            _finished = false;
+
+            getVacIcon();
+
+        }
+        else
+        {
+//            QMessageBox::warning(this, tr("vapp login failed"), _commui->errInfo, tr("OK"));
+
+            AppMessageBox box(false, NULL);
+            box.setText(tr("vapp login failed, please contact the administrator."));
+            box.exec();
+        }
+
+    }
+
+}
+
+void Dashboard::getLocalIcon()
+{
+    //local
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    QLibrary dllLib("GetApp.dll");
+    if(!dllLib.load())
+    {
+        qDebug()<< "GetLastError :" << GetLastError();
+        qDebug()<<"load failed!";
+    }
+    else
+    {
+        qDebug()<<"load succeed!";
+        my_getApp2 = (DLL_getApp2)dllLib.resolve("GetApp2");
+        if(my_getApp2 == NULL)
+        {
+            qDebug()<< "GetLastError :" <<GetLastError();
+            qDebug()<<"resolve failed!";
+
+        }
+        else
+        {
+            my_getApp2();
+        }
+    }
+//    qDebug()<<"inipath:"<<iniPath;
+    //vc ini
+    char  chSectionNames[8192]={0};       //所有节名组成的字符数组
+    char *pSectionName; //保存找到的某个节名字符串的首地址
+    int i;       //i指向数组chSectionNames的某个位置，从0开始，顺序后移
+    int j=0;      //j用来保存下一个节名字符串的首地址相对于当前i的位置偏移量
+    int _id = 0;
+    //int count=0;      //统计节的个数
+    char _folder[MAX_PATH] = {0};
+    char _iniPath[MAX_PATH] = {0};
+    SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,_folder);
+    sprintf(_iniPath, "%s\\App Center\\app.ini", _folder);
+    DWORD m_lRetValue =::GetPrivateProfileSectionNames(chSectionNames,8192,_iniPath);
+    qDebug()<<"num:"<<m_lRetValue;
+    for(i=0;i<m_lRetValue;i++,j++)
+    {
+        if(chSectionNames[0]=='\0')
+            break;       //如果第一个字符就是0，则说明ini中一个节也没有
+        if(chSectionNames[i]=='\0')
+        {
+            pSectionName=&chSectionNames[i-j]; //找到一个0，则说明从这个字符往前，减掉j个偏移量，
+            //就是一个节名的首地址
+            j=-1;         //找到一个节名后，j的值要还原，以统计下一个节名地址的偏移量
+            //赋成-1是因为节名字符串的最后一个字符0是终止符，不能作为节名
+            //的一部分
+            char strBuff[256];
+            //在获取节名的时候可以获取该节中键的值，前提是我们知道该节中有哪些键。
+            ::GetPrivateProfileString(pSectionName,"ExePath",NULL,strBuff,256,_iniPath);
+            //qDebug()<<"name:"<<QString::fromLocal8Bit(pSectionName);     //把找到的显示出来
+            //qDebug()<<"name:"<<QString(pSectionName).toLocal8Bit();
+            //qDebug()<<"path:"<<QString::fromLocal8Bit(strBuff);
+            //QString path = QString::fromLocal8Bit(strBuff);
+            QString path = strBuff;
+
+            QFileInfo fio(path);
+            if (!fio.exists())
+                continue;
+
+//            qDebug()<<"path"<<strBuff;
+            QFileInfo fi = QFileInfo(path);
+            QString iPath(Config::get("IconDir"));
+            iPath = iPath + fi.baseName();
+            iPath += ".png"; //png
+
+            QString localIconPath;
+
+            QFile chkFile(iPath);
+            if(!chkFile.exists())
+            {
+                chkFile.close();
+
+                localIconPath = getLocalIcon(path);
+                setIcon(WIN_LOCAL_IconPath, localIconPath);
+                //            continue;
+            }
+            else
+            {
+                chkFile.close();
+                localIconPath = iPath;
+            }
+
+            LOCAL_LIST tempLocalList;
+            tempLocalList.id = _id;
+            tempLocalList.iconPath = localIconPath;
+            //qDebug() << "name-->pSectionName" << pSectionName;
+//            tempLocalList.name = QString::fromLocal8Bit(pSectionName);
+
+
+            QTextCodec *codec = QTextCodec::codecForName("utf-8"); //utf-8
+
+            QString temp = codec->toUnicode(pSectionName);
+//            QString temp = pSectionName;
+            temp.replace("]", "");
+            tempLocalList.name = temp;
+//            qDebug() << "tempLocalList.name" << tempLocalList.name;
+
+            //tempLocalList.name = QString(pSectionName);
+            tempLocalList.execname = path;
+
+            QString md5;
+            QByteArray bb;
+            bb = QCryptographicHash::hash(path.toLower().toAscii(), \
+                                          QCryptographicHash::Md5);
+            md5.append(bb.toHex());
+
+            tempLocalList.uniqueName = md5;
+
+            remotelocalList.append(tempLocalList);
+            _id++;
+            if(chSectionNames[i+1]==0)
+            {
+                break;      //当两个相邻的字符都是0时，则所有的节名都已找到，循环终止
+            }
+        }
+    }
+    _settings->setRemoteLocalList(remotelocalList);
+
+    qDebug() << "load " << _settings->remoteLocalList().size() << " local apps";
+
+    QFile b(iniPath);
+    b.remove();
+    //end
+
+}
+
+QString Dashboard::getLocalIcon(QString localPath)
+{
+    typedef HICON (*tempFuc)(CONST TCHAR *filePath);
+    QLibrary myLib;
+#ifdef DEBUG
+    myLib.setFileName("IconGetD.dll");
+#else
+    myLib.setFileName("IconGet.dll");
+#endif
+
+    tempFuc myFunction = (tempFuc) myLib.resolve("getJumbIcon");
+    if (myFunction) {
+        HICON jumbIcon = myFunction((CONST TCHAR *)localPath.utf16 ());
+
+        QPixmap picon = QPixmap::fromWinHICON(jumbIcon);
+
+        QFileInfo info = QFileInfo(localPath);
+        QString path(Config::get("IconDir"));
+        path = path + "\\" + info.baseName();
+        path += ".png"; //png
+        QPixmap newicon =  picon.scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        newicon.save(path, "PNG",-1);
+        return path;
+    }
+    return "";
+
+}
+
+void Dashboard::setIcon(const QString &dirPath, const QString &iconPath)
+{
+    QString newApp = iconPath;
+
+    if (newApp.isEmpty())
+        return;
+
+    QImage image = QImage(newApp).scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QImage normal = QImage(":images/icon_shadow.png");
+    QImage middle = QImage(":images/icon_middle_shadow.png");
+
+    QPainter pt1(&normal);
+    pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    pt1.drawImage(QRect(35, 36, 72, 72), middle.scaled(72, 72, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    pt1.drawImage(QRect(35 + 7, 36 + 3, 59, 59), image);
+    pt1.end();
+
+    QFileInfo info = QFileInfo(newApp);
+    if (newApp.right(4) == ".ico")
+    {
+        if (info.exists())
+            QFile::remove(newApp);//刪除 .ico 文件
+
+        QString path = dirPath + info.baseName();
+        path += ".png";
+
+        QPixmap pix = QPixmap::fromImage(normal);
+        pix.save(path, "PNG", -1);
+    }
+    else
+    {
+        QPixmap pix = QPixmap::fromImage(normal);
+        pix.save(newApp, "PNG", -1);
+    }
+
+}
+
+QString Dashboard::GetSystemInfo()
+{
+    //login ivapp sm
+    QString sysInfo;
+#ifdef Q_WS_WIN
+    switch(QSysInfo::windowsVersion())
+    {
+    case QSysInfo::WV_2000:
+        qDebug()<<"System info:windows 2000 \n";
+        sysInfo="windows 2000";
+        break;
+    case QSysInfo::WV_2003:
+        qDebug()<<"System info:windows 2003 \n";
+        sysInfo="windows 2003";
+        break;
+    case QSysInfo::WV_XP:
+        qDebug()<<"System info:windows xp \n";
+        sysInfo="windows xp";
+        break;
+    case QSysInfo::WV_VISTA:
+        qDebug()<<"System info:windows vista \n";
+        sysInfo="windows vista";
+        break;
+    case QSysInfo::WV_WINDOWS7:
+        qDebug()<<"System info:windows 7 \n";
+        sysInfo="windows 7";
+        break;
+    default:
+        qDebug()<<"System info:windows 7 \n";
+        sysInfo="windows 7";
+        break;
+
+    }
+#endif
+#ifdef Q_WS_X11
+    sysInfo = "linux";
+#endif
+    return sysInfo;
+}
+
+//menu
+void Dashboard::menuChanged(int value)
+{
+    switch(value)
+    {
+    case 0 :
+
+        _createMenu->setVisible(false);
+
+        _showIconMenu->move(_mousePos.x() + 162 - 25, _mousePos.y());
+        _showIconMenu->raise();
+        _showIconMenu->setVisible(true);
+
+        break;
+    case 2 :
+        _showIconMenu->setVisible(false);
+
+        _createMenu->move(_mousePos.x() + 162 - 25, _mousePos.y() + 20 + 19 + 19 - 10);
+        _createMenu->raise();
+        _createMenu->setVisible(true);
+
+        break;
+    default:
+        _createMenu->setVisible(false);
+        _showIconMenu->setVisible(false);
+        break;
+    }
+}
+
+void Dashboard::hideMenuWidget()
+{
+    _normalMenu->setVisible(false);
+    _createMenu->setVisible(false);
+    _showIconMenu->setVisible(false);
+    _iconMenu->setVisible(false);
+    _dustbinMenu->setVisible(false);
+    _dirMenu->setVisible(false);
+}
+
+void Dashboard::virtualDesktopAddDirItem()
+{
+    hideMenuWidget();
+    vdesktop->addDirItem();
+}
+
+void Dashboard::showDirMenu(QPoint mPos, const QString &uniqueName)
+{
+    _uniqueName = uniqueName;
+    hideMenuWidget();
+    _dirMenu->move(mPos);
+    _dirMenu->raise();
+    _dirMenu->setVisible(true);
+}
+
+void Dashboard::showIconMenu(QPoint mPos, const QString &uniqueName)
+{
+    _uniqueName = uniqueName;
+    hideMenuWidget();
+    _iconMenu->move(mPos);
+    _iconMenu->raise();
+    _iconMenu->setVisible(true);
+}
+
+void Dashboard::showNormalMenu(QPoint mousePos)
+{
+    hideMenuWidget();
+    _mousePos = mousePos;
+    _normalMenu->move(_mousePos.x() + 2, _mousePos.y());
+    _normalMenu->raise();
+    _normalMenu->setVisible(true);
+}
+
+void Dashboard::contextMenuEvent(QContextMenuEvent *)
+{
+    hideMenuWidget();
+}
+
+void Dashboard::menuDirOpen()
+{
+    hideMenuWidget();
+
+    for(int i = 0; i < _local->count(); i++)
+    {
+        if (_local->at(i)->hidden())
+            continue;
+
+        if (_local->at(i)->uniqueName() == _uniqueName)
+        {
+            if (_local->at(i)->dirId() == -1)
+            {
+                vdesktop->openDir(_local->at(i)->id().toInt()
+                                  , _local->at(i)->page(), _local->at(i)->index());
+            }
+            else if(_local->at(i)->dirId() == -2)
+            {
+                _toolBarWidget->openDir(_local->at(i)->id().toInt()
+                                         , _local->at(i)->page(), _local->at(i)->index());
+            }
+            else
+            {
+
+            }
+        }
+    }
+}
+
+void Dashboard::menuDirDel()
+{
+    hideMenuWidget();
+
+    for(int i = 0; i < _local->count(); i++)
+    {
+        if (_local->at(i)->hidden())
+            continue;
+
+        if (_local->at(i)->uniqueName() == _uniqueName)
+        {
+            if (_local->at(i)->dirId() == -1)
+            {
+                vdesktop->iconMenuDelClicked(_uniqueName);
+            }
+            else if(_local->at(i)->dirId() == -2)
+            {
+//                _toolBarWidget->delIcon(_uniqueName);
+                vdesktop->tBarIconMenuDelClicked(_local->at(i)->id().toInt(), _uniqueName);
+//                LocalAppList::getList()->delApp(_uniqueName);
+                _vacShowWidget->desktopDelIcon(_uniqueName);
+            }
+            else
+            {
+
+            }
+        }
+    }
+//    bool del = false;
+
+//    for(int i = 0; i < _local->count(); i++)
+//    {
+//        if (_local->at(i)->hidden())
+//            continue;
+
+//        if (_local->at(i)->uniqueName() == _uniqueName)
+//        {
+//            if (_local->at(i)->dirId() == -1)
+//            {
+//                vdesktop->delIcon(_uniqueName);
+//                del = true;
+//                break;
+//            }
+//            else if(_local->at(i)->dirId() == -2)
+//            {
+//                _toolBarWidget->delIcon(_uniqueName);
+//                del = true;
+//                break;
+//            }
+//            else
+//            {
+//                break;
+//            }
+//        }
+//    }
+//    if (del)
+//    {
+//        vdesktop->iconToDushbin(_uniqueName);
+//    }
+}
+
+void Dashboard::menuDirClear()
+{
+    hideMenuWidget();
+
+    for(int i = 0; i < _local->count(); i++)
+    {
+        if (_local->at(i)->hidden())
+            continue;
+
+        if (_local->at(i)->uniqueName() == _uniqueName)
+        {
+            vdesktop->clearDirShowWidget(_local->at(i)->id().toInt());
+        }
+    }
+}
+
+void Dashboard::menuIconRun()
+{
+    hideMenuWidget();
+    RunApp::getRunApp()->runApp(_uniqueName);
+}
+
+void Dashboard::menuIconDel()
+{
+    hideMenuWidget();
+    bool del = false;
+    for(int i=0; i<_local->count(); i++)
+    {
+        if (_local->at(i)->hidden())
+            continue;
+
+        if (_local->at(i)->uniqueName() == _uniqueName)
+        {
+            if (_local->at(i)->dirId() >= 0)
+            {
+                vdesktop->dirShowWidgetDelIcon(_local->at(i)->dirId(), _uniqueName);
+                del = true;
+                break;
+            }
+            else
+            {
+                if (_local->at(i)->dirId() == -1)
+                {
+                    vdesktop->delIcon(_uniqueName);
+                    del = true;
+                    break;
+                }
+                else if(_local->at(i)->dirId() == -2)
+                {
+                    _toolBarWidget->delIcon(_uniqueName);
+                    del = true;
+                    break;
+                }
+            }
+
+        }
+    }
+    if (del)
+    {
+        vdesktop->iconToDushbin(_uniqueName);
+    }
 }

@@ -38,8 +38,8 @@ using namespace std;
 #define APPICON 0
 #define ADDICON 1
 #define HSPACING 4
-#define VSPACING 8                  //
-#define BOTTOMSPACING 16            //24
+#define VSPACING 19                  //
+#define BOTTOMSPACING 5            //24
 
 #define LARGESIZE QSize(143, 143)     //72*72
 #define MEDIUMSIZE QSize(119, 119)     //48*48
@@ -202,6 +202,8 @@ void toolBarWidget::iconDragDrop(int id, const QString &text,
                                  int index, const QString &url, int type,
                                  const QString &uniqueName)
 {
+    Q_UNUSED(page);
+
     _iconDragEnter = false;
 
     //_isDirWidgetObject = false;
@@ -340,10 +342,11 @@ void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
         {
             for (int i = 0; i <_dirMinList.count(); i++)
             {
-//                if (_iconDict.value(_dirMinList.at(i)) == _inDrag)
-//                    continue;
+                if (_iconDict.value(_dirMinList.at(i))->id() == 1000)
+                    _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(false);
+                else
+                    _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(false);
 
-                _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(false);
             }
         }
         _dragItem = NULL;
@@ -385,10 +388,10 @@ void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
         {
             for (int i = 0; i <_dirMinList.count(); i++)
             {
-                if (_iconDict.value(_dirMinList.at(i)) == _inDrag)
-                    continue;
-
-                _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(false);
+                if (_iconDict.value(_dirMinList.at(i))->id() == 1000)
+                    _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(false);
+                else
+                    _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(false);
             }
         }
     }
@@ -564,7 +567,10 @@ void toolBarWidget::dropEvent(QDropEvent *event)
 
         for (int i = 0; i <_dirMinList.count(); i++)
         {
-            _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
+            if (_iconDict.value(_dirMinList.at(i))->id() == 1000)
+                _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(true);
+            else
+                _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
         }
 
         _dragItem = NULL;
@@ -625,7 +631,11 @@ void toolBarWidget::iconItemDragOut()
 
         for (int i = 0; i <_dirMinList.count(); i++)
         {
-            _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
+            if (_iconDict.value(_dirMinList.at(i))->id() == 1000)
+                _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(true);
+            else
+                _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
+
         }
 
         _dragItem = NULL;
@@ -756,7 +766,6 @@ int toolBarWidget::addIcon(const QString &text,
         icon->setId(1000);
         //emit toolBarAddDirSW(_toolBarDirIndex);
 
-
     }
     else
     {
@@ -871,8 +880,8 @@ int toolBarWidget::addIcon(const QString &text,
         connect(icon, SIGNAL(dirMinLineEditFocusOut(int, const QString &))
                 , this, SIGNAL(changedDirWidgetTitle(int, const QString &)));
         connect(icon, SIGNAL(dragOut()), this, SLOT(iconItemDragOut()));
-//        connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint,IconItem *))
-//                , this, SLOT(showIconContextMenu(bool, QPoint, QPoint, IconItem *)));
+        connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint,IconItem *))
+                , this, SLOT(showIconContextMenu(bool, QPoint, QPoint, IconItem *)));
 
 //    _iconLists.append(icon);
 
@@ -1300,6 +1309,9 @@ void toolBarWidget::movetoFirst()
 
 void toolBarWidget::reloadApplist(QSize size)
 {
+
+    Q_UNUSED(size);
+
     _count = 1;
     changeSpacing();
 
@@ -1547,6 +1559,8 @@ void toolBarWidget::moveOutIcon(const QString &uniqueName)
 
 void toolBarWidget::toolBarRemoveDirMinItem(const QString &uniqueName, int dirId)
 {
+    Q_UNUSED(uniqueName);
+
     for (int i = 0; i < _local->count(); i++)
     {
         if (_local->at(i)->id().toInt() == dirId)
@@ -1572,121 +1586,36 @@ void toolBarWidget::toolBarRefreshDirMinWidget(const QString &uniqueName)
 
 }
 
-//void toolBarWidget::showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, IconItem *iconItem)
-//{
-//    Q_UNUSED(pos);
-
-//    if (!iconItem)
-//        return;
-
-//    _currentUniqueName = iconItem->uniqueName();
-
-//    if (!_iconDict.value(_currentUniqueName))
-//        return;
-
-//    if ( _iconDict.value(_currentUniqueName)->type() == dirIcon)
-//    {
-//        if (_iconDict.value(_currentUniqueName)->getMinIconNum() != 0)
-//        {
-//            _iconMenu->_delBtn->setEnabled(false);
-//        }
-//        else
-//            _iconMenu->_delBtn->setEnabled(true);
-//    }
-//    else
-//    {
-//        _iconMenu->_delBtn->setEnabled(true);
-//    }
-
-//    _iconMenu->move(mPos.x(), mPos.y());
-//    _iconMenu->raise();
-//    _iconMenu->setVisible(visiable);
-//}
-
-//void toolBarWidget::iconMenuRunClicked()
-//{
-//    _iconMenu->setVisible(false);
-
-//    if (_iconDict.value(_currentUniqueName)->type() == dirIcon)
-//    {
-
-//    }
-//    else
-//    {
-//        if(QItemManager::getManager()->getItemListSize() == 0)
-//            runApp(_currentUniqueName);
-//        else
-//        {
-//            for(int i = 0; i < QItemManager::getManager()->getItemListSize(); i++)
-//            {
-//                  runApp(QItemManager::getManager()->itemAt(i)->text());
-//            }
-//        }
-//    }
-//}
-
-//void toolBarWidget::iconMenuDelClicked()
-//{
-//    _iconMenu->setVisible(false);
-
-//    if(QItemManager::getManager()->getSelectIconItemText().size() == 0)
-//    {
-//        if ( _iconDict.value(_currentUniqueName)->type() == dirIcon)
-//        {
-//            int index = _iconDict.value(_currentUniqueName)->id();
-
-//            emit delDirShowWidget(index);
-
-//            _dirMinList.removeOne(_iconDict.value(_currentUniqueName)->uniqueName());
-
-//            LocalAppList::getList()->delApp(_currentUniqueName);
-
-////            emit desktopDelIcon(_currentUniqueName);
-
-//        }
-//        else
-//        {
-//            LocalAppList::getList()->delApp(_currentUniqueName);
-
-////            emit desktopDelIcon(_currentUniqueName);
-//        }
-//    }
-//    else
-//    {
-//        QList<QString> list = QItemManager::getManager()->getSelectIconItemText();
-//        for(int i = 0; i < list.size(); i++)
-//        {
-//            _currentUniqueName = list.at(i);
-
-//            if ( _iconDict.value(_currentUniqueName)->type() == dirIcon)
-//            {
-//                int index = _iconDict.value(_currentUniqueName)->id();
-
-
-//                _dirMinList.removeOne(_iconDict.value(_currentUniqueName)->uniqueName());
-
-//                QItemManager::getManager()->removeByUniqueName(_currentUniqueName);
-//                LocalAppList::getList()->delApp(_currentUniqueName);
-
-////                emit desktopDelIcon(_currentUniqueName);
-
-//            }
-//            else
-//            {
-//                QItemManager::getManager()->removeByUniqueName(_currentUniqueName);
-//                LocalAppList::getList()->delApp(_currentUniqueName);
-
-////                emit desktopDelIcon(_currentUniqueName);
-//            }
-
-//        }
-//    }
-//}
-
 void toolBarWidget::changedDirId(const QString &uniqueName, int index)
 {
     if (_iconDict.value(uniqueName))
     {
         _iconDict.value(uniqueName)->setId(index);
+    }
+}
+
+void toolBarWidget::showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, IconItem *iconItem)
+{
+    Q_UNUSED(pos);
+    Q_UNUSED(visiable);
+
+    if (!iconItem)
+        return;
+
+    if (iconItem->type() == dustbinIcon)
+        return;
+
+    _currentUniqueName = iconItem->uniqueName();
+
+    if (!_iconDict.value(_currentUniqueName))
+        return;
+
+    if ( _iconDict.value(_currentUniqueName)->type() == dirIcon)
+    {
+        emit tBarWidgetDirMenu(mPos, _currentUniqueName);
+    }
+    else
+    {
+        emit tBarWidgetIconMenu(mPos, _currentUniqueName);
     }
 }

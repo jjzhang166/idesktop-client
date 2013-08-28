@@ -97,6 +97,7 @@ void Dustbin::dragMoveEvent(QDragMoveEvent *event)
 
 void Dustbin::dragLeaveEvent(QDragLeaveEvent *event)
 {
+    Q_UNUSED(event);
     emit iconLeave();
 }
 

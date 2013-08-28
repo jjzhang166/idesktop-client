@@ -7,6 +7,7 @@
 HintLineEdit::HintLineEdit(QString hint, QString pixmap, QWidget *parent)
     : QLineEdit(parent), _hint(hint)
 {
+    Q_UNUSED(pixmap);
     setStyleSheet("QLineEdit:focus{border-color: rgba(133,192,241,255);}");
 }
 

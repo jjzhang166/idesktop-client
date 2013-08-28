@@ -95,8 +95,8 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
     _vacScrollBarWidget->move(13,50);
     _vacScrollBarWidget->setVisible(true);
 
-    _closePix.load(":images/widget_close_normal.png");
-    _closeHoverPix.load(":images/widget_close_hover.png");
+//    _closePix.load(":images/widget_close_normal.png");
+//    _closeHoverPix.load(":images/widget_close_hover.png");
     _closeBtn = new DynamicButton(_closePix, _closeHoverPix, this);
     _closeBtn->setGeometry(_width - 8 -25 - 3, 28, 8, 8);
 
@@ -119,7 +119,7 @@ void VacShowWidget::showApp(bool localApp)
 
 int VacShowWidget::addIcon(QString text, const QString &icon, int page, int index, const QString &url, int type, const QString &uniqueName)
 {
-    _vacScrollBarWidget->addIcon(text, icon, page, index, url, type, uniqueName);
+    return _vacScrollBarWidget->addIcon(text, icon, page, index, url, type, uniqueName);
 }
 
 void VacShowWidget::delIcon(const QString &uniqueName)
@@ -161,6 +161,10 @@ void VacShowWidget::paintEvent(QPaintEvent *event)
 void VacShowWidget::iconItemNameChanged(const QString &uniqueName, const QString &name)
 {
     _vacScrollBarWidget->iconItemNameChanged(uniqueName, name);
+}
+void VacShowWidget::initIconItem()
+{
+    _vacScrollBarWidget->initIconItem();
 }
 
 VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
@@ -283,7 +287,7 @@ void VacScrollBarWidget::showApp(bool localApp)
 
 int VacScrollBarWidget::addIcon(QString text, const QString &icon, int page, int index, const QString &url, int type, const QString &uniqueName)
 {
-    _vacWidget->addIcon(text, icon, page, index, url, type, uniqueName);
+    return _vacWidget->addIcon(text, icon, page, index, url, type, uniqueName);
 }
 
 void VacScrollBarWidget::delIcon(const QString &uniqueName)
@@ -327,6 +331,11 @@ void VacScrollBarWidget::desktopDelIcon(const QString &uniqueName)
 void VacScrollBarWidget::iconItemNameChanged(const QString &uniqueName, const QString &name)
 {
     _vacWidget->iconItemNameChanged(uniqueName, name);
+}
+
+void VacScrollBarWidget::initIconItem()
+{
+    _vacWidget->initIconItem();
 }
 
 //
@@ -388,9 +397,9 @@ VacWidget::VacWidget(QSize pageSize, QWidget *parent)
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
 
-    getLocalIcon();
-    getVacIcon();
-    getPaasIcon();
+//    getLocalIcon();
+//    getVacIcon();
+//    getPaasIcon();
 }
 
 VacWidget::~VacWidget()
@@ -406,6 +415,7 @@ int VacWidget::addIcon(QString text,
                        int type,
                        const QString &uniqueName)
 {
+    qDebug() << "---------------->addVACWidgetIcon";
     int expandPageCount;
     int iconNum = _settings->remoteLocalList().count() + _settings->paasList().count() + _settings->vappList().count();
     if (iconNum % _iconsPerPage == 0)
@@ -579,9 +589,9 @@ void VacWidget::delIcon(const QString &uniqueName)
 
 }
 
-void VacWidget::moveBackIcons(int page, int index)
-{
-}
+//void VacWidget::moveBackIcons(int page, int index)
+//{
+//}
 
 void VacWidget::showApp(bool localApp)
 {
@@ -629,7 +639,7 @@ QString VacWidget::getAppImage(QString appPath)
 //        for (int j = 0; j < normal.height(); j++) {
 //            QRgb pixel = normal.pixel(i,j);
 //            int a = qAlpha(pixel);
-//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel), \
+//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel),
 //                                    qBlue(pixel), a * 117 / 255);
 //            normal.setPixel(i, j, lightPixel);
 //        }
@@ -679,7 +689,7 @@ void VacWidget::expand()
 
     for (int i = 0; i < _col * _row; i++) {
         //vertical display
-//        int x =  _pageSize.width() * (_count - 1)\
+//        int x =  _pageSize.width() * (_count - 1)
 //                + (i / _row) * gridWidth;
 //        int y = (i % _row) * gridHeight;
 
@@ -827,6 +837,7 @@ void VacWidget::movetoFirst()
 
 void VacWidget::reloadApplist(QSize size)
 {
+    Q_UNUSED(size);
     _count = 1;
 
 //    gridWidth = size.width() + HSPACING * 2;
@@ -934,4 +945,11 @@ void VacWidget::iconItemNameChanged(const QString &uniqueName, const QString &na
         return;
 
     _iconDict.value(uniqueName)->setText(name);
+}
+
+void VacWidget::initIconItem()
+{
+    getLocalIcon();
+    getVacIcon();
+    getPaasIcon();
 }

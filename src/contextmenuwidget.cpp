@@ -261,6 +261,11 @@ QStringList MenuWidget::getXPAppList()
     return appList;
 }
 
+void MenuWidget::mousePressEvent(QMouseEvent *event)
+{
+    QWidget::mousePressEvent(event);
+}
+
 void MenuWidget::newCreateMenu()
 {
     if(QSysInfo::windowsVersion() == QSysInfo::WV_XP)
@@ -412,25 +417,25 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         break;
 
     case MenuWidget::iconMenu :
-        _openBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                                 tr("open"), this, false);
+        _runBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                                 tr("run"), this, false);
         _delBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                   tr("delete"), this, false);
 //        _renameBtn = new MenuButton("", ":images/menu_btn_hover.png",
 //                                 tr("rename"), this, false);
 
-        _openBtn->setGeometry(14, 20, ICON_W, BTN_H);
+        _runBtn->setGeometry(14, 20, ICON_W, BTN_H);
         _delBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
 //        _renameBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
 
-        _openBtn->setValue(0);
+        _runBtn->setValue(0);
         _delBtn->setValue(1);
 //        _renameBtn->setValue(2);
 
 //        setFixedSize(ICON_W, 78 + 2 * 2 + 20);
         setFixedSize(ICON_W, 58 + 2 + 20);
 
-        connect(_openBtn, SIGNAL(clicked()), this, SIGNAL(run()));
+        connect(_runBtn, SIGNAL(clicked()), this, SIGNAL(run()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
  //       connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
         break;
@@ -452,6 +457,29 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         connect(_restoreBtn, SIGNAL(clicked()), this, SIGNAL(restore()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
  //       connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
+        break;
+    case MenuWidget::dirMenu :
+
+        _openBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                                     tr("open"), this, false);
+        _clearBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                                     tr("clear"), this, false);
+        _delBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                                  tr("delete"), this, false);
+
+        _openBtn->setGeometry(14, 20, ICON_W, BTN_H);
+        _clearBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
+        _delBtn->setGeometry(14, 59 + 2 * 2, ICON_W, BTN_H);
+
+        _openBtn->setValue(0);
+        _clearBtn->setValue(1);
+        _delBtn->setValue(2);
+
+        setFixedSize(ICON_W, 78 + 2 * 2 + 20);
+
+        connect(_openBtn, SIGNAL(clicked()), this, SIGNAL(open()));
+        connect(_clearBtn, SIGNAL(clicked()), this, SIGNAL(clear()));
+        connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
         break;
     default:
         break;

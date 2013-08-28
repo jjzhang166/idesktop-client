@@ -25,6 +25,8 @@ public :
     explicit SkinShowWidget(QWidget *parent = 0);
     ~SkinShowWidget() {}
 
+    void initIconItem();
+
 signals:
     void setBgPixmap(const QString &pixText);
     void skinCloseBtnClicked();
@@ -81,6 +83,8 @@ public:
     int count()                 { return _count; }
     int iconsPerPage()          {  return _iconsPerPage; }
     QSize pageSize()            { return _pageSize; }
+
+    void initIconItem();
 
 
 signals:

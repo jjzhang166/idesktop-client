@@ -126,6 +126,7 @@ public:
     void addDustbin();
     void setIconClass(int iconClass);
     void setLineEditReadOnly(bool readOnly);
+    void setDustbinDragEnable(bool enable);
 
 signals:
 //    void clicked();

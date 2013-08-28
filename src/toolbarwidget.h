@@ -115,7 +115,7 @@ public slots:
 
 //    void addDirItem();
 
-//   void showIconContextMenu(QPoint pos, QPoint mPos, const QString &text);
+   void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, IconItem *iconItem);
 //    void iconMenuRunClicked();
 //    void iconMenuDelClicked();
 
@@ -147,10 +147,6 @@ signals:
     void reInitiate();
 
     void toolBarAddDirSW(int id);
-
-//    void bgMove(int x, int y);
-
-//    void setDirIcon(const QString &text, const QString &iconPath, const QString &url);
 
     int rowsNum(int row);
 
@@ -188,6 +184,10 @@ signals:
     void changedDirWidgetTitle(int i, const QString &text);
 
     void toolBarDirWidgetRefresh(int i);
+
+    //menu
+    void tBarWidgetDirMenu(QPoint mPos, const QString &uniqueName);
+    void tBarWidgetIconMenu(QPoint mPos, const QString &uniqueName);
 
 protected:
 //    void contextMenuEvent(QContextMenuEvent *event);

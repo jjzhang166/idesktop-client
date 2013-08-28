@@ -90,6 +90,7 @@ public:
 //    QString _sessionID;
     int isBalance;
     bool _isNetError;
+    bool _isNetTimeout;
 public:
 //    QString& getSessionID()
 //    {

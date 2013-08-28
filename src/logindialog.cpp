@@ -9,28 +9,13 @@
 #include "qtipaddressedit/qipaddressedit.h"
 #include "qtipaddressedit/qipaddressedititem.h"
 
-#include <windows.h>
-#include <shellapi.h>
-#include "ShlObj.h"
-
-#include "appmessagebox.h"
-
-#include "public.h"
-
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValueIterator>
 #include <QtScript/QScriptValue>
 
-//#ifdef Q_WS_WIN
-//QLibrary *mylib;   //
-//Dll_CloseAppAll m_dllCloseAppAll;
-//#endif
-
 #define FONTSIZE 10
 #define KEY "\\Windows\\CurrentVersion\\App Paths\\"
 
-#define PAASURL "http://192.168.30.128/dongfang.php"
-//#define PAASURL "http://192.168.49.243:8080/CloudManage/rest/service/getUserAllService"
 /****************************************************************/
 //wangyaoli
 extern QString serverip;
@@ -44,26 +29,9 @@ QString PaasServer;
 
 QString USERNAME;
 
-QList<PAAS_LIST> myPaasList;
-QList<PAAS_LIST> remotepaasList;
-QList<LOCAL_LIST> remotelocalList;
-
-QString WIN_LOCAL_IconPath;
-QString WIN_VAPP_IconPath;
-QString WIN_PAAS_IconPath;
-//QString iconDirPath;
-QString WIN_TtempPath;
-QString xmlPath;
-
-
-typedef void (*DLL_getApp2)();
-DLL_getApp2 my_getApp2;
-
 LoginDialog::LoginDialog(QWidget *parent)
     : QDialog(parent, Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint| Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint)
     , _titlePressed(false)
-    , _vacfinished(false)
-    , _paasFinished(false)
     , _flip(false)
     ,_isSetting(false)
 {
@@ -134,7 +102,6 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(configurationButton, SIGNAL(clicked()), this, SLOT(settingSlot()));
     settingUi();
 
-
     remoteAuth = new QCheckBox(this);
     remoteAuth->setChecked(true);  //true
     remoteAuth->setText(tr("远程验证"));
@@ -150,13 +117,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     while (query.next())
         serverAddr->addItem(query.value(0).toString());
     _nam = new QNetworkAccessManager(this);
-    //vac
-    _commui = new commuinication();
-    connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
-
-    //paas
-    _paasCommui = new PaasCommuinication();
-    connect(_paasCommui, SIGNAL(done()), this, SLOT(onPaasDone()));
+//    _namJson = new QNetworkAccessManager(this);
 
 //    QDir dir(Config::get("UserDir"));
 //    QFileInfo fi(Config::get("Profile"));
@@ -228,8 +189,33 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(userEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
     connect(passEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
     connect(_nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(onLoginFinished(QNetworkReply*)));
+//    connect(_namJson, SIGNAL(finished(QNetworkReply*)), this, SLOT(jsonDownloadFinished(QNetworkReply*)));
     connect(this, SIGNAL(accepted()), this, SLOT(dialogAccepted()));
 
+}
+
+LoginDialog::~LoginDialog()
+{
+    delete _timeLine;
+    delete _tray;
+    delete _dashboardMenu;
+    delete _dHideAction;
+    delete _dShowAction;
+    delete _dQuitAction;
+    delete _loginMenu;
+    delete _lQuitAction;
+    delete _lShowAction;
+    delete _nam;
+    delete serverAddr;
+    delete userEdit;
+    delete passEdit;
+    delete submit;
+    delete cancelBtn;
+    delete remoteAuth;
+    delete ipAddrEdit;
+//    delete configurationButton;
+//    delete minButton;
+//    delete closeButton;
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)
@@ -407,6 +393,16 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     }
 }
 
+//void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
+//{
+//    QScriptValue sc;
+//    QScriptEngine engine;
+//    QString result;
+
+//    QString jsonResult = reply->readAll();
+//    qDebug() << "jsonResult" << jsonResult;
+//}
+
 void LoginDialog::auth()
 {
     qDebug() << "****************************************";
@@ -486,6 +482,9 @@ void LoginDialog::auth()
     }
 
     //    _tray->setVisible(false);
+    QString jsonUrl = "http://192.168.30.37:9080/idesktop/getUserStatusData.action";
+    QString data = "username=" + userEdit->text();
+//    _namJson->post(QNetworkRequest(QUrl(jsonUrl)), data.toAscii());
 
     int count = 0;
     QString selectCount = QString("SELECT count FROM addrs where addr='%1';")\
@@ -500,245 +499,21 @@ void LoginDialog::auth()
     //Config::set("password",md5);
     Config::set("password",passEdit->text());
     Config::set("User", userEdit->text());
-    QDialog::accept();
 
-    char folder[MAX_PATH] = {0};
-    SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
-    WIN_TtempPath = QString(folder);
-
-    WIN_LOCAL_IconPath=WIN_TtempPath+"\\App Center\\Licons\\";
-    WIN_VAPP_IconPath=WIN_TtempPath+"\\App Center\\Vicons\\";
-    WIN_PAAS_IconPath=WIN_TtempPath+"\\App Center\\Picons\\";
-    iniPath = WIN_TtempPath + "\\App Center\\app.ini";
-    qDebug()<<"icon path:"<<WIN_VAPP_IconPath;
-
-    //local
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if 1
     saveVacUserInfo();
 
-    QLibrary dllLib("GetApp.dll");
-    if(!dllLib.load())
-    {
-        qDebug()<< "GetLastError :" << GetLastError();
-        qDebug()<<"load failed!";
-    }
-    else
-    {
-        qDebug()<<"load succeed!";
-        my_getApp2 = (DLL_getApp2)dllLib.resolve("GetApp2");
-        if(my_getApp2 == NULL)
-        {
-            qDebug()<< "GetLastError :" <<GetLastError();
-            qDebug()<<"resolve failed!";
+//    char folder[MAX_PATH] = {0};
+//    SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
+//    WIN_TtempPath = QString(folder);
 
-        }
-        else
-        {
-            my_getApp2();
-        }
-    }
-//    qDebug()<<"inipath:"<<iniPath;
-    //vc ini
-    char  chSectionNames[8192]={0};       //所有节名组成的字符数组
-    char *pSectionName; //保存找到的某个节名字符串的首地址
-    int i;       //i指向数组chSectionNames的某个位置，从0开始，顺序后移
-    int j=0;      //j用来保存下一个节名字符串的首地址相对于当前i的位置偏移量
-    int _id = 0;
-    //int count=0;      //统计节的个数
-    char _folder[MAX_PATH] = {0};
-    char _iniPath[MAX_PATH] = {0};
-    SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,_folder);
-    sprintf(_iniPath, "%s\\App Center\\app.ini", _folder);
-    DWORD m_lRetValue =::GetPrivateProfileSectionNames(chSectionNames,8192,_iniPath);
-    qDebug()<<"num:"<<m_lRetValue;
-    for(i=0;i<m_lRetValue;i++,j++)
-    {
-        if(chSectionNames[0]=='\0')
-            break;       //如果第一个字符就是0，则说明ini中一个节也没有
-        if(chSectionNames[i]=='\0')
-        {
-            pSectionName=&chSectionNames[i-j]; //找到一个0，则说明从这个字符往前，减掉j个偏移量，
-            //就是一个节名的首地址
-            j=-1;         //找到一个节名后，j的值要还原，以统计下一个节名地址的偏移量
-            //赋成-1是因为节名字符串的最后一个字符0是终止符，不能作为节名
-            //的一部分
-            char strBuff[256];
-            //在获取节名的时候可以获取该节中键的值，前提是我们知道该节中有哪些键。
-            ::GetPrivateProfileString(pSectionName,"ExePath",NULL,strBuff,256,_iniPath);
-            //qDebug()<<"name:"<<QString::fromLocal8Bit(pSectionName);     //把找到的显示出来
-            //qDebug()<<"name:"<<QString(pSectionName).toLocal8Bit();
-            //qDebug()<<"path:"<<QString::fromLocal8Bit(strBuff);
-            //QString path = QString::fromLocal8Bit(strBuff);
-            QString path = strBuff;
+//    WIN_LOCAL_IconPath=WIN_TtempPath+"\\App Center\\Licons\\";
+//    WIN_VAPP_IconPath=WIN_TtempPath+"\\App Center\\Vicons\\";
+//    WIN_PAAS_IconPath=WIN_TtempPath+"\\App Center\\Picons\\";
+//    iniPath = WIN_TtempPath + "\\App Center\\app.ini";
+//    qDebug()<<"icon path:"<<WIN_VAPP_IconPath;
 
-            QFileInfo fio(path);
-            if (!fio.exists())
-                continue;
+    QDialog::accept();
 
-//            qDebug()<<"path"<<strBuff;
-            QFileInfo fi = QFileInfo(path);
-            QString iPath(Config::get("IconDir"));
-            iPath = iPath + fi.baseName();
-            iPath += ".png"; //png
-
-            QString localIconPath;
-
-            QFile chkFile(iPath);
-            if(!chkFile.exists())
-            {
-                chkFile.close();
-
-                localIconPath = getLocalIcon(path);
-                setIcon(WIN_LOCAL_IconPath, localIconPath);
-                //            continue;
-            }
-            else
-            {
-                chkFile.close();
-                localIconPath = iPath;
-            }
-
-            LOCAL_LIST tempLocalList;
-            tempLocalList.id = _id;
-            tempLocalList.iconPath = localIconPath;
-            //qDebug() << "name-->pSectionName" << pSectionName;
-//            tempLocalList.name = QString::fromLocal8Bit(pSectionName);
-
-
-            //QTextCodec *codec = QTextCodec::codecForName("utf-8"); //utf-8
-
-            //tempLocalList.name = codec->toUnicode(pSectionName);
-            QString temp = pSectionName;
-            temp.replace("]", "");
-            tempLocalList.name = temp;
-//            qDebug() << "tempLocalList.name" << tempLocalList.name;
-
-            //tempLocalList.name = QString(pSectionName);
-            tempLocalList.execname = path;
-
-            QString md5;
-            QByteArray bb;
-            bb = QCryptographicHash::hash(path.toAscii(), \
-                                          QCryptographicHash::Md5);
-            md5.append(bb.toHex());
-
-            tempLocalList.uniqueName = md5;
-
-            remotelocalList.append(tempLocalList);
-            _id++;
-            if(chSectionNames[i+1]==0)
-            {
-                break;      //当两个相邻的字符都是0时，则所有的节名都已找到，循环终止
-            }
-        }
-    }
-    _settings->setRemoteLocalList(remotelocalList);
-
-    qDebug() << "load " << _settings->remoteLocalList().size() << " local apps";
-
-    QFile b(iniPath);
-    b.remove();
-    //end
-#else
-    QSettings reg(QSettings::NativeFormat, \
-                  QSettings::SystemScope, "Microsoft", KEY);
-    for (int i = 0; i < reg.childGroups().count(); i++) {
-        QSettings tmp(QSettings::NativeFormat, \
-                      QSettings::SystemScope, "Microsoft", \
-                      KEY + reg.childGroups().at(i));
-        //        if (tmp.value("DisplayName").toString() == display) {
-        //            return tmp.value("UninstallString").toString();
-        //        }
-        QString path = tmp.value(".").toString();
-
-        if (path.isEmpty())
-        {
-            //            _addAppState = false;
-            continue;
-        }
-
-        path.replace("\"\"", "\"");
-
-        if (path.startsWith("%"))
-            continue;
-
-        //        QStringList environment = QProcess::systemEnvironment();
-        //        QString str;
-        //        foreach(str,environment)
-        //        {
-        //            if (str.startsWith("PATH="))
-        //            {
-        //                ui.textEdit->append(str);
-        //                break;
-        //            }
-        //        }
-
-        //        qDebug() << path;
-        QFileInfo fi = QFileInfo(path);
-        QString iPath(Config::get("IconDir"));
-        iPath = iPath + fi.baseName();
-        iPath += ".png"; //png
-
-        QString localIconPath;
-
-        QFile chkFile(iPath);
-        if(!chkFile.exists())
-        {
-            chkFile.close();
-
-            localIconPath = getLocalIcon(path);
-            setIcon(WIN_LOCAL_IconPath, localIconPath);
-            //            continue;
-        }
-        else
-        {
-            chkFile.close();
-            localIconPath = iPath;
-        }
-
-        LOCAL_LIST tempLocalList;
-        tempLocalList.id = i;
-        tempLocalList.iconPath = localIconPath;
-        QFileInfo info = QFileInfo(localIconPath);
-        tempLocalList.name = info.baseName();
-        tempLocalList.execname = path;
-
-        remotelocalList.append(tempLocalList);
-
-    }
-    _settings->setRemoteLocalList(remotelocalList);
-#endif
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //vac
-    //    connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
-
-    updateVacServer();
-    _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
-    while (!_vacfinished)
-        QApplication::processEvents();
-    _vacfinished = false;
-    qDebug()<<"login3";
-
-    getVac();
-
-    getPaas(true);
-
-}
-
-void LoginDialog::onDone()
-{
-    //get the Application List;
-    _vacfinished = true;
-}
-
-void LoginDialog::onPaasDone()
-{
-    //get the Application List;
-    _paasFinished = true;
 }
 
 void LoginDialog::mousePressEvent(QMouseEvent *event)
@@ -761,46 +536,6 @@ void LoginDialog::mouseMoveEvent(QMouseEvent *event)
         QPoint newPoint = pos() + event->pos() - startDrag;
         move(newPoint);
     }
-}
-
-QString LoginDialog::GetSystemInfo()
-{
-    //login ivapp sm
-    QString sysInfo;
-#ifdef Q_WS_WIN
-    switch(QSysInfo::windowsVersion())
-    {
-    case QSysInfo::WV_2000:
-        qDebug()<<"System info:windows 2000 \n";
-        sysInfo="windows 2000";
-        break;
-    case QSysInfo::WV_2003:
-        qDebug()<<"System info:windows 2003 \n";
-        sysInfo="windows 2003";
-        break;
-    case QSysInfo::WV_XP:
-        qDebug()<<"System info:windows xp \n";
-        sysInfo="windows xp";
-        break;
-    case QSysInfo::WV_VISTA:
-        qDebug()<<"System info:windows vista \n";
-        sysInfo="windows vista";
-        break;
-    case QSysInfo::WV_WINDOWS7:
-        qDebug()<<"System info:windows 7 \n";
-        sysInfo="windows 7";
-        break;
-    default:
-        qDebug()<<"System info:windows 7 \n";
-        sysInfo="windows 7";
-        break;
-
-    }
-#endif
-#ifdef Q_WS_X11
-    sysInfo = "linux";
-#endif
-    return sysInfo;
 }
 
 //setting by zj
@@ -1142,239 +877,4 @@ void LoginDialog::updateFlip(qreal val)
     //    painter.setTransform(t,true);
 
     repaint();
-}
-
-QString LoginDialog::getLocalIcon(QString localPath)
-{
-    typedef HICON (*tempFuc)(CONST TCHAR *filePath);
-    QLibrary myLib;
-#ifdef DEBUG
-    myLib.setFileName("IconGetD.dll");
-#else
-    myLib.setFileName("IconGet.dll");
-#endif
-
-    tempFuc myFunction = (tempFuc) myLib.resolve("getJumbIcon");
-    if (myFunction) {
-        HICON jumbIcon = myFunction((CONST TCHAR *)localPath.utf16 ());
-
-        QPixmap picon = QPixmap::fromWinHICON(jumbIcon);
-
-        QFileInfo info = QFileInfo(localPath);
-        QString path(Config::get("IconDir"));
-        path = path + "\\" + info.baseName();
-        path += ".png"; //png
-        QPixmap newicon =  picon.scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        newicon.save(path, "PNG",-1);
-        return path;
-    }
-    return "";
-
-}
-
-void LoginDialog::setIcon(const QString &dirPath, const QString &iconPath)
-{
-    QString newApp = iconPath;
-
-    if (newApp.isEmpty())
-        return;
-
-    QImage image = QImage(newApp).scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    QImage normal = QImage(":images/icon_shadow.png");
-    QImage middle = QImage(":images/icon_middle_shadow.png");
-
-    QPainter pt1(&normal);
-    pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    pt1.drawImage(QRect(35, 36, 72, 72), middle.scaled(72, 72, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    pt1.drawImage(QRect(35 + 7, 36 + 3, 59, 59), image);
-    pt1.end();
-
-    QFileInfo info = QFileInfo(newApp);
-    if (newApp.right(4) == ".ico")
-    {
-        if (info.exists())
-            QFile::remove(newApp);//刪除 .ico 文件
-
-        QString path = dirPath + info.baseName();
-        path += ".png";
-
-        QPixmap pix = QPixmap::fromImage(normal);
-        pix.save(path, "PNG", -1);
-    }
-    else
-    {
-        QPixmap pix = QPixmap::fromImage(normal);
-        pix.save(newApp, "PNG", -1);
-    }
-
-}
-
-void LoginDialog::getPaas(bool isLogin)
-{
-
-    //paas
-    //get paas list
-    _paasCommui->login(PaasServer);
-    while (!_paasFinished)
-        QApplication::processEvents();
-    _paasFinished = false;
-
-    myPaasList = _paasCommui->getList();
-
-    if (myPaasList.count() == 0)
-        return;
-
-    QDir iconDir(WIN_PAAS_IconPath);
-    if(!iconDir.exists())
-    {
-        iconDir.mkdir(WIN_PAAS_IconPath);
-    }
-    //store ico file locally
-    for(int i = 0; i < myPaasList.count(); i++)
-    {
-        QString iconPath = QString("%1%2.png")
-                .arg(WIN_PAAS_IconPath)
-                .arg(myPaasList[i].cnName);
-        QString tempPath = QString("%1%2.png")
-                .arg(WIN_PAAS_IconPath)
-                .arg(myPaasList[i].cnName);
-        //        qDebug()<<"iconPath="<<iconPath;
-        myPaasList[i].iconPath = iconPath;
-
-        if (isLogin)
-        {
-            remotepaasList.insert(i, myPaasList[i]);
-            remotepaasList[i].iconPath = iconPath;
-        }
-        //check if ico file is existed, or dont donwload
-
-        QFile chkFile(iconPath);
-        if(chkFile.exists())
-        {
-            chkFile.close();
-            continue;
-        }
-        chkFile.close();
-
-        //qDebug()<<"iconPath"<<iconPath;
-        if (myPaasList[i].logoURL.isEmpty())
-        {
-            //url = myPaasList.at(i).urls.section('/', 1, 1, flag);
-            //url = QString("http://" + url + "/Favicon.ico");
-
-            //_paasCommui->downloadIcon(QUrl(url), tempPath);
-
-
-            QPixmap pix(":images/url_normal.png");
-            pix.save(iconPath, "PNG", -1);
-
-            continue;
-        }
-        else
-        {
-            _paasCommui->downloadIcon(QUrl(myPaasList[i].logoURL), tempPath);
-
-            while (!_paasFinished)
-                QApplication::processEvents();
-            _paasFinished = false;
-        }
-
-        setIcon(WIN_PAAS_IconPath, tempPath);
-    }
-    _settings->setPaasList(myPaasList);
-    _settings->setRemotePaasList(remotepaasList);
-}
-
-void LoginDialog::getVac()
-{
-    if(_commui->errID == "10000")
-    {
-        //        char folder[MAX_PATH] = {0};
-        //        SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
-        //        WIN_TtempPath = QString(folder);
-        //        WIN_VAPP_IconPath=WIN_TtempPath+"\\App Center\\Vicons\\";
-
-        //get vapp list
-
-        _commui->getAppList();
-        while (!_vacfinished)
-            QApplication::processEvents();
-        _vacfinished = false;
-
-        QList<APP_LIST> myVappList;
-        myVappList = _commui->getList();
-        qDebug()<<"g_myList.count()="<<myVappList.count();
-        _settings->setVappList(myVappList);
-
-        QList<APP_LIST> remoteAppList;
-
-#ifdef Q_WS_WIN
-//        iconDirPath = WIN_VAPP_IconPath ;
-#else
-        WIN_VAPP_IconPath =  xmlPath + "\\App Center\\Vicons";
-#endif
-
-        QDir iconDir(WIN_VAPP_IconPath);
-        if(!iconDir.exists())
-        {
-            iconDir.mkdir(WIN_VAPP_IconPath);
-        }
-        //store ico file locally
-        for(int i = 0; i < myVappList.count(); i++)
-        {
-            QString iconPath = QString("%1%2.png")
-                    .arg(WIN_VAPP_IconPath)
-                    .arg(myVappList[i].id);
-            QString tempPath = QString("%1%2.ico")
-                    .arg(WIN_VAPP_IconPath)
-                    .arg(myVappList[i].id);
-
-            remoteAppList.insert(i, myVappList[i]);
-            remoteAppList[i].icon = iconPath;
-
-            //check if ico file is existed, or dont donwload
-            QFile chkFile(iconPath);
-            if(chkFile.exists())
-            {
-                chkFile.close();
-                continue;
-            }
-            chkFile.close();
-
-            //qDebug()<<"iconPath"<<iconPath;
-            _commui->downloadIcon(QUrl(myVappList[i].icon), tempPath);
-            while (!_vacfinished)
-                QApplication::processEvents();
-            _vacfinished = false;
-
-            setIcon(WIN_VAPP_IconPath, tempPath);
-        }
-        _settings->setRemoteAppList(remoteAppList);
-    }
-    else
-    {
-        if ((_commui->errInfo == "会话已存在") || (_commui->errID == "10045"))
-        {
-            _commui->logoff();
-
-            _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
-
-            while (!_finished)
-                QApplication::processEvents();
-            _finished = false;
-
-            getVac();
-
-        }
-        else
-        {
-//            QMessageBox::warning(this, tr("vapp login failed"), _commui->errInfo, tr("OK"));
-
-            AppMessageBox box(false, NULL);
-            box.setText(tr("vapp login failed, please contact the administrator."));
-            box.exec();
-        }
-
-    }
-
 }

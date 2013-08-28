@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
                                    .arg(0).arg(0)\
                                    .arg(int(false)).arg(1000)\
                                    .arg("4").arg(int(false))\
-                                    .arg("").arg(-2).arg("4_·ÏÖ½Â¨");  //·ÏÖ½Â¨
+                                    .arg("").arg(-2).arg("4_dustbin");  //·ÏÖ½Â¨
 
        QSqlQuery query(QSqlDatabase::database("local"));
 
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
        QString qstrWp = QString("insert into wallpapers ("\
                               "id, wallpaper) values ( "\
                               "\'%1\', \'%2\');")\
-                              .arg(1).arg(":images/wallpager/wp_0.jpg");
+                              .arg(1).arg("./images/wallpager/wp_0.jpg");
 
         if(!query.exec(qstrWp)) {
             qDebug() <<"query failed";

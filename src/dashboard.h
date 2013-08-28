@@ -1,10 +1,11 @@
-#ifndef MAINWINDOW
-#define MAINWINDOW
+#ifndef DASHBOARD
+#define DASHBOARD
 #include <QWidget>
 #include <QSize>
 #include <QStackedLayout>
 #include <QSystemTrayIcon>
 #include <QDialog>
+#include <QContextMenuEvent>
 //vac
 #include <QImage>
 #include <QPainter>
@@ -13,6 +14,7 @@
 #include <QAction>
 #include <QMenu>
 
+//#include "virtualdesktop.h"
 #include "commuinication.h"
 #include "logindialog.h"
 #include "vacwidget.h"
@@ -21,6 +23,7 @@
 #include "dirwidget.h"
 #include "nodebutton.h"
 #include "toolbarwidget.h"
+#include "mask.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -33,6 +36,12 @@ class Switcher;
 class Panel;
 class Indicator;
 class IDesktopSettings;
+
+extern QString WIN_LOCAL_IconPath;
+extern QString WIN_VAPP_IconPath;
+extern QString WIN_PAAS_IconPath;
+extern QString WIN_TtempPath;
+extern QString iniPath;
 
 class Dashboard : public QWidget
 {
@@ -47,7 +56,16 @@ public:
         _smIP = smIP;
         _sID = sID;
     }
+
+   QString GetSystemInfo();
+   QString getLocalIcon(QString localPath);
+   void setIcon(const QString &dirPath, const QString &iconPath);
+
+   void getLocalIcon();
+   void getVacIcon();
+   void getPaasIcon(bool isLogin);
 public slots:
+    void initIconItem();
     void quit();
     void switchBetween();
     void outOfScreen();
@@ -59,10 +77,11 @@ public slots:
     void setBgPixmap(const QString &pixText);
     void goPage(int page);
 
-    void timeOut();
     //vac
     void onDone();
     void errOut();
+
+    void onPaasDone();
 
     void upMove(int x, int y, int w, int h, int distance);
     void upBackMove(int x, int y, int w, int h, int distance);
@@ -92,10 +111,27 @@ public slots:
 
     void vdesktopHideDirWidget();
 
+    //menu
+    void menuChanged(int value);
+    void virtualDesktopAddDirItem();
+    void hideMenuWidget();
+    void refreshMenu();
+    void showDirMenu(QPoint mPos, const QString &uniqueName);
+    void showIconMenu(QPoint mPos, const QString &uniqueName);
+    void showNormalMenu(QPoint mousePos);
+    void menuDirOpen();
+    void menuDirDel();
+    void menuDirClear();
+    void menuIconRun();
+    void menuIconDel();
+
+
 protected:
     void closeEvent(QCloseEvent *event);
     void resizeEvent(QResizeEvent * event);
     void paintEvent(QPaintEvent *event);
+    void contextMenuEvent(QContextMenuEvent *);
+
 private:
     void refreshVapp();
     void modify();
@@ -130,6 +166,10 @@ private:
     QString _smIP;
     commuinication *_commui;
     bool _finished;
+    //paas
+    PaasCommuinication *_paasCommui;
+    bool _paasFinished;
+
 	 //??//
     TopWidget *topWidget;
     QPropertyAnimation *_animation;
@@ -178,6 +218,22 @@ private:
     bool _minMoveLabelUp;
 
     IDesktopSettings *_settings;
+
+    Mask *_mask;
+
+    //menu
+    MenuWidget *_normalMenu;
+    MenuWidget *_showIconMenu;
+    MenuWidget *_createMenu;
+    MenuWidget *_iconMenu;
+    MenuWidget *_dustbinMenu;
+    MenuWidget *_dirMenu;
+
+    QPoint _mousePos;
+
+    QString _uniqueName;
+
+    LocalAppList *_local;
 
 public:
     void setBgImage(QString url);

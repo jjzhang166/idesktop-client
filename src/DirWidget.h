@@ -69,7 +69,11 @@ public:
     void initIconItem();
 
     int getDustBinNewHeight();
+    void delIcon(const QString &uniqueName);
 
+    void clearDirIcon();
+
+    void dushbinRefreshDirMinWidget(const QString &uniqueName);
 signals:
     void dirWidgetDragLeave(const QString &uniqueName, int dirId);
     void dirWidgetDelIcon(int id, const QString &uniqueName);
@@ -77,6 +81,9 @@ signals:
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
     void refreshDirMinWidget(int id);
     void dustbinRestore(IconItem *iconItem);
+    //menu
+    void iconTovDesktop(const QString &uniqueName);
+    void dushbinDirWidgetRefresh(int id);
 
 public slots:
     void scrollBarValueChanged(int val);
@@ -199,6 +206,8 @@ public:
 
     int getIconNum()               { return _iconNum; }
 
+    void clearDirIcon();
+    void dushbinRefreshDirMinWidget(const QString &uniqueName);
 
 signals:
 
@@ -216,6 +225,11 @@ signals:
 
     void setClearBtnEnabled(bool enabled);
     void dustbinRestore(IconItem *iconItem);
+
+    void hideMenu();
+    //menu
+    void iconTovDesktop(const QString &uniqueName);
+    void dushbinDirWidgetRefresh(int id);
 
 public slots:
     void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, IconItem *iconItem);
@@ -259,6 +273,7 @@ private:
     QList<QList<QRect> > _gridTable;
     QList<int> _nextIdx;
     QList<QString> _clearNames;
+    QList<QString> _iconInDirs;
     QMap<QString, IconItem*> _iconDict;
 
     int _iconsPerPage;

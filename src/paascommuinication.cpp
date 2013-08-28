@@ -27,6 +27,7 @@ PaasCommuinication::PaasCommuinication(QObject *parent)
     , errID("")
     , errInfo("")
     , _isNetError(false)
+    , _isNetTimeout(false)
 {
     _nam = new QNetworkAccessManager(this);
     connect(_nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
@@ -65,7 +66,8 @@ void PaasCommuinication::myPost(const QUrl url, const QByteArray postData)
     connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
     connect(_reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64,qint64)));
 
-    timeOut->start(5000);
+    timeOut->start(30 * 1000);   //5000
+    _isNetTimeout = false;
     qEvent->exec();
     delete request;
     return;
@@ -86,7 +88,8 @@ void PaasCommuinication::myGet(const QUrl url, const QString path)
 
     connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
 
-    timeOut->start(5000);
+    timeOut->start(30 * 1000);   //5000
+    _isNetTimeout = false;
     qEvent->exec();
     delete request;
     return;
@@ -140,6 +143,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
         timeOut->stop();
         emit done();
         _isNetError = false;
+        _isNetTimeout = false;
 
         return;
     }
@@ -260,6 +264,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     timeOut->stop();
     qEvent->exit();
     _isNetError = false;
+    _isNetTimeout = false;
     emit done();
 }
 
@@ -267,6 +272,7 @@ void PaasCommuinication::slotError(QNetworkReply::NetworkError)
 {
     qDebug()<<"slotError:"<<_reply->error()<<endl;
     timeOut->stop();
+    _isNetTimeout = false;
     qEvent->exit();
 }
 
@@ -280,11 +286,13 @@ void PaasCommuinication::handleTimeOut()
     timeOut->stop();
     qEvent->exit();
 
+    _isNetTimeout = true;
+
     errInfo.clear();
     errInfo.append(tr("Network error, please check!"));
 
     AppMessageBox box(false, NULL);
-    box.setText(tr("Network error, please check!"));
+    box.setText(tr("获取平台服务应用超时，请稍后!"));
     box.exec();
 
     _isNetError = true;

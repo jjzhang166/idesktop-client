@@ -19,6 +19,9 @@
 #include <QLibrary>
 #include <windows.h>
 #include <stdio.h>
+#include <QVariant>
+#include <QJSon/qjson.h>
+#include <QJSon/serializer.h>
 
 #include "idesktopsettings.h"
 #include "localapps.h"
@@ -77,7 +80,7 @@ LocalAppList::LocalAppList(QObject *parent)
 {
     updateQList();
 //    updateAppList();
-
+//    qDebug() << uploadJson();
 
 }
 
@@ -457,7 +460,7 @@ void LocalAppList::addLocalApp(QString appPath)
 
     QString md5;
     QByteArray bb;
-    bb = QCryptographicHash::hash(appPath.toAscii(), \
+    bb = QCryptographicHash::hash(appPath.toLower().toAscii(), \
                                   QCryptographicHash::Md5);
     md5.append(bb.toHex());
     app->setUniqueName("0_" + md5);
@@ -491,4 +494,144 @@ QString LocalAppList::getUninstExec(QString display)
         }
     }
     return QString("");
+}
+
+QString LocalAppList::uploadJson()
+{
+//localapps
+    QVariantList localapps;
+    for (int i = 0; i < _list.count(); i++) {
+        QVariantMap localapp;
+        localapp.insert("name",         QString("%1").arg(_list.at(i)->name())          );
+        localapp.insert("version",      QString("%1").arg(_list.at(i)->version())       );
+        localapp.insert("execname",     QString("%1").arg(_list.at(i)->execname())      );
+        localapp.insert("icon",         QString("%1").arg(_list.at(i)->icon())          );
+        localapp.insert("uninstall",    QString("%1").arg(_list.at(i)->uninstName())    );
+        localapp.insert("lastupdate",   QString("%1").arg(0));
+        localapp.insert("page",         QString("%1").arg(_list.at(i)->page())          );
+        localapp.insert("idx",          QString("%1").arg(_list.at(i)->index())         );
+        localapp.insert("hidden",       QString("%1").arg(_list.at(i)->hidden())        );
+        localapp.insert("id",           QString("%1").arg(_list.at(i)->id())            );
+        localapp.insert("type",         QString("%1").arg(_list.at(i)->type())          );
+        localapp.insert("isRemote",     QString("%1").arg(_list.at(i)->isRemote())      );
+        localapp.insert("url",          QString("%1").arg(_list.at(i)->url())           );
+        localapp.insert("dirId",        QString("%1").arg(_list.at(i)->dirId())         );
+        localapp.insert("uniquename",   QString("%1").arg(_list.at(i)->uniqueName())    );
+
+        localapps << localapp;
+    }
+
+    Serializer serializer;
+    QByteArray localappsJson = serializer.serialize(localapps);
+
+//    qDebug() << "{\"localapps\":" + localappsJson + "}";
+//users
+    QVariantList users;
+    QSqlQuery usersQuery = \
+            QSqlDatabase::database("local").exec(QString("SELECT name,password FROM users;"));
+    while (usersQuery.next())
+    {
+        QVariantMap user;
+        user.insert("name",     QString("%1").arg(usersQuery.value(0).toString()));
+        user.insert("password", QString("%1").arg(usersQuery.value(1).toString()));
+
+        users << user;
+    }
+
+    QByteArray usersJson = serializer.serialize(users);
+
+//    qDebug() << "{\"users\":" + usersJson + "}";
+
+//addrs
+    QVariantList addrs;
+    QSqlQuery addrsQuery = \
+            QSqlDatabase::database("local").exec(QString("SELECT addr,count FROM addrs;"));
+    while (addrsQuery.next())
+    {
+        QVariantMap addr;
+        addr.insert("addr",     QString("%1").arg(addrsQuery.value(0).toString()));
+        addr.insert("count",    QString("%1").arg(addrsQuery.value(1).toString()));
+
+        addrs << addr;
+    }
+
+    QByteArray addrsJson = serializer.serialize(addrs);
+
+//    qDebug() << "{\"addrs\":" + addrsJson + "}";
+//wallpapers
+    QVariantList wallpapers;
+    QSqlQuery wallpapersQuery = \
+            QSqlDatabase::database("local").exec(QString("SELECT id,wallpaper FROM wallpapers;"));
+    while (wallpapersQuery.next())
+    {
+        QVariantMap wallpaper;
+        wallpaper.insert("id",       QString("%1").arg(wallpapersQuery.value(0).toString()));
+        wallpaper.insert("wallpaper",QString("%1").arg(wallpapersQuery.value(1).toString()));
+
+        wallpapers << wallpaper;
+    }
+
+    QByteArray wallpapersJson = serializer.serialize(wallpapers);
+
+//    qDebug() << "{\"wallpapers\":" + wallpapersJson + "}";
+
+//vacservers
+    QVariantList vacservers;
+    QSqlQuery vacserversQuery = \
+            QSqlDatabase::database("local").exec(QString("SELECT id,server,port,name,password FROM vacservers;"));
+    while (vacserversQuery.next())
+    {
+        QVariantMap vacserver;
+        vacserver.insert("id",      QString("%1").arg(vacserversQuery.value(0).toString()));
+        vacserver.insert("server",  QString("%1").arg(vacserversQuery.value(1).toString()));
+        vacserver.insert("port",    QString("%1").arg(vacserversQuery.value(2).toString()));
+        vacserver.insert("name",    QString("%1").arg(vacserversQuery.value(3).toString()));
+        vacserver.insert("password",QString("%1").arg(vacserversQuery.value(4).toString()));
+        vacservers << vacserver;
+    }
+
+    QByteArray vacserversJson = serializer.serialize(vacservers);
+
+//    qDebug() << "{\"vacservers\":" + vacserversJson + "}";
+
+//paasservers
+    QVariantList paasservers;
+    QSqlQuery paasserversQuery = \
+            QSqlDatabase::database("local").exec(QString("SELECT id,verifyServer,server FROM paasservers;"));
+    while (paasserversQuery.next())
+    {
+        QVariantMap paasserver;
+        paasserver.insert("id",             QString("%1").arg(paasserversQuery.value(0).toString()));
+        paasserver.insert("verifyServer",   QString("%1").arg(paasserversQuery.value(1).toString()));
+        paasserver.insert("server",         QString("%1").arg(paasserversQuery.value(2).toString()));
+        paasservers << paasserver;
+    }
+
+    QByteArray paasserversJson = serializer.serialize(paasservers);
+
+//    qDebug() << "{\"paasservers\":" + paasserversJson + "}";
+//sizetype
+    QVariantList sizetype;
+    QSqlQuery sizetypeQuery = \
+            QSqlDatabase::database("local").exec(QString("SELECT id,type FROM sizetype;"));
+    while (sizetypeQuery.next())
+    {
+        QVariantMap type;
+        type.insert("id",   QString("%1").arg(sizetypeQuery.value(0).toString()));
+        type.insert("type", QString("%1").arg(sizetypeQuery.value(1).toString()));
+
+        sizetype << type;
+    }
+
+    QByteArray sizetypeJson = serializer.serialize(sizetype);
+
+//    qDebug() << "{\"sizetype\":" + sizetypeJson + "}";
+
+    return "{\"localapps\":" + localappsJson +","
+           "\"users\":" + usersJson +","
+           "\"addrs\":" + addrsJson +","
+           "\"wallpapers\":" + wallpapersJson +","
+           "\"vacservers\":" + vacserversJson +","
+           "\"paasservers\":" + paasserversJson +","
+           "\"sizetype\":" + sizetypeJson + "}";
 }

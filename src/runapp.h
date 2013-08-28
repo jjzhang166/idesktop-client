@@ -71,6 +71,7 @@ public:
     ~RunApp();
 
     void runApp(const QString &uniqueName);
+    void quit();
 signals:
 
 public slots:

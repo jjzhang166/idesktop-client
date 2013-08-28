@@ -1,23 +1,12 @@
 #ifndef VIRTUALDESKTOP_H
 #define VIRTUALDESKTOP_H
+
 #include <QWidget>
 #include <QMap>
 #include <QProcess>
 #include <QTimer>
 #include <QMenu>
 #include <QAction>
-
-#include "localapps.h"
-#include "commuinication.h"
-#include "iconitem.h"
-#include "dirwidget.h"
-#include "dirminwidget.h"
-#include "contextmenuwidget.h"
-#include "toolbarwidget.h"
-#include "qitemmanager.h"
-
-#include "struct.h"
-//class ArrangeWidget;
 
 //app
 #ifdef Q_WS_WIN
@@ -33,17 +22,18 @@
 #include <QTimer>
 #include <QPoint>
 
-typedef  unsigned long DWORD;
+#include "localapps.h"
+#include "commuinication.h"
+#include "iconitem.h"
+#include "dirwidget.h"
+#include "dirminwidget.h"
+#include "contextmenuwidget.h"
+//#include "toolbarwidget.h"
+#include "qitemmanager.h"
 
-//typedef  wchar_t * LPCWSTR;
-//#define WINAPI __stdcall
-/*typedef struct _GUID {
-    unsigned long  Data1;
-    unsigned short Data2;
-    unsigned short Data3;
-    unsigned char  Data4[ 8 ];
-} GUID;
-*/
+#include "struct.h"
+#include "runapp.h"
+//class ArrangeWidget;
 
 extern QString _icontext;
 typedef long (*Dll_InitClass)(LPCWSTR, LPCWSTR);
@@ -85,12 +75,8 @@ class QDrag;
 class QLabel;
 class QPoint;
 
-class HoverIconItem;
 class IDesktopSettings;
 
-//#define SPACING 30
-//#define ICONWIDTH 96
-//#define ICONHEIGHT 96
 
 /* ####################################################
  * The declaration of VirtualDesktop
@@ -178,6 +164,11 @@ public:
 
     void setDirWidgetMaxRow();
 
+    //menu
+    void dirShowWidgetDelIcon(int dirId, const QString &uniqueName);
+    void iconToDushbin(const QString &uniqueName);
+    void clearDirShowWidget(int dirId);
+
 public slots:
     void goPage(int page);
 
@@ -216,7 +207,7 @@ public slots:
     void hideDirWidget(const QString &uniqueName, int dirId);
     //normalMenu
 
-    void menuChanged(int value);
+//    void menuChanged(int value);
     void hideMenuWidget();
 
     void setLargeIcon();
@@ -227,9 +218,9 @@ public slots:
 
     void showIconContextMenu(bool,QPoint pos, QPoint mPos, IconItem *);
     void iconMenuRunClicked();
-    void iconMenuDelClicked();
+    void iconMenuDelClicked(const QString &uniqueName);
 
-    void refreshMenu();
+//    void refreshMenu();
     void dirWidgetDelIcon(int id, const QString &uniqueName);
 
     void moveWidgetDrop(IconItem *iconItem);
@@ -253,6 +244,10 @@ public slots:
 
     void iconItemDragOut();
     void dustbinRestore(IconItem *iconItem);
+
+    //menu
+    void iconTovDesktop(const QString &uniqueName);
+    void tBarIconMenuDelClicked(int index, const QString &uniqueName);
 
 signals:
     void pageChanged(int i);
@@ -317,25 +312,27 @@ signals:
     void toolBarRefreshDirMinWidget(const QString &uniqueName);
     void changedDirId(const QString &uniqueName, int index);
 
+    //menu
+    void vdesktopShowDirMenu(QPoint mPos, const QString &uniqueName);
+    void vdesktopShowIconMenu(QPoint mPos, const QString &uniqueName);
+    void vdesktopNormalMenu(QPoint mousePos);
+    void hideMenu();
+
+
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
 
 private:
     int iconsPerPage() const { return _col * _row; }
     void printDesktop();
-    //void uninstall(const QString &name);
+
     void expand();
-    //void delPage(int page);
+
     int getNearestIndex(const QRect &rect);
     bool largerThan(const QSize &a, const QSize &b);
     QPoint dragStartPosition;
     IconItem *_inDrag;
-    /*
-    int _marginTop;
-    int _marginBottom;
-    int _marginLeft;
-    int _marginRight;
-    */
+
     MovingDialog *_movingDialog;
     bool _inProgress;
     bool _vertical;
@@ -350,8 +347,6 @@ private:
 
     QMenu *_menu;
 
-//    BsWidget *_bsWidget;
-//    ManageWidget *_manageWidget;
     //app
     commuinication _communi;
     QString appText;
@@ -360,21 +355,18 @@ private:
     int gridWidth;
     int gridHeight;
 
-    //int _vappCount;
-    //int _count;
     bool _dragEvent;
     bool _addAppState;
 
-//    ArrangeWidget *_arrangeWidget;
+
 
     QPropertyAnimation *_animationScreen;
     bool _animationScreenDown;
-//    MoveWidget *_mW;
+
     QDesktopWidget *_desktopWidget;
     QRect _desktopRect;
     QString _url;
 
-    //dirWidget
     bool _iconDragEnter;
 
     DirMinShowWidget *_dirMinShowWidget;
@@ -422,7 +414,6 @@ private:
     int _toolBarClickedPosX;
     int _toolBarIconItemWidth;
 
-//    QList<IconItem*> _tempIconLists;
     QList<TEMP_LIST> _tempLists;
 
     IconItem *_restoreIcon;

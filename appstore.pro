@@ -52,7 +52,6 @@ HEADERS += src/config.h \
            src/hintlineEdit.h \
            src/localapps.h \
            src/logindialog.h \
-           src/movingdialog.h \
            src/panel.h \
            src/switcher.h \
            src/virtualdesktop.h \
@@ -73,7 +72,6 @@ HEADERS += src/config.h \
     src/dirminwidget.h \
     src/paascommuinication.h \
     src/iconitem.h \
-    src/contextmenuwidget.h \
     src/public.h \
     src/nodebutton.h \
     src/toolbarwidget.h \
@@ -81,7 +79,11 @@ HEADERS += src/config.h \
     src/qitemmanager.h \
     src/runapp.h \
     src/struct.h \
-    src/idesktopsettings.h
+    src/idesktopsettings.h \
+    src/rotatewarnningitem.h \
+    src/mask.h \
+    src/movingdialog.h \
+    src/contextmenuwidget.h
 
 
 win32 {
@@ -109,7 +111,6 @@ SOURCES += src/config.cpp \
            src/hintlineEdit.cpp \
            src/localapps.cpp \
            src/logindialog.cpp \
-           src/movingdialog.cpp \
            src/panel.cpp \
            src/switcher.cpp \
            src/virtualdesktop.cpp \
@@ -121,7 +122,6 @@ SOURCES += src/config.cpp \
     src/qtipaddressedit/qipaddressedit.cpp \
     src/qtipaddressedit/qipaddressedititem.cpp \
     src/main.cpp \
-    src/commuinication.cpp \
     src/vacwidget.cpp \
     src/skinwidget.cpp \
     src/dirwidget.cpp \
@@ -129,13 +129,17 @@ SOURCES += src/config.cpp \
     src/dirminwidget.cpp \
     src/paascommuinication.cpp \
     src/iconitem.cpp \
-    src/contextmenuwidget.cpp \
     src/nodebutton.cpp \
     src/toolbarwidget.cpp \
     src/dustbin.cpp \
     src/qitemmanager.cpp \
     src/runapp.cpp \
-    src/idesktopsettings.cpp
+    src/idesktopsettings.cpp \
+    src/rotatewarnningitem.cpp \
+    src/contextmenuwidget.cpp \
+    src/mask.cpp \
+    src/commuinication.cpp \
+    src/movingdialog.cpp
 
 
 FORMS +=

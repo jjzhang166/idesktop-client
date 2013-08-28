@@ -90,6 +90,8 @@ public:
     QString getAppImage(QString appPath);
     QString getUninstExec(QString display);
 
+    QString uploadJson();
+
 signals:
     void appAdded(QString name, QString icon, QString url, int type, int i, const QString &uniqueName);
     void appRemoved(const QString &uniqueName);

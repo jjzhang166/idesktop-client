@@ -21,17 +21,19 @@ public:
 
     enum menu_type
     {
-        showIcon = 0, create, iconMenu, normal, dustbinMenu
+        showIcon = 0, create, iconMenu, normal, dustbinMenu, dirMenu
     };
 
     explicit MenuWidget(const MenuWidget::menu_type &type = MenuWidget::normal,
                         QWidget *parent = 0);
     ~MenuWidget();
 
+    MenuButton *_runBtn;
     MenuButton *_openBtn;
     MenuButton *_delBtn;
     MenuButton *_restoreBtn;
     MenuButton *_renameBtn;
+    MenuButton *_clearBtn;
 
 signals:
     //normal
@@ -58,6 +60,10 @@ signals:
     //dustbin
     void restore();
 
+    //dir
+    void open();
+    void clear();
+
     //miya add
     void hideDesktop();
     void addDesktopLink();
@@ -69,6 +75,7 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event);
 
 private:
     int _type;

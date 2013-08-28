@@ -3,6 +3,10 @@
 #include <QBrush>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
+#include <QFileInfo>
+#include <QDir>
+#include <QtDebug>
+#include <QCoreApplication>
 
 #include "skinwidget.h"
 
@@ -76,7 +80,7 @@ void SkinShowWidget::scrollBarValueChanged(int val)
 
     _animation->setDuration(10);
     _animation->setStartValue(QRect(15, _pixWidget->pos().y(), _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
-        _animation->setEndValue(QRect(15, -1 * (_newPagePos * _pixWidget->pageSize().height()) + 25, _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
+    _animation->setEndValue(QRect(15, -1 * (_newPagePos * _pixWidget->pageSize().height()) + 25, _pixWidget->pageSize().width(), _pixWidget->pageSize().height()));
 
     _animation->start();
 }
@@ -113,6 +117,11 @@ void SkinShowWidget::paintEvent(QPaintEvent *event)
 
 
     QWidget::paintEvent(event);
+}
+
+void SkinShowWidget::initIconItem()
+{
+    _pixWidget->initIconItem();
 }
 
 //
@@ -155,12 +164,17 @@ void PixItem::paintEvent(QPaintEvent *event)
 
 void PixItem::setPixmap(const QString &icon)
 {
-    _pixText = icon;
-    _pixmap.load(_pixText);
+    QString iconPath = icon;
+    iconPath.replace("tempImages", "wallpager");
+    iconPath.replace("png", "jpg");
+    _pixText = iconPath;
+
+    _pixmap.load(icon);
 }
 
 void PixItem::mousePressEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
 
     emit mouseClicked(_pixText);
 
@@ -270,10 +284,10 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
 
-    for (int i = 0; i < ICONNUM; i++) {
-        addIcon( QString(":/images/wallpager/wp_%1.jpg").arg(i),
-                -1, -1);
-    }
+//    for (int i = 0; i < ICONNUM; i++) {
+//        addIcon( QString(":/images/wallpager/wp_%1.jpg").arg(i),
+//                -1, -1);
+//    }
 }
 
 PixWidget::~PixWidget()
@@ -313,9 +327,12 @@ int PixWidget::addIcon(const QString &iconPath, \
     }
 
     QSqlQuery query = QSqlDatabase::database("local").exec("select wallpaper from wallpapers where id=1;");
-    query.next();
-    _iconPath = query.value(0).toString();
-    if (_iconPath == iconPath)
+    query.next();   //    _iconPath = query.value(0).toString();
+    QFileInfo dataIconInfo(query.value(0).toString());
+
+    QFileInfo iconPathInfo(iconPath);
+
+    if (dataIconInfo.baseName() == iconPathInfo.baseName())
     {
         icon->setPenColor(true);
     }
@@ -349,9 +366,43 @@ void PixWidget::itemClicked(const QString &pixText)
             if (_iconTable[i][j]->getBgPix() == query.value(0).toString())
             {
                 _iconTable[i][j]->setPenColor(false);
+                break;
             }
         }
     }
 
     emit setBgPixmap(pixText);
+}
+
+void PixWidget::initIconItem()
+{
+
+    QString path = QCoreApplication::applicationDirPath();
+    path.replace(QString("/"), QString("\\"));
+    path += "\\images";
+
+    QFileInfo dirInfo(path + "\\tempImages");
+    if (!dirInfo.exists() || !dirInfo.isDir())
+    {
+        QDir appDir(".");
+
+        if(appDir.mkdir(path + "\\tempImages"))
+        {
+            qDebug() << "Create tempImages Succeed!";
+        }
+        else
+        {
+            qDebug() << "Create tempImages Failed!";
+        }
+    }
+    for (int i = 0; i < ICONNUM; i++) {
+
+        QPixmap tempicon = QPixmap(QString(path + "\\wallpager\\wp_%1.jpg").arg(i))
+                           .scaled(gridWidth - SPACING - 4, gridHeight - SPACING - 4
+                           , Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        tempicon.save(path + QString("\\tempImages\\wp_%1.png").arg(i), "PNG", -1);
+
+        addIcon( path + QString("\\tempImages\\wp_%1.png").arg(i),
+                -1, -1);
+    }
 }

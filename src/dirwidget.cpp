@@ -144,6 +144,10 @@ DirShowWidget::DirShowWidget(int id, QSize pageSize, QWidget *parent)
             , this, SLOT(setClearBtnEnabled(bool)));
     connect(_dirWidget, SIGNAL(dustbinRestore(IconItem*))
             , this, SIGNAL(dustbinRestore(IconItem*)));
+    connect(_dirWidget, SIGNAL(iconTovDesktop(const QString &))
+            , this, SIGNAL(iconTovDesktop(const QString &)));
+    connect(_dirWidget, SIGNAL(dushbinDirWidgetRefresh(int))
+            , this, SIGNAL(dushbinDirWidgetRefresh(int)));
 
 }
 
@@ -200,6 +204,11 @@ void DirShowWidget::showClearBtn()
 void DirShowWidget::removeIcon(const QString &uniqueName)
 {
     _dirWidget->removeIcon(uniqueName);
+}
+
+void DirShowWidget::delIcon(const QString &uniqueName)
+{
+    _dirWidget->delIcon(uniqueName);
 }
 
 void DirShowWidget::scrollBarValueChanged(int val)
@@ -361,6 +370,11 @@ void DirShowWidget::clearAllIcon()
     _dirWidget->clearAllIcon();
 }
 
+void DirShowWidget::clearDirIcon()
+{
+    _dirWidget->clearDirIcon();
+}
+
 void DirShowWidget::getFirstIconItem()
 {
     _dirWidget->getFirstIconItem();
@@ -377,6 +391,11 @@ int DirShowWidget::getDustBinNewHeight()
     return _height;
 }
 
+void DirShowWidget::dushbinRefreshDirMinWidget(const QString &uniqueName)
+{
+    _dirWidget->dushbinRefreshDirMinWidget(uniqueName);
+}
+
 //
 DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
     : QWidget(parent)
@@ -387,8 +406,8 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
     , _dragDown(false)
     , _dragUp(false)
     , _id(id)
-    , _iconMenu(NULL)
-    , _dustbinMenu(NULL)
+//    , _iconMenu(NULL)
+//    , _dustbinMenu(NULL)
     , _currentIconItem(NULL)
 {
     _iconSize = IDesktopSettings::instance()->iconSize();
@@ -416,10 +435,12 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
         }
     }
 
-    for (int i = 0; i < _iconNum; i++)   //_local->count()
-    {
-        _count = i / _iconsPerPage + 1;
-    }
+//    for (int i = 0; i < _iconNum; i++)   //_local->count()
+//    {
+//        _count = i / _iconsPerPage + 1;
+//    }
+
+    _count = (_iconNum - 1) / _iconsPerPage + 1;
 
     _iconNum = 0;
 
@@ -461,7 +482,8 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
 
-    initIconItem();
+    if (_id != 1000)
+        initIconItem();
 
     if (_id == 1000)
     {
@@ -521,23 +543,40 @@ int DirWidget::addIcon(const QString &text,
     icon->setIconSize(_iconSize);
     icon->setUniqueName(uniqueName);
     icon->setText(text);
-    icon->setIconClass(type);
     icon->setTimeLine(false);
     icon->setPropertyAnimation(true);
-    icon->setRunAction(true);
-    icon->setDelAction(true);
+    icon->setType(type);
+
+    if (_id == 1000)
+    {
+        if(type == 3)   //dirIcon
+        {
+            icon->addMinWidget(_iconSize);
+        }
+
+        icon->setDragEventBool(false);
+        icon->setDoubleClickBool(false);
+    }
+    else
+    {
+        icon->setDragEventBool(true);
+        icon->setDoubleClickBool(true);
+    }
+
+    icon->setIconClass(type);
+    icon->setEnterEventBool(false);
+    icon->setLeaveEventBool(false);
+    icon->setRunAction(false);
+    icon->setDelAction(false);
     icon->setClosePixBool(false);
     icon->setSelectPixBool(false);
     icon->setEqualIcon(false);
-    icon->setDoubleClickBool(true);
     icon->setContextMenuBool(true);
     icon->setTrembleBool(false);
-    icon->setDragEventBool(true);
-    icon->setEnterEventBool(false);
-    icon->setLeaveEventBool(false);
 
     if (page == -1) {
-        for (int i = 0; i < _count; i++) {
+        for (int i = 0; i < _count; i++)
+        {
             if (_nextIdx[i] < _row * _col) {
                 page = i;
                 index = _nextIdx[i];
@@ -582,22 +621,44 @@ int DirWidget::addIcon(const QString &text,
         }
     }
 
-
-    icon->setPixmap(iconPath,text);
+    icon->setPixmap(iconPath, text);
     icon->setGeometry(_gridTable[page][index].translated(HSPACING, VSPACING));
     icon->setPage(page);
     icon->setIndex(index);
     icon->setUrl(url);
     icon->setDirId(_id);
-    icon->setId(111);
-    icon->setType(type);
+//    icon->setId(111);
+    if (type == 3)
+    {
+        for (int i = 0; i < _local->count(); i++)
+        {
+            if (_local->at(i)->hidden())
+                continue;
+
+            if (_local->at(i)->uniqueName() == uniqueName)
+            {
+                icon->setDirMinItemId(_local->at(i)->id().toInt());
+                emit dushbinDirWidgetRefresh(_local->at(i)->id().toInt());
+                break;
+            }
+        }
+    }
+    else
+    {
+        icon->setId(111);
+    }
+
     _iconDict.insert(uniqueName, icon);
     _iconTable[page][index] = icon;
     _nextIdx[page]++;
     icon->show();
+    if (type == 3)
+    {
+        dushbinRefreshDirMinWidget(uniqueName);
+    }
 
     _iconNum ++;
-   connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
+    connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
     connect(icon, SIGNAL(showContextMenu(bool, QPoint, QPoint, IconItem *))
             , this, SLOT(showIconContextMenu(bool, QPoint, QPoint,IconItem *)));
     connect(icon, SIGNAL(iconItemNameChanged(const QString &, const QString &))
@@ -683,6 +744,7 @@ void DirWidget::delPage(int page)
 
 void DirWidget::delIcon(const QString &_uniqueName)
 {
+    qDebug() << _uniqueName;
     if (!_iconDict.value(_uniqueName))
         return;
 
@@ -705,6 +767,7 @@ void DirWidget::removeIcon(const QString &_uniqueName)
 
     _iconDict.take(_uniqueName);
 
+    _iconTable[p][s]->deleteLater();
     _iconTable[p][s] = NULL;
 
     moveBackIcons(p, s);
@@ -849,6 +912,8 @@ void DirWidget::movetoFirst()
 
 void DirWidget::reloadApplist(QSize size)
 {
+    Q_UNUSED(size);
+
     _count = 1;
 
     changeSpacing();
@@ -1053,6 +1118,7 @@ void DirWidget::contextMenuEvent(QContextMenuEvent *event)
 }
 void DirWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
+    Q_UNUSED(event);
 
     if (!_inDrag)
         return;
@@ -1136,6 +1202,7 @@ void DirWidget::mousePressEvent(QMouseEvent *event)
         _iconMenu->setVisible(false);
     else
         _dustbinMenu->setVisible(false);
+    emit hideMenu();
 
     event->accept();
 
@@ -1145,7 +1212,7 @@ void DirWidget::mousePressEvent(QMouseEvent *event)
 
 void DirWidget::mouseMoveEvent(QMouseEvent *event)
 {
-
+    Q_UNUSED(event);
 }
 
 void DirWidget::mouseReleaseEvent(QMouseEvent *)
@@ -1186,6 +1253,7 @@ void DirWidget::iconMenuRunClicked()
         _iconMenu->setVisible(false);
     else
         _dustbinMenu->setVisible(false);
+    emit hideMenu();
 
     runApp(_currentUniqueName);
 
@@ -1241,6 +1309,9 @@ void DirWidget::clearAllIcon()
     if (_clearNames.count() != 0)
         _clearNames.clear();
 
+//    if(_iconInDirs.count() != 0)
+//        _iconInDirs.clear();
+
     for (int i = 0; i < _local->count(); i++)
     {
         if (_local->at(i)->hidden())
@@ -1248,14 +1319,69 @@ void DirWidget::clearAllIcon()
 
         if (_local->at(i)->dirId() == 1000)
         {
+//            if (_local->at(i)->type().toInt() == 3)
+//            {
+//                for (int j = 0; j < _local->count(); j++)
+//                {
+//                    if (_local->at(j)->hidden())
+//                        continue;
+//                    if (_local->at(j)->type().toInt() == 3)
+//                        continue;
+
+//                    if (_local->at(i)->id().toInt() == _local->at(j)->dirId())
+//                    {
+//                        _iconInDirs.append(_local->at(j)->uniqueName());
+//                    }
+//                }
+//            }
+            _clearNames.append(_local->at(i)->uniqueName());
+        }
+    }
+
+//    for (int i = _iconInDirs.count(); i > 0; i--)
+//    {
+//        LocalAppList::getList()->delApp(_iconInDirs.at(i - 1));
+////        emit dirWidgetDelIcon(_id , _iconInDirs.at(i - 1));
+//    }
+
+
+    for (int i = _clearNames.count(); i > 0; i--)
+    {
+        LocalAppList::getList()->delApp(_clearNames.at(i - 1));
+        emit dirWidgetDelIcon(_id , _clearNames.at(i - 1));
+    }
+//    _iconInDirs.clear();
+    _clearNames.clear();
+}
+
+void DirWidget::clearDirIcon()
+{
+    if (_clearNames.count() != 0)
+        _clearNames.clear();
+
+    for (int i = 0; i < _local->count(); i++)
+    {
+        if (_local->at(i)->hidden())
+            continue;
+
+        if (_local->at(i)->dirId() == _id)
+        {
             _clearNames.append(_local->at(i)->uniqueName());
         }
     }
 
     for (int i = _clearNames.count(); i > 0; i--)
     {
-        LocalAppList::getList()->delApp(_clearNames.at(i - 1));
-        emit dirWidgetDelIcon(_id , _clearNames.at(i - 1));
+//        LocalAppList::getList()->delApp(_clearNames.at(i - 1));
+//        emit dirWidgetDelIcon(_id , _clearNames.at(i - 1));
+        delIcon(_clearNames.at(i - 1));
+    }
+
+    for (int i = 0; i < _clearNames.count(); i++)
+    {
+//        LocalAppList::getList()->delApp(_clearNames.at(i - 1));
+//        emit dirWidgetDelIcon(_id , _clearNames.at(i - 1));
+        emit iconTovDesktop(_clearNames.at(i));
     }
 
     _clearNames.clear();
@@ -1464,5 +1590,13 @@ void DirWidget::setId(int id)
                 _iconDict.value(_local->at(i)->uniqueName())->setDirId(_id);
             }
         }
+    }
+}
+
+void DirWidget::dushbinRefreshDirMinWidget(const QString &uniqueName)
+{
+    if (_iconDict.value(uniqueName))
+    {
+        _iconDict.value(uniqueName)->refreshDirMinWidgetIcon();
     }
 }

@@ -361,3 +361,9 @@ void RunApp::runServerApp()
         return;
     }
 }
+
+void RunApp::quit()
+{
+    m_dllCloseClass();
+}
+

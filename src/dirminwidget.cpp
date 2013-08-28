@@ -88,6 +88,8 @@ void IconMinItem::setIndex(int index)
 }
 void IconMinItem::setHidden(bool hide)
 {
+    Q_UNUSED(hide);
+
 //    _app->setHidden(hide);
 }
 
@@ -551,7 +553,6 @@ void DirMinWidget::refresh()
                 , dirWidget_FirstLists.at(i).url
                 , dirWidget_FirstLists.at(i).uniqueName);
     }
-
 }
 
 DirLineEdit::DirLineEdit(QString hint, QWidget *parent)
@@ -976,6 +977,8 @@ void DirMinShowWidget::dragMoveEvent(QDragMoveEvent *event)
 
 void DirMinShowWidget::dragLeaveEvent(QDragLeaveEvent *event)
 {
+    Q_UNUSED(event);
+
     emit iconLeave();
 }
 
@@ -1012,7 +1015,7 @@ void DirMinShowWidget::dropEvent(QDropEvent *event)
 
 const QString & DirMinShowWidget::getDirText()
 {
-    _dirLineEdit->text();
+    return _dirLineEdit->text();
 }
 
 int DirMinShowWidget::getMinIconNum()

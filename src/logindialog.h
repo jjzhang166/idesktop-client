@@ -15,14 +15,11 @@
 
 #include "qtipaddressedit/qipaddressedit.h"
 #include "qtipaddressedit/qipaddressedititem.h"
-//vac
-#include "commuinication.h"
-//paas
-#include "paascommuinication.h"
 
 #define CLOSE_WIDTH 10
 #define CLOSE_HEIGHT 10
 
+extern QString serverip;
 extern QString VacServer;
 extern QString VacPort;
 extern QString VacUser;
@@ -30,12 +27,13 @@ extern QString VacPassword;
 
 extern QString PaasServer;
 
-extern QString xmlPath;
-extern QString iconDirPath;
-extern QString WIN_LOCAL_IconPath;
-extern QString WIN_VAPP_IconPath;
-extern QString WIN_PAAS_IconPath;
-extern QString WIN_TtempPath;
+//extern QString xmlPath;
+//extern QString iconDirPath;
+//extern QString WIN_LOCAL_IconPath;
+//extern QString WIN_VAPP_IconPath;
+//extern QString WIN_PAAS_IconPath;
+//extern QString WIN_TtempPath;
+//extern QString iniPath;
 
 extern QString USERNAME;
 class HintLineEdit;
@@ -48,24 +46,19 @@ class LoginDialog : public QDialog
     Q_OBJECT
 public:
     LoginDialog(QWidget *parent);
-    ~LoginDialog() { delete _tray;}
+    ~LoginDialog();
+
 //    void paintEvent(QPaintEvent *event);
 //    void mousePressEvent(QMouseEvent *event);
 //    void mouseReleaseEvent(QMouseEvent *event);
 //    void mouseMoveEvent(QMouseEvent *event);
 
-    QString GetSystemInfo();
     void debugPrintVariant (QVariant const& v);
 
     void updateVacServer();
 
     QAction *_dHideAction;
     QAction *_dShowAction;
-
-    void getVac();
-    void getPaas(bool isLogin);
-
-    void setIcon(const QString &dirPath, const QString &iconPath);
 
 signals:
     void dQuit();
@@ -81,13 +74,8 @@ signals:
 public slots:
     void auth();
     void onLoginFinished(QNetworkReply *reply);
-	//vac
-//    void heartbeat();
-    void onDone();
-    void dialogAccepted();
 
-    //paas
-    void onPaasDone();
+    void dialogAccepted();
 
     void minimized();
     void normal();
@@ -98,6 +86,8 @@ public slots:
     void settingSlot();
     void saveSettingSlot();
     void returnSlot();
+
+//    void jsonDownloadFinished(QNetworkReply *reply);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -127,15 +117,6 @@ private:
     bool _titlePressed;
     bool _authSuccess;
     bool _finished;
-	//ivapp
-    commuinication *_commui;
-//    int _retryTimes;
-//    QTimer *heartbeat_timer;  //heart beat.
-//    bool _Isheartbeat;    // check if send the heart beat packet
-    bool _vacfinished;
-    //paas
-    PaasCommuinication *_paasCommui;
-    bool _paasFinished;
 
     QSystemTrayIcon *_tray;
     QAction *_lShowAction;
@@ -157,7 +138,7 @@ private:
     QTransform _t;
     qreal _finalyrot;
     // app ini
-    QString iniPath;
+//    QString iniPath;
 
 
 //    void setIcon(const QString &dirPath, const QString &iconPath);
@@ -187,5 +168,9 @@ private:
     QString _tempVacPort;
 
     DynamicButton *configurationButton;
+    DynamicButton *minButton;
+    DynamicButton *closeButton;
     IDesktopSettings *_settings;
+
+//    QNetworkAccessManager *_namJson;
 };

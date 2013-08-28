@@ -70,35 +70,35 @@ void Config::initiate()
 void Config::setServerIp()
 {
 
-    /****************************************************************/
-    //wangyaoli
+//    /****************************************************************/
+//    //wangyaoli
 
-    printf("server ip: %s\n", serverip.toAscii().data());
-    QFile f1(get("Profile"));
-    f1.open(QIODevice::WriteOnly | QIODevice::Text);
-    QTextStream txtOutput(&f1);
-    //txtOutput << "http://" <<serverip << "/"<<endl;
-    txtOutput << serverip <<endl;
-    f1.close();
+//    printf("server ip: %s\n", serverip.toAscii().data());
+//    QFile f1(get("Profile"));
+//    f1.open(QIODevice::WriteOnly | QIODevice::Text);
+//    QTextStream txtOutput(&f1);
+//    //txtOutput << "http://" <<serverip << "/"<<endl;
+//    txtOutput << serverip <<endl;
+//    f1.close();
 
-    /****************************************************************/
+//    /****************************************************************/
 
-    set("Server", "http://" + serverip);
-    qDebug() << "setServerIP : "<<get("Server");
+//    set("Server", "http://" + serverip);
+//    qDebug() << "setServerIP : "<<get("Server");
 }
 
 void Config::getServerIp()
 {
-    QFile fip(get("Profile"));
-    fip.open(QIODevice::ReadOnly);
-    QTextStream tsip(&fip);
-    serverip = tsip.readLine();
-    if (false == serverip.isEmpty())
-    {
-      set("Server", "http://" + serverip);
-      qDebug() <<"getServerIp() : "<<get("Server");
-    }
-    fip.close();
+//    QFile fip(get("Profile"));
+//    fip.open(QIODevice::ReadOnly);
+//    QTextStream tsip(&fip);
+//    serverip = tsip.readLine();
+//    if (false == serverip.isEmpty())
+//    {
+//      set("Server", "http://" + serverip);
+//      qDebug() <<"getServerIp() : "<<get("Server");
+//    }
+//    fip.close();
 }
 
 QString Config::get(QString key)
