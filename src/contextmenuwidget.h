@@ -35,6 +35,8 @@ public:
     MenuButton *_renameBtn;
     MenuButton *_clearBtn;
 
+    QSize getSize();
+
 signals:
     //normal
     void menuChanged(int value);
@@ -99,6 +101,9 @@ private:
 //    MenuButton *_openBtn;
 //    MenuButton *_delBtn;
 //    MenuButton *_renameBtn;
+
+    int _width;
+    int _height;
 
 //miya add
 public:

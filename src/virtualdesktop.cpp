@@ -96,8 +96,8 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     _height = _pageSize.height();
     changeSpacing();
 
-    _col = (_width - ICONHSPACING) / gridWidth;
-    _row = (_height - ICONVSPACING - (SMALLSIZE.height() + VSPACING + BOTTOMSPACING)) / gridHeight;
+    _col = (_width - _iconHSpacing) / gridWidth;
+    _row = (_height - _iconVSpacing - (SMALLSIZE.height() + VSPACING + BOTTOMSPACING)) / gridHeight;
 
     _current  = 0;
 
@@ -2128,7 +2128,7 @@ void VirtualDesktop::dirMovingFinished()
 void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, const QString &url, int type, const QString &uniqueName)
 {
     _url = url;
-    qDebug() << _url;
+//    qDebug() << _url;
 
     if (localIcon == type)
     {
@@ -2444,7 +2444,7 @@ void VirtualDesktop::reloadApplist(QSize size)
     changeSpacing();
 
     _col = (_width - _iconHSpacing) / gridWidth;
-    _row = (_height - _iconVSpacing - (LARGESIZE.height() + VSPACING + BOTTOMSPACING)) / gridHeight;
+    _row = (_height - _iconVSpacing - (SMALLSIZE.height() + VSPACING + BOTTOMSPACING)) / gridHeight;
 
     _current  = 0;
 
@@ -2558,6 +2558,7 @@ void VirtualDesktop::changeSpacing()
 void VirtualDesktop::showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, IconItem *iconItem)
 {
     Q_UNUSED(pos);
+    Q_UNUSED(visiable);
 
     if (!iconItem)
         return;
@@ -3020,7 +3021,7 @@ void VirtualDesktop::toolBarOpenDir(int id, int posX, int width)
     emit openMinWidget(mx, my, mw, mh, _distance);
 
 
-    qDebug() << "before" ;
+//    qDebug() << "before" ;
 
     if(id == 1000)
     {
@@ -3123,6 +3124,10 @@ void VirtualDesktop::addShowWidget(const QString &text, int i, const QString &un
             , this, SLOT(refreshDirMinWidget(int)));
     connect(_dirShowWidget, SIGNAL(iconTovDesktop(const QString &))
             , this, SLOT(iconTovDesktop(const QString &)));
+    connect(_dirShowWidget, SIGNAL(showIconMenu(QPoint, const QString &))
+            , this, SIGNAL(vdesktopShowIconMenu(QPoint, const QString &)));
+    connect(_dirShowWidget, SIGNAL(hideMenu())
+            , this, SIGNAL(hideMenu()));
 
     _dirShowWidget->getFirstIconItem();
 }
@@ -3145,6 +3150,10 @@ void VirtualDesktop::toolBarAddDirShowWidget()
             , this, SLOT(dustbinRestore(IconItem*)));
     connect(_dustbinDirShowWidget, SIGNAL(dushbinDirWidgetRefresh(int))
             , this, SLOT(dirWidgetRefresh(int)));
+    connect(_dustbinDirShowWidget, SIGNAL(showDustbinMenu(QPoint, IconItem *))
+            , this, SIGNAL(vdesktopShowDustbinMenu(QPoint, IconItem *)));
+    connect(_dustbinDirShowWidget, SIGNAL(hideMenu())
+            , this, SIGNAL(hideMenu()));
 
     _dustbinDirShowWidget->initIconItem();
 }
@@ -3284,29 +3293,10 @@ void VirtualDesktop::iconTovDesktop(const QString &uniqueName)
 
 void VirtualDesktop::tBarIconMenuDelClicked(int index, const QString &uniqueName)
 {
+    Q_UNUSED(uniqueName);
+
     if(QItemManager::getManager()->getSelectIconItemText().size() == 0)
     {
-        QList<QString> iconsInDirList;
-        for (int i = 0; i < _local->count(); i++)
-        {
-            if (_local->at(i)->hidden())
-                continue;
-
-            if (_local->at(i)->dirId() == index)
-            {
-                iconsInDirList.append(_local->at(i)->uniqueName());
-            }
-        }
-
-        for (int i = iconsInDirList.count(); i > 0; i--)
-        {
-            LocalAppList::getList()->delApp(iconsInDirList.at(i - 1));
-            emit desktopDelIcon(iconsInDirList.at(i - 1));
-        }
-        iconsInDirList.clear();
-
-        LocalAppList::getList()->delApp(uniqueName);
-
         QList<DirShowWidget*>::iterator iter = _dirShowWidgetList.begin() + index;
         for (int j = 0; j < _dirShowWidgetList.count(); j++)
         {
@@ -3355,5 +3345,18 @@ void VirtualDesktop::tBarIconMenuDelClicked(int index, const QString &uniqueName
             index++;
         }
     }
+}
+
+void VirtualDesktop::dustbinMenuRestoreIcon(IconItem *iconItem)
+{
+    if (!iconItem)
+        return;
+
+    _dustbinDirShowWidget->restoreIcon(iconItem);
+}
+
+void VirtualDesktop::dustbinMenuDelIcon(const QString &uniqueName)
+{
+    _dustbinDirShowWidget->delIcon(uniqueName);
 }
 

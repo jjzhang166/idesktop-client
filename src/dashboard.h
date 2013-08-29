@@ -118,6 +118,7 @@ public slots:
     void refreshMenu();
     void showDirMenu(QPoint mPos, const QString &uniqueName);
     void showIconMenu(QPoint mPos, const QString &uniqueName);
+    void vdesktopShowDustbinMenu(QPoint mPos, IconItem *iconItem);
     void showNormalMenu(QPoint mousePos);
     void menuDirOpen();
     void menuDirDel();
@@ -125,7 +126,8 @@ public slots:
     void menuIconRun();
     void menuIconDel();
 
-
+    void dustbinMenuRestoreClicked();
+    void dustbinMenuDelClicked();
 protected:
     void closeEvent(QCloseEvent *event);
     void resizeEvent(QResizeEvent * event);
@@ -228,6 +230,28 @@ private:
     MenuWidget *_iconMenu;
     MenuWidget *_dustbinMenu;
     MenuWidget *_dirMenu;
+
+    QSize _normalMenuSize;
+    QSize _showIconMenuSize;
+    QSize _createMenuSize;
+    QSize _iconMenuSize;
+    QSize _dirMenuSize;
+    QSize _dustbinMenuSize;
+
+    int _normalMenuX;
+    int _normalMenuY;
+    int _showIconMenuX;
+    int _showIconMenuY;
+    int _createMenuX;
+    int _createMenuY;
+    int _iconMenuX;
+    int _iconMenuY;
+    int _dirMenuX;
+    int _dirMenuY;
+    int _dustbinMenuX;
+    int _dustbinMenuY;
+
+    IconItem *_dustbinSelectIconItem;
 
     QPoint _mousePos;
 

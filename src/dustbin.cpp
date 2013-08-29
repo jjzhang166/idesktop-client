@@ -6,6 +6,10 @@
 #define MEDIUMSIZE QSize(119, 119)      //48*48
 #define SMALLSIZE QSize(103, 103)       //32*32
 
+#define ICONSSIZE QSize(49, 52)       //32*32
+#define DUSTBINHSPACING (35 - 32 + 27)
+#define DUSTBINVSPACING (35 - 32 + 22)
+
 Dustbin::Dustbin(QWidget *parent)
     : QWidget(parent)
 {
@@ -137,11 +141,15 @@ void Dustbin::mouseMoveEvent(QMouseEvent *event)
     if (_isMousePress)
         return;
  */
-   if(_skipMouseMove)
-        return;
-    _isMouseMove = true;
+    if (QRect(DUSTBINHSPACING, DUSTBINVSPACING, ICONSSIZE.width(), ICONSSIZE.height()   //the same as dirMWidget
+              ).contains(event->pos()))
+    {
+       if(_skipMouseMove)
+            return;
+        _isMouseMove = true;
 
-    event->ignore();
+        event->ignore();
+    }
 }
 
 void Dustbin::mousePressEvent(QMouseEvent *event)
@@ -149,9 +157,12 @@ void Dustbin::mousePressEvent(QMouseEvent *event)
 //    QWidget::mousePressEvent(event);
     if (event->button() == Qt::LeftButton)
     {
-        _isMousePress = true;
-        QTimer::singleShot(300, this, SLOT(mouseStatus()));
-        _skipMouseMove=false;
+        if (QRect(DUSTBINHSPACING, DUSTBINVSPACING, ICONSSIZE.width(), ICONSSIZE.height()).contains(event->pos())) //the same as dirMWidget
+        {
+            _isMousePress = true;
+            QTimer::singleShot(300, this, SLOT(mouseStatus()));
+            _skipMouseMove=false;
+        }
     }
 
 }

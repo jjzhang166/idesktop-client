@@ -106,7 +106,7 @@ toolBarWidget::toolBarWidget(QSize pageSize, QWidget *parent)
     for (int i = 0; i < _count; i++)
         _nextIdx.insert(i, 0);
 
-    qDebug() << "toolBarWidget()-->MaxNum" << _MaxNum;
+//    qDebug() << "toolBarWidget()-->MaxNum" << _MaxNum;
 
     setAcceptDrops(true);
     setAutoFillBackground(true);
@@ -186,7 +186,7 @@ void toolBarWidget::iconDragMove()
 {
     _iconDragEnter = true;
 
-        qDebug() << "DirWidget*************************iconDragMove";
+//        qDebug() << "DirWidget*************************iconDragMove";
 //    _dragEnterMinWidget = true;
 }
 
@@ -194,7 +194,7 @@ void toolBarWidget::iconDragLeave()
 {
     _iconDragEnter = false;
 //    _dragEnterMinWidget = false;
-        qDebug() << "DirWidget*************************iconDragLeave";
+//        qDebug() << "DirWidget*************************iconDragLeave";
 }
 
 void toolBarWidget::iconDragDrop(int id, const QString &text,
@@ -388,10 +388,13 @@ void toolBarWidget::dragEnterEvent(QDragEnterEvent *event)
         {
             for (int i = 0; i <_dirMinList.count(); i++)
             {
-                if (_iconDict.value(_dirMinList.at(i))->id() == 1000)
-                    _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(false);
-                else
-                    _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(false);
+                if (_iconDict.value(_dirMinList.at(i)))
+                {
+                    if (_iconDict.value(_dirMinList.at(i))->type() == dustbinIcon)
+                        _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(false);
+                    else
+                        _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(false);
+                }
             }
         }
     }
@@ -489,7 +492,7 @@ void toolBarWidget::dragLeaveEvent(QDragLeaveEvent *event)
 
     _iconDragEnter = false;
 
-    qDebug() << "toolBarWidget*********************************LeaveEvent";
+//    qDebug() << "toolBarWidget*********************************LeaveEvent";
     _itemHeld = false;
 
 #if 1
@@ -508,7 +511,7 @@ void toolBarWidget::dragLeaveEvent(QDragLeaveEvent *event)
 
         _dragItem = NULL;
 
-        qDebug() << "toolBarWidget-------------------------->LeaveEvent";
+//        qDebug() << "toolBarWidget-------------------------->LeaveEvent";
 
         _isOtherWidgetObject = false;
     }
@@ -567,10 +570,13 @@ void toolBarWidget::dropEvent(QDropEvent *event)
 
         for (int i = 0; i <_dirMinList.count(); i++)
         {
-            if (_iconDict.value(_dirMinList.at(i))->id() == 1000)
-                _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(true);
-            else
-                _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
+            if (_iconDict.value(_dirMinList.at(i)))
+            {
+                if (_iconDict.value(_dirMinList.at(i))->id() == 1000)
+                    _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(true);
+                else
+                    _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
+            }
         }
 
         _dragItem = NULL;

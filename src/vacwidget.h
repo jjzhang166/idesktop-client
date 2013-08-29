@@ -47,6 +47,8 @@ public:
 
     void initIconItem();
 
+    void movetoFirst();
+
 public slots:
 
     void largeIcon();
@@ -102,6 +104,8 @@ public:
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
     void initIconItem();
+
+    void  movetoFirst();
 
 public slots:
     void scrollBarValueChanged(int val);

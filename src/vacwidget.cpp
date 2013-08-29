@@ -95,8 +95,8 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
     _vacScrollBarWidget->move(13,50);
     _vacScrollBarWidget->setVisible(true);
 
-//    _closePix.load(":images/widget_close_normal.png");
-//    _closeHoverPix.load(":images/widget_close_hover.png");
+    _closePix.load(":images/widget_close_normal.png");
+    _closeHoverPix.load(":images/widget_close_hover.png");
     _closeBtn = new DynamicButton(_closePix, _closeHoverPix, this);
     _closeBtn->setGeometry(_width - 8 -25 - 3, 28, 8, 8);
 
@@ -165,6 +165,11 @@ void VacShowWidget::iconItemNameChanged(const QString &uniqueName, const QString
 void VacShowWidget::initIconItem()
 {
     _vacScrollBarWidget->initIconItem();
+}
+
+void VacShowWidget::movetoFirst()
+{
+    _vacScrollBarWidget->movetoFirst();
 }
 
 VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
@@ -338,6 +343,11 @@ void VacScrollBarWidget::initIconItem()
     _vacWidget->initIconItem();
 }
 
+void VacScrollBarWidget::movetoFirst()
+{
+    _vacWidget->movetoFirst();
+}
+
 //
 VacWidget::VacWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
@@ -415,7 +425,6 @@ int VacWidget::addIcon(QString text,
                        int type,
                        const QString &uniqueName)
 {
-    qDebug() << "---------------->addVACWidgetIcon";
     int expandPageCount;
     int iconNum = _settings->remoteLocalList().count() + _settings->paasList().count() + _settings->vappList().count();
     if (iconNum % _iconsPerPage == 0)
@@ -823,7 +832,7 @@ void VacWidget::refresh(QSize size)
     getPaasIcon();
 
     qDebug()<<" VacWidget reload all.";
-
+    movetoFirst();
     update();
 }
 

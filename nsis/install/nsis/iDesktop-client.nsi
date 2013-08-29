@@ -10,7 +10,7 @@
 ; my header
 !include iDesktopInit.nsh
 !include SharedMacro.nsh
-
+;!include InstSuccess.nsh
 
 ; old header
 !include old\EnvVarUpdate.nsh
@@ -57,8 +57,14 @@ DirText "安装程序将安装 $(^Name) 在下列文件夹。要安装到不同文件夹，单击 [浏览(B)
 ; 安装过程页面
 !insertmacro MUI_PAGE_INSTFILES
 ; 安装完成页面
-!define MUI_FINISHPAGE_RUN "$INSTDIR\${EXE_NAME}.exe"
+!define MUI_FINISHPAGE_RUN
+!define MUI_FINISHPAGE_RUN_FUNCTION RunApplication
 !insertmacro MUI_PAGE_FINISH
+
+
+Function RunApplication
+	execShell open "$DESKTOP\${SETUP_NAME}.lnk"
+FunctionEnd
 
 ; 安装卸载过程页面
 !insertmacro MUI_UNPAGE_INSTFILES
@@ -69,6 +75,9 @@ DirText "安装程序将安装 $(^Name) 在下列文件夹。要安装到不同文件夹，单击 [浏览(B)
 ; 安装预释放文件
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 ; ------ MUI 现代界面定义结束 ------
+
+; *************On Install Success ****************
+;!insertmacro InstSuccess
 
 ; *********************** version info ******************
 VIProductVersion "${PRODUCT_LONGVERSION}"
@@ -189,6 +198,12 @@ SectionEnd
  ******************************/
 
 Section Uninstall
+  SetShellVarContext current
+	RMDir /r "$APPDATA\App Center\Licons\*.*"
+	RMDir /r "$APPDATA\App Center\Picons\*.*"
+	RMDir /r "$APPDATA\App Center\Vicons\*.*"
+	RMDir /r "$APPDATA\App Center\data"
+	RMDir /r "$APPDATA\App Center"
 	SetShellVarContext all
   Delete "$INSTDIR\${SETUP_NAME}.url"
   Delete "$INSTDIR\uninst.exe"

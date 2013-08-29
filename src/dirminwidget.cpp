@@ -1029,21 +1029,29 @@ void DirMinShowWidget::mouseMoveEvent(QMouseEvent *event)
     if (_isMousePress)
         return;
  */
-   if(_skipMouseMove)
-        return;
+    if (QRect(_dirMWidget->pos().x(), _dirMWidget->pos().y(), _dirMWidget->width(), _dirMWidget->height()
+              ).contains(event->pos()))
+    {
+       if(_skipMouseMove)
+            return;
 
-    _isMouseMove = true;
+        _isMouseMove = true;
 
-    event->ignore();
+        event->ignore();
+    }
 }
 
 void DirMinShowWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
+        if (QRect(_dirMWidget->pos().x(), _dirMWidget->pos().y(), _dirMWidget->width(), _dirMWidget->height()
+                  ).contains(event->pos()))
+        {
         _isMousePress = true;
         _skipMouseMove=false;
         QTimer::singleShot(300, this, SLOT(mouseStatus()));
+        }
     }
 
 }
@@ -1051,7 +1059,6 @@ void DirMinShowWidget::mousePressEvent(QMouseEvent *event)
 void DirMinShowWidget::mouseStatus()
 {
 //    _isMousePress = true;
-
     if (_isMouseMove)
     {
         _isMouseMove = false;

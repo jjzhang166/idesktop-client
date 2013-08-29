@@ -74,6 +74,7 @@ public:
     void clearDirIcon();
 
     void dushbinRefreshDirMinWidget(const QString &uniqueName);
+    void restoreIcon(IconItem *iconItem);
 signals:
     void dirWidgetDragLeave(const QString &uniqueName, int dirId);
     void dirWidgetDelIcon(int id, const QString &uniqueName);
@@ -84,6 +85,9 @@ signals:
     //menu
     void iconTovDesktop(const QString &uniqueName);
     void dushbinDirWidgetRefresh(int id);
+    void showIconMenu(QPoint mPos, const QString &uniqueName);
+    void showDustbinMenu(QPoint mPos, IconItem *iconItem);
+    void hideMenu();
 
 public slots:
     void scrollBarValueChanged(int val);
@@ -208,6 +212,7 @@ public:
 
     void clearDirIcon();
     void dushbinRefreshDirMinWidget(const QString &uniqueName);
+    void dustbinMenuRestoreClicked(IconItem *iconItem);
 
 signals:
 
@@ -226,10 +231,12 @@ signals:
     void setClearBtnEnabled(bool enabled);
     void dustbinRestore(IconItem *iconItem);
 
-    void hideMenu();
     //menu
     void iconTovDesktop(const QString &uniqueName);
     void dushbinDirWidgetRefresh(int id);
+    void showIconMenu(QPoint mPos, const QString &uniqueName);
+    void showDustbinMenu(QPoint mPos, IconItem *iconItem);
+    void hideMenu();
 
 public slots:
     void showIconContextMenu(bool visiable, QPoint pos, QPoint mPos, IconItem *iconItem);
@@ -237,7 +244,6 @@ public slots:
     void menuDelClicked();
     void runApp(const QString &uniqueName);
     void delIcon(const QString &uniqueName);
-    void dustbinMenuRestoreClicked();
 
 protected:
 

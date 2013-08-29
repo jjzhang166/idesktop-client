@@ -287,6 +287,9 @@ void MenuWidget::newCreateMenu()
         connect(newButton, SIGNAL(buttonClicked(int)), this, SLOT(createNewFile(int)));
     }
     setFixedSize(ICON_W_NEW, 40 + 19 * _appCount + 2 * _appCount);
+
+    _width = ICON_W_NEW;
+    _height = 40 + 19 * _appCount + 2 * _appCount;
 #endif
 }
 
@@ -315,6 +318,8 @@ void MenuWidget::newCreateMenu()
 MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
     : QWidget(parent)
     , _type(type)
+    , _width(0)
+    , _height(0)
 {
     switch(_type)
     {
@@ -347,6 +352,8 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 
 //        setFixedSize(ICON_W, 115 + 2 * 5 + 20);
         setFixedSize(ICON_W, 77 + 2 * 3 + 20);
+        _width = ICON_W;
+        _height = 77 + 2 * 3 + 20;
 
         connect(_showBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
         connect(_createBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
@@ -372,13 +379,16 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 
         _largeBtn->setGeometry(14, 20, ICON_W, BTN_H);
         _mediumBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
-        _smallBtn->setGeometry(14, 59 + 2 * 2, ICON_W, BTN_H);
+        _smallBtn->setGeometry(14, 58 + 2 * 2, ICON_W, BTN_H);
 
         _largeBtn->setValue(0);
         _mediumBtn->setValue(1);
         _smallBtn->setValue(2);
 
-        setFixedSize(ICON_W, 78 + 2 * 2 + 20);
+        setFixedSize(ICON_W, 77 + 2 * 2 + 20);
+
+        _width = ICON_W;
+        _height = 77 + 2 * 2 + 20;
 
         connect(_largeBtn, SIGNAL(clicked()), this, SLOT(largeBtnClicked()));
         connect(_mediumBtn, SIGNAL(clicked()), this, SLOT(mediumBtnClicked()));
@@ -435,6 +445,9 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 //        setFixedSize(ICON_W, 78 + 2 * 2 + 20);
         setFixedSize(ICON_W, 58 + 2 + 20);
 
+        _width = ICON_W;
+        _height = 58 + 2 + 20;
+
         connect(_runBtn, SIGNAL(clicked()), this, SIGNAL(run()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
  //       connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
@@ -454,6 +467,9 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 
         setFixedSize(ICON_W, 58 + 2 + 20);
 
+        _width = ICON_W;
+        _height = 58 + 2 + 20;
+
         connect(_restoreBtn, SIGNAL(clicked()), this, SIGNAL(restore()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
  //       connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
@@ -469,13 +485,16 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 
         _openBtn->setGeometry(14, 20, ICON_W, BTN_H);
         _clearBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
-        _delBtn->setGeometry(14, 59 + 2 * 2, ICON_W, BTN_H);
+        _delBtn->setGeometry(14, 58 + 2 * 2, ICON_W, BTN_H);
 
         _openBtn->setValue(0);
         _clearBtn->setValue(1);
         _delBtn->setValue(2);
 
-        setFixedSize(ICON_W, 78 + 2 * 2 + 20);
+        setFixedSize(ICON_W, 77 + 2 * 2 + 20);
+
+        _width = ICON_W;
+        _height = 77 + 2 * 2 + 20;
 
         connect(_openBtn, SIGNAL(clicked()), this, SIGNAL(open()));
         connect(_clearBtn, SIGNAL(clicked()), this, SIGNAL(clear()));
@@ -546,6 +565,11 @@ void MenuWidget::smallBtnClicked()
     _mediumBtn->setMenuSelect(false);
     _smallBtn->setMenuSelect(true);
     emit smallIcon();
+}
+
+QSize MenuWidget::getSize()
+{
+    return QSize(_width, _height);
 }
 
 //MenuButton

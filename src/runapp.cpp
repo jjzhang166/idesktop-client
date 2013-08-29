@@ -116,7 +116,7 @@ void RunApp::runApp(const QString &uniqueName)
         QList<PAAS_LIST>& remotePaasList = IDesktopSettings::instance()->remotePaasList();
         for (int i = 0; i < remotePaasList.count(); i++)
         {
-            qDebug() << "\"2_\" + remotePaasList.at(i).name" << "2_" + remotePaasList.at(i).name;
+//            qDebug() << "\"2_\" + remotePaasList.at(i).name" << "2_" + remotePaasList.at(i).name;
             qDebug() << "uniqueName" << uniqueName;
             if ("2_" + remotePaasList.at(i).name == uniqueName)
             {

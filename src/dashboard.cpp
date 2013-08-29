@@ -54,6 +54,7 @@ Dashboard::Dashboard(QWidget *parent)
     , _animationUpFinished(false)
     , _animationDownFinished(false)
     , _minUpward(false)
+    , _dustbinSelectIconItem(NULL)
 {
     _settings = IDesktopSettings::instance();
 
@@ -116,14 +117,14 @@ Dashboard::Dashboard(QWidget *parent)
 
     _switcherLeft = new Switcher(this);
     _switcherLeft->setPixmap(QString(":images/win_normal.png"));
-    _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool | Qt::WindowStaysOnTopHint);
+    _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
     _switcherLeft->setGeometry(_width / 2 - _switcherLeft->width(), 0, _switcherLeft->width(), _switcherLeft->height());
     _switcherLeft->setVisible(false);
     _switcherLeft->activateWindow();
 
     _switcherRight = new Switcher(this);
     _switcherRight->setPixmap(QString(":images/isoft_normal.png"));
-    _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool | Qt::WindowStaysOnTopHint);
+    _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
     _switcherRight->setGeometry(_switcherLeft->pos().x() + _switcherLeft->width(), 0, _switcherRight->width(), _switcherRight->height());
     _switcherRight->setVisible(false);
     _switcherRight->activateWindow();
@@ -195,21 +196,28 @@ Dashboard::Dashboard(QWidget *parent)
 
     _normalMenu = new MenuWidget(MenuWidget::normal, this);
     _normalMenu->setVisible(false);
+    _normalMenuSize = _normalMenu->getSize();
 
     _showIconMenu = new MenuWidget(MenuWidget::showIcon, this);
     _showIconMenu->setVisible(false);
+    _showIconMenuSize = _showIconMenu->getSize();
 
     _createMenu = new MenuWidget(MenuWidget::create, this);
     _createMenu->setVisible(false);
+    _createMenuSize = _createMenu->getSize();
 
     _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
     _iconMenu->setVisible(false);
+    _iconMenuSize = _iconMenu->getSize();
+
 
     _dustbinMenu = new MenuWidget(MenuWidget::dustbinMenu, this);
     _dustbinMenu->setVisible(false);
+    _dustbinMenuSize = _dustbinMenu->getSize();
 
     _dirMenu = new MenuWidget(MenuWidget::dirMenu, this);
     _dirMenu->setVisible(false);
+    _dirMenuSize = _dirMenu->getSize();
 
     _mask = new Mask(_width, _height, this);
     _mask->raise();
@@ -236,6 +244,9 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_dirMenu, SIGNAL(clear()), this, SLOT(menuDirClear()));
     connect(_dirMenu, SIGNAL(del()), this, SLOT(menuDirDel()));
 
+    connect(_dustbinMenu, SIGNAL(restore()), this, SLOT(dustbinMenuRestoreClicked()));
+    connect(_dustbinMenu, SIGNAL(del()), this, SLOT(dustbinMenuDelClicked()));
+
     connect(vdesktop, SIGNAL(vdesktopNormalMenu(QPoint)), this, SLOT(showNormalMenu(QPoint)));
     connect(vdesktop, SIGNAL(hideMenu()), this, SLOT(hideMenuWidget()));
 
@@ -243,6 +254,8 @@ Dashboard::Dashboard(QWidget *parent)
             , this, SLOT(showDirMenu(QPoint, const QString &)));
     connect(vdesktop, SIGNAL(vdesktopShowIconMenu(QPoint, const QString &))
             , this, SLOT(showIconMenu(QPoint, const QString &)));
+    connect(vdesktop, SIGNAL(vdesktopShowDustbinMenu(QPoint, IconItem *))
+            , this, SLOT(vdesktopShowDustbinMenu(QPoint, IconItem *)));
     connect(_toolBarWidget, SIGNAL(tBarWidgetDirMenu(QPoint, const QString &))
             , this, SLOT(showDirMenu(QPoint, const QString &)));
     connect(_toolBarWidget, SIGNAL(tBarWidgetIconMenu(QPoint, const QString &))
@@ -391,6 +404,8 @@ void Dashboard::initIconItem()
     _pageNodes->setVisible(true);
     _switcherLeft->setVisible(true);
     _switcherRight->setVisible(true);
+    _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
+    _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
 }
 
 //page nodes
@@ -502,6 +517,9 @@ void Dashboard::animationFinished()
             panel->show();
             panel->setAutoHide(true);
             panel->animationHide();
+
+            _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
+            _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
         }
 
         _animationUpFinished = false;
@@ -518,6 +536,7 @@ void Dashboard::animationFinished()
 
 void Dashboard::downMove(int x, int y, int w, int h, int distance)
 {
+    hideMenuWidget();
     if (_animationDown->state() == QAbstractAnimation::Running)
     {
         return;
@@ -545,6 +564,7 @@ void Dashboard::downMove(int x, int y, int w, int h, int distance)
 
 void Dashboard::downBackMove(int x, int y, int w, int h, int distance)
 {
+    hideMenuWidget();
     if (_animationDown->state() == QAbstractAnimation::Running)
     {
         return;
@@ -735,18 +755,26 @@ void Dashboard::goPage(int page)
 
 void Dashboard::onShowVacDesktop()
 {
+    hideMenuWidget();
     _skinShowWidget->setVisible(false);
+    if (!_vacShowWidget->isVisible())
+    {
+        _vacShowWidget->movetoFirst();
+    }
     _vacShowWidget->setVisible(!_vacShowWidget->isVisible());
 }
 
 void Dashboard::onShowSkinDesktop()
 {
+    hideMenuWidget();
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(!_skinShowWidget->isVisible());
 }
 
 void Dashboard::getIn()
 {
+    hideMenuWidget();
+
     QPoint start;
     QPoint end;
     if (_animation->state() == QAbstractAnimation::Running) {
@@ -764,6 +792,8 @@ void Dashboard::getIn()
 
 void Dashboard::getOut()
 {
+    hideMenuWidget();
+
     QPoint start;
     QPoint end;
     if (_animation->state() == QAbstractAnimation::Running) {
@@ -781,6 +811,8 @@ void Dashboard::getOut()
 
 void Dashboard::switchBetween()
 {
+    hideMenuWidget();
+
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
 
@@ -819,6 +851,8 @@ void Dashboard::iconActivated(QSystemTrayIcon::ActivationReason)
 
 void Dashboard::quit()
 {
+    hideMenuWidget();
+
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
 
@@ -830,7 +864,19 @@ void Dashboard::quit()
     box.setText("是否确定退出？");
     if (box.exec()) {
 
-        QString quitUrl = Config::get("Server") + ":8080/idesktop/logout.action";
+        QString ip;
+        QSqlQuery ipQuery = \
+                QSqlDatabase::database("local").exec(QString("SELECT verifyServer FROM paasservers where id=1;"));
+        while (ipQuery.next())
+        {
+            ip = ipQuery.value(0).toString();
+        }
+        qDebug() << "-----------USERNAME-------------->" << USERNAME;
+        qDebug() << "-------------ip------------>" << ip;
+
+
+        QString quitUrl ="http://" + ip + ":8080/idesktop/logout.action";
+        qDebug() << "-------------quitUrl------------>" << quitUrl;
 
         QString data = "username=" + USERNAME;
 
@@ -1001,9 +1047,9 @@ void Dashboard::refreshMenu()
 {
     hideMenuWidget();
 
+    _switcherLeft->setVisible(false);
+    _switcherRight->setVisible(false);
     panel->setVisible(false);
-    _switcherLeft->setSwitcherEnabled(false);
-    _switcherRight->setSwitcherEnabled(false);
 
     _mask->setVisible(true);
     _mask->setText(tr("正在刷新虚拟应用..."));
@@ -1014,8 +1060,12 @@ void Dashboard::refreshMenu()
     _mask->setText(tr(""));
 
     panel->setVisible(true);
-    _switcherLeft->setSwitcherEnabled(true);
-    _switcherRight->setSwitcherEnabled(true);
+    _switcherLeft->setVisible(true);
+    _switcherRight->setVisible(true);
+    _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
+    _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
+
+    _vacShowWidget->movetoFirst();
 }
 
 void Dashboard::modify()
@@ -1332,6 +1382,18 @@ void Dashboard::getVacIcon()
             getVacIcon();
 
         }
+        else if ((_commui->errInfo == "没有可用Licenses") || (_commui->errID == "10059"))
+        {
+            AppMessageBox box(false, NULL);
+            box.setText(tr("no used Licenses, please contact the administrator."));
+            box.exec();
+        }
+        else if ((_commui->errInfo == "用户名或密码错误") || (_commui->errID == "10062"))
+        {
+            AppMessageBox box(false, NULL);
+            box.setText(tr("name or password error, please contact the administrator."));
+            box.exec();
+        }
         else
         {
 //            QMessageBox::warning(this, tr("vapp login failed"), _commui->errInfo, tr("OK"));
@@ -1368,7 +1430,9 @@ void Dashboard::getLocalIcon()
         }
         else
         {
+            qDebug() << "my_getApp2() start";
             my_getApp2();
+            qDebug() << "my_getApp2() end!!!";
         }
     }
 //    qDebug()<<"inipath:"<<iniPath;
@@ -1590,7 +1654,19 @@ void Dashboard::menuChanged(int value)
 
         _createMenu->setVisible(false);
 
-        _showIconMenu->move(_mousePos.x() + 162 - 25, _mousePos.y());
+        _showIconMenuX = _mousePos.x() + 162 - 25;
+        _showIconMenuY = _mousePos.y();
+
+        if (_width - (_normalMenuX + _normalMenuSize.width()) < _showIconMenuSize.width())
+        {
+            _showIconMenuX = _normalMenuX - _showIconMenuSize.width() + 25;
+        }
+
+        if ( _height - _normalMenuY < _showIconMenuSize.height())
+        {
+            _showIconMenuY = _height - _showIconMenuSize.height();
+        }
+        _showIconMenu->move(_showIconMenuX, _showIconMenuY);
         _showIconMenu->raise();
         _showIconMenu->setVisible(true);
 
@@ -1598,7 +1674,19 @@ void Dashboard::menuChanged(int value)
     case 2 :
         _showIconMenu->setVisible(false);
 
-        _createMenu->move(_mousePos.x() + 162 - 25, _mousePos.y() + 20 + 19 + 19 - 10);
+        _createMenuX = _mousePos.x() + 162 - 25;
+        _createMenuY = _mousePos.y() + 20 + 19 + 19 - 10;
+
+        if (_width - (_normalMenuX + _normalMenuSize.width()) < _createMenuSize.width())
+        {
+            _createMenuX = _normalMenuX - _createMenuSize.width() + 25;
+        }
+
+        if ( _height - (_normalMenuY + 20 + 19 + 19 - 10) < _createMenuSize.height())
+        {
+            _createMenuY = _height - _createMenuSize.height();
+        }
+        _createMenu->move(_createMenuX, _createMenuY);
         _createMenu->raise();
         _createMenu->setVisible(true);
 
@@ -1630,7 +1718,23 @@ void Dashboard::showDirMenu(QPoint mPos, const QString &uniqueName)
 {
     _uniqueName = uniqueName;
     hideMenuWidget();
-    _dirMenu->move(mPos);
+
+    _dirMenuX = mPos.x();
+
+    qDebug() << "_dirMenuX--->" << _dirMenuX;
+    _dirMenuY = mPos.y();
+
+    if (_width - _dirMenuX < _dirMenuSize.width())
+    {
+        _dirMenuX = _width - _dirMenuSize.width();
+    }
+
+    if ( _height - _dirMenuY < _dirMenuSize.height())
+    {
+        _dirMenuY = _height - _dirMenuSize.height();
+    }
+
+    _dirMenu->move(_dirMenuX, _dirMenuY);
     _dirMenu->raise();
     _dirMenu->setVisible(true);
 }
@@ -1639,18 +1743,80 @@ void Dashboard::showIconMenu(QPoint mPos, const QString &uniqueName)
 {
     _uniqueName = uniqueName;
     hideMenuWidget();
-    _iconMenu->move(mPos);
+
+    _iconMenuX = mPos.x();
+
+    qDebug() << "_iconMenuX--->" << _iconMenuX;
+    _iconMenuY = mPos.y();
+
+    if (_width - _iconMenuX < _iconMenuSize.width())
+    {
+        _iconMenuX = _width - _iconMenuSize.width();
+    }
+
+    if ( _height - _iconMenuY < _iconMenuSize.height())
+    {
+        _iconMenuY = _height - _iconMenuSize.height();
+    }
+
+
+    _iconMenu->move(_iconMenuX, _iconMenuY);
     _iconMenu->raise();
     _iconMenu->setVisible(true);
+}
+
+void Dashboard::vdesktopShowDustbinMenu(QPoint mPos, IconItem *iconItem)
+{
+    if (!iconItem)
+        return;
+    _dustbinSelectIconItem = iconItem;
+
+    _uniqueName = _dustbinSelectIconItem->uniqueName();
+    hideMenuWidget();
+
+    _dustbinMenuX = mPos.x();
+
+    qDebug() << "_dustbinMenuX--->" << _dustbinMenuX;
+    _dustbinMenuY = mPos.y();
+
+    if (_width - _dustbinMenuX < _dustbinMenuSize.width())
+    {
+        _dustbinMenuX = _width - _dustbinMenuSize.width();
+    }
+
+    if ( _height - _dustbinMenuY < _dustbinMenuSize.height())
+    {
+        _dustbinMenuY = _height - _dustbinMenuSize.height();
+    }
+
+
+    _dustbinMenu->move(_dustbinMenuX, _dustbinMenuY);
+    _dustbinMenu->raise();
+    _dustbinMenu->setVisible(true);
 }
 
 void Dashboard::showNormalMenu(QPoint mousePos)
 {
     hideMenuWidget();
+
     _mousePos = mousePos;
-    _normalMenu->move(_mousePos.x() + 2, _mousePos.y());
-    _normalMenu->raise();
-    _normalMenu->setVisible(true);
+    _normalMenuX = _mousePos.x();
+    _normalMenuY = _mousePos.y();
+
+    if (_width - _mousePos.x() < _normalMenuSize.width())
+    {
+        _normalMenuX = _width - _normalMenuSize.width() + 14;
+    }
+
+    if (_height - _mousePos.y() < _normalMenuSize.height())
+    {
+        _normalMenuY = _height - _normalMenuSize.height();
+    }
+
+        _normalMenu->move(_normalMenuX, _normalMenuY);
+        _normalMenu->raise();
+        _normalMenu->setVisible(true);
+
 }
 
 void Dashboard::contextMenuEvent(QContextMenuEvent *)
@@ -1704,10 +1870,30 @@ void Dashboard::menuDirDel()
             }
             else if(_local->at(i)->dirId() == -2)
             {
-//                _toolBarWidget->delIcon(_uniqueName);
-                vdesktop->tBarIconMenuDelClicked(_local->at(i)->id().toInt(), _uniqueName);
+                int id = _local->at(i)->id().toInt();
+                QList<QString> iconsInDirList;
+                for (int j = 0; j < _local->count(); j++)
+                {
+                    if (_local->at(j)->hidden())
+                        continue;
+
+                    if (_local->at(j)->dirId() == id)
+                    {
+                        iconsInDirList.append(_local->at(j)->uniqueName());
+                    }
+                }
+
+                for (int k = iconsInDirList.count(); k > 0; k--)
+                {
+                    LocalAppList::getList()->delApp(iconsInDirList.at(k - 1));
+                    _vacShowWidget->desktopDelIcon(iconsInDirList.at(k - 1));
+                }
+                iconsInDirList.clear();
+
+                LocalAppList::getList()->delApp(_uniqueName);
+
+                vdesktop->tBarIconMenuDelClicked(id, _uniqueName);
 //                LocalAppList::getList()->delApp(_uniqueName);
-                _vacShowWidget->desktopDelIcon(_uniqueName);
             }
             else
             {
@@ -1809,4 +1995,21 @@ void Dashboard::menuIconDel()
     {
         vdesktop->iconToDushbin(_uniqueName);
     }
+}
+
+void Dashboard::dustbinMenuRestoreClicked()
+{
+    if (!_dustbinSelectIconItem)
+        return;
+
+    hideMenuWidget();
+    vdesktop->dustbinMenuRestoreIcon(_dustbinSelectIconItem);
+}
+
+void Dashboard::dustbinMenuDelClicked()
+{
+    hideMenuWidget();
+    LocalAppList::getList()->delApp(_uniqueName);
+    _vacShowWidget->desktopDelIcon(_uniqueName);
+//    vdesktop->dustbinMenuDelIcon(_uniqueName);
 }

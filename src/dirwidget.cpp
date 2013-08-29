@@ -148,6 +148,13 @@ DirShowWidget::DirShowWidget(int id, QSize pageSize, QWidget *parent)
             , this, SIGNAL(iconTovDesktop(const QString &)));
     connect(_dirWidget, SIGNAL(dushbinDirWidgetRefresh(int))
             , this, SIGNAL(dushbinDirWidgetRefresh(int)));
+    connect(_dirWidget, SIGNAL(showIconMenu(QPoint, const QString &))
+            , this, SIGNAL(showIconMenu(QPoint, const QString &)));
+    connect(_dirWidget, SIGNAL(showDustbinMenu(QPoint, IconItem *))
+            , this, SIGNAL(showDustbinMenu(QPoint, IconItem *)));
+    connect(_dirWidget, SIGNAL(hideMenu())
+            , this, SIGNAL(hideMenu()));
+
 
 }
 
@@ -396,6 +403,14 @@ void DirShowWidget::dushbinRefreshDirMinWidget(const QString &uniqueName)
     _dirWidget->dushbinRefreshDirMinWidget(uniqueName);
 }
 
+void DirShowWidget::restoreIcon(IconItem *iconItem)
+{
+    if (!iconItem)
+        return;
+
+    _dirWidget->dustbinMenuRestoreClicked(iconItem);
+}
+
 //
 DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
     : QWidget(parent)
@@ -485,22 +500,22 @@ DirWidget::DirWidget(int id, QSize pageSize, QWidget *parent)
     if (_id != 1000)
         initIconItem();
 
-    if (_id == 1000)
-    {
-        _dustbinMenu = new MenuWidget(MenuWidget::dustbinMenu, this);
-        _dustbinMenu->setVisible(false);
+//    if (_id == 1000)
+//    {
+//        _dustbinMenu = new MenuWidget(MenuWidget::dustbinMenu, this);
+//        _dustbinMenu->setVisible(false);
 
-        connect(_dustbinMenu, SIGNAL(restore()), this, SLOT(dustbinMenuRestoreClicked()));
-        connect(_dustbinMenu, SIGNAL(del()), this, SLOT(menuDelClicked()));
-    }
-    else
-    {
-        _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
-        _iconMenu->setVisible(false);
+//        connect(_dustbinMenu, SIGNAL(restore()), this, SLOT(dustbinMenuRestoreClicked()));
+//        connect(_dustbinMenu, SIGNAL(del()), this, SLOT(menuDelClicked()));
+//    }
+//    else
+//    {
+//        _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
+//        _iconMenu->setVisible(false);
 
-        connect(_iconMenu, SIGNAL(run()), this, SLOT(iconMenuRunClicked()));
-        connect(_iconMenu, SIGNAL(del()), this, SLOT(menuDelClicked()));
-    }
+//        connect(_iconMenu, SIGNAL(run()), this, SLOT(iconMenuRunClicked()));
+//        connect(_iconMenu, SIGNAL(del()), this, SLOT(menuDelClicked()));
+//    }
 
     connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
 }
@@ -1198,10 +1213,11 @@ int DirWidget::getNearestIndex(const QRect &rect)
 
 void DirWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (_iconMenu)
-        _iconMenu->setVisible(false);
-    else
-        _dustbinMenu->setVisible(false);
+//    if (_iconMenu)
+//        _iconMenu->setVisible(false);
+//    else
+//        _dustbinMenu->setVisible(false);
+
     emit hideMenu();
 
     event->accept();
@@ -1222,7 +1238,8 @@ void DirWidget::mouseReleaseEvent(QMouseEvent *)
 
 void DirWidget::showIconContextMenu(bool visiable,QPoint pos, QPoint mPos, IconItem *iconItem)
 {
-    Q_UNUSED(mPos);
+    Q_UNUSED(pos);
+    Q_UNUSED(visiable);
 
     if(!iconItem)
         return;
@@ -1233,26 +1250,29 @@ void DirWidget::showIconContextMenu(bool visiable,QPoint pos, QPoint mPos, IconI
     _currentIconItem = iconItem;
     _currentUniqueName = _currentIconItem->uniqueName();
 
-    if (_iconMenu)
+    if (_id != 1000)
     {
-        _iconMenu->move(pos.x() + _iconDict.value(_currentUniqueName)->pos().x(), pos.y() + _iconDict.value(_currentUniqueName)->pos().y());
-        _iconMenu->raise();
-        _iconMenu->setVisible(visiable);
+//        _iconMenu->move(pos.x() + _iconDict.value(_currentUniqueName)->pos().x(), pos.y() + _iconDict.value(_currentUniqueName)->pos().y());
+//        _iconMenu->raise();
+//        _iconMenu->setVisible(visiable);
+        emit showIconMenu(mPos, iconItem->uniqueName());
     }
     else
     {
-        _dustbinMenu->move(pos.x() + _iconDict.value(_currentUniqueName)->pos().x(), pos.y() + _iconDict.value(_currentUniqueName)->pos().y());
-        _dustbinMenu->raise();
-        _dustbinMenu->setVisible(visiable);
+//        _dustbinMenu->move(pos.x() + _iconDict.value(_currentUniqueName)->pos().x(), pos.y() + _iconDict.value(_currentUniqueName)->pos().y());
+//        _dustbinMenu->raise();
+//        _dustbinMenu->setVisible(visiable);
+        emit showDustbinMenu(mPos, _currentIconItem);
     }
 }
 
 void DirWidget::iconMenuRunClicked()
 {
-    if (_iconMenu)
-        _iconMenu->setVisible(false);
-    else
-        _dustbinMenu->setVisible(false);
+//    if (_iconMenu)
+//        _iconMenu->setVisible(false);
+//    else
+//        _dustbinMenu->setVisible(false);
+
     emit hideMenu();
 
     runApp(_currentUniqueName);
@@ -1261,10 +1281,12 @@ void DirWidget::iconMenuRunClicked()
 
 void DirWidget::menuDelClicked()
 {
-    if (_iconMenu)
-        _iconMenu->setVisible(false);
-    else
-        _dustbinMenu->setVisible(false);
+//    if (_iconMenu)
+//        _iconMenu->setVisible(false);
+//    else
+//        _dustbinMenu->setVisible(false);
+    emit hideMenu();
+
 //    delIcon(_currentUniqueName);
 //    emit delApp(_currentUniqueName);
     LocalAppList::getList()->delApp(_currentUniqueName);
@@ -1272,15 +1294,18 @@ void DirWidget::menuDelClicked()
 
 }
 
-void DirWidget::dustbinMenuRestoreClicked()
+void DirWidget::dustbinMenuRestoreClicked(IconItem *iconItem)
 {
-    if (_iconMenu)
-        _iconMenu->setVisible(false);
-    else
-        _dustbinMenu->setVisible(false);
+//    if (_iconMenu)
+//        _iconMenu->setVisible(false);
+//    else
+//        _dustbinMenu->setVisible(false);
 
-    if (!_currentIconItem)
+//    emit hideMenu();
+
+    if (!iconItem)
         return;
+    _currentIconItem = iconItem;
 
     emit dirWidgetDragLeave("");
 

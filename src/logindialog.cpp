@@ -79,8 +79,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
     passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
-    userEdit->setText(QString("demo"));
-    passEdit->setText(QString("abc_123"));
+//    userEdit->setText(QString("demo"));
+//    passEdit->setText(QString("abc_123"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -143,6 +143,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     _dQuitAction = new QAction(tr("ÍË³ö"), this);
     _dShowAction = new QAction(tr("ÏÔÊ¾"), this);
     _dHideAction = new QAction(tr("Òþ²Ø"), this);
+
 //    _dVacServer = new QAction(tr("ÉèÖÃ·þÎñÆ÷µØÖ·"), this);
     _dQuitAction->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
     _dShowAction->setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
@@ -480,8 +481,8 @@ void LoginDialog::auth()
     }
 
     //    _tray->setVisible(false);
-    QString jsonUrl = "http://192.168.30.37:9080/idesktop/getUserStatusData.action";
-    QString data = "username=" + userEdit->text();
+//    QString jsonUrl = "http://192.168.30.37:9080/idesktop/getUserStatusData.action";
+//    QString data = "username=" + userEdit->text();
 //    _namJson->post(QNetworkRequest(QUrl(jsonUrl)), data.toAscii());
 
     int count = 0;
@@ -671,6 +672,8 @@ void LoginDialog::updateUi()
         returnButton->hide();
         passEdit->show();
         userEdit->show();
+        if (!userEdit->hasFocus())
+            userEdit->setFocus();
         submit->show();
         cancelBtn->show();
         configurationButton->show();
@@ -783,6 +786,8 @@ void LoginDialog::saveSettingSlot()
     returnButton->hide();
     passEdit->show();
     userEdit->show();
+    if (!userEdit->hasFocus())
+        userEdit->setFocus();
     submit->show();
     cancelBtn->show();
     configurationButton->show();
@@ -808,6 +813,8 @@ void LoginDialog::returnSlot()
     returnButton->hide();
     passEdit->show();
     userEdit->show();
+    if (!userEdit->hasFocus())
+        userEdit->setFocus();
     submit->show();
     cancelBtn->show();
     configurationButton->show();

@@ -168,6 +168,8 @@ public:
     void dirShowWidgetDelIcon(int dirId, const QString &uniqueName);
     void iconToDushbin(const QString &uniqueName);
     void clearDirShowWidget(int dirId);
+    void dustbinMenuRestoreIcon(IconItem *iconItem);
+    void dustbinMenuDelIcon(const QString &uniqueName);
 
 public slots:
     void goPage(int page);
@@ -315,6 +317,7 @@ signals:
     //menu
     void vdesktopShowDirMenu(QPoint mPos, const QString &uniqueName);
     void vdesktopShowIconMenu(QPoint mPos, const QString &uniqueName);
+    void vdesktopShowDustbinMenu(QPoint mPos, IconItem *iconItem);
     void vdesktopNormalMenu(QPoint mousePos);
     void hideMenu();
 
