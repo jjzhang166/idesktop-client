@@ -759,7 +759,7 @@ void DirWidget::delPage(int page)
 
 void DirWidget::delIcon(const QString &_uniqueName)
 {
-    qDebug() << _uniqueName;
+//    qDebug() << _uniqueName;
     if (!_iconDict.value(_uniqueName))
         return;
 

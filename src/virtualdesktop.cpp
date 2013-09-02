@@ -1102,7 +1102,7 @@ void VirtualDesktop::dragMoveEvent(QDragMoveEvent *event)
         index = index > _nextIdx[_current] - 1 ? _nextIdx[_current] - 1: index;
         if (s > index) {
 
-            qDebug() << "s" << s << "index" << index;
+//            qDebug() << "s" << s << "index" << index;
 
             for (int i = s; i > index; i--) {
                qDebug () << "s" << s << "i" << i;
@@ -1134,7 +1134,7 @@ void VirtualDesktop::dragMoveEvent(QDragMoveEvent *event)
 void VirtualDesktop::dragLeaveEvent(QDragLeaveEvent *event)
 {
 //    _iconDragEnter = false;
-    qDebug() << "*********************************dragLeaveEventdragLeaveEvent";
+//    qDebug() << "*********************************dragLeaveEventdragLeaveEvent";
     _itemHeld = false;
 
 //    hideDirWidget();
@@ -1167,7 +1167,7 @@ void VirtualDesktop::dragLeaveEvent(QDragLeaveEvent *event)
         _dragItem = NULL;
 
         _isDirWidgetObject = false;
-        qDebug() << "------------------>del _dragItem";
+//        qDebug() << "------------------>del _dragItem";
     }
 
     _dragEvent = false;
@@ -1234,8 +1234,8 @@ void VirtualDesktop::dropEvent(QDropEvent *event)
 
                 for (int i = 0; i < dirWidget_FirstLists.count(); i++)
                 {
-                    qDebug() << "dirWidget_FirstLists.at(i).name" <<dirWidget_FirstLists.at(i).name
-                             <<dirWidget_FirstLists.count();
+//                    qDebug() << "dirWidget_FirstLists.at(i).name" <<dirWidget_FirstLists.at(i).name
+//                             <<dirWidget_FirstLists.count();
                      _iconDict.value(_dragItem->uniqueName())->addDirMinItem(dirWidget_FirstLists.at(i).name
                                                                             , dirWidget_FirstLists.at(i).iconPath
                                                                             , -1, -1
@@ -1725,7 +1725,7 @@ void VirtualDesktop::delIcon(const QString &uniqueName)
 
     IconItem *icon = _iconDict.take(uniqueName);
     //icon->setHidden(true);
-    qDebug() << icon->page();
+//    qDebug() << icon->page();
     int p = icon->page();
     int s = icon->index();
 
@@ -2875,7 +2875,6 @@ void VirtualDesktop::iconMoveOtherWidget(const QString &uniqueName)
 {
    if (!_iconDict.value(uniqueName))
     {
-
         return;
     }
 

@@ -757,10 +757,6 @@ void Dashboard::onShowVacDesktop()
 {
     hideMenuWidget();
     _skinShowWidget->setVisible(false);
-    if (!_vacShowWidget->isVisible())
-    {
-        _vacShowWidget->movetoFirst();
-    }
     _vacShowWidget->setVisible(!_vacShowWidget->isVisible());
 }
 
@@ -769,6 +765,7 @@ void Dashboard::onShowSkinDesktop()
     hideMenuWidget();
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(!_skinShowWidget->isVisible());
+
 }
 
 void Dashboard::getIn()
@@ -871,12 +868,8 @@ void Dashboard::quit()
         {
             ip = ipQuery.value(0).toString();
         }
-        qDebug() << "-----------USERNAME-------------->" << USERNAME;
-        qDebug() << "-------------ip------------>" << ip;
-
 
         QString quitUrl ="http://" + ip + ":8080/idesktop/logout.action";
-        qDebug() << "-------------quitUrl------------>" << quitUrl;
 
         QString data = "username=" + USERNAME;
 
@@ -1065,7 +1058,7 @@ void Dashboard::refreshMenu()
     _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
     _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
 
-    _vacShowWidget->movetoFirst();
+//    _vacShowWidget->movetoFirst();
 }
 
 void Dashboard::modify()
@@ -1430,9 +1423,7 @@ void Dashboard::getLocalIcon()
         }
         else
         {
-            qDebug() << "my_getApp2() start";
             my_getApp2();
-            qDebug() << "my_getApp2() end!!!";
         }
     }
 //    qDebug()<<"inipath:"<<iniPath;
@@ -1721,7 +1712,7 @@ void Dashboard::showDirMenu(QPoint mPos, const QString &uniqueName)
 
     _dirMenuX = mPos.x();
 
-    qDebug() << "_dirMenuX--->" << _dirMenuX;
+//    qDebug() << "_dirMenuX--->" << _dirMenuX;
     _dirMenuY = mPos.y();
 
     if (_width - _dirMenuX < _dirMenuSize.width())
@@ -1746,7 +1737,7 @@ void Dashboard::showIconMenu(QPoint mPos, const QString &uniqueName)
 
     _iconMenuX = mPos.x();
 
-    qDebug() << "_iconMenuX--->" << _iconMenuX;
+//    qDebug() << "_iconMenuX--->" << _iconMenuX;
     _iconMenuY = mPos.y();
 
     if (_width - _iconMenuX < _iconMenuSize.width())
@@ -1776,7 +1767,7 @@ void Dashboard::vdesktopShowDustbinMenu(QPoint mPos, IconItem *iconItem)
 
     _dustbinMenuX = mPos.x();
 
-    qDebug() << "_dustbinMenuX--->" << _dustbinMenuX;
+//    qDebug() << "_dustbinMenuX--->" << _dustbinMenuX;
     _dustbinMenuY = mPos.y();
 
     if (_width - _dustbinMenuX < _dustbinMenuSize.width())

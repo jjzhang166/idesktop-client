@@ -227,6 +227,28 @@ void toolBarWidget::iconDragDrop(int id, const QString &text,
 
     emit iconDropToolWidget(uniqueName);
 
+    if (_iconDict.value(uniqueName))
+    {
+//        int p = _iconDict.value(uniqueName)->page();
+//        int s = _iconDict.value(uniqueName)->index();
+
+        IconItem *icon = _iconDict.take(uniqueName);
+
+        for (int i = 0; i < _iconItemLists.count(); i++)
+        {
+            if (_iconItemLists.at(i)->uniqueName() == uniqueName)
+            {
+                _iconItemLists.removeAt(i);
+                break;
+            }
+        }
+
+        _iconTable[icon->page()][icon->index()]->deleteLater();
+        _iconTable[icon->page()][icon->index()] = NULL;
+
+        moveBackIcons(icon->page(), icon->index());
+    }
+
 }
 
 void toolBarWidget::updateClicked()
@@ -567,20 +589,18 @@ void toolBarWidget::dropEvent(QDropEvent *event)
             }
 
         }
-
-        for (int i = 0; i <_dirMinList.count(); i++)
-        {
-            if (_iconDict.value(_dirMinList.at(i)))
-            {
-                if (_iconDict.value(_dirMinList.at(i))->id() == 1000)
-                    _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(true);
-                else
-                    _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
-            }
-        }
-
         _dragItem = NULL;
+    }
 
+    for (int i = 0; i <_dirMinList.count(); i++)
+    {
+        if (_iconDict.value(_dirMinList.at(i)))
+        {
+            if (_iconDict.value(_dirMinList.at(i))->id() == 1000)
+                _iconDict.value(_dirMinList.at(i))->setDustbinDragEnable(true);
+            else
+                _iconDict.value(_dirMinList.at(i))->setMinWidgetDragEnable(true);
+        }
     }
 
     _dragEvent = false;
@@ -733,7 +753,7 @@ int toolBarWidget::addIcon(const QString &text,
 
     setShowType();
 
-    qDebug() << "addIcon";
+//    qDebug() << "addIcon";
 
     IconItem *icon = new IconItem(this);
     icon->setSmallSize();
@@ -1541,7 +1561,8 @@ void toolBarWidget::moveOutIcon(const QString &uniqueName)
 
     for (int i = 0; i < _iconItemLists.count(); i++)
     {
-
+//        qDebug() << "_iconItemLists.at(i)->uniqueName()" <<_iconItemLists.at(i)->uniqueName();
+//        qDebug() << "uniqueName"  << uniqueName;
         if (_iconItemLists.at(i)->uniqueName() == uniqueName)
         {
             QList<IconItem*>::iterator iter = _iconItemLists.begin() + i;

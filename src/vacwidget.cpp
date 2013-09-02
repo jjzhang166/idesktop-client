@@ -100,7 +100,7 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
     _closeBtn = new DynamicButton(_closePix, _closeHoverPix, this);
     _closeBtn->setGeometry(_width - 8 -25 - 3, 28, 8, 8);
 
-    connect(_closeBtn, SIGNAL(clicked()), this, SIGNAL(vacCloseBtnClicked()));
+    connect(_closeBtn, SIGNAL(clicked()), this, SLOT(closeBtnClicked()));
 
     connect(_vacScrollBarWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int, const QString&)),
             this, SIGNAL(addApp(const QString&,const QString&, const QString&, int, const QString&)));
@@ -165,6 +165,12 @@ void VacShowWidget::iconItemNameChanged(const QString &uniqueName, const QString
 void VacShowWidget::initIconItem()
 {
     _vacScrollBarWidget->initIconItem();
+}
+
+void VacShowWidget::closeBtnClicked()
+{
+    emit vacCloseBtnClicked();
+    movetoFirst();
 }
 
 void VacShowWidget::movetoFirst()
@@ -345,7 +351,8 @@ void VacScrollBarWidget::initIconItem()
 
 void VacScrollBarWidget::movetoFirst()
 {
-    _vacWidget->movetoFirst();
+    _vacWidget->move(_vacWidget->pos().x(), 0);
+    _scrollBar->setValue(0);
 }
 
 //
@@ -501,7 +508,7 @@ int VacWidget::addIcon(QString text,
                 if (_nextIdx[i] < _row * _col) {
                     page = i;
                     index = _nextIdx[i];
-                    move(_pages[page], y());
+                    move(x(), _pages[page]);
                     break;
                 }
             }
@@ -753,7 +760,7 @@ void VacWidget::delPage(int page)
 //        emit pageChanged(_current);
     }
     setFixedSize(_pageSize.width(), _count * _pageSize.height());
-    move(_pages[_current], y());
+    move(x(), _pages[_current]);
     emit pageDecreased();
 }
 
@@ -839,7 +846,8 @@ void VacWidget::refresh(QSize size)
 void VacWidget::movetoFirst()
 {
     _current = 0;
-    move(_pages[_current], y());
+    move(x(), _pages[_current]);
+//    qDebug() << "------------------>movetoFirst";
 //    emit pageChanged(_current);
 
 }

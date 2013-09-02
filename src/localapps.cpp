@@ -400,7 +400,7 @@ QString LocalAppList::getAppImage(QString appPath)
          QFileInfo info = QFileInfo(appPath);
          QString path(Config::get("IconDir"));
          path = path + "\\" + info.baseName();      //"USER_ADDED_"
-         qDebug() << "info.baseName()--->" << info.baseName();
+//         qDebug() << "info.baseName()--->" << info.baseName();
          path += ".png"; //png
          QPixmap newicon =  picon.scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
          newicon.save(path, "PNG",-1);

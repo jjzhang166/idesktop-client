@@ -59,8 +59,9 @@ public slots:
 
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
+    void closeBtnClicked();
 signals:
-    void addApp(const QString &text, const QString &pix, const QString &url, \
+    void addApp(const QString &text, const QString &pix, const QString &url,
                 int type, const QString &uniqueName);
     void vacCloseBtnClicked();
     void delItem(const QString &uniqueName);

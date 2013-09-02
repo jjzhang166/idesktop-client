@@ -734,6 +734,17 @@ void LoginDialog::saveSettingSlot()
         PaasError(tr("平台服务器地址不能为空"));
         return;
     }
+    QRegExp rx2("^(1?\\d\\d?|2[0-4]\\d|25[0-5])\.(1?\\d\\d?|2[0-4]\\d|25[0-5])\.(1?\\d\\d?|2[0-4]\\d|25[0-5])\.(1?\\d\\d?|2[0-4]\\d|25[0-5])$");
+    if( !rx2.exactMatch(verifyLEdit->text()))
+    {
+        PaasError(tr("请输入正确的验证服务地址"));
+        return;
+    }
+    if( !rx2.exactMatch(vacLEdit->text()))
+    {
+        PaasError(tr("请输入正确的应用服务地址"));
+        return;
+    }
 
     returnButton->setEnable(true);
     returnButton->setEnabled(true);
