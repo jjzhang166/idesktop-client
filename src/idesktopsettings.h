@@ -20,12 +20,14 @@ public:
     QList<LOCAL_LIST>& remoteLocalList() { return _remoteLocalList; }
     QList<APP_LIST>& remoteAppList() { return _remoteAppList; }
     QList<PAAS_LIST>& remotePaasList() { return _remotePaasList; }
+    QList<LOCAL_LIST>& localList() { return _localList; }
     QList<APP_LIST>& vappList() { return _vappList; }
     QList<PAAS_LIST>& paasList() { return _paasList; }
 
     void setRemoteLocalList(const QList<LOCAL_LIST>& list);
     void setRemoteAppList(const QList<APP_LIST>& list);
     void setRemotePaasList(const QList<PAAS_LIST>& list);
+    void setLocalList(const QList<LOCAL_LIST>& list);
     void setVappList(const QList<APP_LIST>& list);
     void setPaasList(const QList<PAAS_LIST>& list);
 
@@ -36,6 +38,7 @@ private:
     QList<LOCAL_LIST> _remoteLocalList;
     QList<APP_LIST> _remoteAppList;
     QList<PAAS_LIST> _remotePaasList;
+    QList<LOCAL_LIST> _localList;
     QList<APP_LIST> _vappList;
     QList<PAAS_LIST> _paasList;
 

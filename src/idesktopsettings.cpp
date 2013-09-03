@@ -62,6 +62,11 @@ void IDesktopSettings::setRemotePaasList(const QList<PAAS_LIST>& list)
     _remotePaasList = list;
 }
 
+void IDesktopSettings::setLocalList(const QList<LOCAL_LIST>& list)
+{
+    _localList = list;
+}
+
 void IDesktopSettings::setVappList(const QList<APP_LIST>& list)
 {
     _vappList = list;

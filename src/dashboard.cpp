@@ -31,6 +31,7 @@ extern QString PaasServer;
 QList<PAAS_LIST> myPaasList;
 QList<PAAS_LIST> remotepaasList;
 QList<LOCAL_LIST> remotelocalList;
+QList<LOCAL_LIST> mylocalList;
 
 QString WIN_LOCAL_IconPath;
 QString WIN_VAPP_IconPath;
@@ -373,7 +374,7 @@ void Dashboard::initIconItem()
 {
 #if 1
     _mask->setText(tr("加载本地应用..."));
-    getLocalIcon();
+    getLocalIcon(true);
     _mask->setText(tr("加载虚拟应用..."));
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //vac
@@ -982,6 +983,17 @@ void Dashboard::errOut()
     _finished = false;
 }
 
+void Dashboard::refreshLocal()
+{
+    qDebug() << "refresh locals";
+    QList<LOCAL_LIST>& myLocalList = _settings->localList();
+    myLocalList.clear();
+
+    getLocalIcon(false);
+
+    localModify();
+}
+
 void Dashboard::refreshVapp()
 {
     qDebug() << "refresh Vapp";
@@ -1045,6 +1057,8 @@ void Dashboard::refreshMenu()
     panel->setVisible(false);
 
     _mask->setVisible(true);
+    _mask->setText(tr("正在刷新本地应用..."));
+    refreshLocal();
     _mask->setText(tr("正在刷新虚拟应用..."));
     refreshVapp();
     _mask->setText(tr("正在刷新平台服务应用..."));
@@ -1059,6 +1073,62 @@ void Dashboard::refreshMenu()
     _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
 
 //    _vacShowWidget->movetoFirst();
+}
+
+void Dashboard::localModify()
+{
+    QList<LOCAL_LIST>& myLocalList = _settings->localList();
+    QList<LOCAL_LIST>& remoteLocalList = _settings->remoteLocalList();
+
+    if (myLocalList.count() > 0 || remoteLocalList.count() > 0)
+    {
+    //delete
+        for (int i = 0; i < remoteLocalList.count(); i++)
+        {
+            bool isExist = false;
+            for (int j = 0; j < myLocalList.count(); j++)
+            {
+                if (remoteLocalList[i].uniqueName == myLocalList[j].uniqueName)
+                {
+                    isExist = true;
+                    break;
+                }
+            }
+            if(!isExist)
+            {
+                //delete
+                _vacShowWidget->delIcon("0_" + remoteLocalList[i].uniqueName);
+                LocalAppList::getList()->delApp("0_" + remoteLocalList[i].uniqueName);
+            }
+        }
+        // add
+        for (int i = 0; i < myLocalList.count(); i++)
+        {
+            bool isExist = false;
+            for (int j = 0; j < remoteLocalList.count(); j++)
+            {
+                if (myLocalList[i].uniqueName == remoteLocalList[j].uniqueName)
+                {
+                    isExist = true;
+                    break;
+                }
+            }
+
+            if (!isExist)
+            {
+                _vacShowWidget->addIcon(myLocalList[i].name, myLocalList[i].iconPath,
+                                        - 1, -1, QString(""), 0, "0_" + myLocalList[i].uniqueName);
+            }
+        }
+    }
+
+    remoteLocalList.clear();
+
+    for(int i = 0; i < myLocalList.count(); i++)
+    {
+        remoteLocalList.insert(i, myLocalList[i]);
+    }
+    _settings->setRemoteLocalList(remoteLocalList);
 }
 
 void Dashboard::modify()
@@ -1400,11 +1470,18 @@ void Dashboard::getVacIcon()
 
 }
 
-void Dashboard::getLocalIcon()
+void Dashboard::getLocalIcon(bool isLogin)
 {
     //local
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    if (!isLogin)
+    {
+        mylocalList.clear();
+
+        remotelocalList.clear();
+        remotelocalList = _settings->remoteLocalList();
+    }
     QLibrary dllLib("GetApp.dll");
     if(!dllLib.load())
     {
@@ -1513,7 +1590,13 @@ void Dashboard::getLocalIcon()
 
             tempLocalList.uniqueName = md5;
 
-            remotelocalList.append(tempLocalList);
+            mylocalList.append(tempLocalList);
+            if (isLogin)
+            {
+                remotelocalList.append(tempLocalList);
+            }
+
+
             _id++;
             if(chSectionNames[i+1]==0)
             {
@@ -1521,9 +1604,11 @@ void Dashboard::getLocalIcon()
             }
         }
     }
-    _settings->setRemoteLocalList(remotelocalList);
-
-    qDebug() << "load " << _settings->remoteLocalList().size() << " local apps";
+    if (isLogin)
+    {
+        _settings->setRemoteLocalList(remotelocalList);
+    }
+    _settings->setLocalList(mylocalList);
 
     QFile b(iniPath);
     b.remove();

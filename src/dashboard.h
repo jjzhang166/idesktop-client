@@ -24,6 +24,7 @@
 #include "nodebutton.h"
 #include "toolbarwidget.h"
 #include "mask.h"
+#include "paascommuinication.h"
 
 class QVBoxLayout;
 class AppWidget;
@@ -61,7 +62,7 @@ public:
    QString getLocalIcon(QString localPath);
    void setIcon(const QString &dirPath, const QString &iconPath);
 
-   void getLocalIcon();
+   void getLocalIcon(bool isLogin);
    void getVacIcon();
    void getPaasIcon(bool isLogin);
 public slots:
@@ -135,6 +136,9 @@ protected:
     void contextMenuEvent(QContextMenuEvent *);
 
 private:
+    void refreshLocal();
+    void localModify();
+
     void refreshVapp();
     void modify();
 
