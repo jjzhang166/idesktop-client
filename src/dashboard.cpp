@@ -92,6 +92,8 @@ Dashboard::Dashboard(QWidget *parent)
     if (!_ldialog->exec())
         exit(1);
 
+    IDesktopSettings::instance()->initIconSize();
+
     char folder[MAX_PATH] = {0};
     SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
     WIN_TtempPath = QString(folder);
@@ -864,21 +866,22 @@ void Dashboard::quit()
 
         QString ip;
         QSqlQuery ipQuery = \
-                QSqlDatabase::database("local").exec(QString("SELECT verifyServer FROM paasservers where id=1;"));
+                QSqlDatabase::database("loginData").exec(QString("SELECT verifyServer FROM paasservers where id=1;"));
         while (ipQuery.next())
         {
             ip = ipQuery.value(0).toString();
         }
 
-        QString quitUrl ="http://" + ip + ":8080/idesktop/logout.action";
+        QString jsonUrl = "http://" + ip + ":9080/idesktop/saveUserStatusData.action";
+        qDebug() << "--->LocalAppList::getList()->uploadJson()" << LocalAppList::getList()->uploadJson();
+        QString dataJson = "username=" + USERNAME + "&jsondata=" + LocalAppList::getList()->uploadJson();
+        qDebug() << "--->dataJson" <<dataJson;
+        qDebug() << "--->dataJson.toAscii()" <<dataJson.toUtf8();
+        _nam->post(QNetworkRequest(QUrl(jsonUrl)), dataJson.toUtf8());
 
+        QString quitUrl ="http://" + ip + ":9080/idesktop/logout.action";
         QString data = "username=" + USERNAME;
-
-        _nam->post(QNetworkRequest(QUrl(quitUrl)), data.toAscii());
-
-//        QString jsonUrl = "http://192.168.30.37:9080/idesktop/saveUserStatusData.action";
-//        QString dataJson = "username=" + USERNAME + "&jsondata=" + LocalAppList::getList()->uploadJson();
-//        _nam->post(QNetworkRequest(QUrl(jsonUrl)), dataJson.toAscii());
+        _nam->post(QNetworkRequest(QUrl(quitUrl)), data.toUtf8());
 
         _switcherLeft->setVisible(false);
         _switcherRight->setVisible(false);

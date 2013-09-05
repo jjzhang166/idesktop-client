@@ -7,12 +7,12 @@ IDesktopSettings *IDesktopSettings::_instance = NULL;
 IDesktopSettings::IDesktopSettings(QObject *parent) :
     QObject(parent)
 {
-    QSqlQuery query =
-            QSqlDatabase::database("local").exec(QString("SELECT type FROM sizetype where id=1;"));
-    if (query.first()) {
-        _iconSize = query.value(0).toInt();
-        qDebug() << "query iconSize = " << _iconSize;
-    }
+//    QSqlQuery query =
+//            QSqlDatabase::database("local").exec(QString("SELECT type FROM sizetype where id=1;"));
+//    if (query.first()) {
+//        _iconSize = query.value(0).toInt();
+//        qDebug() << "query iconSize = " << _iconSize;
+//    }
 }
 
 IDesktopSettings* IDesktopSettings::instance()
@@ -23,6 +23,16 @@ IDesktopSettings* IDesktopSettings::instance()
     return _instance;
 }
 
+
+void IDesktopSettings::initIconSize()
+{
+    QSqlQuery query =
+            QSqlDatabase::database("local").exec(QString("SELECT type FROM sizetype where id=1;"));
+    if (query.first()) {
+        _iconSize = query.value(0).toInt();
+        qDebug() << "query iconSize = " << _iconSize;
+    }
+}
 
 int IDesktopSettings::iconSize() const
 {

@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
        dbExists = false;
     }
 
-    QFileInfo dbInfo(Config::get("LocalDb"));
+    QFileInfo dbInfo(Config::get("LoginDb"));
     if (!dbInfo.exists())
         dbExists = false;
 
@@ -108,27 +108,11 @@ int main(int argc, char *argv[])
 //        appDir.mkdir("downloads");
 //    }
 
-    QSqlDatabase localDb = QSqlDatabase::addDatabase("QSQLITE", "local");
-    localDb.setDatabaseName(Config::get("LocalDb"));
+    QSqlDatabase localDb = QSqlDatabase::addDatabase("QSQLITE", "loginData");
+    localDb.setDatabaseName(Config::get("LoginDb"));
 
     if (!dbExists) {
-       QString createAppTable = \
-                      "CREATE TABLE localapps " \
-                      "(name nvarchar not null, " \
-                      "version nvarchar not null, " \
-                      "execname nvarchar not null, " \
-                      "icon nvarchar not null, " \
-                      "uninstall nvarchar not null, "\
-                      "lastupdate int not null, " \
-                      "page int not null, " \
-                      "idx int not null, " \
-                      "hidden int not null default 0, " \
-                      "id nvarchar not null," \
-                      "type nvarchar not null," \
-                      "isRemote int not null default 0, " \
-                      "url nvarchar not null, " \
-                      "dirId int not null, "\
-                      "uniquename nvarchar not null);";
+
        QString createUserTable = \
                       "CREATE TABLE users " \
                       "(name nvarchar not null primary key, " \
@@ -137,10 +121,6 @@ int main(int argc, char *argv[])
                       "CREATE TABLE addrs " \
                       "(addr nvarchar not null primary key, " \
                       "count not null);";
-       QString createWallpaperTable = \
-                      "CREATE TABLE wallpapers " \
-                      "(id int not null primary key, " \
-                      "wallpaper nvarchar not null);";
        QString createVacServerTable = \
                       "CREATE TABLE vacservers " \
                       "(id int not null primary key, " \
@@ -153,55 +133,11 @@ int main(int argc, char *argv[])
                       "(id int not null primary key, " \
                       "verifyServer nvarchar not null, "\
                       "server nvarchar not null);";
-       QString createIconSizeTable = \
-                      "CREATE TABLE sizetype " \
-                      "(id int not null primary key, " \
-                      "type int not null);";
 
-       QSqlDatabase::database("local").exec(createAppTable);
-       QSqlDatabase::database("local").exec(createUserTable);
-       QSqlDatabase::database("local").exec(createAddrTable);
-       QSqlDatabase::database("local").exec(createWallpaperTable);
-       QSqlDatabase::database("local").exec(createVacServerTable);
-       QSqlDatabase::database("local").exec(createPaasServerTable);
-       QSqlDatabase::database("local").exec(createIconSizeTable);
-
-       QString qstrLapp = QString("insert into localapps ("\
-                                  "name, version, execname, icon, uninstall, "\
-                                  "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniqueName) values ( " \
-                                  "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', \'%8\', "\
-                                  "\'%9\', \'%10\',\'%11\',\'%12\',\'%13\',\'%14\', \'%15\');")\
-                                   .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg("1.0")\
-                                   .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg(":images/dustbin_normal.png")\
-                                   .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg(1)\
-                                   .arg(0).arg(0)\
-                                   .arg(int(false)).arg(1000)\
-                                   .arg("4").arg(int(false))\
-                                    .arg("").arg(-2).arg("4_dustbin");  //·ÏÖ½Â¨
-
-       QSqlQuery query(QSqlDatabase::database("local"));
-
-       if(!query.exec(qstrLapp))
-       {
-           qDebug() <<"query failed";
-       }
-
-       QString qstrWp = QString("insert into wallpapers ("\
-                              "id, wallpaper) values ( "\
-                              "\'%1\', \'%2\');")\
-                              .arg(1).arg(".//images//wallpager//wp_0.jpg");
-
-        if(!query.exec(qstrWp)) {
-            qDebug() <<"query failed";
-        }
-
-         QString qstrSizeType = QString("insert into sizetype ("\
-                                        "id, type) values ( "\
-                                        "\'%1\', \'%2\');")\
-                                        .arg(1).arg(0);
-         if(!query.exec(qstrSizeType)) {
-             qDebug() <<"query failed";
-         }
+       QSqlDatabase::database("loginData").exec(createUserTable);
+       QSqlDatabase::database("loginData").exec(createAddrTable);
+       QSqlDatabase::database("loginData").exec(createVacServerTable);
+       QSqlDatabase::database("loginData").exec(createPaasServerTable);
     }
 
     /*»ñÈ¡localdbµÄÊý¾Ý*/

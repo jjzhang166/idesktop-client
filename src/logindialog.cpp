@@ -1,5 +1,8 @@
 #include <QtGui>
 #include <QtSql/QtSql>
+#include <QVariant>
+#include <QJSon/qjson.h>
+#include <QJSon/serializer.h>
 
 #include "idesktopsettings.h"
 #include "logindialog.h"
@@ -111,11 +114,11 @@ LoginDialog::LoginDialog(QWidget *parent)
     serverAddr->setEditable(true);
     serverAddr->hide();
 
-    QSqlQuery query = QSqlDatabase::database("local").exec("SELECT addr FROM addrs ORDER BY count DESC;");
+    QSqlQuery query = QSqlDatabase::database("loginData").exec("SELECT addr FROM addrs ORDER BY count DESC;");
     while (query.next())
         serverAddr->addItem(query.value(0).toString());
     _nam = new QNetworkAccessManager(this);
-//    _namJson = new QNetworkAccessManager(this);
+    _namJson = new QNetworkAccessManager(this);
 
 //    QDir dir(Config::get("UserDir"));
 //    QFileInfo fi(Config::get("Profile"));
@@ -188,7 +191,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(userEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
     connect(passEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
     connect(_nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(onLoginFinished(QNetworkReply*)));
-//    connect(_namJson, SIGNAL(finished(QNetworkReply*)), this, SLOT(jsonDownloadFinished(QNetworkReply*)));
+    connect(_namJson, SIGNAL(finished(QNetworkReply*)), this, SLOT(jsonDownloadFinished(QNetworkReply*)));
     connect(this, SIGNAL(accepted()), this, SLOT(dialogAccepted()));
 
 }
@@ -392,15 +395,123 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     }
 }
 
-//void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
-//{
-//    QScriptValue sc;
-//    QScriptEngine engine;
-//    QString result;
+void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
+{
 
-//    QString jsonResult = reply->readAll();
-//    qDebug() << "jsonResult" << jsonResult;
-//}
+    qDebug() << "------>jsonDownloadFinished";
+    QByteArray buffer = reply->readAll();
+    QJson::QJson parser;
+    bool ok;
+    QVariantMap result = parser.parse(buffer, &ok).toMap();
+    if (!ok) {
+      qFatal("An error occurred during parsing by buffer");
+      return;
+    }
+
+    qDebug() << "status:" << result["status"].toString();
+
+    if (result["userInfoJsonStr"].toString() == "")
+    {
+        QDialog::accept();
+        return;
+    }
+
+    QSqlQuery query(QSqlDatabase::database("local"));
+
+    QString truncateStr("delete from localapps;");
+    if(!query.exec(truncateStr))
+    {
+         qDebug() <<"query failed by clear table";
+         return;
+    }
+
+    bool ok2;
+    QVariantMap userInfoMap = parser.parse(result["userInfoJsonStr"].toString().toUtf8(), &ok2).toMap();
+    if (!ok2) {
+      qFatal("An error occurred during parsing by userInfoJsonStr");
+      return;
+    }
+
+    foreach(QVariant pluginLocalapp, userInfoMap["localapps"].toList())
+    {
+        QVariantMap appmap = pluginLocalapp.toMap();
+//        qDebug() << "------>appmap";
+//        qDebug() << "------>" <<"mymap[name].toString()" << appmap["name"].toString();
+//        qDebug() << "------>" <<"mymap[version].toString()" << appmap["version"].toString();
+//        qDebug() << "------>" <<"mymap[execname].toString()" << appmap["execname"].toString();
+//        qDebug() << "------>" <<"mymap[icon].toString()" << appmap["icon"].toString();
+//        qDebug() << "------>" <<"mymap[uninstall].toString()" << appmap["uninstall"].toString();
+//        qDebug() << "------>" <<"mymap[lastupdate].toString()" << appmap["lastupdate"].toString();
+//        qDebug() << "------>" <<"mymap[idx].toString()" << appmap["page"].toString();
+//        qDebug() << "------>" <<"mymap[idx].toString()" << appmap["idx"].toString();
+//        qDebug() << "------>" <<"mymap[hidden].toString()" << appmap["hidden"].toString();
+//        qDebug() << "------>" <<"mymap[id].toString()" << appmap["id"].toString();
+//        qDebug() << "------>" <<"mymap[type].toString()" << appmap["type"].toString();
+//        qDebug() << "------>" <<"mymap[isRemote].toString()" << appmap["isRemote"].toString();
+//        qDebug() << "------>" <<"mymap[url].toString()" << appmap["url"].toString();
+//        qDebug() << "------>" <<"mymap[dirId].toString()" << appmap["dirId"].toString();
+//        qDebug() << "------>" <<"mymap[uniquename].toString()" << appmap["uniquename"].toString();
+
+        QString insertStr = QString("insert into localapps ("\
+                                    "name, version, execname, icon, uninstall, "\
+                                    "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniquename) values ( " \
+                                    "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
+                                    "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\',\'%15\');")\
+                                    .arg(appmap["name"].toString()).arg(appmap["version"].toString())\
+                                    .arg(appmap["execname"].toString()).arg(appmap["icon"].toString())\
+                                    .arg(appmap["uninstall"].toString()).arg(appmap["lastupdate"].toString())\
+                                    .arg(appmap["page"].toString()).arg(appmap["idx"].toString())\
+                                    .arg(appmap["hidden"].toString()).arg(appmap["id"].toString())\
+                                    .arg(appmap["type"].toString()).arg(appmap["isRemote"].toString())\
+                                    .arg(appmap["url"].toString()).arg(appmap["dirId"].toString())
+                                    .arg(appmap["uniquename"].toString());
+
+        if(!query.exec(insertStr))
+        {
+            qDebug() <<"query failed by insert";
+            return;
+        }
+    }
+
+    QVariantList wallpapersList = userInfoMap["wallpapers"].toList();
+    foreach(QVariant pluginWallpapers, wallpapersList)
+    {
+        QVariantMap wallpapersMmap = pluginWallpapers.toMap();
+//        qDebug() << "------>wallpapersMmap";
+//        qDebug() << "------>" <<"wallpapersMmap[id].toString()" << wallpapersMmap["id"].toString();
+//        qDebug() << "------>" <<"wallpapersMmap[wallpaper].toString()" << wallpapersMmap["wallpaper"].toString();
+
+        QString wallpapersStr = QString("update wallpapers "\
+                               "set wallpaper=\'%1\' where id=\'%2\';")\
+                               .arg(wallpapersMmap["wallpaper"].toString())\
+                               .arg(wallpapersMmap["id"].toString());
+        if(!query.exec(wallpapersStr)) {
+            qDebug() <<"query failed by update wallpapers";
+            return;
+        }
+
+    }
+
+    QVariantList sizetypeList = userInfoMap["sizetype"].toList();
+    foreach(QVariant pluginSizetype, sizetypeList)
+    {
+        QVariantMap sizetypeMap = pluginSizetype.toMap();
+//        qDebug() << "------>Sizetype";
+//        qDebug() << "------>" <<"sizetypeMap[id].toString()" << sizetypeMap["id"].toString();
+//        qDebug() << "------>" <<"sizetypeMap[type].toString()" << sizetypeMap["type"].toString();
+
+        QString sizetypeStr = QString("update sizetype "\
+                               "set type=\'%1\' where id=\'%2\';")\
+                               .arg(sizetypeMap["type"].toString())\
+                               .arg(sizetypeMap["id"].toString());
+        if(!query.exec(sizetypeStr)) {
+            qDebug() <<"query failed by update sizetype";
+            return;
+        }
+    }
+    QDialog::accept();
+
+}
 
 void LoginDialog::auth()
 {
@@ -425,7 +536,7 @@ void LoginDialog::auth()
 
     QString statement = QString("select password from users where name='%1'")
             .arg(userEdit->text());
-    QSqlDatabase localDb = QSqlDatabase::database("local");
+    QSqlDatabase localDb = QSqlDatabase::database("loginData");
 
     if (remoteAuth->isChecked()) {
         /****************************************************************/
@@ -444,10 +555,10 @@ void LoginDialog::auth()
         _finished = false;
         _authSuccess = false;
         //QString loginUrl = "http://" + serverAddr->currentText() + "/api/login";
-        QString loginUrl = "http://" + verifyLEdit->text() + ":8080/idesktop/login.action";
+        QString loginUrl = "http://" + verifyLEdit->text() + ":9080/idesktop/login.action";
         qDebug() <<"loginUrl"<<loginUrl;
         QString data = "username=" + userEdit->text() + "&password=" + passEdit->text() + "&tenant=0";
-        _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toAscii());
+        _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toUtf8());
         connMsg(tr("ÕýÔÚÁ¬½Ó·þÎñÆ÷..."));
         serverAddr->setEnabled(false);
         userEdit->setEnabled(false);
@@ -481,9 +592,6 @@ void LoginDialog::auth()
     }
 
     //    _tray->setVisible(false);
-//    QString jsonUrl = "http://192.168.30.37:9080/idesktop/getUserStatusData.action";
-//    QString data = "username=" + userEdit->text();
-//    _namJson->post(QNetworkRequest(QUrl(jsonUrl)), data.toAscii());
 
     int count = 0;
     QString selectCount = QString("SELECT count FROM addrs where addr='%1';")\
@@ -498,6 +606,8 @@ void LoginDialog::auth()
     //Config::set("password",md5);
     Config::set("password",passEdit->text());
     Config::set("User", userEdit->text());
+    Config::set("UserNameDir", Config::get("AppDir") + "\\" + Config::get("User"));
+    Config::set("UserData", Config::get("AppDir") + "\\" + Config::get("User") + "\\data");
 
     saveVacUserInfo();
 
@@ -511,7 +621,14 @@ void LoginDialog::auth()
 //    iniPath = WIN_TtempPath + "\\App Center\\app.ini";
 //    qDebug()<<"icon path:"<<WIN_VAPP_IconPath;
 
-    QDialog::accept();
+
+    createDb();
+
+    QString jsonUrl = "http://" + verifyLEdit->text() + ":9080/idesktop/getUserStatusData.action";
+    QString data = "username=" + userEdit->text();
+    _namJson->post(QNetworkRequest(QUrl(jsonUrl)), data.toUtf8());
+
+//    QDialog::accept();
 
 }
 
@@ -597,7 +714,7 @@ void LoginDialog::settingUi()
 void LoginDialog::readVerifyServer()
 {
     QSqlQuery query = \
-            QSqlDatabase::database("local").exec(QString("SELECT verifyServer FROM paasservers where id=1;"));
+            QSqlDatabase::database("loginData").exec(QString("SELECT verifyServer FROM paasservers where id=1;"));
     while (query.next())
     {
         serverip = query.value(0).toString();
@@ -695,7 +812,7 @@ void LoginDialog::PaasError(QString error)
 
 void LoginDialog::saveVacUserInfo()
 {
-    QSqlQuery query(QSqlDatabase::database("local"));
+    QSqlQuery query(QSqlDatabase::database("loginData"));
     QString updateVacData = QString("update vacservers set name=\'%1\',password=\'%2\' where id=1;")\
             .arg(userEdit->text()).arg(passEdit->text());
     if(!query.exec(updateVacData)) {
@@ -749,7 +866,7 @@ void LoginDialog::saveSettingSlot()
     returnButton->setEnable(true);
     returnButton->setEnabled(true);
 
-    QSqlQuery query(QSqlDatabase::database("local"));
+    QSqlQuery query(QSqlDatabase::database("loginData"));
     if(VacServer.isEmpty() || PaasServer.isEmpty())
     {
 
@@ -844,7 +961,7 @@ void LoginDialog::returnSlot()
 void LoginDialog::updateVacServer()
 {
     QSqlQuery query = \
-            QSqlDatabase::database("local").exec(QString("SELECT server,port,name,password FROM vacservers where id=1;"));
+            QSqlDatabase::database("loginData").exec(QString("SELECT server,port,name,password FROM vacservers where id=1;"));
     while (query.next())
     {
         VacServer = query.value(0).toString();
@@ -853,7 +970,7 @@ void LoginDialog::updateVacServer()
         VacPassword = query.value(3).toString();
     }
     QSqlQuery query2 = \
-            QSqlDatabase::database("local").exec(QString("SELECT verifyServer,server FROM paasservers where id=1;"));
+            QSqlDatabase::database("loginData").exec(QString("SELECT verifyServer,server FROM paasservers where id=1;"));
     while (query2.next())
     {
         //by zj
@@ -910,4 +1027,100 @@ void LoginDialog::updateFlip(qreal val)
     //    painter.setTransform(t,true);
 
     repaint();
+}
+
+void LoginDialog::createDb()
+{
+    bool dbExists = true;
+
+    QFileInfo aInfo(Config::get("AppDir"));
+    if (!aInfo.exists() || !aInfo.isDir())
+    {
+       QDir appDir(Config::get("DataDir"));
+       appDir.mkdir("App Center");
+       dbExists = false;
+    }
+
+    QFileInfo uInfo(Config::get("UserNameDir"));
+    if (!uInfo.exists() || !uInfo.isDir())
+    {
+        QDir appDir(Config::get("AppDir"));
+        appDir.mkdir(QString("%1").arg(Config::get("User")));
+    }
+//    QString db = Config::get("AppDir") + "\\" + Config::get("User") + "\\data";
+    QFileInfo dbInfo(Config::get("UserData"));
+    if (!dbInfo.exists())
+        dbExists = false;
+
+    QSqlDatabase localDb = QSqlDatabase::addDatabase("QSQLITE", "local");
+    localDb.setDatabaseName(Config::get("UserData"));
+
+    if (!dbExists) {
+       QString createAppTable = \
+                      "CREATE TABLE localapps " \
+                      "(name nvarchar not null, " \
+                      "version nvarchar not null, " \
+                      "execname nvarchar not null, " \
+                      "icon nvarchar not null, " \
+                      "uninstall nvarchar not null, "\
+                      "lastupdate int not null, " \
+                      "page int not null, " \
+                      "idx int not null, " \
+                      "hidden int not null default 0, " \
+                      "id nvarchar not null," \
+                      "type nvarchar not null," \
+                      "isRemote int not null default 0, " \
+                      "url nvarchar not null, " \
+                      "dirId int not null, "\
+                      "uniquename nvarchar not null);";
+       QString createWallpaperTable = \
+                      "CREATE TABLE wallpapers " \
+                      "(id int not null primary key, " \
+                      "wallpaper nvarchar not null);";
+       QString createIconSizeTable = \
+                      "CREATE TABLE sizetype " \
+                      "(id int not null primary key, " \
+                      "type int not null);";
+
+       QSqlDatabase::database("local").exec(createAppTable);
+       QSqlDatabase::database("local").exec(createWallpaperTable);
+       QSqlDatabase::database("local").exec(createIconSizeTable);
+
+       QString qstrLapp = QString("insert into localapps ("\
+                                  "name, version, execname, icon, uninstall, "\
+                                  "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniqueName) values ( " \
+                                  "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', \'%8\', "\
+                                  "\'%9\', \'%10\',\'%11\',\'%12\',\'%13\',\'%14\', \'%15\');")\
+                                   .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg("1.0")\
+                                   .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg(":images/dustbin_normal.png")\
+                                   .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg(1)\
+                                   .arg(0).arg(0)\
+                                   .arg(int(false)).arg(1000)\
+                                   .arg("4").arg(int(false))\
+                                    .arg("").arg(-2).arg("4_dustbin");  //·ÏÖ½Â¨
+
+       QSqlQuery query(QSqlDatabase::database("local"));
+
+       if(!query.exec(qstrLapp))
+       {
+           qDebug() <<"query failed";
+       }
+
+       QString qstrWp = QString("insert into wallpapers ("\
+                              "id, wallpaper) values ( "\
+                              "\'%1\', \'%2\');")\
+                              .arg(1).arg(".//images//wallpager//wp_0.jpg");
+
+        if(!query.exec(qstrWp)) {
+            qDebug() <<"query failed";
+        }
+
+         QString qstrSizeType = QString("insert into sizetype ("\
+                                        "id, type) values ( "\
+                                        "\'%1\', \'%2\');")\
+                                        .arg(1).arg(0);
+         if(!query.exec(qstrSizeType)) {
+             qDebug() <<"query failed";
+         }
+    }
 }

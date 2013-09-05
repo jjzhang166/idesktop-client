@@ -3,11 +3,24 @@
 //#include <cstdlib>
 //#include <cstdio>
 //#include <cassert>
-#include <iostream>
-//#include <windows.h>
-//#include <shellapi.h>
-#include "strings.h"
-using namespace std;
+
+#ifdef Q_WS_WIN
+    #include <iostream>
+    #include <windows.h>
+    #include <shellapi.h>
+//    #include "hook.h"
+    #include "strings.h"
+    using namespace std;
+#endif
+#ifdef Q_WS_X11
+    #include <QFile>
+    #include <QImageReader>
+    #include <QFontMetrics>
+    #include <QByteArray>
+    #include <QtNetwork>
+    #include <QDesktopServices>
+    #include <QDir>
+#endif
 
 #include <QtGui>
 #include <QUuid>
@@ -1972,6 +1985,7 @@ void VirtualDesktop::addDirItem()
 
 void VirtualDesktop::openDir(int id, int page, int index)
 {
+    qDebug() << "open---->";
     emit hideMenu();
 
     if (!_dirMovingFinished)
@@ -2056,6 +2070,7 @@ void VirtualDesktop::openDir(int id, int page, int index)
 
 void VirtualDesktop::closeDir(int page, int index)
 {
+        qDebug() << "close---->";
     hideMenuWidget();
     if (!_dirMovingFinished)
         return;
@@ -2239,14 +2254,16 @@ void VirtualDesktop::addDesktopApp(const QString &text, const QString &pix, cons
 
 void VirtualDesktop::hideDirWidget(const QString &uniqueName, int dirId)
 {
-
+       qDebug() << "hideDirWidget--->start";
     Q_UNUSED(uniqueName);
    if (_openDir)
     {
+       qDebug() << "hideDirWidget--->openDir";
         closeDir(_dirPage, _dirIndex);
     }
     else if (_openToolBar)
     {
+         qDebug() << "hideDirWidget--->toolBar";
         toolBarCloseDir(_dirId, _toolBarClickedPosX, _toolBarIconItemWidth);
     }
 

@@ -60,6 +60,8 @@ public:
     QAction *_dHideAction;
     QAction *_dShowAction;
 
+    void createDb();
+
 signals:
     void dQuit();
     void dShow();
@@ -87,7 +89,7 @@ public slots:
     void saveSettingSlot();
     void returnSlot();
 
-//    void jsonDownloadFinished(QNetworkReply *reply);
+    void jsonDownloadFinished(QNetworkReply *reply);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -171,5 +173,5 @@ private:
     DynamicButton *closeButton;
     IDesktopSettings *_settings;
 
-//    QNetworkAccessManager *_namJson;
+    QNetworkAccessManager *_namJson;
 };

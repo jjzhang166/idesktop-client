@@ -507,7 +507,7 @@ QString LocalAppList::uploadJson()
         localapp.insert("execname",     QString("%1").arg(_list.at(i)->execname())      );
         localapp.insert("icon",         QString("%1").arg(_list.at(i)->icon())          );
         localapp.insert("uninstall",    QString("%1").arg(_list.at(i)->uninstName())    );
-        localapp.insert("lastupdate",   QString("%1").arg(0));
+        localapp.insert("lastupdate",   QString("%1").arg(0)                            );
         localapp.insert("page",         QString("%1").arg(_list.at(i)->page())          );
         localapp.insert("idx",          QString("%1").arg(_list.at(i)->index())         );
         localapp.insert("hidden",       QString("%1").arg(_list.at(i)->hidden())        );
@@ -522,42 +522,12 @@ QString LocalAppList::uploadJson()
     }
 
     Serializer serializer;
-    QByteArray localappsJson = serializer.serialize(localapps);
 
-//    qDebug() << "{\"localapps\":" + localappsJson + "}";
-//users
-    QVariantList users;
-    QSqlQuery usersQuery = \
-            QSqlDatabase::database("local").exec(QString("SELECT name,password FROM users;"));
-    while (usersQuery.next())
-    {
-        QVariantMap user;
-        user.insert("name",     QString("%1").arg(usersQuery.value(0).toString()));
-        user.insert("password", QString("%1").arg(usersQuery.value(1).toString()));
+    QString localappsJson = QString::fromUtf8(serializer.serialize(localapps).data());
 
-        users << user;
-    }
+    qDebug() << "localappsJson" << localappsJson;
 
-    QByteArray usersJson = serializer.serialize(users);
 
-//    qDebug() << "{\"users\":" + usersJson + "}";
-
-//addrs
-    QVariantList addrs;
-    QSqlQuery addrsQuery = \
-            QSqlDatabase::database("local").exec(QString("SELECT addr,count FROM addrs;"));
-    while (addrsQuery.next())
-    {
-        QVariantMap addr;
-        addr.insert("addr",     QString("%1").arg(addrsQuery.value(0).toString()));
-        addr.insert("count",    QString("%1").arg(addrsQuery.value(1).toString()));
-
-        addrs << addr;
-    }
-
-    QByteArray addrsJson = serializer.serialize(addrs);
-
-//    qDebug() << "{\"addrs\":" + addrsJson + "}";
 //wallpapers
     QVariantList wallpapers;
     QSqlQuery wallpapersQuery = \
@@ -565,51 +535,16 @@ QString LocalAppList::uploadJson()
     while (wallpapersQuery.next())
     {
         QVariantMap wallpaper;
-        wallpaper.insert("id",       QString("%1").arg(wallpapersQuery.value(0).toString()));
-        wallpaper.insert("wallpaper",QString("%1").arg(wallpapersQuery.value(1).toString()));
+        wallpaper.insert("id",          QString("%1").arg(wallpapersQuery.value(0).toString())  );
+        wallpaper.insert("wallpaper",   QString("%1").arg(wallpapersQuery.value(1).toString())  );
 
         wallpapers << wallpaper;
     }
 
-    QByteArray wallpapersJson = serializer.serialize(wallpapers);
+    QString wallpapersJson = QString::fromUtf8(serializer.serialize(wallpapers).data());
+//    qDebug() << "wallpapersJson" << wallpapersJson;
 
-//    qDebug() << "{\"wallpapers\":" + wallpapersJson + "}";
 
-//vacservers
-    QVariantList vacservers;
-    QSqlQuery vacserversQuery = \
-            QSqlDatabase::database("local").exec(QString("SELECT id,server,port,name,password FROM vacservers;"));
-    while (vacserversQuery.next())
-    {
-        QVariantMap vacserver;
-        vacserver.insert("id",      QString("%1").arg(vacserversQuery.value(0).toString()));
-        vacserver.insert("server",  QString("%1").arg(vacserversQuery.value(1).toString()));
-        vacserver.insert("port",    QString("%1").arg(vacserversQuery.value(2).toString()));
-        vacserver.insert("name",    QString("%1").arg(vacserversQuery.value(3).toString()));
-        vacserver.insert("password",QString("%1").arg(vacserversQuery.value(4).toString()));
-        vacservers << vacserver;
-    }
-
-    QByteArray vacserversJson = serializer.serialize(vacservers);
-
-//    qDebug() << "{\"vacservers\":" + vacserversJson + "}";
-
-//paasservers
-    QVariantList paasservers;
-    QSqlQuery paasserversQuery = \
-            QSqlDatabase::database("local").exec(QString("SELECT id,verifyServer,server FROM paasservers;"));
-    while (paasserversQuery.next())
-    {
-        QVariantMap paasserver;
-        paasserver.insert("id",             QString("%1").arg(paasserversQuery.value(0).toString()));
-        paasserver.insert("verifyServer",   QString("%1").arg(paasserversQuery.value(1).toString()));
-        paasserver.insert("server",         QString("%1").arg(paasserversQuery.value(2).toString()));
-        paasservers << paasserver;
-    }
-
-    QByteArray paasserversJson = serializer.serialize(paasservers);
-
-//    qDebug() << "{\"paasservers\":" + paasserversJson + "}";
 //sizetype
     QVariantList sizetype;
     QSqlQuery sizetypeQuery = \
@@ -617,21 +552,16 @@ QString LocalAppList::uploadJson()
     while (sizetypeQuery.next())
     {
         QVariantMap type;
-        type.insert("id",   QString("%1").arg(sizetypeQuery.value(0).toString()));
-        type.insert("type", QString("%1").arg(sizetypeQuery.value(1).toString()));
+        type.insert("id",               QString("%1").arg(sizetypeQuery.value(0).toString())    );
+        type.insert("type",             QString("%1").arg(sizetypeQuery.value(1).toString())    );
 
         sizetype << type;
     }
+    QString sizetypeJson = QString::fromUtf8(serializer.serialize(sizetype).data());
+//        qDebug() << "sizetypeJson" << sizetypeJson;
 
-    QByteArray sizetypeJson = serializer.serialize(sizetype);
-
-//    qDebug() << "{\"sizetype\":" + sizetypeJson + "}";
 
     return "{\"localapps\":" + localappsJson +","
-           "\"users\":" + usersJson +","
-           "\"addrs\":" + addrsJson +","
            "\"wallpapers\":" + wallpapersJson +","
-           "\"vacservers\":" + vacserversJson +","
-           "\"paasservers\":" + paasserversJson +","
            "\"sizetype\":" + sizetypeJson + "}";
 }

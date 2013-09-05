@@ -12,7 +12,6 @@
 #define GET_VALUE(x,y) x.value(y).toString()
 #define FOLDERS_KEY "\\Windows\\CurrentVersion\\Explorer\\Shell Folders\\"
 
-
 extern QString serverip;
 
 QMap<QString, QString> Config::configDict;
@@ -36,7 +35,7 @@ void Config::initiate()
     set("UserDir",GET_VALUE(userReg, "Personal"));
     set("CommonProgramDir", GET_VALUE(commonReg, "Common Programs"));
     set("UserProgramDir", GET_VALUE(userReg, "Programs"));
-    set("LocalDb", get("AppDir").append("\\data"));
+    set("LoginDb", get("AppDir").append("\\data"));
     set("IconDir", get("AppDir").append("\\Licons"));
     set("InstDir", get("AppDir").append("\\downloads"));
     set("Profile", get("UserDir").append("\\profile"));
@@ -44,6 +43,8 @@ void Config::initiate()
     set("User", "");
     set("Server", "");
     set("SystemManage", "./system_manage/system_manage.html");
+    set("UserNameDir", "");
+    set("UserData", "");
 
     QString str = GET_VALUE(userReg, "Programs");
 

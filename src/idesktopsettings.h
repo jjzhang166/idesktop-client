@@ -15,6 +15,7 @@ public:
 
     int iconSize() const;
     void setIconSize(int newSize);
+    void initIconSize();
 
 
     QList<LOCAL_LIST>& remoteLocalList() { return _remoteLocalList; }
