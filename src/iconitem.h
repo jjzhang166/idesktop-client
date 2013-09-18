@@ -65,10 +65,6 @@ public:
     void setMediumSize();
     void setSmallSize();
 
-    void setSLargeSize();
-    void setSMediumSize();
-    void setSSmallSize();
-
     void setClosePixBool(bool closePixBool)             { _closePixBool = closePixBool; }
     void setSelectPixBool(bool selectePixBool)          { _selectePixBool = selectePixBool; }
     void setDoubleClickBool(bool doubleClickeBool)      { _doubleClickeBool = doubleClickeBool; }
@@ -98,7 +94,6 @@ public:
 
     const QString & text();
     virtual const QPixmap & pixmap();
-    const QPixmap & originPixmap();
     const QPixmap & grayPixmap();
     const QPixmap & darkPixmap();
     const QPixmap & maskPixmap();
@@ -208,9 +203,7 @@ private:
 
     QString _url;
     QString _pixText;
-    QPixmap _hoverBackgroud;
     QPixmap _selectedBackgroud;
-    QPixmap _normalBackground;
 
     QPixmap _editLeft;
     QPixmap _editCenter;
@@ -226,7 +219,6 @@ private:
     QPixmap _grayPixmap;
     QPixmap _closePixmap;
     QPixmap _darkPixmap;
-    QPixmap _originPixmap;
     QPixmap _shadowPixmap;
     QPixmap _selectPixmap;
 

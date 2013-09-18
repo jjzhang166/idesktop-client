@@ -1,14 +1,6 @@
-#include <QPainter>
-#include <QFontMetrics>
-#include <QLabel>
-#include <QDebug>
-#include <QSettings>
+#include <QtGui>
 #include <windows.h>
-#include <QFile>
 #include "contextmenuwidget.h"
-//miya add
-#include <QMessageBox>
-#include <QDesktopServices>
 
 #include "idesktopsettings.h"
 #define BTN_H 19
@@ -321,6 +313,25 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
     , _width(0)
     , _height(0)
 {
+    setWindowFlags(Qt::Popup|Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground);
+
+//    setAutoFillBackground(true);
+//    QPalette pal = palette();
+//    pal.setColor(QPalette::Background, QColor(0,0,0,0));
+//    setPalette(pal);
+
+    QPixmapCache::insert("menutop",
+         QPixmap(":images/menu_top.png").scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    QPixmapCache::insert("menucenter",
+         QPixmap(":images/menu_center.png").scaled(width(), height() - 40, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    QPixmapCache::insert("menubottom",
+        QPixmap(":images/menu_bottom.png").scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    QPixmapCache::insert("menuline", QPixmap(":images/menu_line.png"));
+    QPixmapCache::insert("menulinescaled",
+       QPixmap(":images/menu_line.png").scaled(width(), 2, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+
     switch(_type)
     {
     case MenuWidget::normal :
@@ -514,31 +525,19 @@ void MenuWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    painter.drawPixmap(0, 0, width(), 20
-                       , QPixmap(":images/menu_top.png").scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    painter.drawPixmap(0, 0, width(), 20, *QPixmapCache::find("menutop"));
+    painter.drawPixmap(0, 20, width(), height() - 40, *QPixmapCache::find("menucenter"));
 
-    painter.drawPixmap(0, 20, width(), height() - 40
-                       , QPixmap(":images/menu_center.png").scaled(width(), height() - 40, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-
-    if (_type == MenuWidget::normal)
-    {
+    if (_type == MenuWidget::normal) {
         painter.drawPixmap(0, 20 + 19, QPixmap(":images/menu_line.png"));
-//        painter.drawPixmap(0, 20 + 19 * 3 + 2 * 2, QPixmap(":images/menu_line.png"));
-    }
-    else if (_type == MenuWidget::create)
-    {
-        painter.drawPixmap(0, 20 + 19 * 2 + 2, width(), 2
-                           , QPixmap(":images/menu_line.png").scaled(width(), 2, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    }
-    else if (_type == MenuWidget::iconMenu)
-    {
+    } else if (_type == MenuWidget::create) {
+        painter.drawPixmap(0, 20 + 19 * 2 + 2, width(), 2, *QPixmapCache::find("menulinescaled"));
+    } else if (_type == MenuWidget::iconMenu) {
         painter.drawPixmap(0, 20 + 19, QPixmap(":images/menu_line.png"));
     }
 
-    painter.drawPixmap(0, height() - 20, width(), 20
-                       , QPixmap(":images/menu_bottom.png").scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+    painter.drawPixmap(0, height() - 20, width(), 20, *QPixmapCache::find("menubottom"));
 
-    QWidget::paintEvent(event);
 }
 
 void MenuWidget::largeBtnClicked()

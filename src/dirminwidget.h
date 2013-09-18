@@ -237,8 +237,6 @@ private:
     int _type;
 
     QString _uniqueName;
-    QList<TEMP_LIST> _tempFirstIconItem;
-
 };
 
 class DirLineEdit : public QLineEdit

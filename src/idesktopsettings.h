@@ -6,6 +6,21 @@
 #include "commuinication.h"
 //paas
 #include "paascommuinication.h"
+#include "iconwidget.h"
+
+#define FONTSIZE 10
+#define SMALLSLIDERWIDTH 38
+
+#define HSPACING 4 // grid left/right spacing
+#define VSPACING 0 // grid top spacing
+#define BOTTOMSPACING 24 // grid bottom spacing
+
+#define LARGESIZE QSize(143, 143)     //72*72
+#define MEDIUMSIZE QSize(119, 119)     //48*48
+#define SMALLSIZE QSize(103, 103)   //32*32
+
+#define ICONHSPACING (88 - 40) // left + right side margin
+#define ICONVSPACING (88 - 36) // top + bottom side margin
 
 class IDesktopSettings : public QObject
 {
@@ -13,8 +28,8 @@ class IDesktopSettings : public QObject
 public:
     static IDesktopSettings* instance();
 
-    int iconSize() const;
-    void setIconSize(int newSize);
+    IconWidget::icon_size iconSize() const;
+    void setIconSize(IconWidget::icon_size newSize);
     void initIconSize();
 
 
@@ -32,10 +47,12 @@ public:
     void setVappList(const QList<APP_LIST>& list);
     void setPaasList(const QList<PAAS_LIST>& list);
 
+    QVariant prop(const QString& propName);
+
 private:
     static IDesktopSettings *_instance;
 
-    int _iconSize;
+    IconWidget::icon_size _iconSize;
     QList<LOCAL_LIST> _remoteLocalList;
     QList<APP_LIST> _remoteAppList;
     QList<PAAS_LIST> _remotePaasList;
@@ -46,7 +63,7 @@ private:
     explicit IDesktopSettings(QObject *parent = 0);
     
 signals:
-    void iconSizeUpdated(int old, int now);
+    void iconSizeUpdated(IconWidget::icon_size old, IconWidget::icon_size now);
     
 public slots:
     

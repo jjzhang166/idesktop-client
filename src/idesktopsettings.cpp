@@ -1,18 +1,20 @@
-#include "idesktopsettings.h"
 #include <QtSql/QtSql>
 #include <QtGui>
+
+#include "idesktopsettings.h"
+#include "iconwidget.h"
 
 IDesktopSettings *IDesktopSettings::_instance = NULL;
 
 IDesktopSettings::IDesktopSettings(QObject *parent) :
     QObject(parent)
 {
-//    QSqlQuery query =
-//            QSqlDatabase::database("local").exec(QString("SELECT type FROM sizetype where id=1;"));
-//    if (query.first()) {
-//        _iconSize = query.value(0).toInt();
-//        qDebug() << "query iconSize = " << _iconSize;
-//    }
+    QSqlQuery query =
+            QSqlDatabase::database("local").exec(QString("SELECT type FROM sizetype where id=1;"));
+    if (query.first()) {
+        _iconSize = (IconWidget::icon_size)query.value(0).toInt();
+        qDebug() << "query iconSize = " << _iconSize;
+    }
 }
 
 IDesktopSettings* IDesktopSettings::instance()
@@ -29,19 +31,19 @@ void IDesktopSettings::initIconSize()
     QSqlQuery query =
             QSqlDatabase::database("local").exec(QString("SELECT type FROM sizetype where id=1;"));
     if (query.first()) {
-        _iconSize = query.value(0).toInt();
+        _iconSize = (IconWidget::icon_size)query.value(0).toInt();
         qDebug() << "query iconSize = " << _iconSize;
     }
 }
 
-int IDesktopSettings::iconSize() const
+IconWidget::icon_size IDesktopSettings::iconSize() const
 {
     return _iconSize;
 }
 
-void IDesktopSettings::setIconSize(int newSize)
+void IDesktopSettings::setIconSize(IconWidget::icon_size newSize)
 {
-    int old = _iconSize;
+    IconWidget::icon_size old = _iconSize;
     if (old == newSize) {
         return;
     }
@@ -85,4 +87,9 @@ void IDesktopSettings::setVappList(const QList<APP_LIST>& list)
 void IDesktopSettings::setPaasList(const QList<PAAS_LIST>& list)
 {
     _paasList = list;
+}
+
+QVariant IDesktopSettings::prop(const QString& propName)
+{
+    return QVariant();
 }

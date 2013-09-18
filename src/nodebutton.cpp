@@ -172,8 +172,8 @@ void NodeButton::setCurrent(const bool &cur)
 
     _current = cur;
 
-    emit clicked();
-    emit clicked(this);
+//    emit clicked();
+//    emit clicked(this);
 
     update();
 }

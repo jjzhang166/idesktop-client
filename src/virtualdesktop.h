@@ -144,7 +144,6 @@ public:
     void atExit();
     void moveItem(IconItem *item, int page);
 
-    int addDirIcon(int page, int index);
     void setDirHide();
 
     void refresh(QSize size);
@@ -177,15 +176,13 @@ public slots:
     void onProcessFinished(int, QProcess::ExitStatus);
     void delIcon(const QString &uniqueName);
 //    void delIcon(IconItem *ic);
-    int addIcon(const QString &text, const QString &icon,
+    int appendIcon(const QString &text, const QString &icon,
                 const QString &url, int type = 0,
                 int i = -1, const QString &uniqueName = "");
     void updateClicked();
     void itemHeld();
     void dragRight();
     void dragLeft();
-    void arrangeEqually(int pageCount);
-    void arrangeMinimum();
 
     void appAdd();
     void appDelete();

@@ -213,7 +213,7 @@ VirtualDesktop::VirtualDesktop(QSize pageSize,  QWidget *parent)
     connect(dragRightTimer, SIGNAL(timeout()), this, SLOT(dragRight()));
 
     connect(_local, SIGNAL(appAdded(const QString&, const QString&, const QString &, int, int, const QString &))
-            , this, SLOT(addIcon(const QString&, const QString&, const QString &, int, int, const QString &)));
+            , this, SLOT(appendIcon(const QString&, const QString&, const QString &, int, int, const QString &)));
     connect(_local, SIGNAL(appRemoved(const QString&)), this, SLOT(delIcon(const QString&)));
 }
 
@@ -439,158 +439,6 @@ void VirtualDesktop::moveItem(IconItem *item, int target)
 
 void VirtualDesktop::reload()
 {
-    emit reInitiate();
-}
-
-void VirtualDesktop::arrangeEqually(int pageCount)
-{
-    QList<IconItem*> seqList;
-    for (int i = 0; i < _count; i++)
-        for (int j = 0; j < _row * _col; j++)
-            if (_iconTable[i][j]) {
-                seqList.push_back(_iconTable[i][j]);
-                _iconTable[i][j] = NULL;
-            }
-    int iconCount = seqList.count();
-    if (iconCount < pageCount)
-        pageCount = iconCount;
-
-    _iconTable.clear();
-    _gridTable.clear();
-    _nextIdx.clear();
-    _count = pageCount;
-    _current = 0;
-    move(_pages[0], y());
-    _pages.clear();
-    for (int i = 0; i < _count; i++)
-        _pages.insert(i, -(i * _width));
-    gridWidth = ICONITEMWIDTH + HSPACING * 2;
-    gridHeight = ICONITEMWIDTH + VSPACING * 2;
-
-    for (int i = 0; i < _count; i++) {
-        QList<QRect> newList;
-        for (int j = 0; j < _col * _row; j++) {
-            int x =  _pageSize.width() * i \
-                    + (j % _col) * gridWidth + ICONHSPACING;
-            int y = (j / _col) * gridHeight + ICONVSPACING;
-            newList.insert(j, \
-                           QRect(x, y, gridWidth, gridHeight));
-        }
-        _gridTable.insert(i, newList);
-    }
-
-    for (int i = 0; i < _count; i++) {
-        QList<IconItem*> newList;
-        for (int j = 0; j < _col * _row; j++)
-            newList.insert(j, NULL);
-        _iconTable.insert(i, newList);
-    }
-
-    for (int i = 0; i < _count; i++)
-        _nextIdx.insert(i, 0);
-    setFixedSize(_width * _count, _height);
-
-    int eachPage = iconCount / pageCount;
-    int currentPage = 0;
-    int tmpCount = 0;
-    int m = 0;
-    while (currentPage < pageCount) {
-        while (tmpCount < eachPage) {
-            _iconTable[currentPage][tmpCount] = seqList[m];
-            seqList[m]->move(_gridTable[currentPage][tmpCount].translated(HSPACING, VSPACING).topLeft());
-            seqList[m]->setPage(currentPage);
-            seqList[m]->setIndex(tmpCount);
-            m++;
-            tmpCount++;
-        }
-        _nextIdx[currentPage] = eachPage;
-        currentPage++;
-        tmpCount = 0;
-    }
-    currentPage = 0;
-    for (int i = m; i < iconCount; i++) {
-        _iconTable[currentPage][eachPage] = seqList[i];
-        seqList[i]->move(_gridTable[currentPage][eachPage].translated(HSPACING, VSPACING).topLeft());
-        seqList[m]->setPage(currentPage);
-        seqList[m]->setIndex(eachPage);
-        _nextIdx[currentPage]++;
-        currentPage++;
-    }
-    emit reInitiate();
-}
-
-void VirtualDesktop::arrangeMinimum()
-{
-    //printDesktop();
-    QList<IconItem*> seqList;
-    for (int i = 0; i < _count; i++)
-        for (int j = 0; j < _row * _col; j++)
-            if (_iconTable[i][j]) {
-                seqList.push_back(_iconTable[i][j]);
-                _iconTable[i][j] = NULL;
-            }
-    int iconCount = seqList.count();
-    int pageCount = iconCount / (_row * _col);
-    if (iconCount % (_row * _col) != 0)
-        pageCount++;
-
-    _iconTable.clear();
-    _gridTable.clear();
-    _nextIdx.clear();
-    _count = pageCount;
-    _current = 0;
-    move(_pages[0], y());
-    _pages.clear();
-    for (int i = 0; i < _count; i++)
-        _pages.insert(i, -(i * _width));
-
-//    gridWidth = ICONWIDTH + SPACING * 2;
-//    gridHeight = ICONHEIGHT + SPACING * 2;
-    gridWidth = ICONITEMWIDTH + HSPACING * 2;
-    gridHeight = ICONITEMWIDTH + VSPACING * 2;
-
-    for (int i = 0; i < _count; i++) {
-        QList<QRect> newList;
-        for (int j = 0; j < _col * _row; j++) {
-            int x =  _pageSize.width() * i \
-                    + (j % _col) * gridWidth + ICONHSPACING;
-            int y = (j / _col) * gridHeight + ICONVSPACING;
-            newList.insert(j, \
-                           QRect(x, y, gridWidth, gridHeight));
-        }
-        _gridTable.insert(i, newList);
-    }
-
-    for (int i = 0; i < _count; i++) {
-        QList<IconItem*> newList;
-        for (int j = 0; j < _col * _row; j++)
-            newList.insert(j, NULL);
-        _iconTable.insert(i, newList);
-    }
-
-    for (int i = 0; i < _count; i++)
-        _nextIdx.insert(i, 0);
-    setFixedSize(_width * _count, _height);
-
-    int page = 0;
-    int idx = 0;
-    int m = 0;
-    while (m < iconCount ) {
-        if (idx == _row * _col) {
-            page++;
-            idx = 0;
-            continue;
-        }
-        _iconTable[page][idx] = seqList[m];
-        seqList[m]->move(_gridTable[page][idx].translated(HSPACING, VSPACING).topLeft());
-        seqList[m]->setPage(page);
-        seqList[m]->setIndex(idx);
-        _nextIdx[page]++;
-        idx++;
-        m++;
-    }
-
-    //printDesktop();
     emit reInitiate();
 }
 
@@ -1692,7 +1540,7 @@ int VirtualDesktop::addIcon(const QString &text, \
 }
 
 
-int VirtualDesktop::addIcon(const QString &text, const QString &icon, const QString &url, int type, int i, const QString &uniqueName)
+int VirtualDesktop::appendIcon(const QString &text, const QString &icon, const QString &url, int type, int i, const QString &uniqueName)
 {
     return addIcon(text, icon, -1, -1, url, type, i, uniqueName);
 }
@@ -2348,7 +2196,7 @@ void VirtualDesktop::setLargeIcon()
     if (_settings->iconSize() == IconItem::large_size)
         return;
 
-    _settings->setIconSize(IconItem::large_size);
+    _settings->setIconSize((IconWidget::icon_size)IconItem::large_size);
 
     for (int i = 0; i < _dirShowWidgetList.count(); i++)
     {
@@ -2373,7 +2221,7 @@ void VirtualDesktop::setMediumIcon()
     if (_settings->iconSize() == IconItem::medium_size)
         return;
 
-    _settings->setIconSize(IconItem::medium_size);
+    _settings->setIconSize((IconWidget::icon_size)IconItem::medium_size);
 
     for (int i = 0; i < _dirShowWidgetList.count(); i++)
     {
@@ -2394,7 +2242,7 @@ void VirtualDesktop::setSmallIcon()
     if (_settings->iconSize() == IconItem::small_size)
         return;
 
-    _settings->setIconSize(IconItem::small_size);
+    _settings->setIconSize((IconWidget::icon_size)IconItem::small_size);
 
     for (int i = 0; i < _dirShowWidgetList.count(); i++)
     {

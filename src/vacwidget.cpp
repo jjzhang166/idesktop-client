@@ -801,19 +801,19 @@ void VacWidget::getLocalIcon()
 
 void VacWidget::largeIcon()
 {
-    _settings->setIconSize(IconItem::large_size);
+    _settings->setIconSize(IconWidget::large_size);
     refresh(LARGESIZE);
 }
 
 void VacWidget::mediumIcon()
 {
-    _settings->setIconSize(IconItem::medium_size);
+    _settings->setIconSize(IconWidget::medium_size);
     refresh(MEDIUMSIZE);
 }
 
 void VacWidget::smallIcon()
 {
-    _settings->setIconSize(IconItem::small_size);
+    _settings->setIconSize(IconWidget::small_size);
     refresh(SMALLSIZE);
 }
 

@@ -80,10 +80,18 @@ HEADERS += src/config.h \
     src/runapp.h \
     src/struct.h \
     src/idesktopsettings.h \
+    src/gridcontainer.h \
+    src/gridmodel.h \
+    src/indexedlist.h \
+    src/iconwidget.h \
+    src/swipegesture.h \
+    src/dircontainer.h \
+    src/docker.h \
     src/rotatewarnningitem.h \
     src/mask.h \
     src/movingdialog.h \
     src/contextmenuwidget.h
+
 
 
 win32 {
@@ -135,6 +143,13 @@ SOURCES += src/config.cpp \
     src/qitemmanager.cpp \
     src/runapp.cpp \
     src/idesktopsettings.cpp \
+    src/gridcontainer.cpp \
+    src/gridmodel.cpp \
+    src/indexedlist.cpp \
+    src/iconwidget.cpp \
+    src/swipegesture.cpp \
+    src/dircontainer.cpp \
+    src/docker.cpp \
     src/rotatewarnningitem.cpp \
     src/contextmenuwidget.cpp \
     src/mask.cpp \

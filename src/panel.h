@@ -29,8 +29,6 @@ public:
 signals:
     void quit();
     void desktop();
-    void setEqual(int);
-    void setMini();
     void pageChanged(int);    
 
     void showSkinWidget();

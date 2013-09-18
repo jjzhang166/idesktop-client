@@ -78,6 +78,7 @@ LocalAppList * LocalAppList::getList()
 LocalAppList::LocalAppList(QObject *parent)
     :QObject(parent)
 {
+    addDustbinOnNeed();
     updateQList();
 //    updateAppList();
 //    qDebug() << uploadJson();
@@ -258,6 +259,8 @@ bool LocalAppList::addRemoteApp(LocalApp *app)
     }
     qDebug()<<"add Remote APP";
     _list.append(app);
+    emit appAdded(app->name(), app->icon(), app->url(), app->type().toInt(), app->id().toInt(), app->uniqueName());
+    emit appAdded(app);
     return true;
 }
 
@@ -289,6 +292,7 @@ bool LocalAppList::addApp(LocalApp *app)
     qDebug()<<"add APP";
     _list.append(app);
     emit appAdded(app->name(), app->icon(), app->url(), app->type().toInt(), app->id().toInt(), app->uniqueName());
+    emit appAdded(app);
     return true;
 }
 
@@ -306,6 +310,44 @@ bool LocalAppList::addApp(LocalApp *app)
 //    }
 //}
 
+/**
+ * @brief LocalAppList::getPages
+ * here I assume that all page numbers are consective, or else I should return
+ * a set of page numbers
+ * @return
+ */
+int LocalAppList::getPages() const
+{
+    QSqlQuery qry = QSqlDatabase::database("local").exec("select count(distinct page) from localapps;");
+    if (qry.next()) {
+        return qry.value(0).toInt();
+    }
+}
+
+int LocalAppList::dirCounts() const
+{
+    QSqlQuery qry = QSqlDatabase::database("local").exec("select count(*) from localapps where cast (id as int) between 0 and 110;");
+    if (qry.next()) {
+        return qry.value(0).toInt();
+    }
+
+    return 0;
+}
+
+QList<LocalApp*> LocalAppList::appsInDir(int id) const
+{
+    QList<LocalApp*> apps;
+    for (int i = 0; i < this->count(); i++) {
+        if (this->at(i)->hidden())
+            continue;
+
+        if (this->at(i)->dirId() == id) {
+            apps.append(this->at(i));
+        }
+    }
+    return apps;
+}
+
 LocalApp* LocalAppList::getAppByName(const QString &name)
 {
     for (int i = 0; i < _list.count(); i++) {
@@ -320,17 +362,19 @@ void LocalAppList::delApp(QString uniqueName)
     for (int i = 0; i < _list.count(); i++) {
         if (_list.at(i)->uniqueName() == uniqueName) {
             QSqlQuery query(QSqlDatabase::database("local"));
-            QString qstr = QString("delete from localapps "\
+            QString qstr = QString("delete from localapps "
                                    "where uniquename=\"%1\";").arg(uniqueName);
-//            QSqlQuery query = QSqlDatabase::database("local").exec(qstr);
 
             if(!query.exec(qstr)) {
                 qDebug() <<"query failed";
                 return;
             }
 
+            LocalApp *app = _list.value(i);
             _list.remove(i);
             emit appRemoved(uniqueName);
+            emit appRemoved(app);
+            delete app;
             return;
         }
     }
@@ -345,14 +389,14 @@ LocalApp* LocalAppList::getAppByUniqueName(const QString &uniqueName)
     return NULL;
 }
 
-LocalApp* LocalAppList::at(int i)
+LocalApp* LocalAppList::at(int i) const
 {
     if (i >= _list.count() || i < 0)
         return NULL;
     return _list.at(i);
 }
 
-int LocalAppList::count()
+int LocalAppList::count() const
 {
     return _list.count();
 }
@@ -564,4 +608,38 @@ QString LocalAppList::uploadJson()
     return "{\"localapps\":" + localappsJson +","
            "\"wallpapers\":" + wallpapersJson +","
            "\"sizetype\":" + sizetypeJson + "}";
+}
+
+void LocalAppList::addDustbinOnNeed()
+{
+    qDebug() << __PRETTY_FUNCTION__ << "need to create dustbin";
+
+    QSqlDatabase db = QSqlDatabase::database("local");
+    QSqlQuery query(db);
+
+    if (query.exec(QString("select count(*) from localapps where id = 1000;"))) {
+        query.first();
+        if (query.value(0).toInt() > 0) {
+            return;
+        }
+        qDebug() << __PRETTY_FUNCTION__ << "need to create dustbin";
+    }
+
+    QString qstrLapp = QString("insert into localapps ("\
+                               "name, version, execname, icon, uninstall, "\
+                               "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniqueName) values ( " \
+                               "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', \'%8\', "\
+                               "\'%9\', \'%10\',\'%11\',\'%12\',\'%13\',\'%14\', \'%15\');")\
+            .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg("1.0")\
+            .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg(":images/dustbin_normal.png")\
+            .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg(1)\
+            .arg(0).arg(0)\
+            .arg(int(false)).arg(1000)\
+            .arg("4").arg(int(false))\
+            .arg("").arg(-2).arg("4_dustbin");  //·ÏÖ½Â¨
+
+    if(!query.exec(qstrLapp)) {
+        qDebug() <<"query failed";
+    }
+
 }

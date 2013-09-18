@@ -26,6 +26,9 @@
 #include "mask.h"
 #include "paascommuinication.h"
 
+class DirContainer;
+class Docker;
+class GridContainer;
 class QVBoxLayout;
 class AppWidget;
 class QAction;
@@ -76,26 +79,11 @@ public slots:
     void onShowSkinDesktop();
 
     void setBgPixmap(const QString &pixText);
-    void goPage(int page);
 
     //vac
     void onDone();
     void errOut();
-
     void onPaasDone();
-
-    void upMove(int x, int y, int w, int h, int distance);
-    void upBackMove(int x, int y, int w, int h, int distance);
-    void downMove(int x, int y, int w, int h, int distance);
-    void downBackMove(int x, int y, int w, int h, int distance);
-    void animationFinished();
-    void openMinWidget(int x, int y, int w, int h, int distance);
-    void closeMinWidget(int x, int y, int w, int h, int distance);
-    void upMinMove(int x, int y, int w, int h, int distance);
-    void upMinBackMove(int x, int y, int w, int h, int distance);
-    void animationMinDownFinished();
-
-    void valueChanged(const QVariant &value);
     void desktopClicked();
 
     void largeIcon();
@@ -106,7 +94,6 @@ public slots:
 
     void updateNodes();
 
-    void setMinMoveLabel(bool up);
     void getIn();
     void getOut();
 
@@ -117,18 +104,12 @@ public slots:
     void virtualDesktopAddDirItem();
     void hideMenuWidget();
     void refreshMenu();
-    void showDirMenu(QPoint mPos, const QString &uniqueName);
-    void showIconMenu(QPoint mPos, const QString &uniqueName);
-    void vdesktopShowDustbinMenu(QPoint mPos, IconItem *iconItem);
     void showNormalMenu(QPoint mousePos);
-    void menuDirOpen();
-    void menuDirDel();
-    void menuDirClear();
-    void menuIconRun();
-    void menuIconDel();
 
-    void dustbinMenuRestoreClicked();
-    void dustbinMenuDelClicked();
+    void moveAppToTrash(LocalApp *app);
+    void handleOpenDir(DirContainer *dirContainer);
+    void handleEraseApp(LocalApp*);
+
 protected:
     void closeEvent(QCloseEvent *event);
     void resizeEvent(QResizeEvent * event);
@@ -184,7 +165,7 @@ private:
     QAction *hideAction;
     QAction *showAction;
     QAction *_setVacServer;
-    VirtualDesktop *vdesktop;
+    GridContainer *vdesktop;
     Switcher *_switcherLeft;
     Switcher *_switcherRight;
     Panel *panel;
@@ -198,30 +179,12 @@ private:
     VacShowWidget *_vacShowWidget;
     SkinShowWidget *_skinShowWidget;
 
-    QPropertyAnimation *_animationUp;
-    QPropertyAnimation *_animationDown;
-    QPropertyAnimation *_animationDownMin;
-    QPropertyAnimation *_animationUpMin;
-    MoveWidget *_upMoveWidget;
-    MoveWidget *_downMoveWidget;
-    MoveMinWidget *_downMinW;
-
-    DirShowWidget *_dirWidget;
-    bool _animationUpFinished;
-    bool _animationDownFinished;
-    QLabel *_minDirLabel;
-    QLabel *_minToolBarLabel;
-
     QPushButton* _backBtn;
-    int _distance;
-    int _minY;
-    bool _minUpward;
 
     QNetworkAccessManager *_nam;
     PageNodes *_pageNodes;
     toolBarWidget *_toolBarWidget;
-
-    bool _minMoveLabelUp;
+    Docker *_docker;
 
     IDesktopSettings *_settings;
 
@@ -231,16 +194,10 @@ private:
     MenuWidget *_normalMenu;
     MenuWidget *_showIconMenu;
     MenuWidget *_createMenu;
-    MenuWidget *_iconMenu;
-    MenuWidget *_dustbinMenu;
-    MenuWidget *_dirMenu;
 
     QSize _normalMenuSize;
     QSize _showIconMenuSize;
     QSize _createMenuSize;
-    QSize _iconMenuSize;
-    QSize _dirMenuSize;
-    QSize _dustbinMenuSize;
 
     int _normalMenuX;
     int _normalMenuY;
@@ -248,14 +205,6 @@ private:
     int _showIconMenuY;
     int _createMenuX;
     int _createMenuY;
-    int _iconMenuX;
-    int _iconMenuY;
-    int _dirMenuX;
-    int _dirMenuY;
-    int _dustbinMenuX;
-    int _dustbinMenuY;
-
-    IconItem *_dustbinSelectIconItem;
 
     QPoint _mousePos;
 

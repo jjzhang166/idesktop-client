@@ -385,10 +385,6 @@ void IconItem::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setPen(Qt::white);
     painter.setFont(QFont(QString::fromLocal8Bit(" Microsoft YaHei"), FONTSIZE, QFont::Black));
-//    if(_currentStatus == normal)
-//        painter.drawPixmap(0, 0, width(), height(), _normalBackground.scaled(width(),height()));
-//    else if(_currentStatus == hover)
-//        painter.drawPixmap(0, 0, width(), height(), _hoverBackgroud.scaled(width(),height()));
     if(_currentStatus == selected)
         painter.drawPixmap(0, 0, width(), height(), _selectedBackgroud.scaled(width(),height()));
 
@@ -649,6 +645,7 @@ void IconItem::mouseMoveEvent(QMouseEvent *event)
         _drag->setHotSpot(event->pos());
         gap = _drag->hotSpot();
         if (!(_drag->exec(Qt::MoveAction) == Qt::MoveAction)) {
+            qDebug() << __PRETTY_FUNCTION__ << "no move action";
             emit dragOut();
         }
     //    drag->exec(Qt::MoveAction);
@@ -736,8 +733,6 @@ void IconItem::setPixmap(const QString &icon, const QString &text)
         return;
     }
     _pixText = icon;
-
-    _originPixmap.load(icon);
 
     QImage image = QImage(icon).scaled(_width, _height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     QImage normal(width(), height(), QImage::Format_ARGB32_Premultiplied);
@@ -867,11 +862,6 @@ bool IconItem::isUserType()
     if (_text.startsWith("/"))
         return true;
     return false;
-}
-
-const QPixmap& IconItem::originPixmap()
-{
-    return _originPixmap;
 }
 
 const QString & IconItem::text()
@@ -1190,16 +1180,7 @@ void IconItem::init()
      QImage normal(_width, _height, QImage::Format_ARGB32_Premultiplied);
      QPainter painter(&normal);
      painter.fillRect(QRectF(0,0,_width,_height),Qt::transparent);
-     _normalBackground = QPixmap::fromImage(normal);
 
-     for(int i = 0; i < _width; i ++)
-     {
-         for(int j = 0; j < _height; j++)
-         {
-             normal.setPixel(QPoint(i , j),qRgba(0,0,0,HOVERALPHA));
-         }
-     }
-     _hoverBackgroud = QPixmap::fromImage(normal);
      for(int i = 0; i < _width; i ++)
      {
          for(int j = 0; j < _height; j++)

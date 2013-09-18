@@ -81,10 +81,14 @@ public:
     void delApp(QString uniqueName);
     LocalApp * getAppByName(const QString &name);
     LocalApp * getAppByUniqueName(const QString &uniqueName);
-    LocalApp* at(int i);
+    LocalApp* at(int i) const;
+    QList<LocalApp*> appsInDir(int id) const;
+    int getPages() const;
+    int dirCounts() const;
     bool updateApp(LocalApp* app);
-    int count();
+    int count() const;
     void save();
+    void addDustbinOnNeed();
 
     void addLocalApp(QString appPath);
     QString getAppImage(QString appPath);
@@ -93,8 +97,12 @@ public:
     QString uploadJson();
 
 signals:
+    //these two are obsolete
     void appAdded(QString name, QString icon, QString url, int type, int i, const QString &uniqueName);
     void appRemoved(const QString &uniqueName);
+    //needed by GridContainer
+    void appAdded(LocalApp *);
+    void appRemoved(LocalApp *);
 
 private:
     LocalAppList(QObject *parent = NULL);

@@ -21,6 +21,9 @@
 #include "panel.h"
 #include "config.h"
 #include "appmessagebox.h"
+#include "gridcontainer.h"
+#include "docker.h"
+#include "dircontainer.h"
 
 extern QString VacServer;
 extern QString VacPort;
@@ -52,10 +55,6 @@ typedef void (*DLL_getApp2)();
 Dashboard::Dashboard(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint | Qt::Tool)
     , _outOfScreen(false)
-    , _animationUpFinished(false)
-    , _animationDownFinished(false)
-    , _minUpward(false)
-    , _dustbinSelectIconItem(NULL)
 {
     _settings = IDesktopSettings::instance();
 
@@ -111,7 +110,11 @@ Dashboard::Dashboard(QWidget *parent)
 
     setGeometry(0, 0, _width, _height);
 
-    vdesktop = new VirtualDesktop(QSize(_width, _height), this);
+    vdesktop = new GridContainer(r.size(), this);
+    vdesktop->move(0, 0);
+    vdesktop->show();
+
+    //vdesktop = new VirtualDesktop(QSize(_width, _height), this);
 
     panel = new Panel(this);
     panel->setGeometry(0, 0, _width, 28);
@@ -132,16 +135,24 @@ Dashboard::Dashboard(QWidget *parent)
     _switcherRight->setVisible(false);
     _switcherRight->activateWindow();
 
-    vdesktop->setGeometry(QRect(0, 0, _width * vdesktop->count(), _height));
 
-    _toolBarWidget = new toolBarWidget(QSize(_width, 103 + 0 + 24), this);
-    _toolBarWidget->move(0,_height - (103 + 0 + 24));//
-    _toolBarWidget->raise();
-    _toolBarWidget->setVisible(false);
+    _docker = new Docker(this);
+    _docker->move(0,_height - (103 + 0 + 24));//
+    _docker->raise();
+    _docker->setVisible(false);
+
+    connect(_docker, SIGNAL(restoreAppsToDesktop(QList<LocalApp*>)), vdesktop,
+            SLOT(handleRestoreAppsToDesktop(QList<LocalApp*>)));
+    connect(_docker, SIGNAL(requestOpenDir(DirContainer*)), this,
+            SLOT(handleOpenDir(DirContainer*)));
+    connect(_docker, SIGNAL(requestEraseApp(LocalApp*)), this,
+            SLOT(handleEraseApp(LocalApp*)));
+    connect(_docker, SIGNAL(moveAppToTrash(LocalApp*)), this,
+            SLOT(moveAppToTrash(LocalApp*)));
 
     _pageNodes = new PageNodes(this);
 
-    _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
+    _pageNodes->update(vdesktop->pageCount(), vdesktop->currentId());
     _pageNodes->move((_width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100 - 35);
     _pageNodes->setVisible(false);
 
@@ -168,35 +179,6 @@ Dashboard::Dashboard(QWidget *parent)
     _skinShowWidget->move((_width - _skinShowWidget->width()) / 2, (_height - _skinShowWidget->height()) / 2);
     _skinShowWidget->setVisible(false);
 
-    _upMoveWidget = new MoveWidget(this);
-    _upMoveWidget->setVisible(false);
-
-    connect(_upMoveWidget, SIGNAL(moveWidgetDrop(IconItem*)), vdesktop, SLOT(moveWidgetDrop(IconItem*)));
-
-    _animationUp = new QPropertyAnimation(_upMoveWidget, "geometry");
-    _animationUp->setEasingCurve(QEasingCurve::Linear);
-    _animationUp->setDuration(200);
-
-    _downMoveWidget = new MoveWidget(this);
-    _downMoveWidget->setVisible(false);
-
-    _minDirLabel = new QLabel(this);
-    _minDirLabel->setVisible(false);
-    _animationUpMin = new QPropertyAnimation(_minDirLabel, "geometry");
-    _animationUpMin->setEasingCurve(QEasingCurve::Linear);
-    _animationUpMin->setDuration(200);
-    connect(_downMoveWidget, SIGNAL(moveWidgetDrop(IconItem*)), vdesktop, SLOT(moveWidgetDrop(IconItem*)));
-
-    _animationDown = new QPropertyAnimation(_downMoveWidget, "geometry");
-    _animationDown->setEasingCurve(QEasingCurve::Linear);
-    _animationDown->setDuration(200);
-    _downMinW = new MoveMinWidget(this);
-    _downMinW->setVisible(false);
-
-    _animationDownMin = new QPropertyAnimation(_downMinW, "geometry");
-    _animationDownMin->setEasingCurve(QEasingCurve::Linear);
-    _animationDownMin->setDuration(200);
-
     _normalMenu = new MenuWidget(MenuWidget::normal, this);
     _normalMenu->setVisible(false);
     _normalMenuSize = _normalMenu->getSize();
@@ -208,19 +190,6 @@ Dashboard::Dashboard(QWidget *parent)
     _createMenu = new MenuWidget(MenuWidget::create, this);
     _createMenu->setVisible(false);
     _createMenuSize = _createMenu->getSize();
-
-    _iconMenu = new MenuWidget(MenuWidget::iconMenu, this);
-    _iconMenu->setVisible(false);
-    _iconMenuSize = _iconMenu->getSize();
-
-
-    _dustbinMenu = new MenuWidget(MenuWidget::dustbinMenu, this);
-    _dustbinMenu->setVisible(false);
-    _dustbinMenuSize = _dustbinMenu->getSize();
-
-    _dirMenu = new MenuWidget(MenuWidget::dirMenu, this);
-    _dirMenu->setVisible(false);
-    _dirMenuSize = _dirMenu->getSize();
 
     _mask = new Mask(_width, _height, this);
     _mask->raise();
@@ -240,32 +209,6 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_createMenu, SIGNAL(hideDesktop()), this, SLOT(getOut()));
     connect(_createMenu, SIGNAL(addDesktopLink()), vdesktop, SLOT(appAdd()));
 
-    connect(_iconMenu, SIGNAL(run()), this, SLOT(menuIconRun()));
-    connect(_iconMenu, SIGNAL(del()), this, SLOT(menuIconDel()));
-
-    connect(_dirMenu, SIGNAL(open()), this, SLOT(menuDirOpen()));
-    connect(_dirMenu, SIGNAL(clear()), this, SLOT(menuDirClear()));
-    connect(_dirMenu, SIGNAL(del()), this, SLOT(menuDirDel()));
-
-    connect(_dustbinMenu, SIGNAL(restore()), this, SLOT(dustbinMenuRestoreClicked()));
-    connect(_dustbinMenu, SIGNAL(del()), this, SLOT(dustbinMenuDelClicked()));
-
-    connect(vdesktop, SIGNAL(vdesktopNormalMenu(QPoint)), this, SLOT(showNormalMenu(QPoint)));
-    connect(vdesktop, SIGNAL(hideMenu()), this, SLOT(hideMenuWidget()));
-
-    connect(vdesktop, SIGNAL(vdesktopShowDirMenu(QPoint, const QString &))
-            , this, SLOT(showDirMenu(QPoint, const QString &)));
-    connect(vdesktop, SIGNAL(vdesktopShowIconMenu(QPoint, const QString &))
-            , this, SLOT(showIconMenu(QPoint, const QString &)));
-    connect(vdesktop, SIGNAL(vdesktopShowDustbinMenu(QPoint, IconItem *))
-            , this, SLOT(vdesktopShowDustbinMenu(QPoint, IconItem *)));
-    connect(_toolBarWidget, SIGNAL(tBarWidgetDirMenu(QPoint, const QString &))
-            , this, SLOT(showDirMenu(QPoint, const QString &)));
-    connect(_toolBarWidget, SIGNAL(tBarWidgetIconMenu(QPoint, const QString &))
-            , this, SLOT(showIconMenu(QPoint, const QString &)));
-
-    connect(_upMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
-    connect(_downMoveWidget, SIGNAL(mousePress()), this, SLOT(vdesktopHideDirWidget()));
 
     connect(_commui, SIGNAL(done()), this, SLOT(onDone()));
     connect(_paasCommui, SIGNAL(done()), this, SLOT(onPaasDone()));
@@ -281,7 +224,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(panel, SIGNAL(quit()), this, SLOT(quit()));
     connect(panel, SIGNAL(showSkinWidget()), this, SLOT(onShowSkinDesktop()));
     connect(panel, SIGNAL(showSoftwareWidget()), this, SLOT(onShowVacDesktop()));
-    connect(panel, SIGNAL(checkDirState()), vdesktop, SLOT(hideMenuWidget()));
+    connect(panel, SIGNAL(checkDirState()), this, SLOT(hideMenuWidget()));
 
     connect(_ldialog, SIGNAL(dQuit()), this, SLOT(quit()));
     connect(_ldialog, SIGNAL(dShow()), this, SLOT(show()));
@@ -291,81 +234,46 @@ Dashboard::Dashboard(QWidget *parent)
 
     connect(_ldialog, SIGNAL(dActivated(QSystemTrayIcon::ActivationReason)),
         this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
+
+    connect(vdesktop, SIGNAL(hideMenu()), this, SLOT(hideMenuWidget()));
     connect(vdesktop, SIGNAL(toOrigin()), this, SLOT(switchBetween()));
-//    connect(vdesktop, SIGNAL(largeIcon()), this, SLOT(largeIcon()));
-//    connect(vdesktop, SIGNAL(mediumIcon()), this, SLOT(mediumIcon()));
-//    connect(vdesktop, SIGNAL(smallIcon()), this, SLOT(smallIcon()));
-    connect(vdesktop, SIGNAL(desktopDelIcon(const QString &))
-            , _vacShowWidget, SLOT(desktopDelIcon(const QString &)));
     connect(vdesktop, SIGNAL(iconItemNameChanged(const QString &, const QString &))
             , _vacShowWidget, SLOT(iconItemNameChanged(const QString &, const QString &)));
     connect(vdesktop, SIGNAL(pageChanged(int)), this, SLOT(desktopPageChanged(int)));
     connect(vdesktop, SIGNAL(pageIncreased()), this, SLOT(updateNodes()));
     connect(vdesktop, SIGNAL(pageDecreased()), this, SLOT(updateNodes()));
 //    connect(vdesktop, SIGNAL(refreshVac()), this, SLOT(timeOut()));
-    connect(vdesktop, SIGNAL(hideDesktop()), this, SLOT(getOut()));
-    connect(panel, SIGNAL(setEqual(int)), vdesktop, SLOT(arrangeEqually(int)));
-    connect(panel, SIGNAL(setMini()), vdesktop, SLOT(arrangeMinimum()));
+//    connect(vdesktop, SIGNAL(hideDesktop()), this, SLOT(getOut()));
+    connect(vdesktop, SIGNAL(moveAppToTrash(LocalApp*)), this, SLOT(moveAppToTrash(LocalApp*)));
+    connect(vdesktop, SIGNAL(requestOpenDir(DirContainer*)), this,
+            SLOT(handleOpenDir(DirContainer*)));
+    connect(vdesktop, SIGNAL(requestEraseApp(LocalApp*)), this,
+            SLOT(handleEraseApp(LocalApp*)));
 
-    connect(_pageNodes, SIGNAL(choosePage(int)), vdesktop, SLOT(goPage(int)));
+    connect(_pageNodes, SIGNAL(choosePage(int)), vdesktop, SLOT(moveToPage(int)));
 
     connect(_vacShowWidget, SIGNAL(addApp(const QString&,const QString&, const QString&, int,const QString &)),
             vdesktop, SLOT(addDesktopApp(const QString&,const QString&, const QString&, int, const QString &))); //
     connect(_vacShowWidget, SIGNAL(delItem(QString)), vdesktop, SLOT(vacWidgetDelIcon(const QString &)));
     connect(_skinShowWidget, SIGNAL(skinCloseBtnClicked()), _skinShowWidget, SLOT(hide()));
     connect(_vacShowWidget, SIGNAL(vacCloseBtnClicked()), _vacShowWidget, SLOT(hide()));
-    //move
-    connect(vdesktop, SIGNAL(upMove(int,int,int,int,int)),
-            this, SLOT(upMove(int ,int ,int, int, int)));
-    connect(vdesktop, SIGNAL(upBackMove(int, int, int, int, int)),
-            this, SLOT(upBackMove(int ,int ,int, int, int)));
-    connect(vdesktop, SIGNAL(desktopOpenMove(int ,int ,int, int, int)),
-            this, SLOT(downMove(int ,int ,int, int, int)));
-    connect(vdesktop, SIGNAL(desktopCloseMove(int, int, int, int, int)),
-            this, SLOT(downBackMove(int ,int ,int, int, int)));
-
-    connect(vdesktop, SIGNAL(openMinWidget(int ,int ,int, int, int)),
-            this, SLOT(openMinWidget(int ,int ,int, int, int)));
-    connect(vdesktop, SIGNAL(closeMinWidget(int, int, int, int, int)),
-            this, SLOT(closeMinWidget(int ,int ,int, int, int)));
-    connect(vdesktop, SIGNAL(upMinMove(int,int,int,int,int)),
-            this, SLOT(upMinMove(int ,int ,int, int, int)));
-    connect(vdesktop, SIGNAL(upMinBackMove(int,int,int,int,int)),
-            this, SLOT(upMinBackMove(int ,int ,int, int, int)));
-    connect(vdesktop, SIGNAL(setMinMoveLabel(bool)), this, SLOT(setMinMoveLabel(bool)));
 
     connect(vdesktop, SIGNAL(desktopClicked()), this, SLOT(desktopClicked()));
 
-    connect(vdesktop, SIGNAL(delToolBarWidgetIcon(const QString &))
-            , _toolBarWidget, SLOT(moveOutIcon(const QString&)));
-    connect(vdesktop, SIGNAL(delToolBarIcon(const QString &))
-            , _toolBarWidget, SLOT(delIcon(const QString&)));
-    connect(vdesktop, SIGNAL(toolBarRemoveDirMinItem(const QString &, int))
-            , _toolBarWidget, SLOT(toolBarRemoveDirMinItem(const QString &, int)));
-    connect(vdesktop, SIGNAL(toolBarRefreshDirMinWidget(const QString &))
-            , _toolBarWidget, SLOT(toolBarRefreshDirMinWidget(const QString &)));
-    connect(vdesktop, SIGNAL(changedDirId(const QString&, int))
-            , _toolBarWidget, SLOT(changedDirId(const QString&, int)));
+//    connect(vdesktop, SIGNAL(changedDirId(const QString&, int))
+//            , _toolBarWidget, SLOT(changedDirId(const QString&, int)));
 
-    connect(_animationDown,SIGNAL(finished()), this, SLOT(animationFinished()));
-    connect(_animationDownMin,SIGNAL(finished()), this, SLOT(animationMinDownFinished()));
-    connect(_animationUp,SIGNAL(finished()), this, SLOT(animationFinished()));
-
-    connect(_animationDownMin, SIGNAL(valueChanged(const QVariant&)), this, SLOT(valueChanged(const QVariant&)));
-
-    connect(_toolBarWidget, SIGNAL(iconDropToolWidget(const QString &))
-            , vdesktop, SLOT(iconMoveOtherWidget(const QString &)));
-    connect(_toolBarWidget, SIGNAL(toolOpenDir(int,int,int)), vdesktop, SLOT(toolBarOpenDir(int,int,int)));
-    connect(_toolBarWidget, SIGNAL(toolBarIconToDustbin(const QString &,const QString &, int, int, const QString &, int, const QString &))
-            , vdesktop, SLOT(toolBarIconToDustbin(const QString &, const QString &, int, int, const QString &, int, const QString &)));
-    connect(_toolBarWidget, SIGNAL(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &))
-            , vdesktop, SLOT(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &)));
-    connect(_toolBarWidget, SIGNAL(iconItemNameChanged(const QString &, const QString &))
-            , _vacShowWidget, SLOT(iconItemNameChanged(const QString &, const QString &)));
-    connect(_toolBarWidget, SIGNAL(changedDirWidgetTitle(int, const QString &))
-            , vdesktop, SLOT(changedDirWidgetTitle(int, const QString &)));
-    connect(_toolBarWidget, SIGNAL(toolBarDirWidgetRefresh(int))
-            , vdesktop, SLOT(dirWidgetRefresh(int)));
+//    connect(_toolBarWidget, SIGNAL(iconDropToolWidget(const QString &))
+//            , vdesktop, SLOT(iconMoveOtherWidget(const QString &)));
+//    connect(_toolBarWidget, SIGNAL(toolOpenDir(int,int,int)), vdesktop, SLOT(toolBarOpenDir(int,int,int)));
+//    connect(_toolBarWidget, SIGNAL(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &))
+//            , vdesktop, SLOT(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &)));
+//    connect(_toolBarWidget, SIGNAL(iconItemNameChanged(const QString &, const QString &))
+//            , _vacShowWidget, SLOT(iconItemNameChanged(const QString &, const QString &)));
+//    connect(_toolBarWidget, SIGNAL(changedDirWidgetTitle(int, const QString &))
+//            , vdesktop, SLOT(changedDirWidgetTitle(int, const QString &)));
+//    connect(_toolBarWidget, SIGNAL(toolBarDirWidgetRefresh(int))
+//            , vdesktop, SLOT(dirWidgetRefresh(int)));
 
     _nam = new QNetworkAccessManager(this);
 
@@ -395,15 +303,16 @@ void Dashboard::initIconItem()
     _mask->setText(tr("加载壁纸库..."));
     _skinShowWidget->initIconItem();
     _mask->setText(tr("加载桌面..."));
-    vdesktop->initIconItem();
-    _toolBarWidget->initIconItem();
+    _docker->init();
 #endif
+
+    QTimer::singleShot(0, vdesktop, SLOT(initIcons()));
 
     _mask->setVisible(false);
     _mask->setText(tr(""));
     panel->setVisible(true);
     panel->animationHide();
-    _toolBarWidget->setVisible(true);
+    _docker->setVisible(true);
     _pageNodes->setVisible(true);
     _switcherLeft->setVisible(true);
     _switcherRight->setVisible(true);
@@ -420,7 +329,7 @@ void Dashboard::desktopPageChanged(int page)
 void Dashboard::updateNodes()
 {
     _pageNodes->setVisible(false);
-    _pageNodes->update(vdesktop->count(), vdesktop->currentPage());
+    _pageNodes->update(vdesktop->pageCount(), vdesktop->currentId());
     _pageNodes->move(( _width - _pageNodes->width()) / 2, _height - _pageNodes->height() - 100 - 35);
     _pageNodes->setVisible(true);
 }
@@ -429,7 +338,7 @@ void Dashboard::updateNodes()
 
 void Dashboard::vdesktopHideDirWidget()
 {
-    vdesktop->hideDirWidget("", -1);
+//    vdesktop->hideDirWidget("", -1);
 }
 
 void Dashboard::desktopClicked()
@@ -441,319 +350,10 @@ void Dashboard::desktopClicked()
     panel->animationHide();
 }
 
-void Dashboard::setMinMoveLabel(bool up)
-{
-    QPixmap minDirPix;
-    if (up)
-    {
-        _minMoveLabelUp = true;
-        minDirPix.load(":/images/min_mask_icon.png");
-        _downMinW->setPixmapPointF(true);
-
-    }
-    else
-    {
-        _minMoveLabelUp = false;
-        minDirPix.load(":/images/min_toolbar_mask_icon.png");
-        _downMinW->setPixmapPointF(false);
-    }
-    _minDirLabel->setPixmap(minDirPix);
-}
-
-void Dashboard::upMove(int x, int y, int w, int h, int distance)
-{
-    if (_animationUp->state() == QAbstractAnimation::Running)
-    {
-        return;
-    }
-
-    _upMoveWidget->resize(QSize(w, h));
-
-    QPixmap result = QPixmap();
-    result = QPixmap::grabWindow(this->winId(), \
-                                 x, y, \
-                                 w, h); //抓取当前屏幕的图片
-
-    _upMoveWidget->setPixmap(result);
-    _upMoveWidget->setVisible(true);
-
-    _animationUp->setStartValue(QRect(x, y, w, h));
-    _animationUp->setEndValue(QRect(x, y - distance, w, h));
-    _animationUp->start();
-
-    _animationUpFinished = false;
-}
-
-void Dashboard::upBackMove(int x, int y, int w, int h, int distance)
-{
-    if (_animationUp->state() == QAbstractAnimation::Running)
-    {
-        return;
-    }
-
-    _animationUp->setStartValue(QRect(x, y, w, h));
-    _animationUp->setEndValue(QRect(x, y + distance, w, h));
-    _animationUp->start();
-
-
-    _animationUpFinished = true;
-
-}
-
-void Dashboard::animationFinished()
-{
-    if ((!_animationDownFinished) && (!_animationUpFinished))
-    {
-        vdesktop->dirMovingFinished();
-    }
-
-    if (_animationDownFinished && _animationUpFinished)
-    {
-        vdesktop->setDirHide();
-        _downMinW->setVisible(false);
-        _minDirLabel->setVisible(false);
-        _upMoveWidget->setVisible(false);
-
-        if (!panel->isVisible())
-        {
-            panel->setVisible(true);
-            panel->show();
-            panel->setAutoHide(true);
-            panel->animationHide();
-
-            _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
-            _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
-        }
-
-        _animationUpFinished = false;
-
-        _pageNodes->setVisible(true);
-        vdesktop->setIconMove(true);
-        _toolBarWidget->setVisible(true);
-
-        _downMoveWidget->setVisible(false);
-
-        vdesktop->dirMovingFinished();
-    }
-}
-
-void Dashboard::downMove(int x, int y, int w, int h, int distance)
-{
-    hideMenuWidget();
-    if (_animationDown->state() == QAbstractAnimation::Running)
-    {
-        return;
-    }
-
-    panel->setVisible(false);
-    _vacShowWidget->setVisible(false);
-    _skinShowWidget->setVisible(false);
-    _pageNodes->setVisible(false);
-    _downMoveWidget->resize(QSize(w, h));
-
-    QPixmap result = QPixmap();
-    result = QPixmap::grabWindow(this->winId(), \
-                                 x, y, \
-                                 w, h); //抓取当前屏幕的图片
-    _downMoveWidget->setPixmap(result);
-    _downMoveWidget->setVisible(true);
-    _toolBarWidget->setVisible(false);
-
-    _animationDown->setStartValue(QRect(x, y, w, h));
-    _animationDown->setEndValue(QRect(x, y + distance, w, h));
-    _animationDown->start();
-    _animationDownFinished = false;
-}
-
-void Dashboard::downBackMove(int x, int y, int w, int h, int distance)
-{
-    hideMenuWidget();
-    if (_animationDown->state() == QAbstractAnimation::Running)
-    {
-        return;
-    }
-
-    _animationDown->setStartValue(QRect(x, y, w, h));
-    _animationDown->setEndValue(QRect(x, y - distance, w, h));
-    _animationDown->start();
-
-    _animationDownFinished = true;
-
-}
-
-void Dashboard::upMinMove(int x, int y, int w, int h, int distance)
-{
-
-    if (_minMoveLabelUp)
-    {
-        if (_animationUpMin->state() == QAbstractAnimation::Running)
-        {
-            return;
-        }
-        _minDirLabel->setGeometry(x, y + 2, w, h);
-        _minDirLabel->setVisible(true);
-
-        _animationUpMin->setStartValue(QRect(x, y + 2, w, h));
-        _animationUpMin->setEndValue(QRect(x, y - distance + 2, w, h));
-        _animationUpMin->start();
-    }
-    else
-    {
-        if (_animationDownMin->state() == QAbstractAnimation::Running)
-        {
-            return;
-        }
-
-        _distance = distance;
-        _minY = y;
-        _minUpward = false;
-
-        _downMinW->resize(QSize(w, h));
-
-        QPixmap result = QPixmap();
-        result = QPixmap::grabWindow(this->winId(), \
-                                     x, y, \
-                                     w, h); //抓取当前屏幕的图片
-        _downMinW->setPixmap(result);
-
-        _animationDownMin->setStartValue(QRect(x, y, w, h));
-        _animationDownMin->setEndValue(QRect(x, y - distance, w, h));
-        _animationDownMin->start();
-
-    }
-}
-
-void Dashboard::upMinBackMove(int x, int y, int w, int h, int distance)
-{
-    if (_minMoveLabelUp)
-    {
-        if (_animationUpMin->state() == QAbstractAnimation::Running)
-        {
-            return;
-        }
-
-        _animationUpMin->setStartValue(QRect(x, y + 2, w, h));
-        _animationUpMin->setEndValue(QRect(x, y + 2 + distance, w, h));
-        _animationUpMin->start();
-    }
-    else
-    {
-        if (_animationDownMin->state() == QAbstractAnimation::Running)
-        {
-            return;
-        }
-
-            _minY = y;
-            _minUpward = true;
-
-            _animationDownMin->setStartValue(QRect(x, y, w, h));
-            _animationDownMin->setEndValue(QRect(x, y + distance, w, h));
-            _animationDownMin->start();
-
-    }
-}
-
-void Dashboard::openMinWidget(int x, int y, int w, int h, int distance)
-{
-    if (_minMoveLabelUp)
-    {
-        if (_animationDownMin->state() == QAbstractAnimation::Running)
-        {
-            return;
-        }
-
-        _distance = distance;
-        _minY = y;
-        _minUpward = false;
-
-        _downMinW->resize(QSize(w, h));
-
-        QPixmap result = QPixmap();
-        result = QPixmap::grabWindow(this->winId(), \
-                                     x, y, \
-                                     w, h); //抓取当前屏幕的图片
-        _downMinW->setPixmap(result);
-
-        _animationDownMin->setStartValue(QRect(x, y, w, h));
-        _animationDownMin->setEndValue(QRect(x, y + distance, w, h));
-        _animationDownMin->start();
-    }
-    else
-    {
-        if (_animationUpMin->state() == QAbstractAnimation::Running)
-        {
-            return;
-        }
-
-        _minDirLabel->setGeometry(x, y + 2, w, h);
-        _minDirLabel->setVisible(true);
-
-        _animationUpMin->setStartValue(QRect(x, y - 2, w, h));
-        _animationUpMin->setEndValue(QRect(x, y + distance - 2, w, h));
-        _animationUpMin->start();
-
-    }
-}
-
-void Dashboard::closeMinWidget(int x, int y, int w, int h, int distance)
-{
-
-    if (_minMoveLabelUp)
-    {
-        if (_animationDownMin->state() == QAbstractAnimation::Running)
-        {
-            return;
-        }
-
-        _minY = y;
-        _minUpward = true;
-
-        _animationDownMin->setStartValue(QRect(x, y, w, h));
-        _animationDownMin->setEndValue(QRect(x, y - distance, w, h));
-        _animationDownMin->start();
-    }
-    else
-    {
-        if (_animationUpMin->state() == QAbstractAnimation::Running)
-        {
-            return;
-        }
-            _animationUpMin->setStartValue(QRect(x, y + 15 - 2, w, h));
-            _animationUpMin->setEndValue(QRect(x, y + 15 - distance - 2, w, h));
-            _animationUpMin->start();
-    }
-}
-
-void Dashboard::animationMinDownFinished()
-{
-    _downMinW->setVisible(false);
-}
-
-void Dashboard::valueChanged(const QVariant &value)
-{
-    QRect rect = value.value<QRect>();
-
-    if (((rect.y() - _minY) > 0 ? rect.y() - _minY : _minY - rect.y()) >= _distance / 2)
-    {
-        _downMinW->setVisible(_minUpward);
-    }
-    else
-    {
-        _downMinW->setVisible(_minUpward);
-    }
-
-}
-
 void Dashboard::onDone()
 {
     //get the Application List;
     _finished = true;
-}
-
-void Dashboard::goPage(int page)
-{
-    vdesktop->setVisible(true);
-    vdesktop->goPage(page);
 }
 
 void Dashboard::onShowVacDesktop()
@@ -1176,7 +776,7 @@ void Dashboard::modify()
             if (!isExist)
             {
                 _vacShowWidget->addIcon(myVappList[i].name, WIN_VAPP_IconPath + myVappList[i].id + ".png", \
-                                        vdesktop->count() - 1, -1, QString(""), 1, "1_" + myVappList[i].id);
+                                        vdesktop->pageCount() - 1, -1, QString(""), 1, "1_" + myVappList[i].id);
             }
         }
     }
@@ -1782,96 +1382,12 @@ void Dashboard::hideMenuWidget()
     _normalMenu->setVisible(false);
     _createMenu->setVisible(false);
     _showIconMenu->setVisible(false);
-    _iconMenu->setVisible(false);
-    _dustbinMenu->setVisible(false);
-    _dirMenu->setVisible(false);
 }
 
 void Dashboard::virtualDesktopAddDirItem()
 {
     hideMenuWidget();
     vdesktop->addDirItem();
-}
-
-void Dashboard::showDirMenu(QPoint mPos, const QString &uniqueName)
-{
-    _uniqueName = uniqueName;
-    hideMenuWidget();
-
-    _dirMenuX = mPos.x();
-
-//    qDebug() << "_dirMenuX--->" << _dirMenuX;
-    _dirMenuY = mPos.y();
-
-    if (_width - _dirMenuX < _dirMenuSize.width())
-    {
-        _dirMenuX = _width - _dirMenuSize.width();
-    }
-
-    if ( _height - _dirMenuY < _dirMenuSize.height())
-    {
-        _dirMenuY = _height - _dirMenuSize.height();
-    }
-
-    _dirMenu->move(_dirMenuX, _dirMenuY);
-    _dirMenu->raise();
-    _dirMenu->setVisible(true);
-}
-
-void Dashboard::showIconMenu(QPoint mPos, const QString &uniqueName)
-{
-    _uniqueName = uniqueName;
-    hideMenuWidget();
-
-    _iconMenuX = mPos.x();
-
-//    qDebug() << "_iconMenuX--->" << _iconMenuX;
-    _iconMenuY = mPos.y();
-
-    if (_width - _iconMenuX < _iconMenuSize.width())
-    {
-        _iconMenuX = _width - _iconMenuSize.width();
-    }
-
-    if ( _height - _iconMenuY < _iconMenuSize.height())
-    {
-        _iconMenuY = _height - _iconMenuSize.height();
-    }
-
-
-    _iconMenu->move(_iconMenuX, _iconMenuY);
-    _iconMenu->raise();
-    _iconMenu->setVisible(true);
-}
-
-void Dashboard::vdesktopShowDustbinMenu(QPoint mPos, IconItem *iconItem)
-{
-    if (!iconItem)
-        return;
-    _dustbinSelectIconItem = iconItem;
-
-    _uniqueName = _dustbinSelectIconItem->uniqueName();
-    hideMenuWidget();
-
-    _dustbinMenuX = mPos.x();
-
-//    qDebug() << "_dustbinMenuX--->" << _dustbinMenuX;
-    _dustbinMenuY = mPos.y();
-
-    if (_width - _dustbinMenuX < _dustbinMenuSize.width())
-    {
-        _dustbinMenuX = _width - _dustbinMenuSize.width();
-    }
-
-    if ( _height - _dustbinMenuY < _dustbinMenuSize.height())
-    {
-        _dustbinMenuY = _height - _dustbinMenuSize.height();
-    }
-
-
-    _dustbinMenu->move(_dustbinMenuX, _dustbinMenuY);
-    _dustbinMenu->raise();
-    _dustbinMenu->setVisible(true);
 }
 
 void Dashboard::showNormalMenu(QPoint mousePos)
@@ -1898,197 +1414,33 @@ void Dashboard::showNormalMenu(QPoint mousePos)
 
 }
 
-void Dashboard::contextMenuEvent(QContextMenuEvent *)
+void Dashboard::contextMenuEvent(QContextMenuEvent *ev)
 {
-    hideMenuWidget();
+    showNormalMenu(ev->pos());
 }
 
-void Dashboard::menuDirOpen()
+ void Dashboard::moveAppToTrash(LocalApp *app)
 {
-    hideMenuWidget();
+    TrashDirWidget *trash = _docker->trash();
+    Q_ASSERT(trash);
 
-    for(int i = 0; i < _local->count(); i++)
-    {
-        if (_local->at(i)->hidden())
-            continue;
+    qDebug() << __PRETTY_FUNCTION__ << trash->app()->name();
 
-        if (_local->at(i)->uniqueName() == _uniqueName)
-        {
-            if (_local->at(i)->dirId() == -1)
-            {
-                vdesktop->openDir(_local->at(i)->id().toInt()
-                                  , _local->at(i)->page(), _local->at(i)->index());
-            }
-            else if(_local->at(i)->dirId() == -2)
-            {
-                _toolBarWidget->openDir(_local->at(i)->id().toInt()
-                                         , _local->at(i)->page(), _local->at(i)->index());
-            }
-            else
-            {
-
-            }
-        }
-    }
+    DirContainer *dir = _docker->trash()->dir();
+    dir->insertNewIcon(app);
 }
 
-void Dashboard::menuDirDel()
+void Dashboard::handleOpenDir(DirContainer *dirContainer)
 {
-    hideMenuWidget();
-
-    for(int i = 0; i < _local->count(); i++)
-    {
-        if (_local->at(i)->hidden())
-            continue;
-
-        if (_local->at(i)->uniqueName() == _uniqueName)
-        {
-            if (_local->at(i)->dirId() == -1)
-            {
-                vdesktop->iconMenuDelClicked(_uniqueName);
-            }
-            else if(_local->at(i)->dirId() == -2)
-            {
-                int id = _local->at(i)->id().toInt();
-                QList<QString> iconsInDirList;
-                for (int j = 0; j < _local->count(); j++)
-                {
-                    if (_local->at(j)->hidden())
-                        continue;
-
-                    if (_local->at(j)->dirId() == id)
-                    {
-                        iconsInDirList.append(_local->at(j)->uniqueName());
-                    }
-                }
-
-                for (int k = iconsInDirList.count(); k > 0; k--)
-                {
-                    LocalAppList::getList()->delApp(iconsInDirList.at(k - 1));
-                    _vacShowWidget->desktopDelIcon(iconsInDirList.at(k - 1));
-                }
-                iconsInDirList.clear();
-
-                LocalAppList::getList()->delApp(_uniqueName);
-
-                vdesktop->tBarIconMenuDelClicked(id, _uniqueName);
-//                LocalAppList::getList()->delApp(_uniqueName);
-            }
-            else
-            {
-
-            }
-        }
-    }
-//    bool del = false;
-
-//    for(int i = 0; i < _local->count(); i++)
-//    {
-//        if (_local->at(i)->hidden())
-//            continue;
-
-//        if (_local->at(i)->uniqueName() == _uniqueName)
-//        {
-//            if (_local->at(i)->dirId() == -1)
-//            {
-//                vdesktop->delIcon(_uniqueName);
-//                del = true;
-//                break;
-//            }
-//            else if(_local->at(i)->dirId() == -2)
-//            {
-//                _toolBarWidget->delIcon(_uniqueName);
-//                del = true;
-//                break;
-//            }
-//            else
-//            {
-//                break;
-//            }
-//        }
-//    }
-//    if (del)
-//    {
-//        vdesktop->iconToDushbin(_uniqueName);
-//    }
+    dirContainer->setParent(this);
+    dirContainer->setWindowModality(Qt::ApplicationModal);
+    dirContainer->popup();
 }
 
-void Dashboard::menuDirClear()
+void Dashboard::handleEraseApp(LocalApp *app)
 {
     hideMenuWidget();
-
-    for(int i = 0; i < _local->count(); i++)
-    {
-        if (_local->at(i)->hidden())
-            continue;
-
-        if (_local->at(i)->uniqueName() == _uniqueName)
-        {
-            vdesktop->clearDirShowWidget(_local->at(i)->id().toInt());
-        }
-    }
-}
-
-void Dashboard::menuIconRun()
-{
-    hideMenuWidget();
-    RunApp::getRunApp()->runApp(_uniqueName);
-}
-
-void Dashboard::menuIconDel()
-{
-    hideMenuWidget();
-    bool del = false;
-    for(int i=0; i<_local->count(); i++)
-    {
-        if (_local->at(i)->hidden())
-            continue;
-
-        if (_local->at(i)->uniqueName() == _uniqueName)
-        {
-            if (_local->at(i)->dirId() >= 0)
-            {
-                vdesktop->dirShowWidgetDelIcon(_local->at(i)->dirId(), _uniqueName);
-                del = true;
-                break;
-            }
-            else
-            {
-                if (_local->at(i)->dirId() == -1)
-                {
-                    vdesktop->delIcon(_uniqueName);
-                    del = true;
-                    break;
-                }
-                else if(_local->at(i)->dirId() == -2)
-                {
-                    _toolBarWidget->delIcon(_uniqueName);
-                    del = true;
-                    break;
-                }
-            }
-
-        }
-    }
-    if (del)
-    {
-        vdesktop->iconToDushbin(_uniqueName);
-    }
-}
-
-void Dashboard::dustbinMenuRestoreClicked()
-{
-    if (!_dustbinSelectIconItem)
-        return;
-
-    hideMenuWidget();
-    vdesktop->dustbinMenuRestoreIcon(_dustbinSelectIconItem);
-}
-
-void Dashboard::dustbinMenuDelClicked()
-{
-    hideMenuWidget();
-    LocalAppList::getList()->delApp(_uniqueName);
-    _vacShowWidget->desktopDelIcon(_uniqueName);
-//    vdesktop->dustbinMenuDelIcon(_uniqueName);
+    QString uniq_name = app->uniqueName();
+    LocalAppList::getList()->delApp(uniq_name);
+    _vacShowWidget->desktopDelIcon(uniq_name);
 }
