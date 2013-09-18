@@ -79,7 +79,7 @@ void GridPage::insertIcon(int index, IconWidget *icon)
 {
     icon->setContainerType(IconWidget::CT_Page);
     icon->installEventFilter(this);
-    connect(icon, SIGNAL(DragOut(IconWidget*)), this, SLOT(removeIcon(IconWidget*)));
+    connect(icon, SIGNAL(DragOut(IconWidget*)), this, SLOT(removeIcon(IconWidget*)), Qt::QueuedConnection);
 
     connect(icon, SIGNAL(requestErasion(IconWidget*)), this,
             SLOT(handleIconErasion(IconWidget*)));
@@ -118,7 +118,11 @@ void GridPage::slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedLi
     while (i != changes.constEnd()) {
         AppIconWidget *icon = qobject_cast<AppIconWidget*>(_items.at(i->second));
         //FIXME: only when not after a dragout happened
-        icon->app()->setIndex(i->second);
+        if (icon->app()) {
+            icon->app()->setIndex(i->second);
+        } else {
+            qDebug() << __PRETTY_FUNCTION__ << "icon disconnected";
+        }
         moveIconTo(icon, i->second, !_container->inBatchMode());
         ++i;
     }

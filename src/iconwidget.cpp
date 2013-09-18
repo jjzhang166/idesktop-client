@@ -273,7 +273,9 @@ AppIconWidget::AppIconWidget(QWidget *parent)
 void AppIconWidget::setApp(LocalApp *app)
 {
     _app = app;
-    setupMenu();
+    if (_app) {
+        setupMenu();
+    }
 }
 
 void AppIconWidget::setPixmap(const QString &icon)
@@ -351,6 +353,10 @@ void AppIconWidget::mouseMoveEvent(QMouseEvent *ev)
     if ((ev->pos() - _dragStartPos).manhattanLength() < QApplication::startDragDistance())
         return;
 
+    if (!_app) {
+        return;
+    }
+
     qDebug() << __PRETTY_FUNCTION__ << "drag started" << QTime::currentTime();
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
@@ -413,6 +419,11 @@ void AppIconWidget::mouseMoveEvent(QMouseEvent *ev)
         //FIXME: if NO. of items is large, a lot of affectedIndexes will be trigger,
         //and a lot of animations will be concurrently executed.
         foreach(AppIconWidget *w, items) {
+            //HACK: disconnect app from icon since when drag out,
+            //app no long belongs to the icon.
+            //PS: DragOut signal should be connected as Queued
+            w->setApp(0);
+            Q_ASSERT(w->app() == 0);
             emit w->DragOut(w);
         }
 
@@ -458,7 +469,7 @@ void AppIconWidget::mouseReleaseEvent(QMouseEvent *ev)
 
 void AppIconWidget::mouseDoubleClickEvent(QMouseEvent *ev)
 {
-    if (!_app->url().isEmpty()) {
+    if (_app && !_app->url().isEmpty()) {
         qDebug() << __PRETTY_FUNCTION__ << "openUrl";
         QDesktopServices::openUrl(QUrl(_app->url()));
 
@@ -470,7 +481,8 @@ void AppIconWidget::mouseDoubleClickEvent(QMouseEvent *ev)
 
 void AppIconWidget::run()
 {
-    RunApp::getRunApp()->runApp(_app->uniqueName());
+    if (_app)
+        RunApp::getRunApp()->runApp(_app->uniqueName());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

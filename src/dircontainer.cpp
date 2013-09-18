@@ -139,7 +139,7 @@ void Drawer::addIcon(LocalApp* app)
 void Drawer::insertIcon(int index, AppIconWidget *icon)
 {
     icon->setContainerType(IconWidget::CT_Drawer);
-    connect(icon, SIGNAL(DragOut(IconWidget*)), this, SLOT(removeIcon(IconWidget*)));
+    connect(icon, SIGNAL(DragOut(IconWidget*)), this, SLOT(removeIcon(IconWidget*)), Qt::QueuedConnection);
 
     connect(icon, SIGNAL(restoreToDesktop(IconWidget*)), parent(), SLOT(handleRestoreToDesktop(IconWidget*)));
     connect(icon, SIGNAL(requestDeletion(IconWidget*)), parent(), SLOT(handleIconDeletion(IconWidget*)));

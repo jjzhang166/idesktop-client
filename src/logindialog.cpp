@@ -82,10 +82,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
     passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
-//    userEdit->setText(QString("demo"));
-//    passEdit->setText(QString("abc_123"));
-    userEdit->setText(QString("w"));
-    passEdit->setText(QString("1"));
+//    useredit->setText(QString("demo"));
+//    passedit->setText(QString("abc_123"));
 
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
@@ -562,7 +560,7 @@ void LoginDialog::auth()
         QString loginUrl = "http://" + verifyLEdit->text() + ":9080/idesktop/login.action";
         qDebug() <<"loginUrl"<<loginUrl;
         QString data = "username=" + userEdit->text() + "&password=" + passEdit->text() + "&tenant=0";
-        //_nam->post(QNetworkRequest(QUrl(loginUrl)), data.toUtf8());
+        _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toUtf8());
         connMsg(tr("正在连接服务器..."));
         serverAddr->setEnabled(false);
         userEdit->setEnabled(false);
@@ -570,10 +568,10 @@ void LoginDialog::auth()
         submit->setEnabled(false);
         remoteAuth->setEnabled(false);
         configurationButton->setEnable(false);
-//        while(!_finished)
-//            QApplication::processEvents();
-//        if (!_authSuccess)
-//            return;
+        while(!_finished)
+            QApplication::processEvents();
+        if (!_authSuccess)
+            return;
 
         QString replaceNamePwd = QString("REPLACE INTO users(name, password) values('%1', '%2');")\
                 .arg(userEdit->text()).arg(passEdit->text());
@@ -630,9 +628,9 @@ void LoginDialog::auth()
 
     QString jsonUrl = "http://" + verifyLEdit->text() + ":9080/idesktop/getUserStatusData.action";
     QString data = "username=" + userEdit->text();
-//    _namJson->post(QNetworkRequest(QUrl(jsonUrl)), data.toUtf8());
+    _namJson->post(QNetworkRequest(QUrl(jsonUrl)), data.toUtf8());
 
-    QDialog::accept();
+//    QDialog::accept();
 
 }
 

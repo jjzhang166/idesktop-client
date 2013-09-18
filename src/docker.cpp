@@ -24,7 +24,7 @@ Docker::Docker(QWidget *parent)
 
     setFixedSize(parent->width(), _gridSize.height());
 
-    connect(&_items, SIGNAL(affectedIndices(const QSet<IndexedList::Change>&)),
+    connect(&_items, SIGNAL(affectedIndices(QSet<IndexedList::Change>,IndexedList::ChangeReason)),
             this, SLOT(slotMoveIcons(QSet<IndexedList::Change>,IndexedList::ChangeReason)));
 }
 
@@ -48,7 +48,7 @@ void Docker::init()
     foreach(LocalApp *app, apps) {
         addIcon(app);
     }
-    reflow();
+    reflow(true);
     update();
 }
 
@@ -84,8 +84,11 @@ void Docker::slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedList
         ++i;
     }
 
-    reflow();
-//    batchResetIcons(affected);
+    if (reason == IndexedList::MoveAround) {
+        batchResetIcons(affected);
+    } else {
+        reflow(true);
+    }
 }
 
 void Docker::addIcon(LocalApp* app)
@@ -138,7 +141,7 @@ void Docker::insertIcon(int index, AppIconWidget *icon)
 {
     icon->setContainerType(IconWidget::CT_Toolbar);
     connect(icon, SIGNAL(DragOut(IconWidget*)), this, SLOT(removeIcon(IconWidget*)),
-            Qt::UniqueConnection);
+            Qt::QueuedConnection);
 
     connect(icon, SIGNAL(requestErasion(IconWidget*)), this,
             SLOT(handleIconErasion(IconWidget*)));
@@ -231,6 +234,7 @@ int Docker::rows() const
 
 void Docker::reflow(bool animated)
 {
+    qDebug() << __PRETTY_FUNCTION__ << animated;
     if (animated) {
         QParallelAnimationGroup *pag = new QParallelAnimationGroup(this);
         for (int i = 0; i < icons().size(); ++i) {
@@ -356,7 +360,6 @@ void Docker::dropEvent(QDropEvent *ev)
         app->setIndex(newIndex);
         app->setDirId(-2);
         addIcon(app);
-        reflow();
     }
 
     ev->accept();
@@ -383,13 +386,13 @@ void Docker::handleMultiDrop(QDropEvent *ev)
             dataStream >> uniqueName;
 
             LocalApp *app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
-            qDebug() << __PRETTY_FUNCTION__ << app->name() << uniqueName;
+            qDebug() << __PRETTY_FUNCTION__ << app->name() << "insert at" << icons().size();
             app->setIndex(this->icons().size());
             app->setPage(0);
             app->setDirId(-2);
             addIcon(app);
         }
-        reflow();
+        reflow(true);
     }
 
     ev->accept();
