@@ -27,9 +27,17 @@ LineEdit::LineEdit(QWidget *parent)
     setStyleSheet(QString("QLineEdit {"
                           "border: 1px solid gray;"
                           "border-radius: 8px;"
+                          "color:white;"
+                          "font: bold;"
                           "padding: 0 8px;"
                           "background: rgba(0, 0, 0, 100);"
                           "selection-background-color: darkgray;}"));
+
+//    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(this);
+//    effect->setBlurRadius(8);
+//    effect->setColor(QColor(0, 200, 0));
+//    effect->setOffset(-1,1);
+//    this->setGraphicsEffect(effect);
 
     setContextMenuPolicy(Qt::NoContextMenu);
     setTextMargins(10, 0, 0, 0);
@@ -71,13 +79,14 @@ void LineEdit::paintEvent(QPaintEvent* ev)
 {
     if (!hasFocus()) {
         QPainter painter(this);
-//        painter.drawPixmap(_editLeft.rect(), _editLeft);
-//        painter.drawPixmap(width() - _editRight.width(), 0, _editRight);
-//        painter.drawPixmap(_editLeft.width(), 0,
-//                           width()-_editLeft.width()-_editRight.width(), _editCenter.height(), _editCenter);
-
         QFontMetrics fm(font());
-        painter.drawText(20, fm.ascent(), myDisplayText());
+        painter.drawText(rect(), Qt::AlignCenter, myDisplayText());
+        QPen p = painter.pen();
+        QColor c(Qt::darkGray);
+        c.setAlpha(100);
+        p.setColor(c);
+        painter.setPen(p);
+        painter.drawText(rect().translated(1, 1), Qt::AlignCenter, myDisplayText());
     } else {
         QLineEdit::paintEvent(ev);
     }
@@ -121,6 +130,7 @@ void IconWidget::setText(const QString &text)
 {
     _text = text;
     _nameEdit->setText(text);
+    setToolTip(text);
 }
 
 void IconWidget::setToggled(bool val)
@@ -677,7 +687,7 @@ void TrashDirWidget::setApp(LocalApp *app)
 
 void TrashDirWidget::init()
 {
-    AppIconWidget::init();
+    setSmallSize();
 }
 
 void TrashDirWidget::openDir()

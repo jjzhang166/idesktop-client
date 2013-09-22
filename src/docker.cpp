@@ -20,7 +20,8 @@ Docker::Docker(QWidget *parent)
     setAcceptDrops(true);
     setAutoFillBackground(true);
 
-    _gridSize = QSize(SMALLSIZE.width() + HSPACING, SMALLSIZE.height() + VSPACING + BOTTOMSPACING);
+    _gridSize = QSize(SMALLSIZE.width(), SMALLSIZE.height() + VSPACING + BOTTOMSPACING);
+//    _gridSize = QSize(SMALLSIZE.width() + HSPACING, SMALLSIZE.height() + VSPACING + BOTTOMSPACING);
 
     setFixedSize(parent->width(), _gridSize.height());
 
@@ -187,7 +188,7 @@ QRect Docker::rectForIndex(int index) const
 QPoint Docker::posForIndex(int index) const
 {
     int x = (width() - _gridSize.width() * icons().size()) / 2 + index * _gridSize.width();
-    int y = height() - _gridSize.height();
+    int y = height() - _gridSize.height() + 14; // + 14 is abitrary, just make icon lower
 
     qDebug() << __PRETTY_FUNCTION__ << "index" << index << "x " << x << " y " << y;
     return QPoint(x, y);

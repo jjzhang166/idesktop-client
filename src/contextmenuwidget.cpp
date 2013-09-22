@@ -314,8 +314,15 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
     , _height(0)
 {
     setWindowFlags(Qt::Popup|Qt::FramelessWindowHint);
+//    setWindowFlags(Qt::Popup);
     setAttribute(Qt::WA_TranslucentBackground);
 
+//    setStyleSheet(QString("MenuWidget {"
+//                          "border: 1px solid gray;"
+//                          "border-radius: 8px;"
+//                          "padding: 0 8px;"
+//                          "background: rgba(100, 100, 0, 100);"
+//                          "selection-background-color: darkgray;}"));
 //    setAutoFillBackground(true);
 //    QPalette pal = palette();
 //    pal.setColor(QPalette::Background, QColor(0,0,0,0));
@@ -537,7 +544,6 @@ void MenuWidget::paintEvent(QPaintEvent *event)
     }
 
     painter.drawPixmap(0, height() - 20, width(), 20, *QPixmapCache::find("menubottom"));
-
 }
 
 void MenuWidget::largeBtnClicked()
