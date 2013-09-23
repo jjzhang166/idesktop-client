@@ -14,7 +14,6 @@
 #include <QAction>
 #include <QMenu>
 
-//#include "virtualdesktop.h"
 #include "commuinication.h"
 #include "logindialog.h"
 #include "vacwidget.h"
@@ -22,7 +21,6 @@
 #include "movewidget.h"
 #include "dirwidget.h"
 #include "nodebutton.h"
-#include "toolbarwidget.h"
 #include "mask.h"
 #include "paascommuinication.h"
 
@@ -183,7 +181,6 @@ private:
 
     QNetworkAccessManager *_nam;
     PageNodes *_pageNodes;
-    toolBarWidget *_toolBarWidget;
     Docker *_docker;
 
     IDesktopSettings *_settings;

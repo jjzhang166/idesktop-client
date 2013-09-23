@@ -16,7 +16,6 @@
 #include "ShlObj.h"
 #include "idesktopsettings.h"
 #include "dashboard.h"
-#include "virtualdesktop.h"
 #include "switcher.h"
 #include "panel.h"
 #include "config.h"
@@ -259,21 +258,6 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_vacShowWidget, SIGNAL(vacCloseBtnClicked()), _vacShowWidget, SLOT(hide()));
 
     connect(vdesktop, SIGNAL(desktopClicked()), this, SLOT(desktopClicked()));
-
-//    connect(vdesktop, SIGNAL(changedDirId(const QString&, int))
-//            , _toolBarWidget, SLOT(changedDirId(const QString&, int)));
-
-//    connect(_toolBarWidget, SIGNAL(iconDropToolWidget(const QString &))
-//            , vdesktop, SLOT(iconMoveOtherWidget(const QString &)));
-//    connect(_toolBarWidget, SIGNAL(toolOpenDir(int,int,int)), vdesktop, SLOT(toolBarOpenDir(int,int,int)));
-//    connect(_toolBarWidget, SIGNAL(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &))
-//            , vdesktop, SLOT(toolBarIconToDir(int, const QString &,const QString &, int, int, const QString &, int, const QString &)));
-//    connect(_toolBarWidget, SIGNAL(iconItemNameChanged(const QString &, const QString &))
-//            , _vacShowWidget, SLOT(iconItemNameChanged(const QString &, const QString &)));
-//    connect(_toolBarWidget, SIGNAL(changedDirWidgetTitle(int, const QString &))
-//            , vdesktop, SLOT(changedDirWidgetTitle(int, const QString &)));
-//    connect(_toolBarWidget, SIGNAL(toolBarDirWidgetRefresh(int))
-//            , vdesktop, SLOT(dirWidgetRefresh(int)));
 
     _nam = new QNetworkAccessManager(this);
 

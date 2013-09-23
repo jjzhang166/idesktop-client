@@ -315,12 +315,12 @@ void AppIconWidget::slotNameChanged()
 void AppIconWidget::setupMenu()
 {
       if (_app->dirId() == 1000) {
-        _menu = new MenuWidget(MenuWidget::dustbinMenu, this);
+        _menu = new MenuWidget(MenuWidget::dustbinMenu, 0);
         connect(_menu, SIGNAL(restore()), this, SLOT(sendRestoreToDesktop()));
         connect(_menu, SIGNAL(del()), this, SLOT(sendRequestErasion()));
 
     } else {
-        _menu = new MenuWidget(MenuWidget::iconMenu, this);
+        _menu = new MenuWidget(MenuWidget::iconMenu, 0);
         connect(_menu, SIGNAL(del()), this, SLOT(sendRequestDeletion()));
         connect(_menu, SIGNAL(run()), this, SLOT(run()));
     }

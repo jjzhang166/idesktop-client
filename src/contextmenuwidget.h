@@ -78,14 +78,13 @@ public slots:
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void focusOutEvent(QFocusEvent *);
 
 private:
     int _type;
     //normal
     MenuButton *_showBtn;
     MenuButton *_createBtn;
-    MenuButton *_changeSkinBtn;
-    MenuButton *_themeBtn;
     MenuButton *_refreshBtn;
     //showIcon
     MenuButton *_largeBtn;
@@ -97,10 +96,6 @@ private:
     MenuButton *_docBtn;
     MenuButton *_excelBtn;
     MenuButton *_pptBtn;
-    //
-//    MenuButton *_openBtn;
-//    MenuButton *_delBtn;
-//    MenuButton *_renameBtn;
 
     int _width;
     int _height;
@@ -112,7 +107,6 @@ public:
     QStringList getXPAppList(); //得到新建文件后缀名
     int getAppCount(); //新建个数
     void newCreateMenu(); //新建弹出的list
-    void oldCreateMenu();
     QList<MenuButton*> _menuButtons;
 private:
     QStringList _appList; //新建文件后缀名
@@ -130,13 +124,10 @@ public:
     ~MenuButton();
 
     void setValue(int value);
-    bool hasSubMenu();
     int getValue();
 
     void setMenuSelect(bool select);
 signals:
-//    void clicked();
-    void valueClicked(int value);
     void hover(int value);
     //miya add
     void buttonClicked(int value);

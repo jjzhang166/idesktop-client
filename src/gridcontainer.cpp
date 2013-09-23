@@ -380,6 +380,7 @@ void GridPage::dropEvent(QDropEvent *ev)
         }
     }
     ev->accept();
+    QTimer::singleShot(0, this, SLOT(afterDrop()));
 }
 
 void GridPage::handleMultiDrop(QDropEvent *ev, DragAction action)
@@ -407,18 +408,33 @@ void GridPage::handleMultiDrop(QDropEvent *ev, DragAction action)
 
     }
 
+
     //FIXME: this is tricky way to do multidrop, cause it's not general enough
     //and dataStream is useless
     AppIconWidget *icon = qobject_cast<AppIconWidget*>(ev->source());
-    GridPage *page = qobject_cast<GridPage*>(icon->parent());
+    GridPage *orig_page = qobject_cast<GridPage*>(icon->parent());
 
-    const QList<QVariant>& objs = page->toggledIcons();
-    QSet<AppIconWidget*> set;
+    int newIndex = qMin(indexAt(ev->pos()), this->icons().size());
+    if (newIndex == -1) newIndex = this->icons().size();
+
+    const QList<QVariant>& objs = orig_page->toggledIcons();
     foreach(QVariant v, objs) {
-        set.insert(v.value<AppIconWidget*>());
+        _container->moveIconToPageAt(v.value<AppIconWidget*>(), this, newIndex++);
     }
-    _container->moveIconsToPage(set, this);
     ev->accept();
+
+    if (orig_page->isEmpty()) {
+        _container->removeEmptyPage(orig_page->index());
+    }
+    QTimer::singleShot(0, this, SLOT(afterDrop()));
+}
+
+void GridPage::afterDrop()
+{
+    if (this->icons().size() > _container->iconsPerPage()) {
+        qDebug() << __PRETTY_FUNCTION__ << "expanding page";
+        _container->expandPage(this);
+    }
 }
 
 QList<QVariant> GridPage::toggledIcons() const
@@ -575,37 +591,43 @@ void GridContainer::slotIconResized()
     QList<GridPage*> orig_pages = _pages;
     //TODO: when icon larger, may need to expand new pages
     foreach (GridPage *page, orig_pages) {
-        IndexedList& items = page->icons();
-        if (items.size() <= iconsPerPage()) {
+        if (page->icons().size() <= iconsPerPage()) {
             continue;
         }
 
-        // asume this value won't change during processing
-        int icons_per_page = iconsPerPage();
-        int nr_new_page = qCeil(items.size()/(qreal)icons_per_page);
-        qDebug() << __PRETTY_FUNCTION__ << items.size() << icons_per_page;
-        qDebug() << __PRETTY_FUNCTION__ << "need to split page" << page->index()
-                 << "into " << nr_new_page << "pages";
-
-        beginBatchModification();
-
-        while (nr_new_page > 1) {
-            GridPage *new_page = new GridPage(_pageSize, this);
-            insertPageAfter(page->index(), new_page);
-
-            QSet<AppIconWidget*> icons;
-            int start_idx = icons_per_page, end_idx = qMin(icons_per_page*2, items.size());
-            for (int idx = start_idx; idx < end_idx; ++idx) {
-                icons.insert(static_cast<AppIconWidget*>(items.at(idx)));
-            }
-
-            moveIconsToPage(icons, new_page);
-            nr_new_page = qFloor((qreal)items.size()/icons_per_page);
-        }
-
-        endBatchModification();
+        expandPage(page);
     }
     emit iconResized();
+}
+
+void GridContainer::expandPage(GridPage *page)
+{
+    IndexedList& items = page->icons();
+    // asume this value won't change during processing
+    int icons_per_page = iconsPerPage();
+    int nr_new_page = qCeil(items.size()/(qreal)icons_per_page);
+    qDebug() << __PRETTY_FUNCTION__ << items.size() << icons_per_page;
+    qDebug() << __PRETTY_FUNCTION__ << "need to split page" << page->index()
+             << "into " << nr_new_page << "pages";
+
+    beginBatchModification();
+
+    while (nr_new_page > 1) {
+        GridPage *new_page = new GridPage(_pageSize, this);
+        insertPageAfter(page->index(), new_page);
+
+        QSet<AppIconWidget*> icons;
+        int start_idx = icons_per_page, end_idx = qMin(icons_per_page*2, items.size());
+        for (int idx = start_idx; idx < end_idx; ++idx) {
+            icons.insert(static_cast<AppIconWidget*>(items.at(idx)));
+        }
+
+        moveIconsToPage(icons, new_page);
+        nr_new_page = qFloor((qreal)items.size()/icons_per_page);
+    }
+
+    endBatchModification();
+
 }
 
 int GridContainer::pageOffset(int n) const
@@ -616,15 +638,20 @@ int GridContainer::pageOffset(int n) const
 void GridContainer::moveIconsToPage(const QSet<AppIconWidget*> &icons, GridPage *newPage)
 {
     foreach(AppIconWidget *icon, icons) {
-        LocalApp *app = icon->app();
-        GridPage *page = qobject_cast<GridPage*>(icon->parent());
-        page->removeIcon(icon);
-
         //TODO: this may overflow if newPage already has iconsPerPage() of icons
-        app->setIndex(newPage->icons().size());
-        app->setPage(newPage->index());
-        addIcon(app);
+        moveIconToPageAt(icon, newPage, newPage->icons().size());
     }
+}
+
+void GridContainer::moveIconToPageAt(AppIconWidget* icon, GridPage *newPage, int newIndex)
+{
+    LocalApp *app = icon->app();
+    GridPage *page = qobject_cast<GridPage*>(icon->parent());
+    page->removeIcon(icon);
+
+    app->setIndex(newIndex);
+    app->setPage(newPage->index());
+    addIcon(app);
 }
 
 void GridContainer::insertPageAfter(int pageIndex, GridPage *newPage)
@@ -665,7 +692,11 @@ void GridContainer::removeEmptyPage(int index)
         for (int idx = index; idx < this->pageCount(); ++idx) {
             _pages[idx]->setPageIndex(idx, true);
         }
-        moveToPage(index);
+        moveToPage(currentId());
+        if (currentId() < index)
+            moveToPage(currentId());
+        else
+            moveToPage(currentId()-1);
     }
 
     // shrink size of container

@@ -127,6 +127,8 @@ private slots:
     void handleIconDeletion(IconWidget *icon);
     void handleIconErasion(IconWidget*);
 
+    void afterDrop();
+
 signals:
     void requestAutoPageTransition(GridPage::Direction dir);
 
@@ -183,6 +185,7 @@ public:
     bool inBatchMode() const { return _inBatchMode > 0; }
 
     void moveIconsToPage(const QSet<AppIconWidget*> &icons, GridPage *newPage);
+    void moveIconToPageAt(AppIconWidget* icon, GridPage *newPage, int newIndex);
     void insertPageAfter(int pageIndex, GridPage *newPage);
 
 signals:
@@ -274,6 +277,7 @@ private:
     void addIcon(LocalApp *app);
     bool containsIconFor(LocalApp *app);
     void removeEmptyPage(int index);
+    void expandPage(GridPage *page);
 };
 
 #endif // GRIDCONTAINER_H

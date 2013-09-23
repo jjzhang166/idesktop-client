@@ -115,44 +115,6 @@ int MenuWidget::getAppCount()
     }
 }
 
-//create menu from weile
-void MenuWidget::oldCreateMenu()
-{
-    _dirBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                             tr("文件夹"), this, false);
-    _linkBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                              tr("快捷方式"), this, false);
-    _docBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                             tr("DOC 文档"), this, false);
-    _excelBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                               tr("Excel 工作表"), this, false);
-    _pptBtn = new MenuButton("", ":images/menu_btn_hover.png",
-                             tr("PPT 演示文稿"), this, false);
-
-
-
-    _dirBtn->setGeometry(14, 20, ICON_W, BTN_H);
-    _linkBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
-    _docBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
-    _excelBtn->setGeometry(14, 77 + 2 * 4, ICON_W, BTN_H);
-    _pptBtn->setGeometry(14, 96 + 2 * 5, ICON_W, BTN_H);
-
-
-    _dirBtn->setValue(0);
-    _linkBtn->setValue(1);
-    _docBtn->setValue(2);
-    _excelBtn->setValue(3);
-    _pptBtn->setValue(4);
-
-    setFixedSize(ICON_W, 40 + 19 * 6 + 2 * 5);
-
-    connect(_dirBtn, SIGNAL(clicked()), this, SIGNAL(createDir()));
-    connect(_linkBtn, SIGNAL(clicked()), this, SIGNAL(createLink()));
-    connect(_docBtn, SIGNAL(clicked()), this, SIGNAL(createDOC()));
-    connect(_excelBtn, SIGNAL(clicked()), this, SIGNAL(createEXCEL()));
-    connect(_pptBtn, SIGNAL(clicked()), this, SIGNAL(createPPT()));
-}
-
 void MenuWidget::createNewFile(int value)
 {
     int i = 1;
@@ -255,7 +217,24 @@ QStringList MenuWidget::getXPAppList()
 
 void MenuWidget::mousePressEvent(QMouseEvent *event)
 {
-    QWidget::mousePressEvent(event);
+    qDebug() << __PRETTY_FUNCTION__;
+
+    event->accept();
+//    QWidget* w;
+//    while ((w = QApplication::activeModalWidget()) && w != this){
+//        w->close();
+//        if (QApplication::activeModalWidget() == w) // widget does not want to disappear
+//            w->hide(); // hide at least
+//    }
+    if (!rect().contains(event->pos())){
+        close();
+    }
+}
+
+void MenuWidget::focusOutEvent(QFocusEvent *ev)
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    hide();
 }
 
 void MenuWidget::newCreateMenu()
@@ -267,9 +246,6 @@ void MenuWidget::newCreateMenu()
         _appName = getAppName();
     }
     _appCount = getAppCount();
-#if 0
-    oldCreateMenu();
-#else
     MenuButton *newButton;
     for(int i = 0; i < _appCount; ++i) {
         newButton = new MenuButton("", ":images/menu_btn_hover.png", _appName.at(i), this, false);
@@ -282,30 +258,7 @@ void MenuWidget::newCreateMenu()
 
     _width = ICON_W_NEW;
     _height = 40 + 19 * _appCount + 2 * _appCount;
-#endif
 }
-
-#if 0
-void MenuWidget::newCreateMenu()
-{
-    _appList = getAppList();
-    _appName = getAppName();
-    _appCount = getAppCount();
-#if 0
-    oldCreateMenu();
-#else
-    MenuButton *newButton;
-    for(int i = 0; i < _appCount; ++i) {
-        newButton = new MenuButton("", ":images/menu_btn_hover.png", _appName.at(i), this, false);
-        newButton->setGeometry(7, 20 + 19 * i + 2 * i, ICON_W_NEW, BTN_H);
-        newButton->setValue(i);
-        _menuButtons.append(newButton);
-        connect(newButton, SIGNAL(buttonClicked(int)), this, SLOT(createNewFile(int)));
-    }
-    setFixedSize(ICON_W_NEW, 40 + 19 * _appCount + 2 * _appCount);
-#endif
-}
-#endif
 
 MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
     : QWidget(parent)
@@ -313,20 +266,10 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
     , _width(0)
     , _height(0)
 {
-    setWindowFlags(Qt::Popup|Qt::FramelessWindowHint);
-//    setWindowFlags(Qt::Popup);
+    setWindowFlags(Qt::Popup|Qt::CustomizeWindowHint|Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
-
-//    setStyleSheet(QString("MenuWidget {"
-//                          "border: 1px solid gray;"
-//                          "border-radius: 8px;"
-//                          "padding: 0 8px;"
-//                          "background: rgba(100, 100, 0, 100);"
-//                          "selection-background-color: darkgray;}"));
-//    setAutoFillBackground(true);
-//    QPalette pal = palette();
-//    pal.setColor(QPalette::Background, QColor(0,0,0,0));
-//    setPalette(pal);
+//    setFocusPolicy(Qt::ClickFocus);
+//    setWindowModality(Qt::ApplicationModal);
 
     QPixmapCache::insert("menutop",
          QPixmap(":images/menu_top.png").scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
@@ -348,27 +291,15 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
                                      tr("刷新"), this, false);
         _createBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                     tr("新建"), this, true);
-//        _changeSkinBtn = new MenuButton("", ":images/menu_btn_hover.png",
-//                                        tr("更换壁纸"), this, false);
-//        _themeBtn = new MenuButton("", ":images/menu_btn_hover.png",
-//                                   tr("桌面主题"), this, false);
-//        QLabel *l1 = new QLabel(this);
-//        l1->setPixmap(QPixmap(":images/menu_line.png"));
-
 
         _showBtn->setGeometry(14, 20 + 2, ICON_W, BTN_H);
         _refreshBtn->setGeometry(14, 39 + 2 * 2, ICON_W, BTN_H);
         _createBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
-//        _changeSkinBtn->setGeometry(14, 77 + 2 * 4, ICON_W, BTN_H);
-//        _themeBtn->setGeometry(14, 96 + 2 * 5, ICON_W, BTN_H);
 
         _showBtn->setValue(0);
         _refreshBtn->setValue(1);
         _createBtn->setValue(2);
-        //_changeSkinBtn->setValue(3);
-        //_themeBtn->setValue(4);
 
-//        setFixedSize(ICON_W, 115 + 2 * 5 + 20);
         setFixedSize(ICON_W, 77 + 2 * 3 + 20);
         _width = ICON_W;
         _height = 77 + 2 * 3 + 20;
@@ -376,13 +307,7 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         connect(_showBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
         connect(_createBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
        connect(_createBtn, SIGNAL(clicked()), this, SIGNAL(createDir()));
-//        connect(_changeSkinBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
-//        connect(_themeBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
-        //connect(_delBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
         connect(_refreshBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
-//        connect(_changeSkinBtn, SIGNAL(clicked()), this, SIGNAL(changeSkin()));
-//        connect(_themeBtn, SIGNAL(clicked()), this, SIGNAL(desktopTheme()));
-//        connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
         connect(_refreshBtn, SIGNAL(clicked()), this, SIGNAL(refresh()));
 
         break;
@@ -587,12 +512,8 @@ MenuButton::MenuButton(QString normal, QString hover, const QString &hint, QWidg
     , _subMenu(subMenu)
     , _entered(false)
 {
-//    QFont fm("", 10, QFont::Normal);
-
     QFontMetrics fm = this->fontMetrics();
     _fontWidth = fm.width(_hint);
-
- //   setStyleSheet("QPushButton{text-align:left;");
 
     _pixmap.load(_normal);
 
@@ -632,21 +553,6 @@ void MenuButton::paintEvent(QPaintEvent *)
     else
         painter.setPen(QPen(QColor(Qt::white)));
 
-//    if (_value == 0)
-//    {
-//        painter.drawPixmap(width() - _subPixmap.width() - 20, (ICON_W - _subPixmap.height()) / 2 + 12, _subPixmap);
-//        painter.drawText((width() - _fontWidth) / 2, (ICON_W + 10) / 2 + 12, _hint);
-//    }
-//    else if (height() > ICON_W)
-//    {
-//        painter.drawPixmap(width() - _subPixmap.width() - 20, (ICON_W - _subPixmap.height()) / 2, _subPixmap);
-//        painter.drawText((width() - _fontWidth) / 2, (ICON_W - 13 + 10) / 2, _hint);
-//    }
-//    else
-//    {
-//        painter.drawPixmap(width() - _subPixmap.width() - 20, (ICON_W - _subPixmap.height()) / 2, _subPixmap);
-//        painter.drawText((width() - _fontWidth) / 2, (ICON_W + 10) / 2, _hint);
-// }
     painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 10, QFont::Normal));
     painter.drawPixmap(width() - 50, 5, _subPixmap);
     painter.drawText(25, 13, _hint);
@@ -655,7 +561,6 @@ void MenuButton::paintEvent(QPaintEvent *)
 
 void MenuButton::enterEvent(QEvent *event)
 {
-//    QMessageBox::information(NULL, "TIP", "ENTER EVNET");
     if (!isEnabled())
     {
         _entered = false;
@@ -675,7 +580,6 @@ void MenuButton::enterEvent(QEvent *event)
 
 void MenuButton::leaveEvent(QEvent *event)
 {
-//    QMessageBox::information(NULL, "TIP", "LEAVE");
     _entered = false;
     _pixmap.load(_normal);
     repaint();
@@ -699,7 +603,6 @@ void MenuButton::mouseReleaseEvent(QMouseEvent *event)
     if (!_subMenu)
     {
         emit clicked();
-//        emit valueClicked(_value);
     }
     Q_UNUSED(event);
 }
@@ -712,11 +615,6 @@ int MenuButton::getValue()
 void MenuButton::setValue(int value)
 {
     _value = value;
-}
-
-bool MenuButton::hasSubMenu()
-{
-    return _subMenu;
 }
 
 void MenuButton::setMenuSelect(bool select)
