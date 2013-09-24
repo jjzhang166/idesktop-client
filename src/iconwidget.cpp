@@ -436,6 +436,7 @@ void AppIconWidget::mouseMoveEvent(QMouseEvent *ev)
             emit w->DragOut(w);
         }
 
+        //FIXME: if DragOut, these icons will be deleted later, seems no need to do clearToggles
         if (supportMultiSelection)
             QMetaObject::invokeMethod(parent(), "clearToggles");
     }

@@ -10,26 +10,47 @@ Drawer::Drawer(QWidget *parent)
     _dragOutTimerId = -1;
     _beginTracingDragOutTime = false;
 
-    setMouseTracking(true);
+//    setMouseTracking(true);
     setAcceptDrops(true);
-    setAutoFillBackground(true);
-    QPalette pal = palette();
-    pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
-    setPalette(pal);
+    QString style =
+            "QScrollArea { background: transparent; } "
+            "QScrollBar:vertical {"
+            "     border: 1px solid gray;"
+            "     background: transparent;"
+            "     width: 15px;"
+            " }"
+            ""
+            " QScrollBar::handle:vertical {"
+            "     background: #7f7f7f;"
+            "     border-radius: 10px;"
+            " }"
+            ""
+            " QScrollBar::add-line:vertical {"
+            "     background: transparent;"
+            " }"
+            ""
+            " QScrollBar::sub-line:vertical {"
+            "     background: transparent;"
+            " }"
+            ""
+            " QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
+            "     background: none;"
+            " }";
+    setStyleSheet(style);
 
     setAlignment(Qt::AlignCenter);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setWidgetResizable(true);
 
     QSize maxgrid = LARGESIZE + QSize(HSPACING<<1, VSPACING + BOTTOMSPACING);
     setMaximumHeight(maxgrid.height()*3);
     setMinimumHeight(maxgrid.height());
 
-    //TODO: make sure content width bound to width of Drawer
-    _content->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     _content->installEventFilter(this);
-    _content->setAutoFillBackground(false);
     _content->setMinimumHeight(minimumHeight());
+    QPalette pal = _content->palette();
+    pal.setColor(QPalette::Background, Qt::transparent);
+    _content->setPalette(pal);
+//    _content->setStyleSheet("QWidget {background: transparent;");
     setWidget(_content);
 
     connect(IDesktopSettings::instance(), SIGNAL(iconSizeUpdated(IconWidget::icon_size,IconWidget::icon_size)),
@@ -97,6 +118,9 @@ void Drawer::slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedList
         moveIconTo(icon, i->second, true);
         ++i;
     }
+    _content->resize(qMax(_gridSize.width(), width()), _gridSize.height()*rows());
+    qDebug() << __PRETTY_FUNCTION__ << "content resize to" << _content->size();
+    qDebug() << __PRETTY_FUNCTION__ << "viewport size" << viewport()->rect();
     update();
 }
 
@@ -214,6 +238,7 @@ AppIconWidget* Drawer::iconAt(QPoint pos) const
 
 int Drawer::indexAt(QPoint pos) const
 {
+    pos = _content->mapFromGlobal(this->mapToGlobal(pos));
     if (pos.x() < 0 || pos.x() > cols()*_gridSize.width())
         return -1;
 
@@ -359,10 +384,7 @@ void Drawer::dropEvent(QDropEvent *ev)
         return;
     }
 
-    QPoint pos = _content->mapFromGlobal(this->mapToGlobal(ev->pos()));
-    int newIndex = indexAt(pos);
-    qDebug() << __PRETTY_FUNCTION__ << "indexAt -> " << newIndex;
-    newIndex = indexAt(ev->pos());
+    int newIndex = indexAt(ev->pos());
     qDebug() << __PRETTY_FUNCTION__ << "indexAt -> " << newIndex;
 
     if (newIndex == -1) {
@@ -405,7 +427,11 @@ void Drawer::dropEvent(QDropEvent *ev)
     } else {
         // drag from outside, GridPage or toolbar
         LocalApp *app = icon_widget->app();
-        insertNewIcon(app);
+        newIndex = qMin(newIndex, icons().size());
+        app->setIndex(newIndex);
+        app->setPage(0);
+        app->setDirId(dirId());
+        addIcon(app);
         DirContainer *cnt = qobject_cast<DirContainer*>(parent());
         cnt->_mate->init();
     }
@@ -445,17 +471,19 @@ void Drawer::handleMultiDrop(QDropEvent *ev)
         QByteArray data = ev->mimeData()->data("application/x-iconitems");
         QDataStream dataStream(&data, QIODevice::ReadOnly);
 
+        int newIndex = indexAt(ev->pos());
+        if (newIndex == -1) newIndex = this->icons().size();
+
         DirContainer *cnt = qobject_cast<DirContainer*>(parent());
-        int dirid = cnt->_mate->app()->id().toInt();
         while (!dataStream.atEnd()) {
             QString uniqueName;
             dataStream >> uniqueName;
 
             LocalApp *app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
             qDebug() << __PRETTY_FUNCTION__ << app->name() << uniqueName;
-            app->setIndex(this->icons().size());
+            app->setIndex(newIndex++);
             app->setPage(0);
-            app->setDirId(dirid);
+            app->setDirId(dirId());
             addIcon(app);
         }
         cnt->_mate->init();

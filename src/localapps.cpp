@@ -318,7 +318,7 @@ bool LocalAppList::addApp(LocalApp *app)
  */
 int LocalAppList::getPages() const
 {
-    QSqlQuery qry = QSqlDatabase::database("local").exec("select count(distinct page) from localapps;");
+    QSqlQuery qry = QSqlDatabase::database("local").exec("select count(distinct page) from localapps where dirid=-1;");
     if (qry.next()) {
         return qry.value(0).toInt();
     }

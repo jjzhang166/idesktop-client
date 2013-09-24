@@ -117,7 +117,8 @@ void GridPage::slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedLi
     QSet<IndexedList::Change>::const_iterator i = changes.constBegin();
     while (i != changes.constEnd()) {
         AppIconWidget *icon = qobject_cast<AppIconWidget*>(_items.at(i->second));
-        //FIXME: only when not after a dragout happened
+        //HACK: when a multidrag happened, some icons contained in toggledIcons has
+        //been lost connection with the apps
         if (icon->app()) {
             icon->app()->setIndex(i->second);
         } else {
@@ -127,6 +128,10 @@ void GridPage::slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedLi
         ++i;
     }
     update();
+
+    if (isEmpty()) {
+        _container->removeEmptyPage(index());
+    }
 }
 
 QRect GridPage::rectForIndex(int index) const
@@ -293,9 +298,6 @@ void GridPage::handleIconDeletion(IconWidget *icon)
     emit _container->moveAppToTrash(app);
 
     removeIcon(icon);
-    if (this->isEmpty()) {
-        _container->removeEmptyPage(this->index());
-    }
 }
 
 void GridPage::dropEvent(QDropEvent *ev)
@@ -379,10 +381,6 @@ void GridPage::dropEvent(QDropEvent *ev)
             app->setIndex(newIndex);
             app->setPage(newPage);
             _container->addIcon(app);
-
-            if (orig_page->isEmpty()) {
-                _container->removeEmptyPage(orig_page->index());
-            }
         }
     }
     ev->accept();
@@ -429,9 +427,6 @@ void GridPage::handleMultiDrop(QDropEvent *ev, DragAction action)
     }
     ev->accept();
 
-    if (orig_page->isEmpty()) {
-        _container->removeEmptyPage(orig_page->index());
-    }
     QTimer::singleShot(0, this, SLOT(afterDrop()));
 }
 
@@ -726,9 +721,6 @@ void GridContainer::delIcon(LocalApp *app)
     qDebug() << __PRETTY_FUNCTION__ << "page " << pg << "index" << idx;
     IconWidget *icon = page->icons().at(idx);
     page->removeIcon(icon);
-    if (page->isEmpty()) {
-        removeEmptyPage(pg);
-    }
 }
 
 void GridContainer::insertNewIcon(LocalApp *app)
