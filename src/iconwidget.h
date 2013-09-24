@@ -14,10 +14,6 @@ public:
     //HACK: override property accessor
     QString myDisplayText() const;
 
-signals:
-    void focusIn();
-    void focusOut();
-
 protected:
     QPixmap _editLeft;
     QPixmap _editCenter;

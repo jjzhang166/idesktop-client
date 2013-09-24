@@ -356,6 +356,7 @@ void Docker::dropEvent(QDropEvent *ev)
         moveIconTo(icon_widget, newIndex, true);
 
     } else {
+        newIndex = qMin(newIndex, icons().size());
         // drag from outside, GridPage or toolbar
         LocalApp *app = icon_widget->app();
         app->setIndex(newIndex);

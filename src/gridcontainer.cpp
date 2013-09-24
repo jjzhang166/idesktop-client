@@ -89,7 +89,7 @@ void GridPage::insertIcon(int index, IconWidget *icon)
 
     qDebug() << __PRETTY_FUNCTION__ << "page" << _id << "index" << index;
     _items.insert(index, icon);
-    moveIconTo(icon, index, true);
+    moveIconTo(icon, index, true, true);
     icon->show();
 }
 
@@ -173,11 +173,17 @@ int GridPage::indexAt(QPoint pos) const
     return row * c->cols() + col;
 }
 
-void GridPage::moveIconTo(IconWidget *icon, int index, bool animated)
+void GridPage::moveIconTo(IconWidget *icon, int index, bool animated, bool followCursor)
 {
     if (animated) {
         QPropertyAnimation *pa = new QPropertyAnimation(icon, "geometry");
-        pa->setStartValue(icon->geometry());
+        if (followCursor) {
+            QRect geo = icon->geometry();
+            geo.setTopLeft(mapFromGlobal(QCursor::pos()));
+            pa->setStartValue(geo);
+        } else {
+            pa->setStartValue(icon->geometry());
+        }
         pa->setEndValue(rectForIndex(index));
         pa->start(QAbstractAnimation::DeleteWhenStopped);
     } else {
@@ -359,7 +365,7 @@ void GridPage::dropEvent(QDropEvent *ev)
             LocalApp *app = icon->app();
             app->setIndex(newIndex);
             _items.moveAround(index, newIndex);
-            moveIconTo(icon, newIndex, true);
+            moveIconTo(icon, newIndex, true, true);
 
         } else {
             GridPage *orig_page = qobject_cast<GridPage*>(icon->parentWidget());

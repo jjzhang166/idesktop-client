@@ -91,7 +91,7 @@ public:
     IndexedList& icons() { return _items; }
     void insertIcon(int index, IconWidget *icon);
     bool isEmpty() const { return icons().size() == 0; }
-    void moveIconTo(IconWidget *icon, int index, bool animated = false);
+    void moveIconTo(IconWidget *icon, int index, bool animated = false, bool followCursor = false);
     void setPageIndex(int idx, bool animated = false);
     int index() const { return _id; }
     QPoint posForIndex(int index) const;

@@ -42,7 +42,7 @@ LineEdit::LineEdit(QWidget *parent)
     setContextMenuPolicy(Qt::NoContextMenu);
     setTextMargins(10, 0, 0, 0);
 
-    setFocusPolicy(Qt::ClickFocus);
+//    setFocusPolicy(Qt::ClickFocus);
     setAlignment(Qt::AlignCenter);
     setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
 
@@ -94,13 +94,11 @@ void LineEdit::paintEvent(QPaintEvent* ev)
 
 void LineEdit::focusInEvent(QFocusEvent *event)
 {
-    emit focusIn();
     QLineEdit::focusInEvent(event);
 }
 
 void LineEdit::focusOutEvent(QFocusEvent *event)
 {
-    emit focusOut();
     QLineEdit::focusOutEvent(event);
 }
 
@@ -310,6 +308,7 @@ void AppIconWidget::slotNameChanged()
         _app->setName(text());
         emit iconItemNameChanged(_app->uniqueName(), text());
     }
+    _nameEdit->clearFocus();
 }
 
 void AppIconWidget::setupMenu()
