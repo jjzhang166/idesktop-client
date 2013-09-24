@@ -534,7 +534,7 @@ void DirectionIndicator::setIndicatorPos(int pos)
 DirContainer::DirContainer(DirectionIndicator::Direction direction, DirIconWidget *parent)
     : QWidget(0), _mate(parent)
 {
-    setContextMenuPolicy(Qt::NoContextMenu);
+    setContextMenuPolicy(Qt::PreventContextMenu);
     setFocusPolicy(Qt::ClickFocus);
     resize(qApp->desktop()->width(), height());
 
@@ -564,6 +564,7 @@ DirContainer::DirContainer(DirectionIndicator::Direction direction, DirIconWidge
 
     hl->addSpacerItem(new QSpacerItem(40, 40, QSizePolicy::Expanding));
     _pbClear = new QPushButton(tr("clear"), this);
+    connect(_pbClear, SIGNAL(clicked()), this, SLOT(clearDir()));
     hl->addWidget(_pbClear);
 
     vl->addLayout(hl);

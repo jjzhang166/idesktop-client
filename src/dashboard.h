@@ -19,25 +19,20 @@
 #include "vacwidget.h"
 #include "skinwidget.h"
 #include "movewidget.h"
-#include "dirwidget.h"
 #include "nodebutton.h"
 #include "mask.h"
 #include "paascommuinication.h"
 
+class Panel;
+class Switcher;
 class DirContainer;
 class Docker;
 class GridContainer;
 class QVBoxLayout;
 class AppWidget;
 class QAction;
-class VirtualDesktop;
-class QPropertyAnimation;
-//vac
-class TopWidget;
-class Switcher;
-class Panel;
-class Indicator;
 class IDesktopSettings;
+class MenuWidget;
 
 extern QString WIN_LOCAL_IconPath;
 extern QString WIN_VAPP_IconPath;
@@ -156,7 +151,6 @@ private:
     bool _paasFinished;
 
 	 //??//
-    TopWidget *topWidget;
     QPropertyAnimation *_animation;
     QSystemTrayIcon *tray;
     QAction *quitAction;

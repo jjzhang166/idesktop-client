@@ -23,6 +23,7 @@
 #include "gridcontainer.h"
 #include "docker.h"
 #include "dircontainer.h"
+#include "contextmenuwidget.h"
 
 extern QString VacServer;
 extern QString VacPort;

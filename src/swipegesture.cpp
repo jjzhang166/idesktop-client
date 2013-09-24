@@ -31,24 +31,39 @@ SwipeGesture::create(QObject* pTarget)
 QGestureRecognizer::Result
 SwipeGesture::recognize(QGesture* pGesture, QObject *pWatched, QEvent *pEvent)
 {
+    static bool dblClick = false;
+
     QGestureRecognizer::Result result = QGestureRecognizer::Ignore;
     QSwipeGesture *pSwipe = static_cast<QSwipeGesture*>(pGesture);
 
     switch(pEvent->type()) {
+    case QEvent::MouseButtonDblClick: {
+        qDebug() << __func__ << "dblclick";
+        dblClick = true;
+        return QGestureRecognizer::CancelGesture;
+    }
+
     case QEvent::MouseButtonPress: {
+        qDebug() << __func__ << "press";
         QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
         if ((pMouseEvent->modifiers() != Qt::NoModifier) || pMouseEvent->button() != Qt::LeftButton) {
             return QGestureRecognizer::CancelGesture;
         }
         pSwipe->setProperty("startPoint", pMouseEvent->posF());
         result = QGestureRecognizer::MayBeGesture;
-        qDebug("Swipe gesture started");
+        qDebug() << "Swipe gesture started" << pMouseEvent->posF();
     }
         break;
 
     case QEvent::MouseButtonRelease: {
+        qDebug() << __func__ << "release";
         QMouseEvent* pMouseEvent = static_cast<QMouseEvent*>(pEvent);
         if ((pMouseEvent->modifiers() != Qt::NoModifier) || pMouseEvent->button() != Qt::LeftButton) {
+            return QGestureRecognizer::CancelGesture;
+        }
+
+        if (dblClick) {
+            dblClick  = false;
             return QGestureRecognizer::CancelGesture;
         }
 

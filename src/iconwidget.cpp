@@ -653,6 +653,7 @@ DirContainer *DirIconWidget::dir()
 TrashDirWidget::TrashDirWidget(QWidget *parent)
     :DirIconWidget(parent)
 {
+    setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
 void TrashDirWidget::restoreIcon()
