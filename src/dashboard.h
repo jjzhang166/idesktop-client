@@ -174,6 +174,7 @@ private:
     QPushButton* _backBtn;
 
     QNetworkAccessManager *_nam;
+    QNetworkAccessManager *_namLogout;
     PageNodes *_pageNodes;
     Docker *_docker;
 

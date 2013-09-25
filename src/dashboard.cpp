@@ -1,5 +1,7 @@
 #include <QtGui>
 #include <QtSql/QtSql>
+#include <QJSon/qjson.h>
+#include <QJSon/serializer.h>
 
 #include <iostream>
 #include <QFile>
@@ -261,6 +263,7 @@ Dashboard::Dashboard(QWidget *parent)
     connect(vdesktop, SIGNAL(desktopClicked()), this, SLOT(desktopClicked()));
 
     _nam = new QNetworkAccessManager(this);
+    _namLogout = new QNetworkAccessManager(this);
 
     QTimer::singleShot(100, this, SLOT(initIconItem()));
 }
@@ -449,24 +452,15 @@ void Dashboard::quit()
     box.setText("是否确定退出？");
     if (box.exec()) {
 
-        QString ip;
-        QSqlQuery ipQuery = \
-                QSqlDatabase::database("loginData").exec(QString("SELECT verifyServer FROM paasservers where id=1;"));
-        while (ipQuery.next())
-        {
-            ip = ipQuery.value(0).toString();
-        }
-
-        QString jsonUrl = "http://" + ip + ":9080/idesktop/saveUserStatusData.action";
-        qDebug() << "--->LocalAppList::getList()->uploadJson()" << LocalAppList::getList()->uploadJson();
-        QString dataJson = "username=" + USERNAME + "&jsondata=" + LocalAppList::getList()->uploadJson();
-        qDebug() << "--->dataJson" <<dataJson;
-        qDebug() << "--->dataJson.toAscii()" <<dataJson.toUtf8();
+//        QString upLoadJson = LocalAppList::getList()->uploadJson();
+//        qDebug() << "up load json" << upLoadJson;
+        QString jsonUrl = "http://" + Config::get("Server") + ":8080/idesktop/saveUserStatusData.action";
+        QString dataJson = QString("username=%1&jsondata=%2&ismanager=false").arg(Config::get("User")).arg(LocalAppList::getList()->uploadJson());
         _nam->post(QNetworkRequest(QUrl(jsonUrl)), dataJson.toUtf8());
 
-        QString quitUrl ="http://" + ip + ":9080/idesktop/logout.action";
+        QString quitUrl ="http://" + Config::get("Server") + ":8080/idesktop/logout.action";
         QString data = "username=" + USERNAME;
-        _nam->post(QNetworkRequest(QUrl(quitUrl)), data.toUtf8());
+        _namLogout->post(QNetworkRequest(QUrl(quitUrl)), data.toUtf8());
 
         _switcherLeft->setVisible(false);
         _switcherRight->setVisible(false);
@@ -589,7 +583,11 @@ void Dashboard::refreshVapp()
     _settings->vappList().clear();
 
     //get vapp list
-    _commui->getAppList();
+    //_commui->getAppList(_userInfoBuffer, VacServer);
+
+    _commui->getAppList(
+            QString("http://%1:8080/idesktop/getUserStatusData.action?username=%2&ismanager=true")
+            .arg(Config::get("Server")).arg(Config::get("User")));
     while (!_finished)
         QApplication::processEvents();
     _finished = false;
@@ -767,16 +765,17 @@ void Dashboard::modify()
     }
 
     remoteAppList.clear();
-
+    _settings->remoteAppList().clear();
+    _settings->setRemoteAppList(myVappList);
     for(int i = 0; i < myVappList.count(); i++)
     {
         QString iconPath = QString("%1%2.png")
                 .arg(WIN_VAPP_IconPath)
                 .arg(myVappList[i].id);
 
-        remoteAppList.insert(i, myVappList[i]);
+//        remoteAppList.insert(i, myVappList[i]);
         remoteAppList[i].icon = iconPath;
-        qDebug()<<"g_Rmote:"<<remoteAppList.at(i).icon;
+//        qDebug()<<"g_Rmote:"<<remoteAppList.at(i).icon;
     }
 
 }
@@ -841,16 +840,19 @@ void Dashboard::paasModify()
     }
 
     remotePaasList.clear();
+//    _settings->remotePaasList().clear();
 
-    for(int i = 0; i < myPaasList.count(); i++)
-    {
-        QString iconPath = QString("%1%2.png")
-                .arg(WIN_PAAS_IconPath)
-                .arg(myPaasList[i].cnName);
+//    for(int i = 0; i < myPaasList.count(); i++)
+//    {
+//        QString iconPath = QString("%1%2.png")
+//                .arg(WIN_PAAS_IconPath)
+//                .arg(myPaasList[i].cnName);
 
-        remotePaasList.insert(i, myPaasList[i]);
-        remotePaasList[i].iconPath = iconPath;
-    }
+//        remotePaasList.insert(i, myPaasList[i]);
+//        remotePaasList[i].iconPath = iconPath;
+//    }
+    _settings->setRemotePaasList(myPaasList);
+
 }
 
 void Dashboard::largeIcon()
@@ -885,7 +887,13 @@ void Dashboard::getPaasIcon(bool isLogin)
 
     //paas
     //get paas list
-    _paasCommui->login(PaasServer);
+    //http://192.168.30.37:8080/idesktop/getUserStatusData.action?username=root&ismanager=true
+//    _paasCommui->login(PaasServer);
+
+    _paasCommui->login(
+                QString("http://%1:8080/idesktop/getUserStatusData.action?username=%2&ismanager=true")
+                .arg(Config::get("Server")).arg(Config::get("User")), "");
+
     while (!_paasFinished)
         QApplication::processEvents();
     _paasFinished = false;
@@ -955,13 +963,16 @@ void Dashboard::getPaasIcon(bool isLogin)
         setIcon(WIN_PAAS_IconPath, tempPath);
     }
     _settings->setPaasList(myPaasList);
-    _settings->setRemotePaasList(remotepaasList);
+    if (isLogin)
+    {
+        _settings->setRemotePaasList(remotepaasList);
+    }
 }
 
 void Dashboard::getVacIcon()
 {
-    if(_commui->errID == "10000")
-    {
+//    if(_commui->errID == "10000")
+//    {
         //        char folder[MAX_PATH] = {0};
         //        SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
         //        WIN_TtempPath = QString(folder);
@@ -969,7 +980,11 @@ void Dashboard::getVacIcon()
 
         //get vapp list
 
-        _commui->getAppList();
+        _commui->getAppList(
+                QString("http://%1:8080/idesktop/getUserStatusData.action?username=%2&ismanager=true")
+                .arg(Config::get("Server")).arg(Config::get("User")));
+
+//        _commui->getAppList(_userInfoBuffer, VacServer);
         while (!_finished)
             QApplication::processEvents();
         _finished = false;
@@ -1017,44 +1032,44 @@ void Dashboard::getVacIcon()
             setIcon(WIN_VAPP_IconPath, tempPath);
         }
         _settings->setRemoteAppList(remoteAppList);
-    }
-    else
-    {
-        if ((_commui->errInfo == "会话已存在") || (_commui->errID == "10045"))
-        {
-            _commui->logoff();
+        //    }
+        //    else
+        //    {
+        //        if ((_commui->errInfo == "会话已存在") || (_commui->errID == "10045"))
+        //        {
+        //            _commui->logoff();
 
-            _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
+        //            _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
 
-            while (!_finished)
-                QApplication::processEvents();
-            _finished = false;
+        //            while (!_finished)
+        //                QApplication::processEvents();
+        //            _finished = false;
 
-            getVacIcon();
+        //            getVacIcon();
 
-        }
-        else if ((_commui->errInfo == "没有可用Licenses") || (_commui->errID == "10059"))
-        {
-            AppMessageBox box(false, NULL);
-            box.setText(tr("no used Licenses, please contact the administrator."));
-            box.exec();
-        }
-        else if ((_commui->errInfo == "用户名或密码错误") || (_commui->errID == "10062"))
-        {
-            AppMessageBox box(false, NULL);
-            box.setText(tr("name or password error, please contact the administrator."));
-            box.exec();
-        }
-        else
-        {
-//            QMessageBox::warning(this, tr("vapp login failed"), _commui->errInfo, tr("OK"));
+        //        }
+        //        else if ((_commui->errInfo == "没有可用Licenses") || (_commui->errID == "10059"))
+        //        {
+        //            AppMessageBox box(false, NULL);
+        //            box.setText(tr("no used Licenses, please contact the administrator."));
+        //            box.exec();
+        //        }
+        //        else if ((_commui->errInfo == "用户名或密码错误") || (_commui->errID == "10062"))
+        //        {
+        //            AppMessageBox box(false, NULL);
+        //            box.setText(tr("name or password error, please contact the administrator."));
+        //            box.exec();
+        //        }
+        //        else
+        //        {
+        //            QMessageBox::warning(this, tr("vapp login failed"), _commui->errInfo, tr("OK"));
 
-            AppMessageBox box(false, NULL);
-            box.setText(tr("vapp login failed, please contact the administrator."));
-            box.exec();
-        }
+        //            AppMessageBox box(false, NULL);
+        //            box.setText(tr("vapp login failed, please contact the administrator."));
+        //            box.exec();
+        //        }
 
-    }
+//    }
 
 }
 

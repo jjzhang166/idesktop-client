@@ -4,6 +4,12 @@
 #include <QDomDocument>
 #include <QTime>
 
+#include <QVariant>
+#include <QJSon/qjson.h>
+#include <QJSon/serializer.h>
+
+#include <QMessageBox>
+
 _Commui Commui;
 commuinication::commuinication(QObject *parent):QObject(parent),
     _reply(NULL),_isPost(true),_type(INIT),errID(""),errInfo(""),_isNetError(false)
@@ -36,7 +42,11 @@ void commuinication::myPost(const QUrl url, const QByteArray postData)
 
     _isPost = true;
     QNetworkRequest* request=new QNetworkRequest(url);
-    _reply = _nam->post(*request,postData);
+
+    if (!postData.isEmpty())
+        _reply = _nam->post(*request,postData);
+    else
+        _reply = _nam->get(*request);
 
     qDebug() << "post slotError";
     connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
@@ -148,27 +158,31 @@ void commuinication::replyFinished(QNetworkReply*) /* download finished */
         break;
 
     case GETAPP:
+//        nodelist = doc.elementsByTagName("application");
+//        qDebug()<<"nodelist.count"<<nodelist.count()<<"\n";
+//        while (index < nodelist.count())
+//        {
+//            tempAppList.name = nodelist.item(index).toElement().attribute("name");
+//            tempAppList.id = nodelist.item(index).toElement().attribute("appId");
+//            Commui._id=nodelist.item(index).toElement().attribute("appId");
+
+//            tempAppList.icon = nodelist.item(index).toElement().attribute("iconPath");
+//            tempAppList.type = nodelist.item(index).toElement().attribute("type");
+
+//            tempAppList.page = -1;
+//            tempAppList.index = -1;
+//            tempAppList.hidden = false;
+
+//            _appList.append(tempAppList);
+////            qDebug() <<"end append list\n"<<endl;
+////            qDebug()<<_appList[index].name<<"\n";
+
+//            index++;
+//        }
+
         nodelist = doc.elementsByTagName("application");
-        qDebug()<<"nodelist.count"<<nodelist.count()<<"\n";
-        while (index < nodelist.count())
-        {
-            tempAppList.name = nodelist.item(index).toElement().attribute("name");
-            tempAppList.id = nodelist.item(index).toElement().attribute("appId");
-            Commui._id=nodelist.item(index).toElement().attribute("appId");
 
-            tempAppList.icon = nodelist.item(index).toElement().attribute("iconPath");
-            tempAppList.type = nodelist.item(index).toElement().attribute("type");
-
-            tempAppList.page = -1;
-            tempAppList.index = -1;
-            tempAppList.hidden = false;
-
-            _appList.append(tempAppList);
-//            qDebug() <<"end append list\n"<<endl;
-//            qDebug()<<_appList[index].name<<"\n";
-
-            index++;
-        }
+        getJson();
 
         break;
     case LDBALANCE:
@@ -361,20 +375,32 @@ void commuinication::logoff()
     return;
 }
 
-void commuinication::getAppList()
+//void commuinication::getAppList()
+//{
+//    _appList.clear();
+//    //----post session----
+//    QString name = Commui._name;
+//    QString postStr = QString("<?xml version='1.0' encoding='utf-8'?><document><user loginName='%1' /></document>")
+//            .arg(QUrl::toPercentEncoding(name).constData());
+
+//    QByteArray inputStr = postStr.toAscii();
+//    qDebug()<<"inputStr:"<<inputStr<<"\n";
+
+//    QUrl url("http://" + Commui._ipPort + "/webservices/api.php?m=3&a=7");
+//    qDebug()<<"url:"<<url.toString()<<"\n";
+
+//    _type = GETAPP;
+//    qDebug()<<"get applist";
+//    myPost(url,inputStr);
+
+//    return;
+//}
+
+void commuinication::getAppList(const QString &url)
 {
     _appList.clear();
-    //----post session----
-    QString name = Commui._name;
-    QString postStr = QString("<?xml version='1.0' encoding='utf-8'?><document><user loginName='%1' /></document>")
-            .arg(QUrl::toPercentEncoding(name).constData());
 
-    QByteArray inputStr = postStr.toAscii();
-    qDebug()<<"inputStr:"<<inputStr<<"\n";
-
-    QUrl url("http://" + Commui._ipPort + "/webservices/api.php?m=3&a=7");
-    qDebug()<<"url:"<<url.toString()<<"\n";
-
+    QByteArray inputStr = "";
     _type = GETAPP;
     qDebug()<<"get applist";
     myPost(url,inputStr);
@@ -445,4 +471,53 @@ void commuinication::heartBeat()
     qDebug()<<"heartbeat";
     myPost(url,inputStr);
     return;
+}
+
+//get vappList
+void commuinication::getJson()
+{
+    APP_LIST tempAppList;
+    QJson::QJson parser;
+    bool ok;
+    QVariantMap result = parser.parse(_buffer, &ok).toMap();
+    if (!ok) {
+      qFatal("An error occurred during parsing by buffer");
+      emit done();
+      return;
+    }
+    qDebug() << "Vac Json : " << result["userInfoJsonStr"].toString();
+//    qDebug() << "result[userInfoJsonStr].toString()" << result["userInfoJsonStr"].toString();
+
+    if (result["userInfoJsonStr"].toString() == "")
+    {
+        emit done();
+        return;
+    }
+
+    bool ok2;
+    QVariantMap userInfoMap = parser.parse(result["userInfoJsonStr"].toString().toUtf8(), &ok2).toMap();
+    if (!ok2) {
+      qFatal("An error occurred during parsing by userInfoJsonStr");
+      emit done();
+      return;
+    }
+
+    foreach(QVariant pluginVacApp, userInfoMap["vappList"].toList())
+    {
+        QVariantMap vacMap = pluginVacApp.toMap();
+
+        tempAppList.name = vacMap["name"].toString();
+        tempAppList.id = vacMap["appId"].toString();
+        Commui._id = vacMap["appId"].toString();
+
+        tempAppList.icon = vacMap["iconPath"].toString();
+        tempAppList.type = vacMap["type"].toString();
+
+        tempAppList.page = -1;
+        tempAppList.index = -1;
+        tempAppList.hidden = false;
+
+        _appList.append(tempAppList);
+
+    }
 }

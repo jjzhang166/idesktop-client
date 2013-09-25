@@ -402,9 +402,11 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
 
     qDebug() << "------>jsonDownloadFinished";
     QByteArray buffer = reply->readAll();
+
     QJson::QJson parser;
     bool ok;
     QVariantMap result = parser.parse(buffer, &ok).toMap();
+    qDebug() << "init icon "<< result["userInfoJsonStr"].toString();
     if (!ok) {
       qFatal("An error occurred during parsing by buffer");
       return;
@@ -434,9 +436,9 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
       return;
     }
 
-    foreach(QVariant pluginLocalapp, userInfoMap["localapps"].toList())
+    foreach(QVariant pluginApp, userInfoMap["localapps"].toList())
     {
-        QVariantMap appmap = pluginLocalapp.toMap();
+        QVariantMap appmap = pluginApp.toMap();
 //        qDebug() << "------>appmap";
 //        qDebug() << "------>" <<"mymap[name].toString()" << appmap["name"].toString();
 //        qDebug() << "------>" <<"mymap[version].toString()" << appmap["version"].toString();
@@ -511,6 +513,39 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
             return;
         }
     }
+
+    bool isDustbin = false;
+    QSqlQuery queryDustbin = QSqlDatabase::database("local").exec("select uniquename from localapps;");
+    while (queryDustbin.next()) {
+        qDebug() << "queryDustbin.value(0).toString()" << queryDustbin.value(0).toString();
+        if ("4_dustbin" == queryDustbin.value(0).toString())
+        {
+           isDustbin = true;
+           break;
+        }
+    }
+    if (!isDustbin)
+    {
+        QString qstrLapp = QString("insert into localapps ("\
+                                   "name, version, execname, icon, uninstall, "\
+                                   "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniquename) values ( " \
+                                   "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', \'%8\', "\
+                                   "\'%9\', \'%10\',\'%11\',\'%12\',\'%13\',\'%14\', \'%15\');")\
+                                    .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg("1.0")\
+                                    .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg(":images/dustbin_normal.png")\
+                                    .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg(1)\
+                                    .arg(0).arg(0)\
+                                    .arg(int(false)).arg(1000)\
+                                    .arg("4").arg(int(false))\
+                                     .arg("").arg(-2).arg("4_dustbin");
+
+
+        if(!query.exec(qstrLapp))
+        {
+            qDebug() <<"query failed";
+        }
+    }
+
     QDialog::accept();
 
 }
@@ -557,7 +592,7 @@ void LoginDialog::auth()
         _finished = false;
         _authSuccess = false;
         //QString loginUrl = "http://" + serverAddr->currentText() + "/api/login";
-        QString loginUrl = "http://" + verifyLEdit->text() + ":9080/idesktop/login.action";
+        QString loginUrl = "http://" + verifyLEdit->text() + ":8080/idesktop/login.action";
         qDebug() <<"loginUrl"<<loginUrl;
         QString data = "username=" + userEdit->text() + "&password=" + passEdit->text() + "&tenant=0";
         _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toUtf8());
@@ -604,7 +639,7 @@ void LoginDialog::auth()
     QString replaceAddr = QString("REPLACE INTO addrs(addr, count) values('%1', %2);")\
             .arg(serverAddr->currentText()).arg(count + 1);
     localDb.exec(replaceAddr);
-    //Config::set("Server", "http://" + serverAddr->currentText() + "/");
+    Config::set("Server", verifyLEdit->text());
     //Config::set("password",md5);
     Config::set("password",passEdit->text());
     Config::set("User", userEdit->text());
@@ -626,9 +661,9 @@ void LoginDialog::auth()
 
     createDb();
 
-    QString jsonUrl = "http://" + verifyLEdit->text() + ":9080/idesktop/getUserStatusData.action";
-    QString data = "username=" + userEdit->text();
-    _namJson->post(QNetworkRequest(QUrl(jsonUrl)), data.toUtf8());
+    QString jsonUrl = "http://" + verifyLEdit->text() + ":8080/idesktop/getUserStatusData.action?username=" + userEdit->text() + "&ismanager=false";
+    //_namJson->post(QNetworkRequest(QUrl(jsonUrl)), data.toUtf8());
+    _namJson->get(QNetworkRequest(QUrl(jsonUrl)));
 
 //    QDialog::accept();
 
@@ -1048,6 +1083,7 @@ void LoginDialog::createDb()
     {
         QDir appDir(Config::get("AppDir"));
         appDir.mkdir(QString("%1").arg(Config::get("User")));
+        dbExists = false;
     }
 //    QString db = Config::get("AppDir") + "\\" + Config::get("User") + "\\data";
     QFileInfo dbInfo(Config::get("UserData"));
@@ -1090,7 +1126,7 @@ void LoginDialog::createDb()
 
        QString qstrLapp = QString("insert into localapps ("\
                                   "name, version, execname, icon, uninstall, "\
-                                  "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniqueName) values ( " \
+                                  "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniquename) values ( " \
                                   "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', \'%8\', "\
                                   "\'%9\', \'%10\',\'%11\',\'%12\',\'%13\',\'%14\', \'%15\');")\
                                    .arg(QString(QObject::tr("·ÏÖ½Â¨"))).arg("1.0")\

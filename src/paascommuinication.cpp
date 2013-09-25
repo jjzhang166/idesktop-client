@@ -17,9 +17,6 @@
 
 #include "appmessagebox.h"
 
-//#define PAASURL "http://192.168.30.128/dongfang.php"
-//#define PAASURL "http://192.168.49.243:8080/CloudManage/rest/service/getUserAllService"
-
 PaasCommuinication::PaasCommuinication(QObject *parent)
     : QObject(parent)
     , _reply(NULL)
@@ -66,7 +63,7 @@ void PaasCommuinication::myPost(const QUrl url, const QByteArray postData)
     connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
     connect(_reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64,qint64)));
 
-    timeOut->start(30 * 1000);   //5000
+    timeOut->start(5 * 1000);   //5000
     _isNetTimeout = false;
     qEvent->exec();
     delete request;
@@ -88,7 +85,7 @@ void PaasCommuinication::myGet(const QUrl url, const QString path)
 
     connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
 
-    timeOut->start(30 * 1000);   //5000
+    timeOut->start(5 * 1000);   //5000
     _isNetTimeout = false;
     qEvent->exec();
     delete request;
@@ -105,9 +102,9 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     {
         errInfo.append(tr("Network error, please check!"));
 
-        AppMessageBox box(false, NULL);
-        box.setText(tr("Network error, please check!"));
-        box.exec();
+//        AppMessageBox box(false, NULL);
+//        box.setText(tr("Network error, please check!"));
+//        box.exec();
 
         _isNetError = true;
         emit done();
@@ -118,9 +115,9 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
     {
         errInfo.append(tr("Network error, please check!"));
 
-        AppMessageBox box(false, NULL);
-        box.setText(tr("Network error, please check!"));
-        box.exec();
+//        AppMessageBox box(false, NULL);
+//        box.setText(tr("Network error, please check!"));
+//        box.exec();
 
         _isNetError = true;
         emit done();
@@ -148,14 +145,7 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
         return;
     }
 
-//    QScriptValue sc;
-//    QScriptEngine engine;
-//    QString result;
-//    QString url;
-//    QString logoURL;
-//    QString previewURL;
-//    QString cnName("");
-//    QString name("");
+
     PAAS_LIST tempPaasList;
 
 //    QString jsonResult = _buffer;
@@ -168,28 +158,42 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
 
     QJson::QJson parser;
     bool ok;
+    QVariantMap result = parser.parse(_buffer, &ok).toMap();
+    if (!ok) {
+      qFatal("An error occurred during parsing by buffer");
+      emit done();
+      return;
+    }
 
-    QVariantList result = parser.parse(_buffer, &ok).toList();
-    if (!ok)
+    qDebug() << "Paas json" << result["userInfoJsonStr"].toString();
+
+    if (result["userInfoJsonStr"].toString() == "")
     {
-        qDebug()<<"json error!!!";
         emit done();
         return;
     }
 
-    foreach (QVariant plugin, result) {
+    bool ok2;
+    QVariantMap userInfoMap = parser.parse(result["userInfoJsonStr"].toString().toUtf8(), &ok2).toMap();
+    if (!ok2) {
+      qFatal("An error occurred during parsing by userInfoJsonStr");
+      emit done();
+      return;
+    }
 
-        QVariantMap mymap = plugin.toMap();
+    foreach(QVariant pluginPaasApp, userInfoMap["paasList"].toList())
+    {
+        QVariantMap paasMap = pluginPaasApp.toMap();
 
-        tempPaasList.name = mymap["name"].toString();
-        tempPaasList.cnName = mymap["cnName"].toString();
-        tempPaasList.logoURL = mymap["logoURL"].toString();
-        tempPaasList.previewURL = mymap["previewURL"].toString();
+        tempPaasList.name = paasMap["name"].toString();
+        tempPaasList.cnName = paasMap["cnName"].toString();
+        tempPaasList.logoURL = paasMap["logoURL"].toString();
+        tempPaasList.previewURL = paasMap["previewURL"].toString();
 
-        tempPaasList.urls = mymap["urls"].toString();
+        tempPaasList.urls = paasMap["urls"].toString();
         if (tempPaasList.urls.isEmpty())
         {
-            foreach (QVariant pluginUrls, mymap["urls"].toList())
+            foreach (QVariant pluginUrls, paasMap["urls"].toList())
                 tempPaasList.urls = pluginUrls.toString();
         }
 
@@ -202,70 +206,12 @@ void PaasCommuinication::replyFinished(QNetworkReply*) /* download finished */
         _paasList.append(tempPaasList);
     }
 
-    ////////////////////////////////////
- #if 0
-
-    for (int i = 0; i < jsonSections.size(); i++)
-    {
-        if (i == 0)
-            result = jsonSections.at(i) + "}";
-        else if (i == jsonSections.size() - 1)
-            result = "{" + jsonSections.at(i);
-        else
-            result = "{" + jsonSections.at(i) + "}";
-
-        sc = engine.evaluate("value = " + result);
-
-        QScriptValueIterator it(sc);
-
-
-        while (it.hasNext()) {
-            it.next();
-            if (!it.name().isEmpty())
-            {
-                if (it.name() == "name")
-                {
-                    name = it.value().toString();
-                }
-                else if (it.name() == "cnName")
-                {
-                    cnName = it.value().toString();
-                }
-                else if (it.name() == "logoURL")
-                {
-                    logoURL = it.value().toString();
-    //                qDebug() << it.name() << it.value().toString();
-                }
-                else if (it.name() == "previewURL")
-                {
-                    previewURL = it.value().toString();
-                }
-                else if (it.name() == "urls")
-                {
-                    url = it.value().toString();
-     //               qDebug() << it.name() << it.value().toString();
-                }
-           }
-        }
-        if (!cnName.isEmpty())
-        {
-            tempPaasList.name = name;
-            tempPaasList.cnName = cnName;
-            tempPaasList.logoURL = logoURL;
-            tempPaasList.previewURL = previewURL;
-            tempPaasList.urls = url;
-            tempPaasList.iconPath = QString("");
-
-            _paasList.append(tempPaasList);
-        }
-    }
-#endif
-
     timeOut->stop();
     qEvent->exit();
     _isNetError = false;
     _isNetTimeout = false;
     emit done();
+
 }
 
 void PaasCommuinication::slotError(QNetworkReply::NetworkError)
@@ -291,9 +237,9 @@ void PaasCommuinication::handleTimeOut()
     errInfo.clear();
     errInfo.append(tr("Network error, please check!"));
 
-    AppMessageBox box(false, NULL);
-    box.setText(tr("获取平台服务应用超时，请稍后!"));
-    box.exec();
+//    AppMessageBox box(false, NULL);
+//    box.setText(tr("获取平台服务应用超时，请稍后!"));
+//    box.exec();
 
     _isNetError = true;
     emit done();
@@ -324,40 +270,29 @@ void PaasCommuinication::close()
     delete qEvent;
 }
 
-void PaasCommuinication::login(const QString &url)
+void PaasCommuinication::login(const QString &url, const QString &userId)
 {
     QByteArray inputStr("");
-//    QUrl url;
-
-//    if (u.isEmpty())
-//        url = QUrl(PAASURL);
-//    else
-//        url = QUrl(u);
-
-    _url = QUrl(url);
+    QString inputUrl("");
 
     qDebug() << url;
+
     if (url.isEmpty())
         return;
 
-    myPost(_url, inputStr);
+        inputUrl = url;
+        qDebug() << "inputUrl" << inputUrl;
 
-    return;
+
+    myPost(QUrl(inputUrl), inputStr);
+
 }
 
-void PaasCommuinication::getAppList(const QString &url)
+
+void PaasCommuinication::getAppList(const QString &url, const QString &userId)
 {
     _paasList.clear();
 
-//    QByteArray inputStr("");
+    login(url, userId);
 
-////    QUrl url(PAASURL);
-
-//    _url = url;
-
-//    myPost(_url, inputStr);
-
-    login(url);
-
-    return;
 }

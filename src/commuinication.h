@@ -37,10 +37,13 @@ public:
     void myGet(const QUrl url, const QString path);
 
     //--------------
+    //by wl
+    void getJson();
 public:
     void login(const QString ip, const QString name, const QString pwd, const QString sysInfo);
     void logoff();
-    void getAppList();
+//    void getAppList(QByteArray userInfoBuffer, const QString &ip);
+    void getAppList(const QString &url);
     void changePwd(const QString strCurPwd, const QString strNewPwd, const QString strConfPwd);
     void heartBeat();
     void loadBalance(QString name,QString appId);

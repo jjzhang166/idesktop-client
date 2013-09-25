@@ -14,7 +14,7 @@
 #include <QDir>
 #include <QEventLoop>
 #include <QEvent>
-#include <QWebSettings>
+#include <QtWebKit/QWebSettings>
 #include <cassert>
 
 //#include <QtScript/QScriptValue>
@@ -432,13 +432,19 @@ int VacWidget::addIcon(QString text,
                        int type,
                        const QString &uniqueName)
 {
-    int expandPageCount;
-    int iconNum = _settings->remoteLocalList().count() + _settings->paasList().count() + _settings->vappList().count();
-    if (iconNum % _iconsPerPage == 0)
-        expandPageCount = iconNum / _iconsPerPage;
-    else
-        expandPageCount = iconNum / _iconsPerPage + 1;
+//    int expandPageCount;
+//    int iconNum = _settings->remoteLocalList().count() + _settings->paasList().count() + _settings->vappList().count();
+//    if (iconNum % _iconsPerPage == 0)
+//        expandPageCount = iconNum / _iconsPerPage;
+//    else
+//        expandPageCount = iconNum / _iconsPerPage + 1;
 
+//    if (expandPageCount > _count)
+//        expand();
+
+    _localCount ++;
+
+    int expandPageCount = (_localCount - 1) / iconsPerPage() + 1;
     if (expandPageCount > _count)
         expand();
 
@@ -556,6 +562,7 @@ void VacWidget::delIcon(const QString &uniqueName)
     int s = icon->index();
 
     delete _iconTable[p][s];
+    _iconTable[p][s] = NULL;
 
 //    moveBackIcons(p, s);
     for(int i = p; i < _count; i++)
@@ -599,6 +606,7 @@ void VacWidget::delIcon(const QString &uniqueName)
     _iconTable[_count - 1][_nextIdx[_count - 1] - 1] = NULL;
     _nextIdx[_count - 1]--;
 
+    _localCount--;
 
     if (_nextIdx[_count - 1] == 0)
         delPage(_count - 1);
@@ -856,6 +864,7 @@ void VacWidget::reloadApplist(QSize size)
 {
     Q_UNUSED(size);
     _count = 1;
+    _localCount = 0;
 
 //    gridWidth = size.width() + HSPACING * 2;
 //    gridHeight = size.height() + BOTTOMSPACING;

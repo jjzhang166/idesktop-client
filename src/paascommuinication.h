@@ -52,9 +52,11 @@ public:
 
     //--------------
 public:
-    void login(const QString &u);
+    //void login(const QString &u);
+    void login(const QString &url ,const QString &userId);
 //    void logoff();
-    void getAppList(const QString &url);
+    //void getAppList(const QString &url);
+    void getAppList(const QString &url, const QString &userId);
 //    void changePwd(const QString strCurPwd, const QString strNewPwd, const QString strConfPwd);
     void heartBeat();
     void loadBalance(QString name,QString appId);
