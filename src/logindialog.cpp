@@ -37,6 +37,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     , _titlePressed(false)
     , _flip(false)
     ,_isSetting(false)
+    , _connecting(false)
 {
     _settings = IDesktopSettings::instance();
 
@@ -169,9 +170,14 @@ LoginDialog::LoginDialog(QWidget *parent)
 
     _timeLine = new QTimeLine(500, this);
 
+    _loadItem = new RotateWarnningLabel(this);
+    _loadItem->move((width() - _loadItem->width()) / 2, height() / 3);
+    _loadItem->start();
+    _loadItem->setVisible(false);
+
     connect(_timeLine, SIGNAL(valueChanged(qreal)), this, SLOT(updateFlip(qreal)));
     connect(_lShowAction, SIGNAL(triggered()), this, SLOT(normal()));
-    connect(_lQuitAction, SIGNAL(triggered()), this, SLOT(reject()));
+    connect(_lQuitAction, SIGNAL(triggered()), this, SLOT(quit()));
     connect(_dQuitAction, SIGNAL(triggered()), this, SIGNAL(dQuit()));
     connect(_dShowAction, SIGNAL(triggered()), this, SIGNAL(dShow()));
     connect(_dHideAction, SIGNAL(triggered()), this, SIGNAL(dHide()));
@@ -184,9 +190,9 @@ LoginDialog::LoginDialog(QWidget *parent)
             this, SIGNAL(dActivated(QSystemTrayIcon::ActivationReason)));
 
     connect(submit, SIGNAL(clicked()), this, SLOT(auth()));
-    connect(cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(cancelBtn, SIGNAL(clicked()), this, SLOT(quit()));
     connect(minButton, SIGNAL(clicked()), this, SLOT(minimized()));
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(closeButton, SIGNAL(clicked()), this, SLOT(quit()));
 //    connect(configurationButton, SIGNAL(clicked()), this, SLOT(flip()));
     connect(userEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
     connect(passEdit, SIGNAL(returnPressed()), submit, SIGNAL(clicked()));
@@ -215,6 +221,7 @@ LoginDialog::~LoginDialog()
     delete cancelBtn;
     delete remoteAuth;
     delete ipAddrEdit;
+    delete _namOut;
 //    delete configurationButton;
 //    delete minButton;
 //    delete closeButton;
@@ -235,53 +242,70 @@ void LoginDialog::paintEvent(QPaintEvent *event)
     painter.drawPixmap(0, 0, width(), height(), bg.scaled(width(), height()));
     //    painter.drawPixmap(22, 17, QPixmap(":images/logo_login.png"));
     //setting
-    if(!_isSetting)
+    if (!_connecting)
     {
-        painter.setPen(Qt::gray);
-        painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 10, QFont::Normal));
-        //    painter->setFont(QFont(QString::fromLocal8Bit("宋体"),13,-1,false));
-        painter.drawText(43, 143, tr("用户名"));
-        painter.drawText(43, 183, tr("密  码"));
+        if(!_isSetting)
+        {
+            painter.setPen(Qt::gray);
+            painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 10, QFont::Normal));
+            //    painter->setFont(QFont(QString::fromLocal8Bit("宋体"),13,-1,false));
+            painter.drawText(43, 143, tr("用户名"));
+            painter.drawText(43, 183, tr("密  码"));
 
-    }else{
-        painter.setPen(Qt::gray);
-        painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 10, QFont::Normal));
-        painter.drawText(13, 133, tr("验证服务器地址"));
-        painter.drawText(13, 163, tr("应用服务器地址"));
-        painter.drawText(13, 193, tr("平台服务器地址"));
+        }else{
+            painter.setPen(Qt::gray);
+            painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 10, QFont::Normal));
+            painter.drawText(13, 133, tr("验证服务器地址"));
+            painter.drawText(13, 163, tr("应用服务器地址"));
+            painter.drawText(13, 193, tr("平台服务器地址"));
 
-    }
+        }
 
-    painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 9, QFont::Normal));
-    //    painter.drawPixmap(74, 104, QPixmap(":images/login_input.png"));
-    //    painter.drawPixmap(74, 164, QPixmap(":images/login_input.png"));
+        painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 9, QFont::Normal));
+        //    painter.drawPixmap(74, 104, QPixmap(":images/login_input.png"));
+        //    painter.drawPixmap(74, 164, QPixmap(":images/login_input.png"));
 
-    //    painter.drawPixmap(74, 54, QPixmap(":images/login_input.png"));
-    if(!_vserverError.isEmpty())
-    {
+        //    painter.drawPixmap(74, 54, QPixmap(":images/login_input.png"));
+        if(!_vserverError.isEmpty())
+        {
+                painter.setPen(QPen(QColor("#ff0000")));
+                painter.drawText((width() - 188) / 2, 155, _vserverError);
+        }
+        if(!_paasError.isEmpty())
+        {
+                painter.setPen(QPen(QColor("#ff0000")));
+                painter.drawText((width() - 188) / 2, 213, _paasError);
+        }
+        if (!_uerror.isEmpty()) {
             painter.setPen(QPen(QColor("#ff0000")));
-            painter.drawText((width() - 188) / 2, 155, _vserverError);
-    }
-    if(!_paasError.isEmpty())
-    {
+            painter.drawText((width() + userEdit->width()) / 2 + 2, 140, _uerror);
+        }
+        if (!_perror.isEmpty()) {
             painter.setPen(QPen(QColor("#ff0000")));
-            painter.drawText((width() - 188) / 2, 213, _paasError);
+            painter.drawText((width() + passEdit->width()) / 2 + 7, 180, _perror);
+        }
+        if (!_cerror.isEmpty()) {
+            painter.setPen(QPen(QColor("#ff0000")));
+            painter.drawText((width() - userEdit->width()) / 2, submit->pos().y() + submit->height() + 25, _cerror);
+        }
+        if (!_cmsg.isEmpty()) {
+            painter.setPen(QPen(QColor("#299cfd")));
+            painter.drawText((width() - userEdit->width()) / 2, submit->pos().y() + submit->height() + 25, _cmsg);
+        }
     }
-    if (!_uerror.isEmpty()) {
-        painter.setPen(QPen(QColor("#ff0000")));
-        painter.drawText((width() + userEdit->width()) / 2 + 2, 140, _uerror);
-    }
-    if (!_perror.isEmpty()) {
-        painter.setPen(QPen(QColor("#ff0000")));
-        painter.drawText((width() + passEdit->width()) / 2 + 7, 180, _perror);
-    }
-    if (!_cerror.isEmpty()) {
-        painter.setPen(QPen(QColor("#ff0000")));
-        painter.drawText((width() - userEdit->width()) / 2, submit->pos().y() + submit->height() + 25, _cerror);
-    }
-    if (!_cmsg.isEmpty()) {
-        painter.setPen(QPen(QColor("#299cfd")));
-        painter.drawText((width() - userEdit->width()) / 2, submit->pos().y() + submit->height() + 25, _cmsg);
+    else
+    {
+        QFont font(QString::fromLocal8Bit("Microsoft Yahei"), 13, QFont::Normal);
+        painter.setFont(font);
+
+        if (!_cmsg.isEmpty()) {
+
+            QFontMetrics fm(font);
+            int _textWidth = fm.width(_cmsg);
+            painter.setPen(QPen(QColor("#299cfd")));
+            painter.drawText((width() - _textWidth) / 2, height() /3 * 2, _cmsg);
+
+        }
     }
 
     //    painter.setTransform(_tran);
@@ -348,6 +372,7 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     QScriptValue sc;
     QScriptEngine engine;
     QString result;
+    QString userType;
 
     _finished = true;
     serverAddr->setEnabled(true);
@@ -359,6 +384,8 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     connMsg("");
 
     QString jsonResult = reply->readAll();
+    if (jsonResult.isEmpty())
+        return;
     qDebug() << "jsonResult" << jsonResult;
     _authSuccess = false;
 
@@ -368,6 +395,8 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     {
         result = sc.property("status").toVariant().toString();  //1
         qDebug() << result;
+        userType = sc.property("userType").toVariant().toString();
+        qDebug() << userType;
 
     }
     else
@@ -380,20 +409,69 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     _authSuccess = true;
     if (result == "1")   //  APPSTORE SUCCESS
     {
-        _authSuccess = true;
+        if (userType == "comm_user")
+        {
+            _authSuccess = true;
+            connMsg(tr("链接成功，正在获取用户信息..."));
+        }
+        else
+        {
+            QString outUrl ="http://" + verifyLEdit->text() + ":8080/idesktop/logout.action?username=" + userEdit->text();
+            _namOut->get(QNetworkRequest(QUrl(outUrl)));
+
+            connenting(false);
+            userError(tr("请使用普通用户登录"));
+
+        }
     }
     else if (result == "-1")//USER NOT EXISTS
     {
+		connenting(false);
         userError(tr("用户名或密码错误"));  //
     }
     else if (result == "-2")//USER IS EXISTS
     {
+		connenting(false);
         userError(tr("其他用户已登录"));  //
     }
     else
     {
+		connenting(false);
         connError(tr("连接服务器失败..."));
 
+    }
+}
+
+void LoginDialog::connenting(bool connecting)
+{
+    if(connecting)
+    {
+        _connecting = true;
+        _loadItem->setVisible(true);
+
+        _uerror = "";
+        _perror = "";
+        _cerror = "";
+        _cmsg = "";
+
+        connMsg(tr("正在链接..."));
+
+        userEdit->hide();
+        passEdit->hide();
+        submit->hide();
+        cancelBtn->hide();
+        configurationButton->hide();
+    }
+    else
+    {
+        _connecting = false;
+
+        _loadItem->setVisible(false);
+        userEdit->show();
+        passEdit->show();
+        submit->show();
+        cancelBtn->show();
+        configurationButton->show();
     }
 }
 
@@ -595,14 +673,17 @@ void LoginDialog::auth()
         QString loginUrl = "http://" + verifyLEdit->text() + ":8080/idesktop/login.action";
         qDebug() <<"loginUrl"<<loginUrl;
         QString data = "username=" + userEdit->text() + "&password=" + passEdit->text() + "&tenant=0";
-        _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toUtf8());
-        connMsg(tr("正在连接服务器..."));
+        QNetworkReply *_reply = _nam->post(QNetworkRequest(QUrl(loginUrl)), data.toUtf8());
+        connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
+		connMsg(tr("正在连接服务器..."));
+		
         serverAddr->setEnabled(false);
         userEdit->setEnabled(false);
         passEdit->setEnabled(false);
         submit->setEnabled(false);
         remoteAuth->setEnabled(false);
         configurationButton->setEnable(false);
+		connenting(true);
         while(!_finished)
             QApplication::processEvents();
         if (!_authSuccess)
@@ -1089,6 +1170,24 @@ void LoginDialog::createDb()
     QFileInfo dbInfo(Config::get("UserData"));
     if (!dbInfo.exists())
         dbExists = false;
+    else
+    {
+        QDir toDir(Config::get("UserNameDir"));
+        bool remove = toDir.remove(Config::get("UserData"));
+        if (!remove)
+        {
+//            QSqlQuery query(QSqlDatabase::database("local"));
+
+//            QString truncateStr("delete from localapps;");
+//            if(!query.exec(truncateStr))
+//            {
+//                 qDebug() <<"query failed by clear table";
+//                 return;
+//            }
+            qDebug() <<"query failed by remove data";
+        }
+        dbExists = false;
+    }
 
     QSqlDatabase localDb = QSqlDatabase::addDatabase("QSQLITE", "local");
     localDb.setDatabaseName(Config::get("UserData"));
@@ -1161,4 +1260,23 @@ void LoginDialog::createDb()
              qDebug() <<"query failed";
          }
     }
+}
+void LoginDialog::slotError(QNetworkReply::NetworkError)
+{
+    connenting(false);
+
+    _uerror = "";
+    _perror = "";
+    _cerror = "";
+    _cmsg = "";
+
+    repaint();
+
+    connError(tr("连接服务器失败..."));
+}
+
+void LoginDialog::quit()
+{
+    hideTrayIcon();
+    reject();
 }

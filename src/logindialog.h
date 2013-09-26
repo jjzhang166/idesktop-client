@@ -15,6 +15,7 @@
 
 #include "qtipaddressedit/qipaddressedit.h"
 #include "qtipaddressedit/qipaddressedititem.h"
+#include "rotatewarnningitem.h"
 
 #define CLOSE_WIDTH 10
 #define CLOSE_HEIGHT 10
@@ -26,14 +27,6 @@ extern QString VacUser;
 extern QString VacPassword;
 
 extern QString PaasServer;
-
-//extern QString xmlPath;
-//extern QString iconDirPath;
-//extern QString WIN_LOCAL_IconPath;
-//extern QString WIN_VAPP_IconPath;
-//extern QString WIN_PAAS_IconPath;
-//extern QString WIN_TtempPath;
-//extern QString iniPath;
 
 extern QString USERNAME;
 class HintLineEdit;
@@ -61,6 +54,12 @@ public:
     QAction *_dShowAction;
 
     void createDb();
+    void connenting(bool connecting);
+
+    void hideTrayIcon()
+    {
+        _tray->hide();
+    }
 
 signals:
     void dQuit();
@@ -90,6 +89,9 @@ public slots:
     void returnSlot();
 
     void jsonDownloadFinished(QNetworkReply *reply);
+	void slotError(QNetworkReply::NetworkError);
+
+    void quit();
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -174,4 +176,7 @@ private:
     IDesktopSettings *_settings;
 
     QNetworkAccessManager *_namJson;
+    RotateWarnningLabel *_loadItem;
+	bool _connecting;
+	QNetworkAccessManager *_namOut;
 };

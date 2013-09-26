@@ -451,6 +451,7 @@ void Dashboard::quit()
     AppMessageBox box(true, NULL);
     box.setText("是否确定退出？");
     if (box.exec()) {
+        _ldialog->hideTrayIcon();
 
 //        QString upLoadJson = LocalAppList::getList()->uploadJson();
 //        qDebug() << "up load json" << upLoadJson;
