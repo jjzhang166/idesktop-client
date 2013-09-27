@@ -355,29 +355,26 @@ void AppIconWidget::paintEvent(QPaintEvent *ev)
 
     int type = _app->type().toInt();
     QPixmap pm;
-
     if (type == vapp) {
         pm = QPixmap(":/images/app_normal.png");
     } else if (type == paas) {
         pm = QPixmap(":/images/paas_normal.png");
     }
-
     if (pm.isNull()) return;
 
     QPainter painter(this);
+    QSize isize = pm.size();
     switch(_currentSizeType) {
-    case IconWidget::large_size :
-        painter.drawPixmap(width() - 36 - 26, 36, pm);
+    case IconWidget::medium_size:
+        pm = pm.scaled(isize.width() * 0.9, isize.height() * 0.9);
         break;
 
-    case IconWidget::medium_size :
-        painter.drawPixmap(width() - 29 - 27, 29 + 1, pm);
-        break;
-
-    default:
-        painter.drawPixmap(width() - 28 - 24, 24, pm);
+    case IconWidget::small_size:
+        pm = pm.scaled(isize.width() * 0.8, isize.height() * 0.8);
         break;
     }
+    QPoint pos(_iconRect.right() - pm.width(), _iconRect.top());
+    painter.drawPixmap(pos, pm);
 }
 
 void AppIconWidget::enterEvent(QEvent *ev)
