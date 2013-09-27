@@ -50,7 +50,6 @@ Drawer::Drawer(QWidget *parent)
     QPalette pal = _content->palette();
     pal.setColor(QPalette::Background, Qt::transparent);
     _content->setPalette(pal);
-//    _content->setStyleSheet("QWidget {background: transparent;");
     setWidget(_content);
 
     connect(IDesktopSettings::instance(), SIGNAL(iconSizeUpdated(IconWidget::icon_size,IconWidget::icon_size)),
@@ -60,6 +59,11 @@ Drawer::Drawer(QWidget *parent)
 
     connect(&_items, SIGNAL(affectedIndices(QSet<IndexedList::Change>,IndexedList::ChangeReason)),
             this, SLOT(slotMoveIcons(QSet<IndexedList::Change>,IndexedList::ChangeReason)));
+
+    _content->setProperty("multidragDelegate", QVariant::fromValue((QObject*)this));
+
+    LocalAppList *localapps = LocalAppList::getList();
+    connect(localapps, SIGNAL(appRemoved(LocalApp*)), this, SLOT(delIcon(LocalApp*)));
 }
 
 void Drawer::slotAutoClose()
@@ -97,6 +101,7 @@ void Drawer::clearDir()
         _items.at(i)->deleteLater();
     }
     _items.clear();
+    QTimer::singleShot(0, parent(), SLOT(updateMateThumbs()));
 }
 
 void Drawer::loadDir(LocalApp *dir)
@@ -114,7 +119,13 @@ void Drawer::slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedList
     QSet<IndexedList::Change>::const_iterator i = changes.constBegin();
     while (i != changes.constEnd()) {
         AppIconWidget *icon = qobject_cast<AppIconWidget*>(_items.at(i->second));
-        icon->app()->setIndex(i->second);
+        //HACK: when a multidrag happened, some icons contained in toggledIcons has
+        //been lost connection with the apps
+        if (icon->app()) {
+            icon->app()->setIndex(i->second);
+        } else {
+            qDebug() << __PRETTY_FUNCTION__ << "icon disconnected";
+        }
         moveIconTo(icon, i->second, true);
         ++i;
     }
@@ -132,15 +143,23 @@ void Drawer::insertNewIcon(LocalApp *app)
     addIcon(app);
 }
 
+void Drawer::delIcon(LocalApp *app)
+{
+    if (app->dirId() < 0)
+        return;
+
+    qDebug() << __PRETTY_FUNCTION__ << "app " << app->name();
+    int idx = app->index();
+    IconWidget *icon = icons().at(idx);
+    removeIcon(icon);
+}
+
 void Drawer::removeIcon(IconWidget *icon)
 {
     _items.remove(icon);
     icon->deleteLater();
-    //TODO: use notification instead of this ugly way
-    DirContainer *cnt = qobject_cast<DirContainer*>(parent());
-    cnt->_mate->init();
+    QTimer::singleShot(0, parent(), SLOT(updateMateThumbs()));
 }
-
 
 void Drawer::addIcon(LocalApp* app)
 {
@@ -190,11 +209,17 @@ bool Drawer::containsIconFor(LocalApp *app)
     return false;
 }
 
-void Drawer::moveIconTo(IconWidget *icon, int index, bool animated)
+void Drawer::moveIconTo(IconWidget *icon, int index, bool animated, bool followCursor)
 {
     if (animated) {
         QPropertyAnimation *pa = new QPropertyAnimation(icon, "geometry");
-        pa->setStartValue(icon->geometry());
+        if (followCursor) {
+            QRect geo = icon->geometry();
+            geo.moveCenter(mapFromGlobal(QCursor::pos()));
+            pa->setStartValue(geo);
+        } else {
+            pa->setStartValue(icon->geometry());
+        }
         pa->setEndValue(rectForIndex(index));
         pa->start(QAbstractAnimation::DeleteWhenStopped);
     } else {
@@ -267,7 +292,7 @@ void Drawer::reflow()
     for (int i = 0; i < _items.size(); ++i) {
         AppIconWidget *icon = qobject_cast<AppIconWidget*>(_items.at(i));
         icon->init();
-        moveIconTo(icon, icon->app()->index(), true);
+        moveIconTo(icon, icon->app()->index(), true, true);
     }
 }
 
@@ -385,12 +410,9 @@ void Drawer::dropEvent(QDropEvent *ev)
     }
 
     int newIndex = indexAt(ev->pos());
+    if (newIndex == -1) newIndex = icons().size();
     qDebug() << __PRETTY_FUNCTION__ << "indexAt -> " << newIndex;
 
-    if (newIndex == -1) {
-        ev->ignore();
-        return;
-    }
 
     QByteArray data = ev->mimeData()->data("image/x-iconitem");
     QDataStream dataStream(&data, QIODevice::ReadOnly);
@@ -416,7 +438,7 @@ void Drawer::dropEvent(QDropEvent *ev)
             Q_ASSERT(index == app->index());
             app->setIndex(newIndex);
             _items.moveAround(index, newIndex);
-            moveIconTo(icon_widget, newIndex, true);
+            moveIconTo(icon_widget, newIndex, true, true);
 
         } else {
             //TODO:
@@ -471,7 +493,7 @@ void Drawer::handleMultiDrop(QDropEvent *ev)
         QByteArray data = ev->mimeData()->data("application/x-iconitems");
         QDataStream dataStream(&data, QIODevice::ReadOnly);
 
-        int newIndex = indexAt(ev->pos());
+        int newIndex = qMin(indexAt(ev->pos()), icons().size());
         if (newIndex == -1) newIndex = this->icons().size();
 
         DirContainer *cnt = qobject_cast<DirContainer*>(parent());
@@ -808,7 +830,6 @@ void DirContainer::clearDir()
     }
 
     _drawer->clearDir();
-    _mate->init();
     QMetaObject::invokeMethod(_mate, "restoreAppsToDesktop", Q_ARG(QList<LocalApp*>, apps));
 }
 
@@ -849,5 +870,11 @@ void DirContainer::handleIconDeletion(IconWidget *icon)
 void DirContainer::insertNewIcon(LocalApp *app)
 {
     _drawer->insertNewIcon(app);
+    _mate->init();
+}
+
+void DirContainer::updateMateThumbs()
+{
+    qDebug() << __PRETTY_FUNCTION__;
     _mate->init();
 }

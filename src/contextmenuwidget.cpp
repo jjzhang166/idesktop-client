@@ -271,17 +271,6 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 //    setFocusPolicy(Qt::ClickFocus);
 //    setWindowModality(Qt::ApplicationModal);
 
-    QPixmapCache::insert("menutop",
-         QPixmap(":images/menu_top.png").scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    QPixmapCache::insert("menucenter",
-         QPixmap(":images/menu_center.png").scaled(width(), height() - 40, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    QPixmapCache::insert("menubottom",
-        QPixmap(":images/menu_bottom.png").scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    QPixmapCache::insert("menuline", QPixmap(":images/menu_line.png"));
-    QPixmapCache::insert("menulinescaled",
-       QPixmap(":images/menu_line.png").scaled(width(), 2, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-
-
     switch(_type)
     {
     case MenuWidget::normal :
@@ -457,18 +446,27 @@ void MenuWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    painter.drawPixmap(0, 0, width(), 20, *QPixmapCache::find("menutop"));
-    painter.drawPixmap(0, 20, width(), height() - 40, *QPixmapCache::find("menucenter"));
+    QPixmap pm_top = QPixmap(":images/menu_top.png")
+            .scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QPixmap pm_center = QPixmap(":images/menu_center.png")
+            .scaled(width(), height() - 40, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QPixmap pm_btm = QPixmap(":images/menu_bottom.png")
+            .scaled(width(), 20, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QPixmap pm_menulinescaled = QPixmap(":images/menu_line.png")
+            .scaled(width(), 2, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+    painter.drawPixmap(0, 0, width(), 20, pm_top);
+    painter.drawPixmap(0, 20, width(), height() - 40, pm_center);
 
     if (_type == MenuWidget::normal) {
         painter.drawPixmap(0, 20 + 19, QPixmap(":images/menu_line.png"));
     } else if (_type == MenuWidget::create) {
-        painter.drawPixmap(0, 20 + 19 * 2 + 2, width(), 2, *QPixmapCache::find("menulinescaled"));
+        painter.drawPixmap(0, 20 + 19 * 2 + 2, width(), 2, pm_menulinescaled);
     } else if (_type == MenuWidget::iconMenu) {
         painter.drawPixmap(0, 20 + 19, QPixmap(":images/menu_line.png"));
     }
 
-    painter.drawPixmap(0, height() - 20, width(), 20, *QPixmapCache::find("menubottom"));
+    painter.drawPixmap(0, height() - 20, width(), 20, pm_btm);
 }
 
 void MenuWidget::largeBtnClicked()

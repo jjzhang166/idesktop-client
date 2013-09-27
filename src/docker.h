@@ -19,9 +19,14 @@ public:
     void init();
 
     const IndexedList& icons() const { return _items; }
-    void addIcon(LocalApp* app);
+    /**
+     * @brief addIcon
+     * @param app
+     * @param draggedIn this used to indicate if the icon is created by drag from outside
+     */
+    void addIcon(LocalApp* app, bool draggedIn = false);
     void insertIcon(int index, AppIconWidget *icon);
-    void moveIconTo(IconWidget *icon, int index, bool animated = false);
+    void moveIconTo(IconWidget *icon, int index, bool animated = false, bool followCursor = false);
 
     QRect rectForIndex(int index) const;
     QPoint posForIndex(int index) const;
@@ -57,10 +62,13 @@ protected slots:
     void updatePreviewing(int newIndex);
     void handleIconDeletion(IconWidget *icon);
     void handleIconErasion(IconWidget*);
+    void slotOpenHoverOnDir();
+    void delIcon(LocalApp *app);
 
 private:
     IndexedList _items;
     QSize _gridSize;
+    QTimer *_openHoverOnDirTimer;
 
     TrashDirWidget *_trashIcon;
 

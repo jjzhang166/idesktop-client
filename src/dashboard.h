@@ -119,7 +119,7 @@ private:
 
     void refreshPaas();
     void paasModify();
-
+    void loadPixmaps();
     void getDbIcon();
 
 private:

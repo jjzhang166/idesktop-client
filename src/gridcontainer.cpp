@@ -29,6 +29,8 @@ GridPage::GridPage(QSize pageSize, GridContainer *container)
             this, SLOT(slotMoveIcons(QSet<IndexedList::Change>,IndexedList::ChangeReason)));
     setFixedSize(pageSize);
     setAcceptDrops(true);
+
+    this->setProperty("multidragDelegate", QVariant::fromValue((QObject*)this));
 }
 
 void GridPage::emitAutoPageTransition()
@@ -184,7 +186,7 @@ void GridPage::moveIconTo(IconWidget *icon, int index, bool animated, bool follo
         QPropertyAnimation *pa = new QPropertyAnimation(icon, "geometry");
         if (followCursor) {
             QRect geo = icon->geometry();
-            geo.setTopLeft(mapFromGlobal(QCursor::pos()));
+            geo.moveCenter(mapFromGlobal(QCursor::pos()));
             pa->setStartValue(geo);
         } else {
             pa->setStartValue(icon->geometry());
@@ -320,10 +322,7 @@ void GridPage::dropEvent(QDropEvent *ev)
 
     qDebug() << __PRETTY_FUNCTION__ << "drag action " << action;
     int newIndex = indexAt(ev->pos());
-    if (newIndex == -1) {
-        ev->ignore();
-        return;
-    }
+    if (newIndex == -1) newIndex = icons().size();
 
     if (ev->mimeData()->hasFormat("application/x-iconitems")
             || ev->mimeData()->hasFormat("application/x-mixed-iconitems")) {
@@ -389,9 +388,7 @@ void GridPage::dropEvent(QDropEvent *ev)
 
 void GridPage::handleMultiDrop(QDropEvent *ev, DragAction action)
 {
-    if (action != MOVE_BETWEEN_PAGES) {
-        //TODO: move from a Dir
-        qDebug() << __PRETTY_FUNCTION__ << "impossible to handle now";
+    if (action == MOVE_AROUND_IN_PAGE) {
         ev->ignore();
         return;
     }
@@ -405,21 +402,36 @@ void GridPage::handleMultiDrop(QDropEvent *ev, DragAction action)
 
     QDataStream dataStream(&data, QIODevice::ReadOnly);
 
+    int newIndex = qMin(indexAt(ev->pos()), this->icons().size());
+    if (newIndex == -1) newIndex = this->icons().size();
+
+    if (action == DRAG_FROM_OUTSIDE) {
+        ev->accept();
+
+        while (!dataStream.atEnd()) {
+            QString uniqueName;
+            dataStream >> uniqueName;
+
+            LocalApp *app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
+            qDebug() << __PRETTY_FUNCTION__ << app->name() << "insert at" << newIndex;
+            app->setIndex(newIndex++);
+            app->setPage(this->index());
+            app->setDirId(-1);
+            _container->addIcon(app);
+        }
+        return;
+    }
+
     while (!dataStream.atEnd()) {
         QString uniqueName;
         dataStream >> uniqueName;
         qDebug() << __PRETTY_FUNCTION__ << uniqueName;
-
     }
-
 
     //FIXME: this is tricky way to do multidrop, cause it's not general enough
     //and dataStream is useless
     AppIconWidget *icon = qobject_cast<AppIconWidget*>(ev->source());
     GridPage *orig_page = qobject_cast<GridPage*>(icon->parent());
-
-    int newIndex = qMin(indexAt(ev->pos()), this->icons().size());
-    if (newIndex == -1) newIndex = this->icons().size();
 
     const QList<QVariant>& objs = orig_page->toggledIcons();
     foreach(QVariant v, objs) {

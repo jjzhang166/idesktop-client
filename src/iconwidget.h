@@ -7,11 +7,8 @@
 class LineEdit : public QLineEdit
 {
     Q_OBJECT
-//    Q_PROPERTY(QString displayText READ myDisplayText)
 public:
     LineEdit(QWidget *parent = NULL);
-
-    //HACK: override property accessor
     QString myDisplayText() const;
 
 protected:
@@ -72,6 +69,7 @@ public:
     bool isToggled() const { return _isToggled; }
     void setToggled(bool val);
     
+    void setLockSize(bool lock) { _lockSize = lock; }
     virtual bool hitButton(const QPoint &pos) const;
 
     void setContainerType(container_type ct) { _containerType = ct; }
@@ -114,6 +112,7 @@ protected:
     MenuWidget *_menu;
     QMenu *_mainMenu;
     container_type _containerType;
+    bool _lockSize;
 
     virtual void paintEvent(QPaintEvent *);
     virtual void enterEvent(QEvent *event);
@@ -242,6 +241,7 @@ public slots:
 
 protected:
     virtual void paintEvent(QPaintEvent* event);
+    virtual void mouseMoveEvent(QMouseEvent *ev);
     void openDir();
 };
 

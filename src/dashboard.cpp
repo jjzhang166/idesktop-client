@@ -268,8 +268,13 @@ Dashboard::Dashboard(QWidget *parent)
     QTimer::singleShot(100, this, SLOT(initIconItem()));
 }
 
+void Dashboard::loadPixmaps()
+{
+
+}
 void Dashboard::initIconItem()
 {
+    loadPixmaps();
 #if 1
     _mask->setText(tr("加载本地应用..."));
     getLocalIcon(true);
@@ -332,6 +337,7 @@ void Dashboard::vdesktopHideDirWidget()
 
 void Dashboard::desktopClicked()
 {
+    hideMenuWidget();
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
     panel->show();

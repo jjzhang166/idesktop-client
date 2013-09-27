@@ -11,7 +11,6 @@ Docker::Docker(QWidget *parent)
     _trashIcon = NULL;
 
     setFocusPolicy(Qt::ClickFocus);
-//    setWindowFlags(Qt::FramelessWindowHint);
 
     QPalette pal = palette();
     pal.setColor(QPalette::Background, QColor(255,255,255,0));
@@ -21,12 +20,19 @@ Docker::Docker(QWidget *parent)
     setAutoFillBackground(true);
 
     _gridSize = QSize(SMALLSIZE.width(), SMALLSIZE.height() + VSPACING + BOTTOMSPACING);
-//    _gridSize = QSize(SMALLSIZE.width() + HSPACING, SMALLSIZE.height() + VSPACING + BOTTOMSPACING);
-
     setFixedSize(parent->width(), _gridSize.height());
 
     connect(&_items, SIGNAL(affectedIndices(QSet<IndexedList::Change>,IndexedList::ChangeReason)),
             this, SLOT(slotMoveIcons(QSet<IndexedList::Change>,IndexedList::ChangeReason)));
+
+    _openHoverOnDirTimer = new QTimer(this);
+    _openHoverOnDirTimer->setSingleShot(true);
+    connect(_openHoverOnDirTimer, SIGNAL(timeout()), this, SLOT(slotOpenHoverOnDir()));
+
+    this->setProperty("multidragDelegate", QVariant::fromValue((QObject*)this));
+
+    LocalAppList *localapps = LocalAppList::getList();
+    connect(localapps, SIGNAL(appRemoved(LocalApp*)), this, SLOT(delIcon(LocalApp*)));
 }
 
 void Docker::paintEvent(QPaintEvent *ev)
@@ -92,7 +98,7 @@ void Docker::slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedList
     }
 }
 
-void Docker::addIcon(LocalApp* app)
+void Docker::addIcon(LocalApp* app, bool draggedIn)
 {
     if (containsIconFor(app)) {
         return;
@@ -129,12 +135,15 @@ void Docker::addIcon(LocalApp* app)
         }
     }
 
-    icon->init();
+//    icon->init();
     icon->setSmallSize();
+    icon->setLockSize(true);
     icon->setApp(app);
     icon->setText(app->name());
     icon->setPixmap(app->icon());
 
+    if (draggedIn)
+        icon->setProperty("draggedIn", draggedIn);
     insertIcon(app->index(), icon);
 }
 
@@ -152,7 +161,6 @@ void Docker::insertIcon(int index, AppIconWidget *icon)
             this, SIGNAL(iconItemNameChanged(const QString &, const QString &)));
 
     _items.insert(index, icon);
-    moveIconTo(icon, index);
     icon->show();
 }
 
@@ -168,11 +176,17 @@ bool Docker::containsIconFor(LocalApp *app)
     return false;
 }
 
-void Docker::moveIconTo(IconWidget *icon, int index, bool animated)
+void Docker::moveIconTo(IconWidget *icon, int index, bool animated, bool followCursor)
 {
     if (animated) {
         QPropertyAnimation *pa = new QPropertyAnimation(icon, "geometry");
-        pa->setStartValue(icon->geometry());
+        if (followCursor) {
+            QRect geo = icon->geometry();
+            geo.moveCenter(mapFromGlobal(QCursor::pos()));
+            pa->setStartValue(geo);
+        } else {
+            pa->setStartValue(icon->geometry());
+        }
         pa->setEndValue(rectForIndex(index));
         pa->start(QAbstractAnimation::DeleteWhenStopped);
     } else {
@@ -241,7 +255,14 @@ void Docker::reflow(bool animated)
         for (int i = 0; i < icons().size(); ++i) {
             AppIconWidget *icon = qobject_cast<AppIconWidget*>(icons().at(i));
             QPropertyAnimation *pa = new QPropertyAnimation(icon, "geometry");
-            pa->setStartValue(icon->geometry());
+            if (icon->property("draggedIn").toBool()) {
+                QRect geo = icon->geometry();
+                geo.moveCenter(mapFromGlobal(QCursor::pos()));
+                pa->setStartValue(geo);
+                icon->setProperty("draggedIn", QVariant::Invalid);
+            } else {
+                pa->setStartValue(icon->geometry());
+            }
             pa->setEndValue(rectForIndex(icon->app()->index()));
             pag->addAnimation(pa);
         }
@@ -269,6 +290,11 @@ void Docker::mouseReleaseEvent(QMouseEvent *ev)
 
 void Docker::dragEnterEvent(QDragEnterEvent *ev)
 {
+    if (cols() <= icons().size()) {
+        qDebug() << __PRETTY_FUNCTION__ << "docker's full, disable drag in";
+        ev->ignore();
+        return;
+    }
     qDebug() << __PRETTY_FUNCTION__ << ev->mimeData()->formats();
     QSet<QString> accept_formats;
     accept_formats << "image/x-iconitem" << "application/x-iconitems"
@@ -300,11 +326,43 @@ void Docker::leaveEvent(QEvent *ev)
 void Docker::dragMoveEvent(QDragMoveEvent *ev)
 {
     QWidget::dragMoveEvent(ev);
+
+    IconWidget *w = iconAt(ev->pos());
+    if (w) {
+        if (w->inherits("DirIconWidget")) {
+            //x-mixed-iconitems indicates that at least one dir icon is dragged
+            if (ev->mimeData()->hasFormat("application/x-mixed-iconitems")
+                    || ev->source()->inherits("DirIconWidget")) {
+                _openHoverOnDirTimer->stop();
+                qDebug() << __PRETTY_FUNCTION__ << "disable hover record";
+                return;
+            }
+
+            if (!_openHoverOnDirTimer->isActive()) {
+                qDebug() << __PRETTY_FUNCTION__ << "start hover record";
+                _openHoverOnDirTimer->start(1000);
+            }
+            return;
+        }
+    }
+
+    _openHoverOnDirTimer->stop();
 }
 
 void Docker::updatePreviewing(int newIndex)
 {
 
+}
+
+void Docker::delIcon(LocalApp *app)
+{
+    if (app->dirId() != -2)
+        return;
+
+    qDebug() << __PRETTY_FUNCTION__ << "app " << app->name();
+    int idx = app->index();
+    IconWidget *icon = icons().at(idx);
+    removeIcon(icon);
 }
 
 void Docker::removeIcon(IconWidget *icon)
@@ -338,6 +396,7 @@ void Docker::dropEvent(QDropEvent *ev)
 
     //TODO: since position of icons changes when insert/delete new icon, this is tricky
     int newIndex = suggestIndex(ev->pos());
+    if (newIndex < 0) newIndex = 0;
     if (icon_widget->containerType() == IconWidget::CT_Toolbar) {
         if (icon_widget->app()->index() == newIndex) {
             ev->ignore();
@@ -353,7 +412,7 @@ void Docker::dropEvent(QDropEvent *ev)
         Q_ASSERT(index == app->index());
         app->setIndex(newIndex);
         _items.moveAround(index, newIndex);
-        moveIconTo(icon_widget, newIndex, true);
+        moveIconTo(icon_widget, newIndex, true, true);
 
     } else {
         newIndex = qMin(newIndex, icons().size());
@@ -361,7 +420,7 @@ void Docker::dropEvent(QDropEvent *ev)
         LocalApp *app = icon_widget->app();
         app->setIndex(newIndex);
         app->setDirId(-2);
-        addIcon(app);
+        addIcon(app, true);
     }
 
     ev->accept();
@@ -369,6 +428,9 @@ void Docker::dropEvent(QDropEvent *ev)
 
 void Docker::handleMultiDrop(QDropEvent *ev)
 {
+    int newIndex = qMin(suggestIndex(ev->pos()), icons().size());
+    if (newIndex == -1) newIndex = icons().size();
+
     AppIconWidget *icon_widget = qobject_cast<AppIconWidget*>(ev->source());
     if (icon_widget->containerType() == IconWidget::CT_Toolbar) {
         ev->ignore();
@@ -389,10 +451,10 @@ void Docker::handleMultiDrop(QDropEvent *ev)
 
             LocalApp *app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
             qDebug() << __PRETTY_FUNCTION__ << app->name() << "insert at" << icons().size();
-            app->setIndex(this->icons().size());
+            app->setIndex(newIndex++);
             app->setPage(0);
             app->setDirId(-2);
-            addIcon(app);
+            addIcon(app, true);
         }
         reflow(true);
     }
@@ -417,4 +479,13 @@ void Docker::handleIconDeletion(IconWidget *icon)
     //TODO: do animation
     emit moveAppToTrash(app);
     removeIcon(icon);
+}
+
+void Docker::slotOpenHoverOnDir()
+{
+    IconWidget *icon = iconAt(mapFromGlobal(QCursor::pos()));
+    //when timed out, mouse may have been moved around.
+    if (icon && icon->inherits("DirIconWidget")) {
+        qobject_cast<AppIconWidget*>(icon)->run();
+    }
 }

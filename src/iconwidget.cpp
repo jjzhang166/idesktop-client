@@ -107,6 +107,10 @@ void LineEdit::focusOutEvent(QFocusEvent *event)
 IconWidget::IconWidget(QWidget *parent) :
     QWidget(parent)
 {
+    QPalette pal = palette();
+    pal.setColor(QPalette::Background, Qt::transparent);
+    setPalette(pal);
+
     _isDown = false;
     _isToggled = false;
     _menu = NULL;
@@ -116,6 +120,7 @@ IconWidget::IconWidget(QWidget *parent) :
     _nameEdit->setReadOnly(true);
     setMouseTracking(true);
 
+    _lockSize = false;
     init();
 }
 
@@ -142,7 +147,8 @@ void IconWidget::setToggled(bool val)
 
 void IconWidget::init()
 {
-    switch(IDesktopSettings::instance()->iconSize()) {
+    if (!_lockSize) {
+        switch(IDesktopSettings::instance()->iconSize()) {
         case IconWidget::large_size :
             setLargeSize();
             break;
@@ -154,6 +160,7 @@ void IconWidget::init()
         default:
             setSmallSize();
             break;
+        }
     }
     update();
 }
@@ -242,6 +249,7 @@ void IconWidget::paintEvent(QPaintEvent *ev)
     } else {
         mode = QIcon::Normal;
     }
+
 
     icon().paint(&painter, 0, 0, width(), height(), Qt::AlignCenter, mode);
 }
@@ -339,6 +347,32 @@ void AppIconWidget::setText(const QString &text)
 void AppIconWidget::paintEvent(QPaintEvent *ev)
 {
     IconWidget::paintEvent(ev);
+    if (!_app) return;
+
+    int type = _app->type().toInt();
+    QPixmap pm;
+
+    if (type == vapp) {
+        pm = QPixmap(":/images/app_normal.png");
+    } else if (type == paas) {
+        pm = QPixmap(":/images/paas_normal.png");
+    }
+
+    if (pm.isNull()) return;
+    QPainter painter(this);
+    switch(IDesktopSettings::instance()->iconSize()) {
+    case IconWidget::large_size :
+        painter.drawPixmap(width() - 36 - 26, 36, pm);
+        break;
+
+    case IconWidget::medium_size :
+        painter.drawPixmap(width() - 29 - 27, 29 + 1, pm);
+        break;
+
+    default:
+        painter.drawPixmap(width() - 28 - 24, 24, pm);
+        break;
+    }
 }
 
 void AppIconWidget::enterEvent(QEvent *ev)
@@ -373,11 +407,17 @@ void AppIconWidget::mouseMoveEvent(QMouseEvent *ev)
 
     QDrag *drag = new QDrag(this);
 
-    QVariant val = parentWidget()->property("multiSelectionActivated");
-    bool supportMultiSelection = val.isValid() && val.value<bool>();
+    QObject *multidragDelegate = parent()->property("multidragDelegate").value<QObject*>();
+    bool supportMultiSelection = multidragDelegate != 0;
+
+    if (supportMultiSelection) {
+        QVariant val = multidragDelegate->property("multiSelectionActivated");
+        supportMultiSelection = val.isValid() && val.value<bool>();
+    }
+
     QList<AppIconWidget*> items;
     if (supportMultiSelection) {
-        const QList<QVariant>& objs = parent()->property("toggledIcons").toList();
+        const QList<QVariant>& objs = multidragDelegate->property("toggledIcons").toList();
         foreach(QVariant v, objs) {
             items.append(v.value<AppIconWidget*>());
         }
@@ -438,7 +478,7 @@ void AppIconWidget::mouseMoveEvent(QMouseEvent *ev)
 
         //FIXME: if DragOut, these icons will be deleted later, seems no need to do clearToggles
         if (supportMultiSelection)
-            QMetaObject::invokeMethod(parent(), "clearToggles");
+            QMetaObject::invokeMethod(multidragDelegate, "clearToggles");
     }
 }
 
@@ -491,7 +531,7 @@ void AppIconWidget::mouseDoubleClickEvent(QMouseEvent *ev)
 
 void AppIconWidget::run()
 {
-    if (_app)
+    if (_app && _app->dirId() != 1000)
         RunApp::getRunApp()->runApp(_app->uniqueName());
 }
 
@@ -527,10 +567,6 @@ void DirIconWidget::paintEvent(QPaintEvent *ev)
     icon().paint(&p, _iconRect, Qt::AlignCenter, mode);
 }
 
-#define SMALL_L_SIZE QSize(42, 42)    //72*72
-#define SMALL_M_SIZE QSize(36, 36)    //48*48
-#define SMALL_S_SIZE QSize(30, 30)    //32*32
-
 void DirIconWidget::setupMenu()
 {
     _menu = new MenuWidget(MenuWidget::dirMenu, this);
@@ -558,31 +594,12 @@ void DirIconWidget::updateThumbs()
     }
 
     _thumb = new QWidget(this);
-
-    switch(IDesktopSettings::instance()->iconSize()) {
-    case 0 :
-        _thumb->move(35, 36);
-        break;
-
-    case 1 :
-        _thumb->move(35 - 24 + 15, 35 - 24 + 15);
-        break;
-
-    default:
-        _thumb->move(35 - 32 + 22, 35 - 32 + 22);
-        break;
-    }
-
     _thumb->setGeometry(_iconRect);
     QGridLayout *lay = new QGridLayout;
 
-    QSize thumb_size = SMALL_L_SIZE;
-    if (IDesktopSettings::instance()->iconSize() == IconWidget::medium_size)
-        thumb_size = SMALL_M_SIZE;
-    else if (IDesktopSettings::instance()->iconSize() == IconWidget::small_size)
-        thumb_size = SMALL_S_SIZE;
+    QSize thumb_size = QSize(_iconRect.width()/2-10, _iconRect.height()/2-10);
 
-    lay->setSpacing(0);
+    lay->setSpacing(2);
     QList<LocalApp*> apps = LocalAppList::getList()->appsInDir(app()->id().toInt());
     for (int r = 0; r < 2; ++r) {
         for (int c = 0; c < 2; ++c) {
@@ -591,8 +608,9 @@ void DirIconWidget::updateThumbs()
 
             LocalApp *app = apps.takeFirst();
             QLabel *l = new QLabel(_thumb);
+            QPixmap pm(app->icon());
+            l->setPixmap(pm.copy(QRect(35, 36, 72, 72)).scaled(thumb_size, Qt::KeepAspectRatio));
             l->show();
-            l->setPixmap(QIcon(app->icon()).pixmap(thumb_size));
             lay->addWidget(l, r, c);
         }
     }
@@ -654,6 +672,7 @@ DirContainer *DirIconWidget::dir()
 TrashDirWidget::TrashDirWidget(QWidget *parent)
     :DirIconWidget(parent)
 {
+    setMouseTracking(false);
     setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
@@ -694,6 +713,12 @@ void TrashDirWidget::init()
 void TrashDirWidget::openDir()
 {
     emit requestOpenDir(dir());
+}
+
+void TrashDirWidget::mouseMoveEvent(QMouseEvent *ev)
+{
+    //disable dragging
+    IconWidget::mouseMoveEvent(ev);
 }
 
 DirContainer *TrashDirWidget::dir()

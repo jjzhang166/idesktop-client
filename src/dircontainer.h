@@ -29,7 +29,7 @@ public:
     const IndexedList& icons() const { return _items; }
     void addIcon(LocalApp* app);
     void insertIcon(int index, AppIconWidget *icon);
-    void moveIconTo(IconWidget *icon, int index, bool animated = false);
+    void moveIconTo(IconWidget *icon, int index, bool animated = false, bool followCursor = false);
 
     QRect rectForIndex(int index) const;
     QPoint posForIndex(int index) const;
@@ -60,6 +60,7 @@ protected slots:
     void removeIcon(IconWidget *icon);
     void slotAutoClose();
     void insertNewIcon(LocalApp *app);
+    void delIcon(LocalApp *app);
 
 private:
     QWidget *_content;
@@ -146,6 +147,7 @@ protected slots:
     // right now, only when in trash dir, erasion is allowed
     void handleIconErasion(IconWidget*);
     void handleRestoreToDesktop(IconWidget*);
+    void updateMateThumbs();
 
 private:
     QLabel *_dirName;
