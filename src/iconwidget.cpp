@@ -161,6 +161,7 @@ void IconWidget::init()
             setSmallSize();
             break;
         }
+        _currentSizeType = (int)IDesktopSettings::instance()->iconSize();
     }
     update();
 }
@@ -170,6 +171,7 @@ void IconWidget::setLargeSize()
     _iconRect = QRect(37, 36, 72, 72);
     setFixedSize(LARGESIZE);
     _nameEdit->setGeometry(20, height() - 26, 110, 23);
+    _currentSizeType = (int)IconWidget::large_size;
 }
 
 void IconWidget::setMediumSize()
@@ -177,6 +179,7 @@ void IconWidget::setMediumSize()
     _iconRect = QRect(32, 30, 60, 60);
     setFixedSize(MEDIUMSIZE);
     _nameEdit->setGeometry(20, height() - 24, 84, 18);
+    _currentSizeType = (int)IconWidget::medium_size;
 }
 
 void IconWidget::setSmallSize()
@@ -184,6 +187,7 @@ void IconWidget::setSmallSize()
     _iconRect = QRect(28, 24, 52, 52);
     setFixedSize(SMALLSIZE);
     _nameEdit->setGeometry(20, height() - 22, 65, 15);
+    _currentSizeType = (int)IconWidget::small_size;
 }
 
 const QString & IconWidget::text() const
@@ -359,8 +363,9 @@ void AppIconWidget::paintEvent(QPaintEvent *ev)
     }
 
     if (pm.isNull()) return;
+
     QPainter painter(this);
-    switch(IDesktopSettings::instance()->iconSize()) {
+    switch(_currentSizeType) {
     case IconWidget::large_size :
         painter.drawPixmap(width() - 36 - 26, 36, pm);
         break;

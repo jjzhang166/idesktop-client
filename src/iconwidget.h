@@ -113,6 +113,7 @@ protected:
     QMenu *_mainMenu;
     container_type _containerType;
     bool _lockSize;
+    int _currentSizeType;
 
     virtual void paintEvent(QPaintEvent *);
     virtual void enterEvent(QEvent *event);
