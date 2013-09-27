@@ -273,6 +273,7 @@ void Dashboard::initIconItem()
 #if 1
     _mask->setText(tr("加载本地应用..."));
     getLocalIcon(true);
+    getDbIcon();
     _mask->setText(tr("加载虚拟应用..."));
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //vac
@@ -1444,4 +1445,29 @@ void Dashboard::handleEraseApp(LocalApp *app)
     QString uniq_name = app->uniqueName();
     LocalAppList::getList()->delApp(uniq_name);
     _vacShowWidget->desktopDelIcon(uniq_name);
+}
+
+void Dashboard::getDbIcon()
+{
+    QSqlQuery query = QSqlDatabase::database("local").exec("select uniquename,execname from localapps");
+    while (query.next()) {
+        if (query.value(0).toString().startsWith("0_"))
+        {
+            QFileInfo fi = QFileInfo(query.value(1).toString());
+            QString iPath(Config::get("IconDir"));
+            iPath += ( fi.baseName() + ".png");
+
+            QFile chkFile(iPath);
+            if(!chkFile.exists())
+            {
+                chkFile.close();
+
+                setIcon(Config::get("IconDir"), getLocalIcon(query.value(1).toString()));
+            }
+            else
+            {
+                chkFile.close();
+            }
+        }
+    }
 }

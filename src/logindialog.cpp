@@ -12,6 +12,12 @@
 #include "qtipaddressedit/qipaddressedit.h"
 #include "qtipaddressedit/qipaddressedititem.h"
 
+#include <windows.h>
+#include <shldisp.h>
+
+#include "public.h"
+#include "ShlObj.h"
+
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValueIterator>
 #include <QtScript/QScriptValue>
@@ -406,7 +412,7 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     }
 
     //FIXME: delete it!
-    _authSuccess = true;
+//    _authSuccess = true;
     if (result == "1")   //  APPSTORE SUCCESS
     {
         if (userType == "comm_user")
@@ -478,6 +484,11 @@ void LoginDialog::connenting(bool connecting)
 void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
 {
 
+    char folder[MAX_PATH] = {0};
+    SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
+    QString WIN_TtempPath = QString(folder);
+    QString iconPath;
+
     qDebug() << "------>jsonDownloadFinished";
     QByteArray buffer = reply->readAll();
 
@@ -534,13 +545,40 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
 //        qDebug() << "------>" <<"mymap[dirId].toString()" << appmap["dirId"].toString();
 //        qDebug() << "------>" <<"mymap[uniquename].toString()" << appmap["uniquename"].toString();
 
+        QString uniquename = appmap["uniquename"].toString();
+        QFileInfo info = QFileInfo(appmap["icon"].toString());
+        iconPath = "";
+
+        if (uniquename.startsWith("0_"))
+        {
+            iconPath = WIN_TtempPath+"\\App Center\\Licons\\" + info.baseName() + ".png";
+
+        }
+        else if (uniquename.startsWith("1_"))
+        {
+            iconPath = WIN_TtempPath+"\\App Center\\Vicons\\" + info.baseName() + ".png";
+        }
+        else if (uniquename.startsWith("2_"))
+        {
+            iconPath = WIN_TtempPath+"\\App Center\\Picons\\" + info.baseName() + ".png";
+
+        }
+        else if (uniquename.startsWith("3_"))
+        {
+            iconPath = appmap["icon"].toString();
+        }
+        else
+        {
+            iconPath = QString(":images/dustbin_normal.png");
+        }
+
         QString insertStr = QString("insert into localapps ("\
                                     "name, version, execname, icon, uninstall, "\
                                     "lastupdate, page, idx, hidden, id, type, isRemote, url, dirId, uniquename) values ( " \
                                     "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\', \'%6\', \'%7\', "\
                                     "\'%8\', \'%9\',\'%10\',\'%11\',\'%12\',\'%13\',\'%14\',\'%15\');")\
                                     .arg(appmap["name"].toString()).arg(appmap["version"].toString())\
-                                    .arg(appmap["execname"].toString()).arg(appmap["icon"].toString())\
+                                    .arg(appmap["execname"].toString()).arg(iconPath)\
                                     .arg(appmap["uninstall"].toString()).arg(appmap["lastupdate"].toString())\
                                     .arg(appmap["page"].toString()).arg(appmap["idx"].toString())\
                                     .arg(appmap["hidden"].toString()).arg(appmap["id"].toString())\
@@ -563,9 +601,17 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
 //        qDebug() << "------>" <<"wallpapersMmap[id].toString()" << wallpapersMmap["id"].toString();
 //        qDebug() << "------>" <<"wallpapersMmap[wallpaper].toString()" << wallpapersMmap["wallpaper"].toString();
 
+        QString path = QCoreApplication::applicationDirPath();
+        path.replace(QString("/"), QString("\\"));
+        path += "\\images\\wallpager";
+        QFileInfo info = QFileInfo(wallpapersMmap["wallpaper"].toString());
+        path += ("\\" + info.baseName() + ".jpg");
+        qDebug() << "jpg path : " << path;
+
+
         QString wallpapersStr = QString("update wallpapers "\
                                "set wallpaper=\'%1\' where id=\'%2\';")\
-                               .arg(wallpapersMmap["wallpaper"].toString())\
+                               .arg(path)\
                                .arg(wallpapersMmap["id"].toString());
         if(!query.exec(wallpapersStr)) {
             qDebug() <<"query failed by update wallpapers";
@@ -623,6 +669,8 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
             qDebug() <<"query failed";
         }
     }
+
+
 
     QDialog::accept();
 

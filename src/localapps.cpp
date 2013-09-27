@@ -80,7 +80,7 @@ LocalAppList::LocalAppList(QObject *parent)
 {
     addDustbinOnNeed();
     updateQList();
-//    updateAppList();
+    updateAppList();
 //    qDebug() << uploadJson();
 
 }
@@ -117,121 +117,45 @@ void LocalAppList::updateQList()
 
 void LocalAppList::updateAppList()
 {
-    QList<APP_LIST>& remoteAppList = _settings->remoteAppList();
-    bool isRemote = false;
-    for(int i=0; i< _list.count(); i++)
-    {
-        if(_list[i]->isRemote())
+    //判断本地应用（0_*）是否存在，否 删除。
+    QSqlQuery query = QSqlDatabase::database("local").exec("select uniquename,execname,idx from localapps");
+    while (query.next()) {
+        if (query.value(0).toString().startsWith("0_"))
         {
-            isRemote = true;
-            break;
-        }
-    }
-    if(!isRemote)
-    {
-        qDebug()<<"remote add";
-        QSqlQuery query1 = QSqlDatabase::database("local").exec("select max(idx) from localapps;");
-        query1.next();
-        qDebug()<<"max index value"<<query1.value(0).toInt();
-        if(_list.count())
-        {
-
-            int j= query1.value(0).toInt();
-            for(int i=0; i< remoteAppList.count(); i++)
-            {
-                LocalApp *RemoteApp = new LocalApp();
-                RemoteApp->setName(remoteAppList[i].name);
-                RemoteApp->setId(remoteAppList[i].id);
-                RemoteApp->setIcon(remoteAppList[i].icon);
-                RemoteApp->setPage(-1);
-                RemoteApp->setIndex(i+j+1);
-                RemoteApp->setType(remoteAppList[i].type);
-                RemoteApp->setIsRemote(true);
-                addRemoteApp(RemoteApp);
-                //_list.append(RemoteApp);
-            }
-        }else{
-            qDebug()<<"remoteList:"<<remoteAppList.count();
-            for(int i=0; i< remoteAppList.count(); i++)
-            {
-                LocalApp *RemoteApp = new LocalApp();
-                RemoteApp->setName(remoteAppList[i].name);
-                RemoteApp->setId(remoteAppList[i].id);
-                RemoteApp->setIcon(remoteAppList[i].icon);
-                RemoteApp->setPage(-1);
-                RemoteApp->setIndex(i);
-                RemoteApp->setType(remoteAppList[i].type);
-                RemoteApp->setIsRemote(true);
-                addRemoteApp(RemoteApp);
-                //_list.append(RemoteApp);
-            }
-
-        }
-    }else{
-        //
-        QSqlQuery query = QSqlDatabase::database("local").exec("select name from localapps where isRemote=1");
-        while (query.next()) {
-            bool isExist = false;
-            for(int i=0; i < remoteAppList.count(); i++)
-            {
-                if(query.value(0).toString() == remoteAppList[i].name)
-                {
-                    isExist = true;
-                    break;
-                }
-            }
-            if(!isExist)
+            QFileInfo fio(query.value(1).toString());
+            qDebug() << "query.value(1).toString()--->execname" << query.value(1).toString();
+            if (!fio.exists())
             {
                 //update idx and delte
-                QString findName = QString("select idx from localapps where name=\"%1\"")\
-                        .arg(query.value(0).toString());
-                QSqlQuery query1 = QSqlDatabase::database("local").exec(findName);
-                query1.next();
-                QString updateIdx = QString("update localapps "\
-                                            "set idx=idx-1 where idx > %1;")\
-                                            .arg(query1.value(0).toInt());
+                QString updateIdx = QString("update localapps set idx=idx-1 where idx > %1;")\
+                                            .arg(query.value(2).toInt());
                 QSqlDatabase::database("local").exec(updateIdx);
 
-                QString delteByName = QString("delete from localapps "\
-                                              "where name=\"%1\";").arg(query.value(0).toString());
+                QString delteByName = QString("delete from localapps where uniquename=\"%1\";")
+                                              .arg(query.value(0).toString());
                 QSqlDatabase::database("local").exec(delteByName);
             }
         }
-        //
-        QSqlQuery Rquery = QSqlDatabase::database("local").exec("select name from localapps where isRemote=1");
-        for(int j=0; j < remoteAppList.count(); j++)
-        {
-            bool isRExist = false;
-            while(Rquery.next()){
-                if(remoteAppList[j].name == Rquery.value(0).toString())
-                {
-                    isRExist = true;
-                    break;
-                }
-            }
-            if(!isRExist)
-            {
-               QSqlQuery maxQuery = QSqlDatabase::database("local").exec("select max(idx) from localapps;");
-               maxQuery.next();
-               int index = maxQuery.value(0).toInt() + 1;
-//               qDebug()<<"maxQuery:"<<index;
-               LocalApp *RemoteApp = new LocalApp();
-               RemoteApp->setName(remoteAppList[j].name);
-               RemoteApp->setId(remoteAppList[j].id);
-               RemoteApp->setIcon(remoteAppList[j].icon);
-               RemoteApp->setPage(-1);
-               RemoteApp->setIndex(index);
-               RemoteApp->setType(remoteAppList[j].type);
-               RemoteApp->setIsRemote(true);
-               addRemoteApp(RemoteApp);
-            }
-
-        }
-        //update _list
-        _list.clear();
-        updateQList();
-
     }
+    //以page升序排列，将page以0，1，2...开始
+    QSqlQuery queryAscPage = QSqlDatabase::database("local").exec("select distinct page from localapps order by page asc");
+
+    int i = 0;
+    while (queryAscPage.next())
+    {
+        if (queryAscPage.value(0).toInt() != i)
+        {
+            QString updatePage = QString("update localapps set page=%1 where page=%2;")
+                                        .arg(i).arg(queryAscPage.value(0).toInt());
+            QSqlDatabase::database("local").exec(updatePage);
+        }
+
+        ++i;
+    }
+
+    //update _list
+    _list.clear();
+    updateQList();
 }
 
 bool LocalAppList::addRemoteApp(LocalApp *app)
@@ -641,5 +565,4 @@ void LocalAppList::addDustbinOnNeed()
     if(!query.exec(qstrLapp)) {
         qDebug() <<"query failed";
     }
-
 }

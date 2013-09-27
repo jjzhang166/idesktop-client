@@ -61,6 +61,7 @@ public:
    void getLocalIcon(bool isLogin);
    void getVacIcon();
    void getPaasIcon(bool isLogin);
+
 public slots:
     void initIconItem();
     void quit();
@@ -118,6 +119,8 @@ private:
 
     void refreshPaas();
     void paasModify();
+
+    void getDbIcon();
 
 private:
 	//vac 
