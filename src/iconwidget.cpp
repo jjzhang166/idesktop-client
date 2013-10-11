@@ -364,16 +364,18 @@ void AppIconWidget::paintEvent(QPaintEvent *ev)
 
     QPainter painter(this);
     QSize isize = pm.size();
+    QPoint pos(_iconRect.right() - pm.width(), _iconRect.top());
     switch(_currentSizeType) {
     case IconWidget::medium_size:
         pm = pm.scaled(isize.width() * 0.9, isize.height() * 0.9);
+        pos = QPoint(_iconRect.right() - pm.width() - 1, _iconRect.top());
         break;
 
     case IconWidget::small_size:
         pm = pm.scaled(isize.width() * 0.8, isize.height() * 0.8);
+        pos = QPoint(_iconRect.right() - pm.width() - 2, _iconRect.top() + 2);
         break;
     }
-    QPoint pos(_iconRect.right() - pm.width(), _iconRect.top());
     painter.drawPixmap(pos, pm);
 }
 

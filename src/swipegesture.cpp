@@ -68,6 +68,8 @@ SwipeGesture::recognize(QGesture* pGesture, QObject *pWatched, QEvent *pEvent)
         }
 
         const QVariant& propValue = pSwipe->property("startPoint");
+        if (propValue.isNull() || !propValue.isValid())
+            return QGestureRecognizer::CancelGesture;
         QPointF startPoint = propValue.toPointF();
         QPointF endPoint = pMouseEvent->posF();
 

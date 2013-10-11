@@ -1,11 +1,7 @@
 #ifndef CONTEXTMENUWIDGET_H
 #define CONTEXTMENUWIDGET_H
 
-#include <QWidget>
-#include <QPushButton>
-#include <QEvent>
-#include <QPixmap>
-#include <QLabel>
+#include <QtGui/QtGui>
 
 //miya add
 #define MAX_LEN 50;
@@ -14,7 +10,7 @@
 
 class MenuButton;
 
-class MenuWidget : public QWidget
+class MenuWidget : public QMenu
 {
     Q_OBJECT
 public:
@@ -78,7 +74,6 @@ public slots:
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
-    void focusOutEvent(QFocusEvent *);
 
 private:
     int _type;
@@ -96,9 +91,6 @@ private:
     MenuButton *_docBtn;
     MenuButton *_excelBtn;
     MenuButton *_pptBtn;
-
-    int _width;
-    int _height;
 
 //miya add
 public:

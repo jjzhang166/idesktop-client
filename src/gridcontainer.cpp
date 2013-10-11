@@ -275,6 +275,7 @@ void GridPage::dragMoveEvent(QDragMoveEvent *ev)
 void GridPage::removeIcon(IconWidget *icon)
 {
     _items.remove(icon);
+    qobject_cast<AppIconWidget*>(icon)->setApp(0);
     icon->deleteLater();
 }
 

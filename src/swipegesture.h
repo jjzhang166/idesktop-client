@@ -5,7 +5,7 @@
 class SwipeGesture: public QGestureRecognizer
 {
 private:
-   static const int MINIMUM_DISTANCE = 100;
+   static const int MINIMUM_DISTANCE = 150;
 
    typedef QGestureRecognizer parent;
 

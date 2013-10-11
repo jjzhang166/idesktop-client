@@ -4,13 +4,14 @@
 
 #include "idesktopsettings.h"
 #define BTN_H 19
-#define ICON_W 162
+//#define ICON_W 162
+#define ICON_W 138
 
 
 //miya add
 QStringList MenuWidget::getAppList()
 {
-    qDebug() << "getNewList";
+    qDebug() << __PRETTY_FUNCTION__ << "getNewList";
     QString newListPath("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Discardable\\PostSetup\\ShellNew");
     QSettings reg(newListPath, QSettings::NativeFormat);
     QStringList list = reg.allKeys();
@@ -209,32 +210,21 @@ QStringList MenuWidget::getXPAppList()
 
     for(int j = 0; j < len ; j++)
         qDebug() << j << " " << _appName.at(j);
-    qDebug() <<"app list coutn" << _appList.count();
-    qDebug() <<"app name coutn" << _appName.count();
+    qDebug() <<"app list count" << _appList.count();
+    qDebug() <<"app name count" << _appName.count();
     qDebug() << "app count " << getAppCount();
     return appList;
 }
 
 void MenuWidget::mousePressEvent(QMouseEvent *event)
 {
-    qDebug() << __PRETTY_FUNCTION__;
-
-    event->accept();
-//    QWidget* w;
-//    while ((w = QApplication::activeModalWidget()) && w != this){
-//        w->close();
-//        if (QApplication::activeModalWidget() == w) // widget does not want to disappear
-//            w->hide(); // hide at least
-//    }
-    if (!rect().contains(event->pos())){
-        close();
+    qDebug() << __PRETTY_FUNCTION__ << (qint32)this;
+    QWidget *w;
+    while ((w = qApp->activePopupWidget()) && w->inherits("MenuWidget")) {
+        qDebug() << __PRETTY_FUNCTION__ << "closing" << (qint32)w;
+        w->close();
     }
-}
-
-void MenuWidget::focusOutEvent(QFocusEvent *ev)
-{
-    qDebug() << __PRETTY_FUNCTION__;
-    hide();
+//    QMenu::mousePressEvent(event);
 }
 
 void MenuWidget::newCreateMenu()
@@ -249,27 +239,21 @@ void MenuWidget::newCreateMenu()
     MenuButton *newButton;
     for(int i = 0; i < _appCount; ++i) {
         newButton = new MenuButton("", ":images/menu_btn_hover.png", _appName.at(i), this, false);
-        newButton->setGeometry(7, 20 + 19 * i + 2 * i, ICON_W_NEW, BTN_H);
+        newButton->setGeometry(7, 8 + 19 * i + 2 * i, ICON_W_NEW, BTN_H);
         newButton->setValue(i);
         _menuButtons.append(newButton);
         connect(newButton, SIGNAL(buttonClicked(int)), this, SLOT(createNewFile(int)));
     }
-    setFixedSize(ICON_W_NEW, 40 + 19 * _appCount + 2 * _appCount);
-
-    _width = ICON_W_NEW;
-    _height = 40 + 19 * _appCount + 2 * _appCount;
+    setFixedSize(ICON_W_NEW, 16 + 19 * _appCount + 2 * _appCount);
 }
 
 MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
-    : QWidget(parent)
+    : QMenu(parent)
     , _type(type)
-    , _width(0)
-    , _height(0)
 {
-    setWindowFlags(Qt::Popup|Qt::CustomizeWindowHint|Qt::FramelessWindowHint);
+    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
-//    setFocusPolicy(Qt::ClickFocus);
-//    setWindowModality(Qt::ApplicationModal);
+    setAttribute(Qt::WA_NoMouseReplay);
 
     switch(_type)
     {
@@ -281,21 +265,19 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         _createBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                     tr("新建"), this, true);
 
-        _showBtn->setGeometry(14, 20 + 2, ICON_W, BTN_H);
-        _refreshBtn->setGeometry(14, 39 + 2 * 2, ICON_W, BTN_H);
-        _createBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
+        _showBtn->setGeometry(2, 8 + 2, ICON_W, BTN_H);
+        _refreshBtn->setGeometry(2, 27 + 2 * 2, ICON_W, BTN_H);
+        _createBtn->setGeometry(2, 46 + 2 * 3, ICON_W, BTN_H);
 
         _showBtn->setValue(0);
         _refreshBtn->setValue(1);
         _createBtn->setValue(2);
 
-        setFixedSize(ICON_W, 77 + 2 * 3 + 20);
-        _width = ICON_W;
-        _height = 77 + 2 * 3 + 20;
+        setFixedSize(ICON_W, 65 + 2 * 3 + 8);
 
         connect(_showBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
         connect(_createBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
-       connect(_createBtn, SIGNAL(clicked()), this, SIGNAL(createDir()));
+        connect(_createBtn, SIGNAL(clicked()), this, SIGNAL(createDir()));
         connect(_refreshBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
         connect(_refreshBtn, SIGNAL(clicked()), this, SIGNAL(refresh()));
 
@@ -309,18 +291,15 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         _smallBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                         tr("小图标"), this, false);
 
-        _largeBtn->setGeometry(14, 20, ICON_W, BTN_H);
-        _mediumBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
-        _smallBtn->setGeometry(14, 58 + 2 * 2, ICON_W, BTN_H);
+        _largeBtn->setGeometry(2, 8, ICON_W, BTN_H);
+        _mediumBtn->setGeometry(2, 27 + 2, ICON_W, BTN_H);
+        _smallBtn->setGeometry(2, 46 + 2 * 2, ICON_W, BTN_H);
 
         _largeBtn->setValue(0);
         _mediumBtn->setValue(1);
         _smallBtn->setValue(2);
 
-        setFixedSize(ICON_W, 77 + 2 * 2 + 20);
-
-        _width = ICON_W;
-        _height = 77 + 2 * 2 + 20;
+        setFixedSize(ICON_W, 65 + 2 * 2 + 8);
 
         connect(_largeBtn, SIGNAL(clicked()), this, SLOT(largeBtnClicked()));
         connect(_mediumBtn, SIGNAL(clicked()), this, SLOT(mediumBtnClicked()));
@@ -363,26 +342,17 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
                                  tr("run"), this, false);
         _delBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                   tr("delete"), this, false);
-//        _renameBtn = new MenuButton("", ":images/menu_btn_hover.png",
-//                                 tr("rename"), this, false);
 
-        _runBtn->setGeometry(14, 20, ICON_W, BTN_H);
-        _delBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
-//        _renameBtn->setGeometry(14, 58 + 2 * 3, ICON_W, BTN_H);
+        _runBtn->setGeometry(2, 8, ICON_W, BTN_H);
+        _delBtn->setGeometry(2, 27 + 2, ICON_W, BTN_H);
 
         _runBtn->setValue(0);
         _delBtn->setValue(1);
-//        _renameBtn->setValue(2);
 
-//        setFixedSize(ICON_W, 78 + 2 * 2 + 20);
-        setFixedSize(ICON_W, 58 + 2 + 20);
-
-        _width = ICON_W;
-        _height = 58 + 2 + 20;
+        setFixedSize(ICON_W, 46 + 2 + 8);
 
         connect(_runBtn, SIGNAL(clicked()), this, SIGNAL(run()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
- //       connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
         break;
     case MenuWidget::dustbinMenu :
 
@@ -391,20 +361,16 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         _delBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                   tr("delete"), this, false);
 
-        _restoreBtn->setGeometry(14, 20, ICON_W, BTN_H);
-        _delBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
+        _restoreBtn->setGeometry(2, 8, ICON_W, BTN_H);
+        _delBtn->setGeometry(2, 27 + 2, ICON_W, BTN_H);
 
         _restoreBtn->setValue(0);
         _delBtn->setValue(1);
 
-        setFixedSize(ICON_W, 58 + 2 + 20);
-
-        _width = ICON_W;
-        _height = 58 + 2 + 20;
+        setFixedSize(ICON_W, 46 + 2 + 8);
 
         connect(_restoreBtn, SIGNAL(clicked()), this, SIGNAL(restore()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
- //       connect(_renameBtn, SIGNAL(clicked()), this, SIGNAL(rename()));
         break;
     case MenuWidget::dirMenu :
 
@@ -415,18 +381,15 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         _delBtn = new MenuButton("", ":images/menu_btn_hover.png",
                                   tr("delete"), this, false);
 
-        _openBtn->setGeometry(14, 20, ICON_W, BTN_H);
-        _clearBtn->setGeometry(14, 39 + 2, ICON_W, BTN_H);
-        _delBtn->setGeometry(14, 58 + 2 * 2, ICON_W, BTN_H);
+        _openBtn->setGeometry(2, 8, ICON_W, BTN_H);
+        _clearBtn->setGeometry(2, 27 + 2, ICON_W, BTN_H);
+        _delBtn->setGeometry(2, 46 + 2 * 2, ICON_W, BTN_H);
 
         _openBtn->setValue(0);
         _clearBtn->setValue(1);
         _delBtn->setValue(2);
 
-        setFixedSize(ICON_W, 77 + 2 * 2 + 20);
-
-        _width = ICON_W;
-        _height = 77 + 2 * 2 + 20;
+        setFixedSize(ICON_W, 65 + 2 * 2 + 8);
 
         connect(_openBtn, SIGNAL(clicked()), this, SIGNAL(open()));
         connect(_clearBtn, SIGNAL(clicked()), this, SIGNAL(clear()));
@@ -442,6 +405,7 @@ MenuWidget::~MenuWidget()
 
 }
 
+#if 0
 void MenuWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
@@ -467,6 +431,38 @@ void MenuWidget::paintEvent(QPaintEvent *event)
     }
 
     painter.drawPixmap(0, height() - 20, width(), 20, pm_btm);
+}
+#endif
+
+void MenuWidget::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    QPixmap pm_top = QPixmap(":images/menu_top.png");
+    QPixmap pm_center = QPixmap(":images/menu_center.png");
+    QPixmap pm_btm = QPixmap(":images/menu_bottom.png");
+    QPixmap pm_menulinescaled = QPixmap(":images/menu_line.png");
+
+    pm_top = pm_top.copy(12, 12, pm_top.width()-24, 8)
+            .scaled(width(), 8, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    pm_center = pm_center.copy(12, 0, pm_center.width()-24, 1)
+            .scaled(width(), 1, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    pm_btm = pm_btm.copy(12, 0, pm_btm.width()-24, 8)
+            .scaled(width(), 8, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    pm_menulinescaled = pm_menulinescaled.copy(12, 0, pm_menulinescaled.width()-24, 2)
+            .scaled(width(), 2, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+    painter.drawPixmap(0, 0, pm_top);
+    painter.drawPixmap(0, 8, width(), height() - 16, pm_center);
+
+    if (_type == MenuWidget::normal) {
+        painter.drawPixmap(0, 8 + 19, pm_menulinescaled);
+    } else if (_type == MenuWidget::create) {
+        painter.drawPixmap(0, 8 + 19 * 2, pm_menulinescaled);
+    } else if (_type == MenuWidget::iconMenu) {
+        painter.drawPixmap(0, 8 + 19, pm_menulinescaled);
+    }
+
+    painter.drawPixmap(0, height() - 8, pm_btm);
 }
 
 void MenuWidget::largeBtnClicked()
@@ -497,7 +493,7 @@ void MenuWidget::smallBtnClicked()
 
 QSize MenuWidget::getSize()
 {
-    return QSize(_width, _height);
+    return size();
 }
 
 //MenuButton

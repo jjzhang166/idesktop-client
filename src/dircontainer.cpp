@@ -157,6 +157,7 @@ void Drawer::delIcon(LocalApp *app)
 void Drawer::removeIcon(IconWidget *icon)
 {
     _items.remove(icon);
+    qobject_cast<AppIconWidget*>(icon)->setApp(0);
     icon->deleteLater();
     QTimer::singleShot(0, parent(), SLOT(updateMateThumbs()));
 }
@@ -613,7 +614,7 @@ DirContainer::DirContainer(DirectionIndicator::Direction direction, DirIconWidge
     hl->addWidget(_dirName);
 
     hl->addSpacerItem(new QSpacerItem(40, 40, QSizePolicy::Expanding));
-    _pbClear = new QPushButton(tr("clear"), this);
+    _pbClear = new QPushButton(tr("Çå¿Õ"), this);
     connect(_pbClear, SIGNAL(clicked()), this, SLOT(clearDir()));
     hl->addWidget(_pbClear);
 
@@ -847,7 +848,6 @@ void DirContainer::deleteDir()
 void DirContainer::handleIconErasion(IconWidget *icon)
 {
     LocalApp * app = qobject_cast<AppIconWidget*>(icon)->app();
-    _drawer->removeIcon(icon);
     QMetaObject::invokeMethod(_mate, "requestEraseDirItem", Q_ARG(LocalApp*, app));
 }
 
