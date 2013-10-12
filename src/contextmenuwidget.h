@@ -106,6 +106,8 @@ private:
     int _appCount;
 public slots:
     void createNewFile(int value);
+protected slots:
+    void closeUp();
 };
 
 class MenuButton : public QPushButton

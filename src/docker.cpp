@@ -9,6 +9,7 @@ Docker::Docker(QWidget *parent)
     :QWidget(parent)
 {
     _trashIcon = NULL;
+    _multiSelectionActivated = false;
 
     setFocusPolicy(Qt::ClickFocus);
 
@@ -86,7 +87,13 @@ void Docker::slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedList
     QSet<IndexedList::Change>::const_iterator i = changes.constBegin();
     while (i != changes.constEnd()) {
         AppIconWidget *icon = qobject_cast<AppIconWidget*>(_items.at(i->second));
-        icon->app()->setIndex(i->second);
+        //HACK: when a multidrag happened, some icons contained in toggledIcons has
+        //been lost connection with the apps
+        if (icon->app()) {
+            icon->app()->setIndex(i->second);
+        } else {
+            qDebug() << __PRETTY_FUNCTION__ << "icon disconnected";
+        }
         affected.append(icon);
         ++i;
     }
@@ -247,13 +254,28 @@ int Docker::rows() const
     return 1;
 }
 
+void Docker::queuedReflow()
+{
+    qDebug() << __PRETTY_FUNCTION__;
+    reflow(true);
+}
+
 void Docker::reflow(bool animated)
 {
     qDebug() << __PRETTY_FUNCTION__ << animated;
+    if (_multiSelectionActivated) {
+        //disable reflow during multi-draging
+        return;
+    }
+
     if (animated) {
         QParallelAnimationGroup *pag = new QParallelAnimationGroup(this);
         for (int i = 0; i < icons().size(); ++i) {
             AppIconWidget *icon = qobject_cast<AppIconWidget*>(icons().at(i));
+            if (!icon->app()) {
+                icon->hide();
+                continue;
+            }
             QPropertyAnimation *pa = new QPropertyAnimation(icon, "geometry");
             if (icon->property("draggedIn").toBool()) {
                 QRect geo = icon->geometry();
@@ -273,6 +295,10 @@ void Docker::reflow(bool animated)
     } else {
         for (int i = 0; i < _items.size(); ++i) {
             AppIconWidget *icon = qobject_cast<AppIconWidget*>(_items.at(i));
+            if (!icon->app()) {
+                icon->hide();
+                continue;
+            }
             moveIconTo(icon, icon->app()->index(), animated);
         }
     }
@@ -280,7 +306,19 @@ void Docker::reflow(bool animated)
 
 void Docker::mousePressEvent(QMouseEvent *ev)
 {
-    QWidget::mousePressEvent(ev);
+    if ((ev->modifiers() & Qt::ControlModifier) && ev->button() == Qt::LeftButton) {
+        _multiSelectionActivated = true;
+    }
+
+    IconWidget *icon = this->iconAt(ev->pos());
+    if (icon && _multiSelectionActivated && !icon->inherits("TrashDirWidget")) {
+        icon->setToggled(true);
+        return;
+    }
+
+    //or else
+    clearToggles();
+   QWidget::mousePressEvent(ev);
 }
 
 void Docker::mouseReleaseEvent(QMouseEvent *ev)
@@ -347,11 +385,6 @@ void Docker::dragMoveEvent(QDragMoveEvent *ev)
     }
 
     _openHoverOnDirTimer->stop();
-}
-
-void Docker::updatePreviewing(int newIndex)
-{
-
 }
 
 void Docker::delIcon(LocalApp *app)
@@ -489,4 +522,26 @@ void Docker::slotOpenHoverOnDir()
     if (icon && icon->inherits("DirIconWidget")) {
         qobject_cast<AppIconWidget*>(icon)->run();
     }
+}
+
+QList<QVariant> Docker::toggledIcons() const
+{
+    QList<QVariant> toggles;
+    for (int i = 0; i < icons().size(); ++i) {
+        if (_items.at(i)->isToggled()) {
+            toggles.append(QVariant::fromValue((AppIconWidget*)_items.at(i)));
+        }
+    }
+    return toggles;
+}
+
+void Docker::clearToggles()
+{
+    _multiSelectionActivated = false;
+    for (int i = 0; i < icons().size(); ++i) {
+        if (_items.at(i)->isToggled()) {
+            _items.at(i)->setToggled(false);
+        }
+    }
+    QTimer::singleShot(0, this, SLOT(queuedReflow()));
 }

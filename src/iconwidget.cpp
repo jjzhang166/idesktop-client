@@ -33,39 +33,32 @@ LineEdit::LineEdit(QWidget *parent)
                           "background: rgba(0, 0, 0, 100);"
                           "selection-background-color: darkgray;}"));
 
-//    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(this);
-//    effect->setBlurRadius(8);
-//    effect->setColor(QColor(0, 200, 0));
-//    effect->setOffset(-1,1);
-//    this->setGraphicsEffect(effect);
-
     setContextMenuPolicy(Qt::NoContextMenu);
     setTextMargins(10, 0, 0, 0);
 
-//    setFocusPolicy(Qt::ClickFocus);
     setAlignment(Qt::AlignCenter);
     setFont(QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"), FONTSIZE, QFont::Normal));
 
-    switch(IDesktopSettings::instance()->iconSize()) {
-    case IconWidget::large_size: {
-        _editLeft = makeTranslucentPixmap(":/images/dir_edit_left.png").scaled(11,23);
-        _editCenter = makeTranslucentPixmap(":/images/dir_edit_center.png").scaled(1,23);
-        _editRight = makeTranslucentPixmap(":/images/dir_edit_right.png").scaled(11,23);
-        break;
-    }
-    case IconWidget::medium_size: {
-        _editLeft = makeTranslucentPixmap(":/images/dir_edit_left.png").scaled(9,19);
-        _editCenter = makeTranslucentPixmap(":/images/dir_edit_center.png").scaled(1,19);
-        _editRight = makeTranslucentPixmap(":/images/dir_edit_right.png").scaled(9,19);
-        break;
-    }
-    default: {
-        _editLeft = makeTranslucentPixmap(":/images/dir_edit_left.png").scaled(8,16);
-        _editCenter = makeTranslucentPixmap(":/images/dir_edit_center.png").scaled(1,16);
-        _editRight = makeTranslucentPixmap(":/images/dir_edit_right.png").scaled(8,16);
-        break;
-    }
-    }
+//    switch(IDesktopSettings::instance()->iconSize()) {
+//    case IconWidget::large_size: {
+//        _editLeft = makeTranslucentPixmap(":/images/dir_edit_left.png").scaled(11,23);
+//        _editCenter = makeTranslucentPixmap(":/images/dir_edit_center.png").scaled(1,23);
+//        _editRight = makeTranslucentPixmap(":/images/dir_edit_right.png").scaled(11,23);
+//        break;
+//    }
+//    case IconWidget::medium_size: {
+//        _editLeft = makeTranslucentPixmap(":/images/dir_edit_left.png").scaled(9,19);
+//        _editCenter = makeTranslucentPixmap(":/images/dir_edit_center.png").scaled(1,19);
+//        _editRight = makeTranslucentPixmap(":/images/dir_edit_right.png").scaled(9,19);
+//        break;
+//    }
+//    default: {
+//        _editLeft = makeTranslucentPixmap(":/images/dir_edit_left.png").scaled(8,16);
+//        _editCenter = makeTranslucentPixmap(":/images/dir_edit_center.png").scaled(1,16);
+//        _editRight = makeTranslucentPixmap(":/images/dir_edit_right.png").scaled(8,16);
+//        break;
+//    }
+//    }
 }
 
 QString LineEdit::myDisplayText() const

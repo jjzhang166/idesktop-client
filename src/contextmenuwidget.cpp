@@ -156,6 +156,17 @@ void MenuWidget::createNewFile(int value)
         }
         fileName = "";
     }
+
+    QTimer::singleShot(0, this, SLOT(closeUp()));
+}
+
+void MenuWidget::closeUp()
+{
+    QWidget *w;
+    while ((w = qApp->activePopupWidget()) && w->inherits("MenuWidget")) {
+        qDebug() << __PRETTY_FUNCTION__ << "closing" << (qint32)w;
+        w->close();
+    }
 }
 
 QStringList MenuWidget::getXPAppList()
@@ -219,11 +230,7 @@ QStringList MenuWidget::getXPAppList()
 void MenuWidget::mousePressEvent(QMouseEvent *event)
 {
     qDebug() << __PRETTY_FUNCTION__ << (qint32)this;
-    QWidget *w;
-    while ((w = qApp->activePopupWidget()) && w->inherits("MenuWidget")) {
-        qDebug() << __PRETTY_FUNCTION__ << "closing" << (qint32)w;
-        w->close();
-    }
+    closeUp();
 //    QMenu::mousePressEvent(event);
 }
 

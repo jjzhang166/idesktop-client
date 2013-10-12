@@ -14,6 +14,13 @@ class DirContainer;
 class Docker : public QWidget
 {
     Q_OBJECT
+    /**
+     * two properties below is protocol for multi-draging icons. AppIconWidget
+     * need these to inspect if multi-draging is activated in the container
+     * and what are the companies.
+     */
+    Q_PROPERTY(bool multiSelectionActivated READ multiSelectionActivated)
+    Q_PROPERTY(QList<QVariant> toggledIcons READ toggledIcons)
 public:
     explicit Docker(QWidget *parent = 0);
     void init();
@@ -34,8 +41,14 @@ public:
     int cols() const;
     inline int rows() const;
 
+    bool multiSelectionActivated() const { return _multiSelectionActivated; }
+    QList<QVariant> toggledIcons() const;
+
     //trash is special
     TrashDirWidget *trash() const { return _trashIcon; }
+
+public slots:
+    void clearToggles();
 
 signals:
     // relay signals from icons
@@ -59,16 +72,17 @@ protected slots:
     void slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedList::ChangeReason);
     void removeIcon(IconWidget *icon);
     void slotOnMovingIconsFinished();
-    void updatePreviewing(int newIndex);
     void handleIconDeletion(IconWidget *icon);
     void handleIconErasion(IconWidget*);
     void slotOpenHoverOnDir();
     void delIcon(LocalApp *app);
+    void queuedReflow();
 
 private:
     IndexedList _items;
     QSize _gridSize;
     QTimer *_openHoverOnDirTimer;
+    bool _multiSelectionActivated;
 
     TrashDirWidget *_trashIcon;
 
