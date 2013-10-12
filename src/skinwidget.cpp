@@ -14,7 +14,7 @@
 #define SPACING 15
 #define ICONWIDTH 160
 #define ICONHEIGHT 85
-#define ICONNUM 30
+//#define ICONNUM 30
 
 SkinShowWidget::SkinShowWidget(QWidget *parent)
     : QWidget(parent)
@@ -227,6 +227,7 @@ void PixItem::setPenColor(bool yellow)
 PixWidget::PixWidget(QSize pageSize, QWidget *parent)
     : QWidget(parent)
     , _localCount(0)
+    , _iconNum(0)
 {
 
 //    _count = 1;
@@ -241,11 +242,39 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
     _iconsPerPage = _col * _row;
     _current  = 0;
 
+//ICONNUM
+//    for (int i = 0; i < ICONNUM; i++)
+//    {
+//        _count = i / _iconsPerPage + 1;
+//    }
+    //_iconNum
+    QString path = QCoreApplication::applicationDirPath();
+    path.replace(QString("/"), QString("\\"));
+    path += "\\images\\wallpager";
 
-    for (int i = 0; i < ICONNUM; i++)
+    QDir dir(path);
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+
+    QFileInfoList list = dir.entryInfoList();
+
+    for (int i = 0; i < list.size(); ++i)
     {
-        _count = i / _iconsPerPage + 1;
+        QFileInfo fileInfo = list.at(i);
+
+        if (!fileInfo.fileName().endsWith(".jpg"))
+        {
+            continue;
+        }
+        else
+        {
+            _iconNum++;
+        }
     }
+    //  qDebug() << "_iconNum : " << _iconNum;
+
+    _count = (_iconNum - 1) / _iconsPerPage + 1;
+
+    //  qDebug() << "_count : " << _count;
 
     for (int i = 0; i < _count; i++)
         _pages.insert(i, -(i * _height));
@@ -395,7 +424,7 @@ void PixWidget::initIconItem()
             qDebug() << "Create tempImages Failed!";
         }
     }
-    for (int i = 0; i < ICONNUM; i++) {
+    for (int i = 0; i < _iconNum; i++) {
 
         QPixmap tempicon = QPixmap(QString(path + "\\wallpager\\wp_%1.jpg").arg(i))
                            .scaled(gridWidth - SPACING - 4, gridHeight - SPACING - 4

@@ -125,6 +125,8 @@ private:
     int _iconsPerPage;
 
     QString _iconPath;
+
+    int _iconNum;
 };
 
 class PixItem : public QWidget

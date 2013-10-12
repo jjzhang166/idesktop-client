@@ -126,6 +126,7 @@ LoginDialog::LoginDialog(QWidget *parent)
         serverAddr->addItem(query.value(0).toString());
     _nam = new QNetworkAccessManager(this);
     _namJson = new QNetworkAccessManager(this);
+    _namOut = new QNetworkAccessManager(this);
 
 //    QDir dir(Config::get("UserDir"));
 //    QFileInfo fi(Config::get("Profile"));
@@ -426,7 +427,7 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
             _namOut->get(QNetworkRequest(QUrl(outUrl)));
 
             connenting(false);
-            userError(tr("请使用普通用户登录"));
+            userError(tr("请用普通用户登录"));
 
         }
     }
