@@ -1,7 +1,12 @@
 !macro InstSuccess
 
 Function .onInstSuccess
-  execshell open "$DESKTOP\${SETUP_NAME}.lnk"
+	HideWindow
+	
+	${if} $Bool_Finishpage_Run == 5
+  	execshell open "$DESKTOP\${SETUP_NAME}.lnk"
+	${endif}
+
 FunctionEnd
 
 !macroend

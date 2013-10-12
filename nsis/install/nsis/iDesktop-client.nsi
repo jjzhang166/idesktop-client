@@ -10,7 +10,10 @@
 ; my header
 !include iDesktopInit.nsh
 !include SharedMacro.nsh
-;!include InstSuccess.nsh
+;  ***********  ******************
+Var Bool_Finishpage_Run
+
+!include InstSuccess.nsh
 
 ; old header
 !include old\EnvVarUpdate.nsh
@@ -57,13 +60,14 @@ DirText "安装程序将安装 $(^Name) 在下列文件夹。要安装到不同文件夹，单击 [浏览(B)
 ; 安装过程页面
 !insertmacro MUI_PAGE_INSTFILES
 ; 安装完成页面
+
 !define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_FUNCTION RunApplication
 !insertmacro MUI_PAGE_FINISH
 
-
 Function RunApplication
-	execShell open "$DESKTOP\${SETUP_NAME}.lnk"
+	;execShell open "$DESKTOP\${SETUP_NAME}.lnk"
+	IntOp $Bool_Finishpage_Run 0 + 5
 FunctionEnd
 
 ; 安装卸载过程页面
@@ -77,7 +81,7 @@ FunctionEnd
 ; ------ MUI 现代界面定义结束 ------
 
 ; *************On Install Success ****************
-;!insertmacro InstSuccess
+!insertmacro InstSuccess
 
 ; *********************** version info ******************
 VIProductVersion "${PRODUCT_LONGVERSION}"

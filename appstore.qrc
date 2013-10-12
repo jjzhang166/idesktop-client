@@ -2,8 +2,6 @@
     <qresource prefix="/">
         <file>images/center.png</file>
         <file>images/icon.png</file>
-        <file>images/Arrow.png</file>
-        <file>images/Arrow2.png</file>
         <file>images/close_icon.png</file>
         <file>images/act.png</file>
         <file>images/unact.png</file>
@@ -22,21 +20,7 @@
         <file>images/window_icon_bottom.png</file>
         <file>images/bottomPage_current_icon.png</file>
         <file>images/bottomPage_icon.png</file>
-        <file>images/appbutton_app.png</file>
-        <file>images/appbutton_app_hover.png</file>
         <file>images/appbutton_mouseover_bg.png</file>
-        <file>images/widget/window_close.png</file>
-        <file>images/widget/window_close_hover.png</file>
-        <file>images/widget/window_corner_lowerLeft.png</file>
-        <file>images/widget/window_corner_lowerRight.png</file>
-        <file>images/widget/window_corner_upperLeft.png</file>
-        <file>images/widget/window_corner_upperRight.png</file>
-        <file>images/widget/window_maximize.png</file>
-        <file>images/widget/window_maximize_hover.png</file>
-        <file>images/widget/window_minimize.png</file>
-        <file>images/widget/window_minimize_hover.png</file>
-        <file>images/widget/window_restoreDown.png</file>
-        <file>images/widget/window_restoreDown_hover.png</file>
         <file>images/widget/window_side_bottom.png</file>
         <file>images/widget/window_side_left.png</file>
         <file>images/widget/window_side_right.png</file>
@@ -45,7 +29,6 @@
         <file>images/waiting.gif</file>
         <file>images/spin.png</file>
         <file>images/btn_search.png</file>
-        <file>images/bg_mainWindow.png</file>
         <file>images/bg_minNav.png</file>
         <file>images/bg_minNav_current.png</file>
         <file>images/bg_subWindow.png</file>
@@ -92,38 +75,16 @@
         <file>images/message/top_bg.png</file>
         <file>images/message/bg.png</file>
         <file>images/app_bg.png</file>
-        <file>images/appbutton_add_hover.png</file>
         <file>images/full.png</file>
         <file>images/null.png</file>
         <file>images/succes.png</file>
         <file>images/scroll_down.png</file>
         <file>images/scroll_up.png</file>
-        <file>images/appbutton_toolbox.png</file>
-        <file>images/appbutton_toolbox_hover.png</file>
-        <file>images/appbutton_store.png</file>
-        <file>images/appbutton_store_hover.png</file>
-        <file>images/appbutton_vapp.png</file>
-        <file>images/appbutton_vapp_hover.png</file>
-        <file>images/appbutton_add.png</file>
         <file>images/menu_bottom.png</file>
         <file>images/menu_bottom_hover.png</file>
         <file>images/menu_center_hover.png</file>
         <file>images/menu_top.png</file>
         <file>images/menu_top_hover.png</file>
-        <file>images/appbutton_quit_hover.png</file>
-        <file>images/appbutton_bs_hover.png</file>
-        <file>images/appbutton_localapp_hover.png</file>
-        <file>images/appbutton_config_hover.png</file>
-        <file>images/appbutton_bs.png</file>
-        <file>images/appbutton_config.png</file>
-        <file>images/appbutton_localapp.png</file>
-        <file>images/appbutton_quit.png</file>
-        <file>images/bs_back_hover.png</file>
-        <file>images/bs_back_normal.png</file>
-        <file>images/bs_forward_hover.png</file>
-        <file>images/bs_forward_normal.png</file>
-        <file>images/bs_refresh_hover.png</file>
-        <file>images/bs_refresh_normal.png</file>
         <file>images/bs_rightbg_bottom.png</file>
         <file>images/bs_rightbg_center.png</file>
         <file>images/bs_rightbg_top.png</file>
@@ -132,31 +93,19 @@
         <file>images/bs_tab_normal.png</file>
         <file>images/bs_tab_selected.png</file>
         <file>images/win_normal.png</file>
-        <file>images/isoft_hover.png</file>
         <file>images/isoft_normal.png</file>
-        <file>images/icon_add_normal.png</file>
-        <file>images/icon_add_hover.png</file>
-        <file>images/bs_back_disabled.png</file>
-        <file>images/bs_forward_disabled.png</file>
-        <file>images/bs_refresh_disabled.png</file>
         <file>images/handle_left.png</file>
         <file>images/handle_right.png</file>
         <file>images/widget_bottom.png</file>
         <file>images/widget_center.png</file>
         <file>images/widget_top.png</file>
-        <file>images/appbutton_desktop.png</file>
-        <file>images/appbutton_desktop_hover.png</file>
         <file>images/dlgMinIcon.png</file>
         <file>images/dlgMinIconHover.png</file>
         <file>images/cancel_btn.png</file>
         <file>images/cancel_btn_hover.png</file>
         <file>images/login_input.png</file>
         <file>images/login_input_hover.png</file>
-        <file>images/bs_goback.png</file>
-        <file>images/bs_goback_hover.png</file>
         <file>images/select_icon.png</file>
-        <file>images/local_bg.png</file>
-        <file>images/vac_bg.png</file>
         <file>images/dir_bg.png</file>
         <file>images/dir_add_icon.png</file>
         <file>images/min_mask_icon.png</file>
@@ -164,7 +113,6 @@
         <file>images/dir_edit_left.png</file>
         <file>images/dir_edit_right.png</file>
         <file>images/icon_shadow.png</file>
-        <file>images/skin_bg.png</file>
         <file>images/icon_middle_shadow.png</file>
         <file>images/message/message_bg.png</file>
         <file>images/message/message_cancel_hover.png</file>
