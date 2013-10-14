@@ -96,7 +96,6 @@ public slots:
     //menu
     void menuChanged(int value);
     void virtualDesktopAddDirItem();
-    void hideMenuWidget();
     void refreshMenu();
     void showNormalMenu(QPoint mousePos);
 

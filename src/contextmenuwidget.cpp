@@ -288,6 +288,8 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         connect(_refreshBtn, SIGNAL(hover(int)), this, SIGNAL(menuChanged(int)));
         connect(_refreshBtn, SIGNAL(clicked()), this, SIGNAL(refresh()));
 
+        connect(_createBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
+        connect(_refreshBtn, SIGNAL(clicked()), this, SLOT(closeUp()));
         break;
 
     case MenuWidget::showIcon :
@@ -311,6 +313,9 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         connect(_largeBtn, SIGNAL(clicked()), this, SLOT(largeBtnClicked()));
         connect(_mediumBtn, SIGNAL(clicked()), this, SLOT(mediumBtnClicked()));
         connect(_smallBtn, SIGNAL(clicked()), this, SLOT(smallBtnClicked()));
+        connect(_largeBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
+        connect(_mediumBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
+        connect(_smallBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
 
         switch(IDesktopSettings::instance()->iconSize())
         {

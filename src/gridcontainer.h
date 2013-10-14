@@ -211,7 +211,6 @@ signals:
 
     //menu
     void vdesktopNormalMenu(QPoint mousePos);
-    void hideMenu();
     void desktopClicked();
 
 public slots:

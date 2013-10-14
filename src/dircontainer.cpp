@@ -145,10 +145,10 @@ void Drawer::insertNewIcon(LocalApp *app)
 
 void Drawer::delIcon(LocalApp *app)
 {
-    if (app->dirId() < 0)
+    if (app->dirId() != this->dirId())
         return;
 
-    qDebug() << __PRETTY_FUNCTION__ << "app " << app->name();
+    qDebug() << __PRETTY_FUNCTION__ << "dir" << this->dirId() << "app" << app->name();
     int idx = app->index();
     IconWidget *icon = icons().at(idx);
     removeIcon(icon);
@@ -845,12 +845,11 @@ void DirContainer::clearDir()
 void DirContainer::deleteDir()
 {
     const IndexedList& icons = _drawer->icons();
-    for (int i = 0; i < icons.size(); ++i) {
-        LocalApp *app = qobject_cast<AppIconWidget*>(icons.at(i))->app();
+    while (icons.size() > 0) {
+        LocalApp *app = qobject_cast<AppIconWidget*>(icons.at(0))->app();
         QMetaObject::invokeMethod(_mate, "requestEraseDirItem", Q_ARG(LocalApp*, app));
     }
-
-    _drawer->clearDir();
+    QTimer::singleShot(0, parent(), SLOT(updateMateThumbs()));
 }
 
 void DirContainer::handleIconErasion(IconWidget *icon)

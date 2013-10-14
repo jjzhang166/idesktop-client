@@ -226,7 +226,6 @@ Dashboard::Dashboard(QWidget *parent)
     connect(panel, SIGNAL(quit()), this, SLOT(quit()));
     connect(panel, SIGNAL(showSkinWidget()), this, SLOT(onShowSkinDesktop()));
     connect(panel, SIGNAL(showSoftwareWidget()), this, SLOT(onShowVacDesktop()));
-    connect(panel, SIGNAL(checkDirState()), this, SLOT(hideMenuWidget()));
 
     connect(_ldialog, SIGNAL(dQuit()), this, SLOT(quit()));
     connect(_ldialog, SIGNAL(dShow()), this, SLOT(show()));
@@ -237,7 +236,6 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_ldialog, SIGNAL(dActivated(QSystemTrayIcon::ActivationReason)),
         this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
 
-    connect(vdesktop, SIGNAL(hideMenu()), this, SLOT(hideMenuWidget()));
     connect(vdesktop, SIGNAL(toOrigin()), this, SLOT(switchBetween()));
     connect(vdesktop, SIGNAL(iconItemNameChanged(const QString &, const QString &))
             , _vacShowWidget, SLOT(iconItemNameChanged(const QString &, const QString &)));
@@ -337,7 +335,6 @@ void Dashboard::vdesktopHideDirWidget()
 
 void Dashboard::desktopClicked()
 {
-    hideMenuWidget();
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
     panel->show();
@@ -353,14 +350,12 @@ void Dashboard::onDone()
 
 void Dashboard::onShowVacDesktop()
 {
-    hideMenuWidget();
     _skinShowWidget->setVisible(false);
     _vacShowWidget->setVisible(!_vacShowWidget->isVisible());
 }
 
 void Dashboard::onShowSkinDesktop()
 {
-    hideMenuWidget();
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(!_skinShowWidget->isVisible());
 
@@ -368,8 +363,6 @@ void Dashboard::onShowSkinDesktop()
 
 void Dashboard::getIn()
 {
-    hideMenuWidget();
-
     QPoint start;
     QPoint end;
     if (_animation->state() == QAbstractAnimation::Running) {
@@ -387,8 +380,6 @@ void Dashboard::getIn()
 
 void Dashboard::getOut()
 {
-    hideMenuWidget();
-
     QPoint start;
     QPoint end;
     if (_animation->state() == QAbstractAnimation::Running) {
@@ -406,8 +397,6 @@ void Dashboard::getOut()
 
 void Dashboard::switchBetween()
 {
-    hideMenuWidget();
-
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
 
@@ -446,8 +435,6 @@ void Dashboard::iconActivated(QSystemTrayIcon::ActivationReason)
 
 void Dashboard::quit()
 {
-    hideMenuWidget();
-
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
 
@@ -644,8 +631,6 @@ void Dashboard::refreshVapp()
 
 void Dashboard::refreshMenu()
 {
-    hideMenuWidget();
-
     _switcherLeft->setVisible(false);
     _switcherRight->setVisible(false);
     panel->setVisible(false);
@@ -865,21 +850,18 @@ void Dashboard::paasModify()
 
 void Dashboard::largeIcon()
 {
-    hideMenuWidget();
     vdesktop->setLargeIcon();
     _vacShowWidget->largeIcon();
 }
 
 void Dashboard::mediumIcon()
 {
-    hideMenuWidget();
     vdesktop->setMediumIcon();
     _vacShowWidget->mediumIcon();
 }
 
 void Dashboard::smallIcon()
 {
-    hideMenuWidget();
     vdesktop->setSmallIcon();
     _vacShowWidget->smallIcon();
 }
@@ -1385,23 +1367,13 @@ void Dashboard::menuChanged(int value)
     }
 }
 
-void Dashboard::hideMenuWidget()
-{
-    _normalMenu->setVisible(false);
-    _createMenu->setVisible(false);
-    _showIconMenu->setVisible(false);
-}
-
 void Dashboard::virtualDesktopAddDirItem()
 {
-    hideMenuWidget();
     vdesktop->addDirItem();
 }
 
 void Dashboard::showNormalMenu(QPoint mousePos)
 {
-    hideMenuWidget();
-
     _mousePos = mousePos;
     _normalMenuX = _mousePos.x();
     _normalMenuY = _mousePos.y();
@@ -1447,7 +1419,6 @@ void Dashboard::handleOpenDir(DirContainer *dirContainer)
 
 void Dashboard::handleEraseApp(LocalApp *app)
 {
-    hideMenuWidget();
     QString uniq_name = app->uniqueName();
     LocalAppList::getList()->delApp(uniq_name);
     _vacShowWidget->desktopDelIcon(uniq_name);

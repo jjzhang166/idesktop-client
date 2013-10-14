@@ -1000,7 +1000,6 @@ void GridContainer::refresh(QSize size)
 
 void GridContainer::appAdd()
 {
-    emit hideMenu();
     QString path = QFileDialog::getOpenFileName(this, tr("创建快捷方式"),
                                                 Config::get("CommonProgramDir"),
                                                 tr("app (*.*)"));   //tr("app (*.lnk *.exe)"));
@@ -1014,7 +1013,6 @@ void GridContainer::appAdd()
 
 void GridContainer::handleRestoreAppsToDesktop(QList<LocalApp*> apps)
 {
-    emit hideMenu();
     foreach(LocalApp *app, apps) {
         app->setDirId(-1);
         app->setPage(-1);
