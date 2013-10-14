@@ -250,12 +250,36 @@ int LocalAppList::getPages() const
 
 int LocalAppList::dirCounts() const
 {
-    QSqlQuery qry = QSqlDatabase::database("local").exec("select count(*) from localapps where cast (id as int) between 0 and 110;");
+    QSqlQuery qry = QSqlDatabase::database("local").exec("select count(distinct id) from localapps where cast (id as int) not in (111, 1000);");
     if (qry.next()) {
         return qry.value(0).toInt();
     }
 
     return 0;
+}
+
+int LocalAppList::nextUsableDirId() const
+{
+    QList<int> dirs;
+    QSqlQuery qry = QSqlDatabase::database("local").exec("select distinct id from localapps where cast (id as int) not in (111, 1000);");
+    while (qry.next()) {
+        dirs.append(qry.value(0).toInt());
+    }
+
+    int usableId = 0;
+    qSort(dirs);
+    for (int i = 0; i < dirs.size(); ++i) {
+        if (dirs[i] != usableId && usableId != 111 && usableId != 1000)
+            break;
+        usableId++;
+    }
+
+    if (usableId == 111 || usableId == 1000) {
+        usableId++;
+    }
+
+    qDebug() << __func__ << usableId;
+    return usableId;
 }
 
 QList<LocalApp*> LocalAppList::appsInDir(int id) const

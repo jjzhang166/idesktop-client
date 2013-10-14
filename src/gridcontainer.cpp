@@ -1110,7 +1110,7 @@ void GridContainer::addDesktopApp(const QString &text, const QString &pix, const
         app->setIndex(-1);
         app->setExecname("");
         app->setDirId(-1);
-        app->setId(QString("%1").arg(LocalAppList::getList()->dirCounts()));
+        app->setId(QString("%1").arg(LocalAppList::getList()->nextUsableDirId()));
         app->setUniqueName(uniqueName);
 
         LocalAppList::getList()->addApp(app);

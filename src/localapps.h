@@ -85,6 +85,7 @@ public:
     QList<LocalApp*> appsInDir(int id) const;
     int getPages() const;
     int dirCounts() const;
+    int nextUsableDirId() const;
     bool updateApp(LocalApp* app);
     int count() const;
     void save();
