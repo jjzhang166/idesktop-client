@@ -158,6 +158,7 @@ private:
     DirectionIndicator *_directionIndicator;
 
     DirIconWidget *_mate;
+    bool _animatedHiding;
 
     void buildMask();
     void clearMask();

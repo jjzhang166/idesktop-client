@@ -435,8 +435,10 @@ void LocalAppList::addLocalApp(QString appPath)
 
     app->setType(QString("%1").arg(0));
     app->setUrl("");
-    app->setDirId(-1);
     app->setId("111");
+    app->setDirId(-1);
+    app->setPage(-1);
+    app->setIndex(-1);
 
 
     if (LocalAppList::getList()->getAppByUniqueName(app->uniqueName())) {

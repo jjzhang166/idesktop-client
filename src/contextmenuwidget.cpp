@@ -360,6 +360,8 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 
         connect(_runBtn, SIGNAL(clicked()), this, SIGNAL(run()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
+        connect(_runBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
+        connect(_delBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
         break;
     case MenuWidget::dustbinMenu :
 
@@ -378,6 +380,8 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
 
         connect(_restoreBtn, SIGNAL(clicked()), this, SIGNAL(restore()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
+        connect(_restoreBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
+        connect(_delBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
         break;
     case MenuWidget::dirMenu :
 
@@ -401,6 +405,9 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         connect(_openBtn, SIGNAL(clicked()), this, SIGNAL(open()));
         connect(_clearBtn, SIGNAL(clicked()), this, SIGNAL(clear()));
         connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
+        connect(_openBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
+        connect(_clearBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
+        connect(_delBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
         break;
     default:
         break;

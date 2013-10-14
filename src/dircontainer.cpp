@@ -585,6 +585,7 @@ void DirectionIndicator::setIndicatorPos(int pos)
 DirContainer::DirContainer(DirectionIndicator::Direction direction, DirIconWidget *parent)
     : QWidget(0), _mate(parent)
 {
+    _animatedHiding = false;
     setContextMenuPolicy(Qt::PreventContextMenu);
     setFocusPolicy(Qt::ClickFocus);
     resize(qApp->desktop()->width(), height());
@@ -658,10 +659,15 @@ void DirContainer::closeDir()
     _drawer->clearToggles();
     hide();
     clearMask();
+    _animatedHiding = false;
 }
 
 void DirContainer::animatedHide()
 {
+    if (_animatedHiding)
+        return;
+
+    _animatedHiding = true;
     qDebug() << __PRETTY_FUNCTION__;
     QPropertyAnimation *pa = new QPropertyAnimation(this, "geometry");
     pa->setDuration(500);
@@ -752,9 +758,11 @@ void DirContainer::buildMask()
     }
 
     _upsideMask = new QLabel(parentWidget());
+    _upsideMask->setContextMenuPolicy(Qt::PreventContextMenu);
     _upsideMask->setPixmap(pm.copy(0, 0, pm.width(), splity));
 
     _downsideMask = new QLabel(parentWidget());
+    _downsideMask->setContextMenuPolicy(Qt::PreventContextMenu);
     _downsideMask->setPixmap(pm.copy(0, splity+1, pm.width(), pm.height()-splity));
 
     _upsideMask->move(0, 0);
