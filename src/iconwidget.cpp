@@ -23,7 +23,7 @@ QPixmap makeTranslucentPixmap(const QString &src)
 LineEdit::LineEdit(QWidget *parent)
     : QLineEdit(parent)
 {
-
+    _dim = false;
     setStyleSheet(QString("QLineEdit {"
                           "border: 1px solid gray;"
                           "border-radius: 8px;"
@@ -68,21 +68,34 @@ QString LineEdit::myDisplayText() const
     return elided;
 }
 
+void LineEdit::dim(bool dim)
+{
+    if (_dim != dim) {
+        _dim = dim;
+        update();
+    }
+}
+
 void LineEdit::paintEvent(QPaintEvent* ev)
 {
     if (!hasFocus()) {
         QPainter painter(this);
         QFontMetrics fm(font());
+        if (_dim) {
+            painter.setPen(QColor(255, 255, 255, 40));
+            painter.drawText(rect(), Qt::AlignCenter, myDisplayText());
+            return;
+        }
+
         painter.drawText(rect(), Qt::AlignCenter, myDisplayText());
-        QPen p = painter.pen();
         QColor c(Qt::darkGray);
         c.setAlpha(100);
-        p.setColor(c);
-        painter.setPen(p);
+        painter.setPen(c);
         painter.drawText(rect().translated(1, 1), Qt::AlignCenter, myDisplayText());
     } else {
         QLineEdit::paintEvent(ev);
     }
+
 }
 
 void LineEdit::focusInEvent(QFocusEvent *event)
@@ -106,6 +119,8 @@ IconWidget::IconWidget(QWidget *parent) :
 
     _isDown = false;
     _isToggled = false;
+    _isHover = false;
+    _dim = false;
     _menu = NULL;
 
     _nameEdit = new LineEdit(this);
@@ -138,6 +153,12 @@ void IconWidget::setToggled(bool val)
     update();
 }
 
+void IconWidget::setHover(bool val)
+{
+    _isHover = val;
+    update();
+}
+
 void IconWidget::init()
 {
     if (!_lockSize) {
@@ -161,7 +182,7 @@ void IconWidget::init()
 
 void IconWidget::setLargeSize()
 {
-    _iconRect = QRect(37, 36, 72, 72);
+    _iconRect = QRect(35, 36, 72, 72);
     setFixedSize(LARGESIZE);
     _nameEdit->setGeometry(20, height() - 26, 110, 23);
     _currentSizeType = (int)IconWidget::large_size;
@@ -202,7 +223,9 @@ void IconWidget::contextMenuEvent(QContextMenuEvent *ev)
 void IconWidget::mousePressEvent(QMouseEvent *ev)
 {
     QWidget::mousePressEvent(ev);
-    _isDown = true;
+    if (_isHover) {
+        _isDown = true;
+    }
     update();
 }
 
@@ -222,33 +245,69 @@ void IconWidget::enterEvent(QEvent *ev)
 void IconWidget::leaveEvent(QEvent *ev)
 {
     QWidget::leaveEvent(ev);
+    setHover(false);
     update();
 }
 
 void IconWidget::mouseMoveEvent(QMouseEvent *ev)
 {
     QWidget::mouseMoveEvent(ev);
+    setHover(hitButton(mapFromGlobal(QCursor::pos())));
     update();
+}
+
+void IconWidget::drawHoverRect(QPainter *p)
+{
+    p->save();
+    QPainterPath pp;
+    QRect r = _iconRect;
+    r.setLeft(r.left()-8);
+    r.setTop(r.top()-6);
+    r.setBottom(r.bottom()+6);
+    r.setRight(r.right()+5);
+    pp.addRoundedRect(r, 10, 10);
+
+    p->setPen(QPen(Qt::white));
+    p->drawPath(pp);
+    p->fillPath(pp, QBrush(QColor(212, 255, 255, 80)));
+    p->restore();
+
 }
 
 void IconWidget::paintEvent(QPaintEvent *ev)
 {
     QPainter painter(this);
-    painter.setPen(Qt::red);
-    painter.setFont(QFont(QString::fromLocal8Bit(" Microsoft YaHei"), FONTSIZE, QFont::Black));
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
-    QIcon::Mode mode;
+    QIcon::Mode mode = QIcon::Normal;
+    QIcon::State state = QIcon::Off;
     if (isDown() || isToggled()) {
         mode = QIcon::Selected;
-    } else if (hitButton(mapFromGlobal(QCursor::pos()))) {
-        mode = QIcon::Disabled;
-    } else {
-        mode = QIcon::Normal;
+        state = QIcon::On;
+    } else if (isHover()) {
+        mode = QIcon::Active;
+        state = QIcon::On;
+        drawHoverRect(&painter);
     }
 
+    if (_dim) {
+        painter.setCompositionMode(QPainter::CompositionMode_SoftLight);
+        icon().paint(&painter, 0, 0, width(), height(), Qt::AlignCenter, mode, state);
+        QPainterPath pp;
+        pp.addRoundedRect(_iconRect, 8, 8);
+        painter.fillPath(pp, QColor(255, 255, 255, 40));
+    } else {
+        icon().paint(&painter, 0, 0, width(), height(), Qt::AlignCenter, mode, state);
+    }
+}
 
-    icon().paint(&painter, 0, 0, width(), height(), Qt::AlignCenter, mode);
+void IconWidget::dim(bool dim)
+{
+    if (_dim != dim) {
+        _dim = dim;
+        if (_nameEdit) _nameEdit->dim(dim);
+        update();
+    }
 }
 
 void IconWidget::sendRestoreToDesktop()
@@ -357,7 +416,7 @@ void AppIconWidget::paintEvent(QPaintEvent *ev)
 
     QPainter painter(this);
     QSize isize = pm.size();
-    QPoint pos(_iconRect.right() - pm.width(), _iconRect.top());
+    QPoint pos(_iconRect.right() - pm.width() + 1, _iconRect.top());
     switch(_currentSizeType) {
     case IconWidget::medium_size:
         pm = pm.scaled(isize.width() * 0.9, isize.height() * 0.9);
@@ -537,6 +596,7 @@ void AppIconWidget::run()
 DirIconWidget::DirIconWidget(QWidget *parent)
     :AppIconWidget(parent), _thumb(0), _dir(0)
 {
+    setMouseTracking(true);
 }
 
 void DirIconWidget::setPixmap(const QString &icon)
@@ -547,21 +607,31 @@ void DirIconWidget::setPixmap(const QString &icon)
 
 void DirIconWidget::paintEvent(QPaintEvent *ev)
 {
-    QPainter p(this);
     QPainter painter(this);
     painter.setPen(Qt::red);
     painter.setFont(QFont(QString::fromLocal8Bit(" Microsoft YaHei"), FONTSIZE, QFont::Black));
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
 
-    QIcon::Mode mode;
-    if (isDown()) {
+    QIcon::Mode mode = QIcon::Normal;
+    QIcon::State state = QIcon::Off;
+    if (isDown() || isToggled()) {
         mode = QIcon::Selected;
-    } else if (hitButton(mapFromGlobal(QCursor::pos()))) {
-        mode = QIcon::Disabled;
-    } else {
-        mode = QIcon::Normal;
+        state = QIcon::On;
+    } else if (isHover()) {
+        mode = QIcon::Active;
+        state = QIcon::On;
+        drawHoverRect(&painter);
     }
-    icon().paint(&p, _iconRect, Qt::AlignCenter, mode);
+
+    if (_dim) {
+        painter.setCompositionMode(QPainter::CompositionMode_SoftLight);
+        icon().paint(&painter, _iconRect, Qt::AlignCenter, mode, state);
+        QPainterPath pp;
+        pp.addRoundedRect(_iconRect, 8, 8);
+        painter.fillPath(pp, QColor(255, 255, 255, 40));
+    } else {
+        icon().paint(&painter, _iconRect, Qt::AlignCenter, mode, state);
+    }
 }
 
 void DirIconWidget::setupMenu()
@@ -591,6 +661,7 @@ void DirIconWidget::updateThumbs()
     }
 
     _thumb = new QWidget(this);
+    _thumb->setAttribute(Qt::WA_TransparentForMouseEvents);
     _thumb->setGeometry(_iconRect);
     QGridLayout *lay = new QGridLayout;
 
@@ -669,7 +740,6 @@ DirContainer *DirIconWidget::dir()
 TrashDirWidget::TrashDirWidget(QWidget *parent)
     :DirIconWidget(parent)
 {
-    setMouseTracking(false);
     setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
@@ -710,12 +780,6 @@ void TrashDirWidget::init()
 void TrashDirWidget::openDir()
 {
     emit requestOpenDir(dir());
-}
-
-void TrashDirWidget::mouseMoveEvent(QMouseEvent *ev)
-{
-    //disable dragging
-    IconWidget::mouseMoveEvent(ev);
 }
 
 DirContainer *TrashDirWidget::dir()

@@ -21,6 +21,7 @@ SkinShowWidget::SkinShowWidget(QWidget *parent)
     , _oldPagePos(0)
     , _newPagePos(0)
 {
+    setContextMenuPolicy(Qt::PreventContextMenu);
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
     setAttribute(Qt::WA_NoSystemBackground, true);
@@ -175,6 +176,9 @@ void PixItem::setPixmap(const QString &icon)
 void PixItem::mousePressEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
+
+    if (event->button() != Qt::LeftButton)
+        return;
 
     emit mouseClicked(_pixText);
 

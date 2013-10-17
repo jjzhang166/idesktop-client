@@ -117,6 +117,7 @@ void Docker::addIcon(LocalApp* app, bool draggedIn)
     case IconWidget::dustbinIcon:
         icon = new TrashDirWidget(this);
         _trashIcon = qobject_cast<TrashDirWidget*>(icon);
+        qDebug() << __PRETTY_FUNCTION__ << "create trash";
 
         Q_ASSERT(_trashIcon);
         break;
@@ -537,6 +538,9 @@ QList<QVariant> Docker::toggledIcons() const
 
 void Docker::clearToggles()
 {
+    if (!_multiSelectionActivated)
+        return;
+
     _multiSelectionActivated = false;
     for (int i = 0; i < icons().size(); ++i) {
         if (_items.at(i)->isToggled()) {

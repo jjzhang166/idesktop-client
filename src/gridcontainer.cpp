@@ -141,6 +141,25 @@ QRect GridPage::rectForIndex(int index) const
     return QRect(posForIndex(index), _container->gridSize());
 }
 
+QList<QRect> GridPage::rectsForIcons() const
+{
+    QList<QRect> rs;
+    for (int i = 0; i < icons().size(); ++i) {
+        IconWidget *w = icons().at(i);
+        QRect r = w->iconRect();
+        r.moveTopLeft(w->mapToParent(r.topLeft()));
+        rs.append(r);
+    }
+    return rs;
+}
+
+void GridPage::dimPage(bool dim)
+{
+    for (int i = 0; i < icons().size(); ++i) {
+        icons().at(i)->dim(dim);
+    }
+}
+
 QPoint GridPage::posForIndex(int index) const
 {
     int x = (index % _container->cols()) * _container->gridSize().width() + ICONHSPACING;

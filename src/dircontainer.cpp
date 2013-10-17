@@ -3,6 +3,7 @@
 #include "localapps.h"
 #include "idesktopsettings.h"
 #include "iconwidget.h"
+#include "gridcontainer.h"
 
 Drawer::Drawer(QWidget *parent)
     :QScrollArea(parent), _content(new QWidget(this)), _dir(0), _multiSelectionActivated(false)
@@ -107,6 +108,7 @@ void Drawer::clearDir()
 void Drawer::loadDir(LocalApp *dir)
 {
     _dir = dir;
+
     QList<LocalApp*> apps = LocalAppList::getList()->appsInDir(dir->id().toInt());
     foreach(LocalApp *app, apps) {
         addIcon(app);
@@ -625,6 +627,8 @@ DirContainer::DirContainer(DirectionIndicator::Direction direction, DirIconWidge
     _drawer->setFrameStyle(QFrame::NoFrame);
     vl->addWidget(_drawer);
 
+    vl->addSpacerItem(new QSpacerItem(20, 20, QSizePolicy::Expanding));
+
     if (direction == DirectionIndicator::Up)
         vl->addWidget(_directionIndicator);
 
@@ -697,13 +701,19 @@ void DirContainer::animatedShow()
     QRect geo = this->geometry();
     pa->setStartValue(geo);
 
+    //plus one so when dir contains exactly one row of icons, we can expand drawer
+    //to accept 2 rows of icons.
+    int init_size = LocalAppList::getList()->appsInDir(_drawer->dirId()).size() + 1;
+    int rows = qMin(qMax(qCeil(init_size / (qreal)_drawer->cols()), 1), 3);
+    int suggestHeight = _drawer->_gridSize.height()*rows + 40 + 20 + _dirName->height();
+
     if (_directionIndicator->direction() == DirectionIndicator::Down) {
-        geo.setHeight(_drawer->maximumHeight());
+        geo.setHeight(suggestHeight);
         if (geo.bottom() >= parentWidget()->height()) {
             geo.moveBottom(parentWidget()->height()-1);
         }
     } else {
-        geo.setHeight(_drawer->maximumHeight());
+        geo.setHeight(suggestHeight);
         geo.moveTop(geo.top() - geo.height());
     }
     pa->setEndValue(geo);
@@ -734,6 +744,72 @@ void DirContainer::slotUpdateMask(QVariant v)
 }
 
 void DirContainer::buildMask()
+{
+    GridContainer *vdesktop = parentWidget()->findChild<GridContainer*>();
+    QList<QRect> rs = vdesktop->page(vdesktop->currentId())->rectsForIcons();
+
+    QRegion region;
+    foreach(QRect r, rs) {
+        region += r;
+    }
+
+    vdesktop->page(vdesktop->currentId())->dimPage(true);
+    this->_mate->dim(false);
+    QImage rep = QPixmap::grabWidget(parentWidget()).toImage();
+
+    vdesktop->page(vdesktop->currentId())->dimPage(false);
+//    QImage img(rep.size(), QImage::Format_ARGB32);
+//    //make icons darker
+//    for (int i = 0; i < img.width(); ++i) {
+//        for (int j = 0; j < img.height(); ++j) {
+//            QColor c = QColor(rep.pixel(i, j));
+//            if (region.contains(QPoint(i, j))) {
+//                c = c.darker(130);
+//            }
+//            img.setPixel(i, j, c.rgba());
+//        }
+//    }
+
+    QImage result(rep.size(), QImage::Format_ARGB32_Premultiplied);
+    QPainter p(&result);
+    p.setBackground(Qt::white);
+    p.drawImage(0, 0, rep);
+    //highlight current dir icon
+    p.drawPixmap(translateToParent(), QPixmap::grabWidget(_mate));
+    p.end();
+
+    QPixmap pm = QPixmap::fromImage(result);
+
+    int splity;
+    if (_directionIndicator->direction() == DirectionIndicator::Down) {
+       splity = geometry().y() + _directionIndicator->sizeHint().height();
+    } else {
+       splity = geometry().y() - _directionIndicator->sizeHint().height();
+    }
+
+    _upsideMask = new QLabel(parentWidget());
+    _upsideMask->setContextMenuPolicy(Qt::PreventContextMenu);
+    _upsideMask->setPixmap(pm.copy(0, 0, pm.width(), splity));
+
+    _downsideMask = new QLabel(parentWidget());
+    _downsideMask->setContextMenuPolicy(Qt::PreventContextMenu);
+    _downsideMask->setPixmap(pm.copy(0, splity+1, pm.width(), pm.height()-splity));
+
+    _upsideMask->move(0, 0);
+    _downsideMask->move(0, splity+1);
+
+
+    qDebug() << __PRETTY_FUNCTION__ << _upsideMask->geometry();
+    _upsideMask->installEventFilter(this);
+    _downsideMask->installEventFilter(this);
+    _upsideMask->show();
+    _downsideMask->show();
+    _upsideMask->raise();
+    _downsideMask->raise();
+}
+
+#if 0
+void DirContainer::buildMask2()
 {
     QPixmap pm = QPixmap::grabWidget(parentWidget());
     //grayish the mask
@@ -777,6 +853,7 @@ void DirContainer::buildMask()
     _upsideMask->raise();
     _downsideMask->raise();
 }
+#endif
 
 void DirContainer::clearMask()
 {

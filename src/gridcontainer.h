@@ -96,6 +96,7 @@ public:
     int index() const { return _id; }
     QPoint posForIndex(int index) const;
     QRect rectForIndex(int index) const;
+    QList<QRect> rectsForIcons() const;
     int indexAt(QPoint pos) const;
     IconWidget* iconAt(QPoint pos) const;
 
@@ -106,6 +107,7 @@ public slots:
     void slotIconResized();
     void removeIcon(IconWidget *icon);
     void clearToggles();
+    void dimPage(bool dim = false);
 
 protected:
     void dragEnterEvent(QDragEnterEvent *);

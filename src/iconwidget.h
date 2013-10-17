@@ -10,11 +10,13 @@ class LineEdit : public QLineEdit
 public:
     LineEdit(QWidget *parent = NULL);
     QString myDisplayText() const;
+    void dim(bool dim);
 
 protected:
     QPixmap _editLeft;
     QPixmap _editCenter;
     QPixmap _editRight;
+    bool _dim;
 
     virtual void paintEvent(QPaintEvent* event);
     void focusInEvent(QFocusEvent *event);
@@ -28,6 +30,7 @@ class MenuWidget;
 class IconWidget : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY(bool hover READ isHover WRITE setHover)
 public:
     explicit IconWidget(QWidget *parent = 0);
     
@@ -66,11 +69,17 @@ public:
     QIcon icon() const { return _icon; }
     bool isDown() const { return _isDown; }
 
+    bool isHover() const { return _isHover; }
+    void setHover(bool val);
+
     bool isToggled() const { return _isToggled; }
     void setToggled(bool val);
     
+    void dim(bool dim);
+
     void setLockSize(bool lock) { _lockSize = lock; }
     virtual bool hitButton(const QPoint &pos) const;
+    QRect iconRect() const { return _iconRect; }
 
     void setContainerType(container_type ct) { _containerType = ct; }
     container_type containerType() const { return _containerType; }
@@ -102,8 +111,10 @@ protected slots:
 protected:
     QIcon _icon;
 
-    bool _isDown;
-    bool _isToggled;
+    bool _isDown; // key press down
+    bool _isToggled; // selected
+    bool _isHover; // mouse over the icon
+    bool _dim; // make icon dim
     QString _text;
     QRect _iconRect;
 
@@ -123,6 +134,7 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *ev);
     virtual void contextMenuEvent(QContextMenuEvent *);
 
+    virtual void drawHoverRect(QPainter *);
 };
 
 class LocalApp;
@@ -242,7 +254,6 @@ public slots:
 
 protected:
     virtual void paintEvent(QPaintEvent* event);
-    virtual void mouseMoveEvent(QMouseEvent *ev);
     void openDir();
 };
 
