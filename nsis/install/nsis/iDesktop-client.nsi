@@ -23,8 +23,8 @@ Var Bool_Finishpage_Run
 !define PRODUCT_NAME "iDesktop-client"
 !define EXE_NAME "idesktop-client"
 ;!define INSTALLDIR "$PROGRAMFILES\${PRODUCT_NAME}"
-!define PRODUCT_LONGVERSION "0.0.0.1"
-!define PRODUCT_VERSION "0.1"
+!define PRODUCT_LONGVERSION "0.0.0.2"
+!define PRODUCT_VERSION "0.2"
 !define PRODUCT_PUBLISHER "i-SOFT"
 !define PRODUCT_WEB_SITE "www.i-soft.com.cn"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}"
@@ -92,6 +92,7 @@ VIAddVersionKey /LANG=2052 LegalTrademarks "${SETUP_NAME}"
 VIAddVersionKey /LANG=2052 LegalCopyright "(C) 2013-2014"
 VIAddVersionKey /LANG=2052 FileVersion "${PRODUCT_LONGVERSION}"
 VIAddVersionKey /LANG=2052 FileDescription "${SETUP_NAME}"
+;VIAddVersionKey /LANG=2052 OriginalFilename "${SETUP_NAME}.exe"
 
 ; *********************** Start **********************
 Name "${SETUP_NAME}"
@@ -206,6 +207,7 @@ Section Uninstall
 	RMDir /r "$APPDATA\App Center\Licons\*.*"
 	RMDir /r "$APPDATA\App Center\Picons\*.*"
 	RMDir /r "$APPDATA\App Center\Vicons\*.*"
+	RMDir /r "$APPDATA\App Center\tempImages\*.*"
 	RMDir /r "$APPDATA\App Center\data"
 	RMDir /r "$APPDATA\App Center"
 	SetShellVarContext all

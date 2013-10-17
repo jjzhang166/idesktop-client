@@ -25,17 +25,6 @@ IDesktopSettings* IDesktopSettings::instance()
     return _instance;
 }
 
-
-void IDesktopSettings::initIconSize()
-{
-    QSqlQuery query =
-            QSqlDatabase::database("local").exec(QString("SELECT type FROM sizetype where id=1;"));
-    if (query.first()) {
-        _iconSize = (IconWidget::icon_size)query.value(0).toInt();
-        qDebug() << "query iconSize = " << _iconSize;
-    }
-}
-
 IconWidget::icon_size IDesktopSettings::iconSize() const
 {
     return _iconSize;

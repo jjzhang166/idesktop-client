@@ -9,6 +9,10 @@ Push $R0
 
 Var ModuleHandle
 Var MyMutex
+
+Var Version
+;Var Cancel_Del_Old
+
 Function .onInit
 
 ; ******************* is the installer already running? ****
@@ -29,9 +33,40 @@ Reinstall_Loop:
   StrCmp $1 "" Reinstall_End Reinstall_Loop
 Reinstall_Next:
   ReadRegStr $1 HKLM '${PRODUCT_UNINST_KEY}' "DisplayVersion"
-  StrCmp $1 '${PRODUCT_LONGVERSION}' 0 Reinstall_End
-  MessageBox MB_ICONEXCLAMATION|MB_OK "计算机上已经安装了最新版本，安装程序将退出!"
-  Quit
+  ;StrCmp $1 '${PRODUCT_LONGVERSION}' 0 Reinstall_End
+  ;MessageBox MB_ICONEXCLAMATION|MB_OK "计算机上已经安装了最新版本，安装程序将退出!"
+  ;Quit
+  ${VersionCompare} $1 ${PRODUCT_LONGVERSION} $Version  ; $Version=0  版本相同	;$Version=1  版本1较高	;$Version=2  版本2较高
+  ${if} $Version == 1
+    MessageBox MB_ICONEXCLAMATION|MB_OK "计算机上已经安装了更高版本，安装程序将退出!"
+  	Quit
+	${elseif} $Version == 2
+	  MessageBox MB_ICONEXCLAMATION|MB_OK "请先卸载旧版本，再重新运行新版本安装程序!"
+  	Quit
+	  ;Goto Reinstall
+	${else}
+	  MessageBox MB_ICONEXCLAMATION|MB_OK "计算机上已经安装了最新版本，安装程序将退出!"
+  	Quit
+	${endif}
+  
+;Reinstall:
+	;先卸载旧版本，再安装新版本
+
+	;StrCpy $Cancel_Del_Old 1
+  ;ReadRegStr $R6 ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString"
+  ;StrCmp $R6 "" +4
+  ;MessageBox MB_YESNO|MB_ICONEXCLAMATION "是否升级到最新版本？$\n 点击〖是〗将先卸载旧版本.$\n 点击〖否〗退出安装程序." IDYES +2
+  ;Abort
+  ;ExecWait "$R6 _?=$INSTDIR"
+  
+  ;MessageBox MB_ICONEXCLAMATION|MB_OK "Cancel_Del_Old == $Cancel_Del_Old"
+  
+	;${if} $Cancel_Del_Old == 0
+  	;Goto Reinstall_End
+  ;${else}
+  	;MessageBox MB_ICONEXCLAMATION|MB_OK "取消卸载！！！"
+    ;Goto Reinstall
+	;${endif}
 Reinstall_End:
 
 !insertmacro GetModuleHandle
@@ -84,7 +119,7 @@ Quit
 /* notify unload */
   MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "你确实要完全移除 ${SETUP_NAME} ，及其所有的组件？" IDYES +2
   Abort
-  
+
 /* check if the exe is runing and unload notify */
 ;FindProcDLL::FindProc "${EXE_NAME}.exe"
 ;  Pop $R0

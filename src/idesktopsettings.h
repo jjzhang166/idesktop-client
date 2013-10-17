@@ -30,8 +30,6 @@ public:
 
     IconWidget::icon_size iconSize() const;
     void setIconSize(IconWidget::icon_size newSize);
-    void initIconSize();
-
 
     QList<LOCAL_LIST>& remoteLocalList() { return _remoteLocalList; }
     QList<APP_LIST>& remoteAppList() { return _remoteAppList; }

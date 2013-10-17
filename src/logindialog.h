@@ -104,8 +104,8 @@ private:
     void connError(QString text);
     void connMsg(QString text);
     QNetworkAccessManager *_nam;
-    QComboBox *serverAddr;
-    QCheckBox *remoteAuth;
+//    QComboBox *serverAddr;
+//    QCheckBox *remoteAuth;
     HintLineEdit *userEdit;
     HintLineEdit *passEdit;
     QIpAddressEdit *ipAddrEdit;
@@ -165,10 +165,7 @@ private:
     void saveVacUserInfo();
     QString _vserverError, _paasError;
 
-    QString _tempVacIp;
-    QString _tempPaasIp;
     QString _tempVerifyIp;
-    QString _tempVacPort;
 
     DynamicButton *configurationButton;
     DynamicButton *minButton;

@@ -84,6 +84,7 @@ VacShowWidget::VacShowWidget(QSize pageSize, QWidget *parent)
 //    QTextCodec *codec = QTextCodec::codecForName("utf-8"); //System
 //    QTextCodec::setCodecForCStrings(codec);
 
+    setContextMenuPolicy(Qt::PreventContextMenu);
     _bgPix.load(":/images/widget_bg.png");
 
     _width = pageSize.width();
@@ -202,6 +203,7 @@ VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
     _vacWidget->setVisible(true);
 
     _scrollBar = new QScrollBar(this);
+    _scrollBar->setContextMenuPolicy(Qt::NoContextMenu);
 
     _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}\
                     QScrollBar::handle:vertical{ min-width: 8px;min-height: 251px; background-image:url(:/images/widget_scrollbar.png);\

@@ -9,6 +9,7 @@
 #include <QCoreApplication>
 
 #include "skinwidget.h"
+#include "config.h"
 
 #define ADDICON 1
 #define SPACING 15
@@ -31,6 +32,7 @@ SkinShowWidget::SkinShowWidget(QWidget *parent)
     _pixWidget->setVisible(true);
 
     _scrollBar = new QScrollBar(this);
+   _scrollBar->setContextMenuPolicy(Qt::NoContextMenu);
 
     _scrollBar->setStyleSheet("QScrollBar:vertical{width:8px;border: 0px solid gray;background:rgba(255,255,255,0);}\
                     QScrollBar::handle:vertical{ min-width: 8px;min-height: 251px; background-image:url(:/images/widget_scrollbar.png);\
@@ -165,29 +167,28 @@ void PixItem::paintEvent(QPaintEvent *event)
 
 void PixItem::setPixmap(const QString &icon)
 {
-    QString iconPath = icon;
-    iconPath.replace("tempImages", "wallpager");
+    QFileInfo iconInfo(icon);
+    QString iconPath = Config::get("WallpaperDir") + "\\wallpager" + "\\" + iconInfo.fileName();
+//    iconPath.replace("tempImages", "wallpager");
     iconPath.replace("png", "jpg");
-    _pixText = iconPath;
 
+    _pixText = iconPath;
     _pixmap.load(icon);
 }
 
 void PixItem::mousePressEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event);
 
     if (event->button() != Qt::LeftButton)
         return;
-
-    emit mouseClicked(_pixText);
 
     if (!_selectPix)
     {
         setPenColor(true);
     }
 
-//    event->ignore();
+    emit mouseClicked(_pixText);
+
 }
 
 void PixItem::mouseMoveEvent(QMouseEvent *event)
@@ -246,15 +247,12 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
     _iconsPerPage = _col * _row;
     _current  = 0;
 
-//ICONNUM
-//    for (int i = 0; i < ICONNUM; i++)
-//    {
-//        _count = i / _iconsPerPage + 1;
-//    }
-    //_iconNum
     QString path = QCoreApplication::applicationDirPath();
     path.replace(QString("/"), QString("\\"));
-    path += "\\images\\wallpager";
+    path += "\\images";
+    Config::set("WallpaperDir", path);
+
+    path += "\\wallpager";
 
     QDir dir(path);
     dir.setFilter(QDir::Files | QDir::NoSymLinks);
@@ -271,6 +269,10 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
         }
         else
         {
+            QFileInfo wallPagesInfo(path + QString("\\wp_%1.jpg").arg(i));
+            if (!wallPagesInfo.exists())
+                break;
+
             _iconNum++;
         }
     }
@@ -316,11 +318,6 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
     QPalette pal = palette();
     pal.setColor(QPalette::Background, QColor(0x00,0xff,0x00,0x00));
     setPalette(pal);
-
-//    for (int i = 0; i < ICONNUM; i++) {
-//        addIcon( QString(":/images/wallpager/wp_%1.jpg").arg(i),
-//                -1, -1);
-//    }
 }
 
 PixWidget::~PixWidget()
@@ -410,16 +407,18 @@ void PixWidget::itemClicked(const QString &pixText)
 void PixWidget::initIconItem()
 {
 
-    QString path = QCoreApplication::applicationDirPath();
-    path.replace(QString("/"), QString("\\"));
-    path += "\\images";
+//    QString path = QCoreApplication::applicationDirPath();
+//    path.replace(QString("/"), QString("\\"));
+//    path += "\\images";
+    QString path = Config::get("WallpaperDir");
+    QString tempPath = Config::get("AppDir");
 
-    QFileInfo dirInfo(path + "\\tempImages");
+    QFileInfo dirInfo(tempPath + "\\tempImages");
     if (!dirInfo.exists() || !dirInfo.isDir())
     {
-        QDir appDir(".");
+        QDir appDir(tempPath);
 
-        if(appDir.mkdir(path + "\\tempImages"))
+        if(appDir.mkdir(tempPath + "\\tempImages"))
         {
             qDebug() << "Create tempImages Succeed!";
         }
@@ -433,9 +432,9 @@ void PixWidget::initIconItem()
         QPixmap tempicon = QPixmap(QString(path + "\\wallpager\\wp_%1.jpg").arg(i))
                            .scaled(gridWidth - SPACING - 4, gridHeight - SPACING - 4
                            , Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        tempicon.save(path + QString("\\tempImages\\wp_%1.png").arg(i), "PNG", -1);
+        tempicon.save(tempPath + QString("\\tempImages\\wp_%1.png").arg(i), "PNG", -1);
 
-        addIcon( path + QString("\\tempImages\\wp_%1.png").arg(i),
+        addIcon(tempPath + QString("\\tempImages\\wp_%1.png").arg(i),
                 -1, -1);
     }
 }

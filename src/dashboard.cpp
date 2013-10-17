@@ -58,7 +58,7 @@ Dashboard::Dashboard(QWidget *parent)
     : QWidget(parent, Qt::FramelessWindowHint | Qt::Tool)
     , _outOfScreen(false)
 {
-    _settings = IDesktopSettings::instance();
+    //_settings = IDesktopSettings::instance();
 
 #ifdef Q_WS_WIN
 
@@ -93,7 +93,7 @@ Dashboard::Dashboard(QWidget *parent)
     if (!_ldialog->exec())
         exit(1);
 
-    IDesktopSettings::instance()->initIconSize();
+    _settings = IDesktopSettings::instance();
 
     char folder[MAX_PATH] = {0};
     SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
@@ -280,7 +280,7 @@ void Dashboard::initIconItem()
     _mask->setText(tr("¼ÓÔØÐéÄâÓ¦ÓÃ..."));
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //vac
-    _ldialog->updateVacServer();
+//    _ldialog->updateVacServer();
     _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
     while (!_finished)
         QApplication::processEvents();

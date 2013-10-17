@@ -30,7 +30,7 @@ QString serverip;
 
 int main(int argc, char *argv[])
 {
-    serverip = "in put server ip";
+    serverip = "";
 
     Config::initiate();
     QtSingleApplication app(argc, argv);
@@ -117,27 +117,26 @@ int main(int argc, char *argv[])
                       "CREATE TABLE users " \
                       "(name nvarchar not null primary key, " \
                       "password nvarchar not null);";
-       QString createAddrTable = \
-                      "CREATE TABLE addrs " \
-                      "(addr nvarchar not null primary key, " \
-                      "count not null);";
-       QString createVacServerTable = \
-                      "CREATE TABLE vacservers " \
+//       QString createAddrTable = \
+//                      "CREATE TABLE addrs " \
+//                      "(addr nvarchar not null primary key, " \
+//                      "count not null);";
+//       QString createVacServerTable = \
+//                      "CREATE TABLE vacservers " \
+//                      "(id int not null primary key, " \
+//                      "server nvarchar not null, " \
+//                      "port int not null, " \
+//                      "name nvarchar not null, " \
+//                      "password nvarchar not null);";
+       QString createServerTable = \
+                      "CREATE TABLE servers " \
                       "(id int not null primary key, " \
-                      "server nvarchar not null, " \
-                      "port int not null, " \
-                      "name nvarchar not null, " \
-                      "password nvarchar not null);";
-       QString createPaasServerTable = \
-                      "CREATE TABLE paasservers " \
-                      "(id int not null primary key, " \
-                      "verifyServer nvarchar not null, "\
-                      "server nvarchar not null);";
+                      "verifyServer nvarchar not null);";
 
        QSqlDatabase::database("loginData").exec(createUserTable);
-       QSqlDatabase::database("loginData").exec(createAddrTable);
-       QSqlDatabase::database("loginData").exec(createVacServerTable);
-       QSqlDatabase::database("loginData").exec(createPaasServerTable);
+//       QSqlDatabase::database("loginData").exec(createAddrTable);
+//       QSqlDatabase::database("loginData").exec(createVacServerTable);
+       QSqlDatabase::database("loginData").exec(createServerTable);
     }
 
     /*获取localdb的数据*/

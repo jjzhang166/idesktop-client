@@ -4,7 +4,7 @@
 #include <QJSon/qjson.h>
 #include <QJSon/serializer.h>
 
-#include "idesktopsettings.h"
+//#include "idesktopsettings.h"
 #include "logindialog.h"
 #include "hintlineEdit.h"
 #include "dynamicbutton.h"
@@ -45,7 +45,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     ,_isSetting(false)
     , _connecting(false)
 {
-    _settings = IDesktopSettings::instance();
+//    _settings = IDesktopSettings::instance();
 
     QTextCodec *codec = QTextCodec::codecForName("utf-8"); //System
     QTextCodec::setCodecForCStrings(codec);
@@ -60,12 +60,12 @@ LoginDialog::LoginDialog(QWidget *parent)
 
     QPixmap closeIcon(":images/dlgCloseIcon.png");
     QPixmap closeIconHover(":images/dlgCloseIconHover.png");
-    DynamicButton *closeButton = new DynamicButton(closeIcon, closeIconHover, this);
+    closeButton = new DynamicButton(closeIcon, closeIconHover, this);
     closeButton->setGeometry(width() - 10 - CLOSE_WIDTH, 10, CLOSE_WIDTH, CLOSE_HEIGHT);
 
     QPixmap minIcon(":images/dlgMinIcon.png");
     QPixmap minIconHover(":images/dlgMinIconHover.png");
-    DynamicButton *minButton = new DynamicButton(minIcon, minIconHover, this);
+    minButton = new DynamicButton(minIcon, minIconHover, this);
     minButton->setGeometry(width() - 10 * 2 - CLOSE_WIDTH * 2, 10, CLOSE_WIDTH, CLOSE_HEIGHT);
 
     QPixmap configurationIcon = QPixmap(":images/setup_normal.png").scaled(10,10);
@@ -89,9 +89,6 @@ LoginDialog::LoginDialog(QWidget *parent)
     userEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
     passEdit->setGeometry((width() - 208) / 2, 165, 208, 27);
 
-//    useredit->setText(QString("demo"));
-//    passedit->setText(QString("abc_123"));
-
     QPixmap loginButton(":images/login_btn.png");
     QPixmap loginButtonHover(":images/login_btn_hover.png");
 
@@ -110,36 +107,17 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(configurationButton, SIGNAL(clicked()), this, SLOT(settingSlot()));
     settingUi();
 
-    remoteAuth = new QCheckBox(this);
-    remoteAuth->setChecked(true);  //true
-    remoteAuth->setText(tr("远程验证"));
-    remoteAuth->setGeometry(181, 230, 80, 35);
-    remoteAuth->setVisible(false);
+//    remoteAuth = new QCheckBox(this);
+//    remoteAuth->setChecked(true);  //true
+//    remoteAuth->setText(tr("远程验证"));
+//    remoteAuth->setGeometry(181, 230, 80, 35);
+//    remoteAuth->setVisible(false);
 
-    serverAddr = new QComboBox(this);
-    serverAddr->setGeometry(75, 60, 208, 25);
-    serverAddr->setEditable(true);
-    serverAddr->hide();
-
-    QSqlQuery query = QSqlDatabase::database("loginData").exec("SELECT addr FROM addrs ORDER BY count DESC;");
-    while (query.next())
-        serverAddr->addItem(query.value(0).toString());
     _nam = new QNetworkAccessManager(this);
     _namJson = new QNetworkAccessManager(this);
     _namOut = new QNetworkAccessManager(this);
 
-//    QDir dir(Config::get("UserDir"));
-//    QFileInfo fi(Config::get("Profile"));
-//    if (dir.exists(fi.fileName()))
-//    {
-//        /*判断文件是否存在*/
-//        Config::getServerIp();
-//        qDebug()<<serverip;
-//        ipAddrEdit->setText(serverip);
-//    }
-
     //get serverip by zj
-
 
     _lShowAction = new QAction(tr("显示"), this);
     _lShowAction->setFont(QFont(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal));
@@ -155,15 +133,11 @@ LoginDialog::LoginDialog(QWidget *parent)
     _dShowAction = new QAction(tr("显示"), this);
     _dHideAction = new QAction(tr("隐藏"), this);
 
-//    _dVacServer = new QAction(tr("设置服务器地址"), this);
     _dQuitAction->setFont(QFont(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal));
     _dShowAction->setFont(QFont(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal));
     _dHideAction->setFont(QFont(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal));
-//    _dVacServer->setFont(QFont(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal));
 
     _dashboardMenu = new QMenu(this);
-//    _dashboardMenu->addAction(_dVacServer);
-//    _dashboardMenu->addSeparator();
     _dashboardMenu->addAction(_dShowAction);
     _dashboardMenu->addAction(_dHideAction);
     _dashboardMenu->addSeparator();
@@ -190,9 +164,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(_dHideAction, SIGNAL(triggered()), this, SIGNAL(dHide()));
     connect(_dShowAction, SIGNAL(triggered()), this, SIGNAL(pShow()));
     connect(_dHideAction, SIGNAL(triggered()), this, SIGNAL(pHide()));
-    //    connect(showAction, SIGNAL(triggered()), panel, SLOT(show()));
-    //    connect(hideAction, SIGNAL(triggered()), panel, SLOT(hide()));
-//    connect(_dVacServer, SIGNAL(triggered()), this, SIGNAL(dVacServer()));
+
     connect(_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SIGNAL(dActivated(QSystemTrayIcon::ActivationReason)));
 
@@ -221,12 +193,12 @@ LoginDialog::~LoginDialog()
     delete _lQuitAction;
     delete _lShowAction;
     delete _nam;
-    delete serverAddr;
+//    delete serverAddr;
     delete userEdit;
     delete passEdit;
     delete submit;
     delete cancelBtn;
-    delete remoteAuth;
+//    delete remoteAuth;
     delete ipAddrEdit;
     delete _namOut;
 //    delete configurationButton;
@@ -262,17 +234,12 @@ void LoginDialog::paintEvent(QPaintEvent *event)
         }else{
             painter.setPen(Qt::gray);
             painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 10, QFont::Normal));
-            painter.drawText(13, 133, tr("验证服务器地址"));
-            painter.drawText(13, 163, tr("应用服务器地址"));
-            painter.drawText(13, 193, tr("平台服务器地址"));
+            painter.drawText(20, 143, tr("服务端地址"));
 
         }
 
         painter.setFont(QFont(QString::fromLocal8Bit("微软雅黑"), 9, QFont::Normal));
-        //    painter.drawPixmap(74, 104, QPixmap(":images/login_input.png"));
-        //    painter.drawPixmap(74, 164, QPixmap(":images/login_input.png"));
 
-        //    painter.drawPixmap(74, 54, QPixmap(":images/login_input.png"));
         if(!_vserverError.isEmpty())
         {
                 painter.setPen(QPen(QColor("#ff0000")));
@@ -281,7 +248,8 @@ void LoginDialog::paintEvent(QPaintEvent *event)
         if(!_paasError.isEmpty())
         {
                 painter.setPen(QPen(QColor("#ff0000")));
-                painter.drawText((width() - 188) / 2, 213, _paasError);
+                //painter.drawText((width() - 188) / 2, 213, _paasError);   //verifyLEdit
+                painter.drawText((width() - 208) / 2, verifyLEdit->pos().y() + verifyLEdit->height() + 22, _paasError);
         }
         if (!_uerror.isEmpty()) {
             painter.setPen(QPen(QColor("#ff0000")));
@@ -316,7 +284,6 @@ void LoginDialog::paintEvent(QPaintEvent *event)
     }
 
     //    painter.setTransform(_tran);
-
     //    painter.setTransform(_t,true);
 
     painter.end();
@@ -380,13 +347,15 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     QScriptEngine engine;
     QString result;
     QString userType;
+    QString vappPort;
+    QString vappUrl;
 
     _finished = true;
-    serverAddr->setEnabled(true);
     userEdit->setEnabled(true);
     passEdit->setEnabled(true);
     submit->setEnabled(true);
-    remoteAuth->setEnabled(true);
+//    remoteAuth->setEnabled(true);
+    closeButton->setEnabled(true);
     configurationButton->setEnable(true);
     connMsg("");
 
@@ -401,9 +370,13 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     if(sc.isObject())
     {
         result = sc.property("status").toVariant().toString();  //1
-        qDebug() << result;
+        qDebug() << "result : " << result;
         userType = sc.property("userType").toVariant().toString();
-        qDebug() << userType;
+        qDebug() << "userType : " << userType;
+        vappUrl = sc.property("vappUrl").toVariant().toString();
+        qDebug() << "vappUrl : " << vappUrl;
+        vappPort = sc.property("vappPort").toVariant().toString();
+        qDebug() << "vappPort : " << vappPort;
 
     }
     else
@@ -418,7 +391,14 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     {
         if (userType == "comm_user")
         {
+            closeButton->setEnabled(false);
             _authSuccess = true;
+
+            VacServer = vappUrl;
+            VacPort = vappPort;
+            VacUser = userEdit->text();
+            VacPassword = passEdit->text();
+
             connMsg(tr("链接成功，正在获取用户信息..."));
         }
         else
@@ -529,22 +509,6 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
     foreach(QVariant pluginApp, userInfoMap["localapps"].toList())
     {
         QVariantMap appmap = pluginApp.toMap();
-//        qDebug() << "------>appmap";
-//        qDebug() << "------>" <<"mymap[name].toString()" << appmap["name"].toString();
-//        qDebug() << "------>" <<"mymap[version].toString()" << appmap["version"].toString();
-//        qDebug() << "------>" <<"mymap[execname].toString()" << appmap["execname"].toString();
-//        qDebug() << "------>" <<"mymap[icon].toString()" << appmap["icon"].toString();
-//        qDebug() << "------>" <<"mymap[uninstall].toString()" << appmap["uninstall"].toString();
-//        qDebug() << "------>" <<"mymap[lastupdate].toString()" << appmap["lastupdate"].toString();
-//        qDebug() << "------>" <<"mymap[idx].toString()" << appmap["page"].toString();
-//        qDebug() << "------>" <<"mymap[idx].toString()" << appmap["idx"].toString();
-//        qDebug() << "------>" <<"mymap[hidden].toString()" << appmap["hidden"].toString();
-//        qDebug() << "------>" <<"mymap[id].toString()" << appmap["id"].toString();
-//        qDebug() << "------>" <<"mymap[type].toString()" << appmap["type"].toString();
-//        qDebug() << "------>" <<"mymap[isRemote].toString()" << appmap["isRemote"].toString();
-//        qDebug() << "------>" <<"mymap[url].toString()" << appmap["url"].toString();
-//        qDebug() << "------>" <<"mymap[dirId].toString()" << appmap["dirId"].toString();
-//        qDebug() << "------>" <<"mymap[uniquename].toString()" << appmap["uniquename"].toString();
 
         QString uniquename = appmap["uniquename"].toString();
         QFileInfo info = QFileInfo(appmap["icon"].toString());
@@ -598,9 +562,6 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
     foreach(QVariant pluginWallpapers, wallpapersList)
     {
         QVariantMap wallpapersMmap = pluginWallpapers.toMap();
-//        qDebug() << "------>wallpapersMmap";
-//        qDebug() << "------>" <<"wallpapersMmap[id].toString()" << wallpapersMmap["id"].toString();
-//        qDebug() << "------>" <<"wallpapersMmap[wallpaper].toString()" << wallpapersMmap["wallpaper"].toString();
 
         QString path = QCoreApplication::applicationDirPath();
         path.replace(QString("/"), QString("\\"));
@@ -625,9 +586,6 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
     foreach(QVariant pluginSizetype, sizetypeList)
     {
         QVariantMap sizetypeMap = pluginSizetype.toMap();
-//        qDebug() << "------>Sizetype";
-//        qDebug() << "------>" <<"sizetypeMap[id].toString()" << sizetypeMap["id"].toString();
-//        qDebug() << "------>" <<"sizetypeMap[type].toString()" << sizetypeMap["type"].toString();
 
         QString sizetypeStr = QString("update sizetype "\
                                "set type=\'%1\' where id=\'%2\';")\
@@ -692,22 +650,15 @@ void LoginDialog::auth()
         passError(tr("密码不能为空"));
         return;
     }
-//    QString md5;
-//    QByteArray bb;
-//    bb = QCryptographicHash::hash(passEdit->text().toAscii(),
-//                                  QCryptographicHash::Md5);
-//    md5.append(bb.toHex());
 
-    QString statement = QString("select password from users where name='%1'")
-            .arg(userEdit->text());
+//    QString statement = QString("select password from users where name='%1'")
+//            .arg(userEdit->text());
     QSqlDatabase localDb = QSqlDatabase::database("loginData");
 
-    if (remoteAuth->isChecked()) {
-        /****************************************************************/
-        //wangyaoli
-        //serverip = ipEdit->text();
+//    if (remoteAuth->isChecked()) {
+
         serverip = ipAddrEdit->text();
-        //        serverip = "192.168.30.64";
+
         if(true == serverip.isEmpty())
         {
             return;
@@ -726,11 +677,12 @@ void LoginDialog::auth()
         connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotError(QNetworkReply::NetworkError)));
 		connMsg(tr("正在连接服务器..."));
 		
-        serverAddr->setEnabled(false);
+//        serverAddr->setEnabled(false);
         userEdit->setEnabled(false);
         passEdit->setEnabled(false);
         submit->setEnabled(false);
-        remoteAuth->setEnabled(false);
+//        remoteAuth->setEnabled(false);
+        closeButton->setEnabled(false);
         configurationButton->setEnable(false);
 		connenting(true);
         while(!_finished)
@@ -745,30 +697,19 @@ void LoginDialog::auth()
         USERNAME = userEdit->text();
 
         /* TODO: check the return value */
-    }
-    else {
-        QSqlQuery query = localDb.exec(statement);
-        if (!query.next()) {
-            userError(tr("该用户不存在"));
-            return;
-        }
-        if (query.value(0).toString() != passEdit->text()) {
-            passError(tr("密码验证失败"));
-            return;
-        }
-    }
+//    }
+//    else {
+//        QSqlQuery query = localDb.exec(statement);
+//        if (!query.next()) {
+//            userError(tr("该用户不存在"));
+//            return;
+//        }
+//        if (query.value(0).toString() != passEdit->text()) {
+//            passError(tr("密码验证失败"));
+//            return;
+//        }
+//    }
 
-    //    _tray->setVisible(false);
-
-    int count = 0;
-    QString selectCount = QString("SELECT count FROM addrs where addr='%1';")\
-            .arg(serverAddr->currentText());
-    QSqlQuery query = localDb.exec(selectCount);
-    if (query.next())
-        count = query.value(0).toInt();
-    QString replaceAddr = QString("REPLACE INTO addrs(addr, count) values('%1', %2);")\
-            .arg(serverAddr->currentText()).arg(count + 1);
-    localDb.exec(replaceAddr);
     Config::set("Server", verifyLEdit->text());
     //Config::set("password",md5);
     Config::set("password",passEdit->text());
@@ -776,26 +717,11 @@ void LoginDialog::auth()
     Config::set("UserNameDir", Config::get("AppDir") + "\\" + Config::get("User"));
     Config::set("UserData", Config::get("AppDir") + "\\" + Config::get("User") + "\\data");
 
-    saveVacUserInfo();
-
-//    char folder[MAX_PATH] = {0};
-//    SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
-//    WIN_TtempPath = QString(folder);
-
-//    WIN_LOCAL_IconPath=WIN_TtempPath+"\\App Center\\Licons\\";
-//    WIN_VAPP_IconPath=WIN_TtempPath+"\\App Center\\Vicons\\";
-//    WIN_PAAS_IconPath=WIN_TtempPath+"\\App Center\\Picons\\";
-//    iniPath = WIN_TtempPath + "\\App Center\\app.ini";
-//    qDebug()<<"icon path:"<<WIN_VAPP_IconPath;
-
-
+//    saveVacUserInfo();
     createDb();
 
     QString jsonUrl = "http://" + verifyLEdit->text() + ":8080/idesktop/getUserStatusData.action?username=" + userEdit->text() + "&ismanager=false";
-    //_namJson->post(QNetworkRequest(QUrl(jsonUrl)), data.toUtf8());
     _namJson->get(QNetworkRequest(QUrl(jsonUrl)));
-
-//    QDialog::accept();
 
 }
 
@@ -825,47 +751,32 @@ void LoginDialog::mouseMoveEvent(QMouseEvent *event)
 void LoginDialog::settingUi()
 {
     //setting by zj
-    verifyLEdit = new HintLineEdit(tr("请输入验证服务器地址"), ":images/user_icon.png", this);
-    vacLEdit = new HintLineEdit(tr("请输入应用服务器地址"), ":images/user_icon.png", this);
-    paasLEdit = new HintLineEdit(tr("请输入平台服务器地址"), ":images/password_icon.png", this);
-    vacPortLEdit = new HintLineEdit(tr("端口"), ":images/password_icon.png", this);
+    verifyLEdit = new HintLineEdit(tr("请输入服务端地址"), ":images/user_icon.png", this);
     verifyLEdit->setFont(QFont(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal));
-    vacLEdit->setFont(QFont(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal));
-    paasLEdit->setFont(QFont(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal));
-    vacPortLEdit->setFont(QFont(QString::fromLocal8Bit("微软雅黑"), FONTSIZE, QFont::Normal));
-
 
     verifyLEdit->setTextMargins(5, 0, 2, 3);
-    vacLEdit->setTextMargins(5, 0, 2, 3);
-    paasLEdit->setTextMargins(5, 0, 2, 3);
-    vacPortLEdit->setTextMargins(5, 0, 2, 3);
-    verifyLEdit->setGeometry((width() - 188) / 2, 115, 188, 27);
-    vacLEdit->setGeometry((width() - 188) / 2, 145, 188, 27);
-    paasLEdit->setGeometry((width() - 188) / 2, 175, 188, 27);
-    vacPortLEdit->setGeometry((width() - 188) / 2 + 195, 145, 50, 27);
+    verifyLEdit->setGeometry((width() - 208) / 2, 125, 208, 27);
+
     QPixmap loginButton(":images/login_save_normal.png");
     QPixmap loginButtonHover(":images/login_save_hover.png");
     QPixmap cancelButton(":images/cancel_btn.png");
     QPixmap cancelButtonHover(":images/cancel_btn_hover.png");
 
     saveButton = new DynamicButton(loginButton, loginButtonHover, this);
-    saveButton->setGeometry((width() - passEdit->width()) / 2, passEdit->pos().y() + passEdit->height() + 30, \
+    saveButton->setGeometry((width() - passEdit->width()) / 2, passEdit->pos().y() + passEdit->height() + 20, \
                             89, 34);
     //saveButton->hide();
     returnButton = new DynamicButton(cancelButton, cancelButtonHover, this);
-    returnButton->setGeometry(submit->pos().x() + submit->width() + 20, passEdit->pos().y() + passEdit->height() + 30,\
+    returnButton->setGeometry(submit->pos().x() + submit->width() + 20, passEdit->pos().y() + passEdit->height() + 20,\
                               89, 34);
     //returnButton->hide();
     returnButton->setEnable(false);
     returnButton->setEnabled(false);
 
     connect(verifyLEdit, SIGNAL(returnPressed()), saveButton, SIGNAL(clicked()));
-    connect(vacLEdit, SIGNAL(returnPressed()), saveButton, SIGNAL(clicked()));
-    connect(paasLEdit, SIGNAL(returnPressed()), saveButton, SIGNAL(clicked()));
-    connect(vacPortLEdit, SIGNAL(returnPressed()), saveButton, SIGNAL(clicked()));
-
     connect(saveButton, SIGNAL(clicked()), this, SLOT(saveSettingSlot()));
     connect(returnButton, SIGNAL(clicked()), this, SLOT(returnSlot()));
+
     VacServer = "";
     VacPort = "";
     VacUser = "";
@@ -881,7 +792,7 @@ void LoginDialog::settingUi()
 void LoginDialog::readVerifyServer()
 {
     QSqlQuery query = \
-            QSqlDatabase::database("loginData").exec(QString("SELECT verifyServer FROM paasservers where id=1;"));
+            QSqlDatabase::database("loginData").exec(QString("SELECT verifyServer FROM servers where id=1;"));
     while (query.next())
     {
         serverip = query.value(0).toString();
@@ -892,17 +803,14 @@ void LoginDialog::readVerifyServer()
 void LoginDialog::readSetting()
 {
     updateVacServer();
-    qDebug()<<VacServer.isEmpty()<<VacServer;
-    if(VacServer.isEmpty() || VacPort.isEmpty() || PaasServer.isEmpty() || serverip.isEmpty())
+
+    if(serverip.isEmpty())
     {
         settingSlot();
     }else
     {
         updateUi();
         verifyLEdit->setText(serverip);
-        vacLEdit->setText(VacServer);
-        vacPortLEdit->setText(VacPort);
-        paasLEdit->setText(PaasServer);
 
         returnButton->setEnable(true);
         returnButton->setEnabled(true);
@@ -925,33 +833,18 @@ void LoginDialog::updateUi()
         _cmsg = "";
 
         _tempVerifyIp = verifyLEdit->text();
-        _tempVacIp = vacLEdit->text();
-        _tempPaasIp = paasLEdit->text();
-        _tempVacPort = vacPortLEdit->text();
 
         verifyLEdit->show();
-        vacLEdit->show();
-        paasLEdit->show();
-        vacPortLEdit->show();
         saveButton->show();
         returnButton->show();
         verifyLEdit->setFocus();
     }else{
 
         verifyLEdit->setText(_tempVerifyIp);
-        vacLEdit->setText(_tempVacIp);
-        paasLEdit->setText(_tempPaasIp);
-        vacPortLEdit->setText(_tempVacPort);
-
         _tempVerifyIp = "";
-        _tempVacIp = "";
-        _tempPaasIp = "";
-        _tempVacPort = "";
+
 
         verifyLEdit->hide();
-        vacLEdit->hide();
-        paasLEdit->hide();
-        vacPortLEdit->hide();
         saveButton->hide();
         returnButton->hide();
         passEdit->show();
@@ -1003,30 +896,14 @@ void LoginDialog::saveSettingSlot()
     _paasError = "";
     if(verifyLEdit->text().isEmpty())
     {
-        PaasError(tr("验证服务器地址不能为空"));
+        PaasError(tr("服务端地址不能为空"));   //验证服务器地址不能为空
         return;
     }
-    if (vacLEdit->text().isEmpty()) {
-        PaasError(tr("应用服务地址不能为空"));
-        return;
-    }
-    if (vacPortLEdit->text().isEmpty()) {
-        PaasError(tr("应用服务端口号不能为空"));
-        return;
-    }
-    if (paasLEdit->text().isEmpty()) {
-        PaasError(tr("平台服务器地址不能为空"));
-        return;
-    }
+
     QRegExp rx2("^(1?\\d\\d?|2[0-4]\\d|25[0-5])\.(1?\\d\\d?|2[0-4]\\d|25[0-5])\.(1?\\d\\d?|2[0-4]\\d|25[0-5])\.(1?\\d\\d?|2[0-4]\\d|25[0-5])$");
     if( !rx2.exactMatch(verifyLEdit->text()))
     {
-        PaasError(tr("请输入正确的验证服务地址"));
-        return;
-    }
-    if( !rx2.exactMatch(vacLEdit->text()))
-    {
-        PaasError(tr("请输入正确的应用服务地址"));
+        PaasError(tr("请输入正确的服务端地址"));  //请输入正确的验证服务地址
         return;
     }
 
@@ -1034,49 +911,39 @@ void LoginDialog::saveSettingSlot()
     returnButton->setEnabled(true);
 
     QSqlQuery query(QSqlDatabase::database("loginData"));
-    if(VacServer.isEmpty() || PaasServer.isEmpty())
+
+    if(!query.exec(QString("select verifyServer from servers"))) {
+        qDebug() <<"select verifyServer failed";
+        return;
+    }
+
+    if (!query.next())
     {
 
-        QString qstrVacS = QString("insert into vacservers ("\
-                                   "id, server, port, name, password) values ("\
-                                   "\'%1\', \'%2\', \'%3\', \'%4\', \'%5\');")\
-                .arg(1).arg(vacLEdit->text()).arg(vacPortLEdit->text().toInt()).arg("").arg("");
-        if(!query.exec(qstrVacS)) {
-            qDebug() <<"qstrVacS query failed";
-        }
-        QString qstrPaasS = QString("insert into paasservers ("\
-                                    "id, server, verifyServer) values ("\
-                                    "\'%1\', \'%2\', \'%3\');")\
-                .arg(1).arg(paasLEdit->text()).arg(verifyLEdit->text());
+        QString qstrPaasS = QString("insert into servers ("\
+                                    "id, verifyServer) values ("\
+                                    "\'%1\', \'%2\');")\
+                .arg(1).arg(verifyLEdit->text());
         if(!query.exec(qstrPaasS)) {
             qDebug() <<"qstrPaasS query failed";
         }
     }else{
-        QString updateVacData = QString("update vacservers set server=\'%1\',port=\'%2\' where id=1;")\
-                .arg(vacLEdit->text()).arg(vacPortLEdit->text().toInt());
-        QString updatePaasData = QString("update paasservers set server=\'%1\',verifyServer=\'%2\' where id=1;")\
-                .arg(paasLEdit->text()).arg(verifyLEdit->text());
-        if(!query.exec(updateVacData)) {
-            qDebug() <<"updateVacData query failed";
-        }
+
+        QString updatePaasData = QString("update servers set verifyServer=\'%1\' where id=1;")\
+                                 .arg(verifyLEdit->text());
+
         if(!query.exec(updatePaasData)) {
             qDebug() <<"updatePaasData query failed";
         }
 
     }
 
-    updateVacServer();
+    serverip = verifyLEdit->text();
+    ipAddrEdit->setText(serverip);
+
    // returnSlot();
 
-    verifyLEdit->setText(serverip);
-    vacLEdit->setText(VacServer);
-    paasLEdit->setText(PaasServer);
-    vacPortLEdit->setText(VacPort);
-
     verifyLEdit->hide();
-    vacLEdit->hide();
-    paasLEdit->hide();
-    vacPortLEdit->hide();
     saveButton->hide();
     returnButton->hide();
     passEdit->show();
@@ -1095,15 +962,12 @@ void LoginDialog::returnSlot()
 {
     qDebug()<<"return";
 
+    _vserverError = "";
+    _paasError = "";
+
     verifyLEdit->setText(_tempVerifyIp);
-    vacLEdit->setText(_tempVacIp);
-    paasLEdit->setText(_tempPaasIp);
-    vacPortLEdit->setText(_tempVacPort);
 
     verifyLEdit->hide();
-    vacLEdit->hide();
-    paasLEdit->hide();
-    vacPortLEdit->hide();
     saveButton->hide();
     returnButton->hide();
     passEdit->show();
@@ -1115,11 +979,7 @@ void LoginDialog::returnSlot()
     configurationButton->show();
     _isSetting = false;
 
-
     _tempVerifyIp = "";
-    _tempVacIp = "";
-    _tempPaasIp = "";
-    _tempVacPort = "";
 
     repaint();
 }
@@ -1128,26 +988,14 @@ void LoginDialog::returnSlot()
 void LoginDialog::updateVacServer()
 {
     QSqlQuery query = \
-            QSqlDatabase::database("loginData").exec(QString("SELECT server,port,name,password FROM vacservers where id=1;"));
+            QSqlDatabase::database("loginData").exec(QString("SELECT verifyServer FROM servers where id=1;"));
     while (query.next())
     {
-        VacServer = query.value(0).toString();
-        VacPort = query.value(1).toString();
-        VacUser = query.value(2).toString();
-        VacPassword = query.value(3).toString();
-    }
-    QSqlQuery query2 = \
-            QSqlDatabase::database("loginData").exec(QString("SELECT verifyServer,server FROM paasservers where id=1;"));
-    while (query2.next())
-    {
         //by zj
-        serverip = query2.value(0).toString();
-        PaasServer = query2.value(1).toString();
+        serverip = query.value(0).toString();
         ipAddrEdit->setText(serverip);
     }
 }
-
-
 
 void LoginDialog::dialogAccepted()
 {

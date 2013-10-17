@@ -39,7 +39,7 @@ void Config::initiate()
     set("IconDir", get("AppDir").append("\\Licons"));
     set("InstDir", get("AppDir").append("\\downloads"));
     set("Profile", get("UserDir").append("\\profile"));
-    set("Wallpaper", ":images/shadow.png");
+    set("WallpaperDir", "");
     set("User", "");
     set("Server", "");
     set("SystemManage", "./system_manage/system_manage.html");
