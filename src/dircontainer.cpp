@@ -340,7 +340,6 @@ void Drawer::dragEnterEvent(QDragEnterEvent *ev)
     if (_dragOutTimerId != -1) {
         killTimer(_dragOutTimerId);
     }
-    _dragOutTimerId = startTimer(100);
 
     if (ev->source()->inherits("AppIconWidget")
             && (ev->mimeData()->hasFormat("image/x-iconitem")
@@ -353,6 +352,9 @@ void Drawer::dragEnterEvent(QDragEnterEvent *ev)
             qDebug() << __PRETTY_FUNCTION__ << " accept copy action";
 
         } else {
+            if (icon->parent() == _content) {
+                _dragOutTimerId = startTimer(100);
+            }
             ev->acceptProposedAction();
             qDebug() << __PRETTY_FUNCTION__ << " accept move action";
         }
@@ -368,7 +370,7 @@ void Drawer::timerEvent(QTimerEvent *ev)
     qDebug() << __PRETTY_FUNCTION__ << rect() << pos << _dragOutTime << QTime::currentTime();
     if (!this->rect().contains(pos)) {
         if (_beginTracingDragOutTime) {
-            if (_dragOutTime.msecsTo(QTime::currentTime()) > 1000) {
+            if (_dragOutTime.msecsTo(QTime::currentTime()) > 400) {
                 _beginTracingDragOutTime = false;
                 killTimer(_dragOutTimerId);
                 _dragOutTimerId = -1;
@@ -444,9 +446,21 @@ void Drawer::dropEvent(QDropEvent *ev)
             moveIconTo(icon_widget, newIndex, true, true);
 
         } else {
-            //TODO:
-            Q_ASSERT(0);
-            ev->ignore();
+            QObject *o = icon_widget->parent();
+            while (!o->inherits("Drawer")) {
+                o = o->parent();
+            }
+            Drawer *orig_drawer = qobject_cast<Drawer*>(o);
+            LocalApp *app = icon_widget->app();
+            orig_drawer->removeIcon(icon_widget);
+
+            newIndex = qMin(newIndex, icons().size());
+            app->setIndex(newIndex);
+            app->setPage(0);
+            app->setDirId(dirId());
+            addIcon(app);
+            DirContainer *cnt = qobject_cast<DirContainer*>(parent());
+            cnt->_mate->init();
         }
 
     } else {
@@ -746,29 +760,10 @@ void DirContainer::slotUpdateMask(QVariant v)
 void DirContainer::buildMask()
 {
     GridContainer *vdesktop = parentWidget()->findChild<GridContainer*>();
-    QList<QRect> rs = vdesktop->page(vdesktop->currentId())->rectsForIcons();
-
-    QRegion region;
-    foreach(QRect r, rs) {
-        region += r;
-    }
-
     vdesktop->page(vdesktop->currentId())->dimPage(true);
     this->_mate->dim(false);
     QImage rep = QPixmap::grabWidget(parentWidget()).toImage();
-
     vdesktop->page(vdesktop->currentId())->dimPage(false);
-//    QImage img(rep.size(), QImage::Format_ARGB32);
-//    //make icons darker
-//    for (int i = 0; i < img.width(); ++i) {
-//        for (int j = 0; j < img.height(); ++j) {
-//            QColor c = QColor(rep.pixel(i, j));
-//            if (region.contains(QPoint(i, j))) {
-//                c = c.darker(130);
-//            }
-//            img.setPixel(i, j, c.rgba());
-//        }
-//    }
 
     QImage result(rep.size(), QImage::Format_ARGB32_Premultiplied);
     QPainter p(&result);
@@ -800,6 +795,9 @@ void DirContainer::buildMask()
 
 
     qDebug() << __PRETTY_FUNCTION__ << _upsideMask->geometry();
+
+    _upsideMask->setAcceptDrops(true);
+    _downsideMask->setAcceptDrops(true);
     _upsideMask->installEventFilter(this);
     _downsideMask->installEventFilter(this);
     _upsideMask->show();
@@ -807,53 +805,6 @@ void DirContainer::buildMask()
     _upsideMask->raise();
     _downsideMask->raise();
 }
-
-#if 0
-void DirContainer::buildMask2()
-{
-    QPixmap pm = QPixmap::grabWidget(parentWidget());
-    //grayish the mask
-    QImage img = pm.toImage();
-    for (int i = 0; i < img.width(); ++i) {
-        for (int j = 0; j < img.height(); ++j) {
-            int val = qGray(img.pixel(i, j));
-            img.setPixel(i, j, qRgba(val, val, val, qAlpha(img.pixel(i, j))));
-        }
-    }
-
-    QPainter p(&pm);
-    p.drawImage(0, 0, img);
-    //highlight current dir icon
-    p.drawPixmap(translateToParent(), QPixmap::grabWidget(_mate));
-
-    int splity;
-    if (_directionIndicator->direction() == DirectionIndicator::Down) {
-       splity = geometry().y() + _directionIndicator->sizeHint().height();
-    } else {
-       splity = geometry().y() - _directionIndicator->sizeHint().height();
-    }
-
-    _upsideMask = new QLabel(parentWidget());
-    _upsideMask->setContextMenuPolicy(Qt::PreventContextMenu);
-    _upsideMask->setPixmap(pm.copy(0, 0, pm.width(), splity));
-
-    _downsideMask = new QLabel(parentWidget());
-    _downsideMask->setContextMenuPolicy(Qt::PreventContextMenu);
-    _downsideMask->setPixmap(pm.copy(0, splity+1, pm.width(), pm.height()-splity));
-
-    _upsideMask->move(0, 0);
-    _downsideMask->move(0, splity+1);
-
-
-    qDebug() << __PRETTY_FUNCTION__ << _upsideMask->geometry();
-    _upsideMask->installEventFilter(this);
-    _downsideMask->installEventFilter(this);
-    _upsideMask->show();
-    _downsideMask->show();
-    _upsideMask->raise();
-    _downsideMask->raise();
-}
-#endif
 
 void DirContainer::clearMask()
 {
@@ -871,6 +822,24 @@ bool DirContainer::eventFilter(QObject *obj, QEvent *ev)
         if (ev->type() == QEvent::MouseButtonPress) {
             QTimer::singleShot(0, this, SLOT(animatedHide()));
             return true;
+        }
+
+        if (ev->type() == QEvent::DragEnter) {
+            QDragEnterEvent *dee = (QDragEnterEvent*)ev;
+            if (dee->source()->parent() != _drawer->_content) {
+                qDebug() << __PRETTY_FUNCTION__ << "delegate to drawer";
+                _drawer->dragEnterEvent(dee);
+                return true;
+            }
+        }
+
+        if (ev->type() == QEvent::Drop) {
+            QDropEvent *de = (QDropEvent*)ev;
+            if (de->source()->parent() != _drawer->_content) {
+                qDebug() << __PRETTY_FUNCTION__ << "delegate to drawer";
+                _drawer->dropEvent((QDropEvent*)ev);
+                return true;
+            }
         }
     }
 

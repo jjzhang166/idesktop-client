@@ -428,7 +428,16 @@ void AppIconWidget::paintEvent(QPaintEvent *ev)
         pos = QPoint(_iconRect.right() - pm.width() - 2, _iconRect.top() + 2);
         break;
     }
-    painter.drawPixmap(pos, pm);
+
+    if (_dim) {
+        painter.setCompositionMode(QPainter::CompositionMode_SoftLight);
+        painter.drawPixmap(pos, pm);
+        QPainterPath pp;
+        pp.addRoundedRect(_iconRect, 8, 8);
+        painter.fillPath(pp, QColor(255, 255, 255, 40));
+    } else {
+        painter.drawPixmap(pos, pm);
+    }
 }
 
 void AppIconWidget::enterEvent(QEvent *ev)

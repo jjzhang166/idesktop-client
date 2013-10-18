@@ -282,7 +282,7 @@ void GridPage::dragMoveEvent(QDragMoveEvent *ev)
 
             if (!_openHoverOnDirTimer->isActive()) {
                 qDebug() << __PRETTY_FUNCTION__ << "start hover record";
-                _openHoverOnDirTimer->start(1000);
+                _openHoverOnDirTimer->start(500);
             }
             return;
         }
