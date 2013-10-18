@@ -953,8 +953,8 @@ void GridContainer::moveToPage(int id)
         return;
 
     QPropertyAnimation *pa = new QPropertyAnimation(this, "pos");
-    pa->setEasingCurve(QEasingCurve::OutQuint);
-    pa->setDuration(600);
+//    pa->setEasingCurve(QEasingCurve::OutQuint);
+    pa->setDuration(300);
     pa->setStartValue(pos());
     pa->setEndValue(QPoint(-pageOffset(id), y()));
     pa->start(QAbstractAnimation::DeleteWhenStopped);

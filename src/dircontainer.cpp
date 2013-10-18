@@ -489,45 +489,32 @@ void Drawer::handleMultiDrop(QDropEvent *ev)
 
         } else {
             //move from dir to another dir
-            Q_ASSERT(0);
+            // remove icons from origin and then below
 
-            QByteArray data = ev->mimeData()->data("application/x-iconitems");
-            QDataStream dataStream(&data, QIODevice::ReadOnly);
-
-            while (!dataStream.atEnd()) {
-                QString uniqueName;
-                dataStream >> uniqueName;
-                LocalApp *app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
-                app->setIndex(this->icons().size());
-                app->setPage(0);
-                addIcon(app);
-            }
-
-            //TODO: how to remove from original container?
+            //HACK: make icon widgets emit DropOut and gets themselves deleted
+            ev->setDropAction(Qt::CopyAction);
         }
-
-    } else {
-        QByteArray data = ev->mimeData()->data("application/x-iconitems");
-        QDataStream dataStream(&data, QIODevice::ReadOnly);
-
-        int newIndex = qMin(indexAt(ev->pos()), icons().size());
-        if (newIndex == -1) newIndex = this->icons().size();
-
-        DirContainer *cnt = qobject_cast<DirContainer*>(parent());
-        while (!dataStream.atEnd()) {
-            QString uniqueName;
-            dataStream >> uniqueName;
-
-            LocalApp *app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
-            qDebug() << __PRETTY_FUNCTION__ << app->name() << uniqueName;
-            app->setIndex(newIndex++);
-            app->setPage(0);
-            app->setDirId(dirId());
-            addIcon(app);
-        }
-        cnt->_mate->init();
     }
 
+    QByteArray data = ev->mimeData()->data("application/x-iconitems");
+    QDataStream dataStream(&data, QIODevice::ReadOnly);
+
+    int newIndex = qMin(indexAt(ev->pos()), icons().size());
+    if (newIndex == -1) newIndex = this->icons().size();
+
+    DirContainer *cnt = qobject_cast<DirContainer*>(parent());
+    while (!dataStream.atEnd()) {
+        QString uniqueName;
+        dataStream >> uniqueName;
+
+        LocalApp *app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
+        qDebug() << __PRETTY_FUNCTION__ << app->name() << uniqueName;
+        app->setIndex(newIndex++);
+        app->setPage(0);
+        app->setDirId(dirId());
+        addIcon(app);
+    }
+    cnt->_mate->init();
     ev->accept();
 }
 
