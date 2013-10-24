@@ -95,6 +95,11 @@ Dashboard::Dashboard(QWidget *parent)
 
     _settings = IDesktopSettings::instance();
 
+    QString path = QCoreApplication::applicationDirPath();
+    path.replace(QString("/"), QString("\\"));
+    path += "\\images";
+    Config::set("WallpaperDir", path);
+
     char folder[MAX_PATH] = {0};
     SHGetFolderPathA(NULL, CSIDL_APPDATA , 0,0,folder);
     WIN_TtempPath = QString(folder);
@@ -273,31 +278,31 @@ void Dashboard::loadPixmaps()
 void Dashboard::initIconItem()
 {
     loadPixmaps();
-#if 1
+
     _mask->setText(tr("加载本地应用..."));
     getLocalIcon(true);
     getDbIcon();
+
     _mask->setText(tr("加载虚拟应用..."));
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //vac
-//    _ldialog->updateVacServer();
     _commui->login(VacServer + ":" + VacPort, VacUser, VacPassword, GetSystemInfo());
     while (!_finished)
         QApplication::processEvents();
     _finished = false;
-//    qDebug()<<"login3";
     getVacIcon();
+
     _mask->setText(tr("加载平台服务应用..."));
     getPaasIcon(true);
 
+    _local->updateAppList();
+
     _mask->setText(tr("加载软件库..."));
     _vacShowWidget->initIconItem();
+
     _mask->setText(tr("加载壁纸库..."));
     _skinShowWidget->initIconItem();
+
     _mask->setText(tr("加载桌面..."));
     _docker->init();
-#endif
-
     QTimer::singleShot(0, vdesktop, SLOT(initIcons()));
 
     _mask->setVisible(false);
@@ -930,16 +935,8 @@ void Dashboard::getPaasIcon(bool isLogin)
         //qDebug()<<"iconPath"<<iconPath;
         if (myPaasList[i].logoURL.isEmpty())
         {
-            //url = myPaasList.at(i).urls.section('/', 1, 1, flag);
-            //url = QString("http://" + url + "/Favicon.ico");
-
-            //_paasCommui->downloadIcon(QUrl(url), tempPath);
-
-
             QPixmap pix(":images/url_normal.png");
             pix.save(iconPath, "PNG", -1);
-
-            continue;
         }
         else
         {
@@ -1244,14 +1241,17 @@ void Dashboard::setIcon(const QString &dirPath, const QString &iconPath)
     if (newApp.isEmpty())
         return;
 
+    QString path = Config::get("WallpaperDir");
+    path += "\\iconWidgetBg\\icon_middle_shadow.png";
+
     QImage image = QImage(newApp).scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     QImage normal = QImage(":images/icon_shadow.png");
-    QImage middle = QImage(":images/icon_middle_shadow.png");
+    QImage middle = QImage(path);
 
     QPainter pt1(&normal);
     pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
     pt1.drawImage(QRect(35, 36, 72, 72), middle.scaled(72, 72, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    pt1.drawImage(QRect(35 + 7, 36 + 3, 59, 59), image);
+    pt1.drawImage(QRect(35 + 7, 36 + 6, 59, 59), image);
     pt1.end();
 
     QFileInfo info = QFileInfo(newApp);

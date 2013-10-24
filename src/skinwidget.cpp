@@ -6,7 +6,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QtDebug>
-#include <QCoreApplication>
+//#include <QCoreApplication>
 
 #include "skinwidget.h"
 #include "config.h"
@@ -160,7 +160,7 @@ void PixItem::paintEvent(QPaintEvent *event)
     painter.setPen(QPen(QBrush(_color), 3, Qt::SolidLine));
     painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
 
-   painter.drawPixmap(2, 2, width() - 4, height() - 4, _pixmap.scaled(width() - 4, height() - 4));
+    painter.drawPixmap(2, 2, width() - 4, height() - 4, _pixmap.scaled(width() - 4, height() - 4));
 
     QWidget::paintEvent(event);
 }
@@ -247,11 +247,7 @@ PixWidget::PixWidget(QSize pageSize, QWidget *parent)
     _iconsPerPage = _col * _row;
     _current  = 0;
 
-    QString path = QCoreApplication::applicationDirPath();
-    path.replace(QString("/"), QString("\\"));
-    path += "\\images";
-    Config::set("WallpaperDir", path);
-
+    QString path = Config::get("WallpaperDir");
     path += "\\wallpager";
 
     QDir dir(path);
@@ -406,10 +402,6 @@ void PixWidget::itemClicked(const QString &pixText)
 
 void PixWidget::initIconItem()
 {
-
-//    QString path = QCoreApplication::applicationDirPath();
-//    path.replace(QString("/"), QString("\\"));
-//    path += "\\images";
     QString path = Config::get("WallpaperDir");
     QString tempPath = Config::get("AppDir");
 

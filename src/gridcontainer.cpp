@@ -227,6 +227,13 @@ void GridPage::dragEnterEvent(QDragEnterEvent *ev)
 
     if (ev->source()->inherits("AppIconWidget") && support) {
         AppIconWidget *icon_widget = qobject_cast<AppIconWidget*>(ev->source());
+
+        if (icon_widget->app()->id().toInt() == 1000)
+        {
+            ev->ignore();
+            return;
+        }
+
         if (icon_widget->containerType() != IconWidget::CT_Page) {
             ev->setDropAction(Qt::CopyAction);
             ev->accept();
@@ -608,6 +615,8 @@ void GridContainer::initIcons()
 
     qDebug() << __PRETTY_FUNCTION__ << " add " << visibleApps << " app icons";
     moveToPage(0);
+
+    deleteEmptyPages();
 }
 
 void GridContainer::slotIconResized()
@@ -1144,7 +1153,7 @@ void GridContainer::vacWidgetDelIcon(const QString &uniqueName)
 
 void GridContainer::atExit()
 {
-    LocalAppList::getList()->save();
+//    LocalAppList::getList()->save();
     m_dllCloseClass();
 }
 
@@ -1177,3 +1186,14 @@ void GridContainer::contextMenuEvent(QContextMenuEvent *ev)
 //{
 //    _dustbinDirShowWidget->delIcon(uniqueName);
 //}
+
+void GridContainer::deleteEmptyPages()
+{
+    for(int i = _pages.size(); i > 0; i--)
+    {
+        if (_pages[i - 1]->isEmpty())
+        {
+            removeEmptyPage(_pages[i - 1]->index());
+        }
+    }
+}

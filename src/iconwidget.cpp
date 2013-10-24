@@ -6,6 +6,7 @@
 #include "gridcontainer.h"
 #include "dircontainer.h"
 #include "contextmenuwidget.h"
+#include "config.h"
 
 QPixmap makeTranslucentPixmap(const QString &src)
 {
@@ -336,10 +337,14 @@ bool IconWidget::hitButton(const QPoint &pos) const
 ////////////////////////////////////////////////////////////////////////////////
 
 AppIconWidget::AppIconWidget(QWidget *parent)
-    :IconWidget(parent), _app(0), _inDrag(false)
+    :IconWidget(parent), _app(0), _inDrag(false), _vappPath(""), _paasPath("")
 {
     _nameEdit->setReadOnly(false);
     connect(_nameEdit, SIGNAL(editingFinished()), this, SLOT(slotNameChanged()));
+
+    QString path = Config::get("WallpaperDir");
+    _vappPath = path + QString("\\iconWidgetBg\\vapp_normal.png");
+    _paasPath = path + QString("\\iconWidgetBg\\paas_normal.png");
 }
 
 void AppIconWidget::setApp(LocalApp *app)
@@ -408,9 +413,9 @@ void AppIconWidget::paintEvent(QPaintEvent *ev)
     int type = _app->type().toInt();
     QPixmap pm;
     if (type == vapp) {
-        pm = QPixmap(":/images/app_normal.png");
+        pm = QPixmap(_vappPath);
     } else if (type == paas) {
-        pm = QPixmap(":/images/paas_normal.png");
+        pm = QPixmap(_paasPath);
     }
     if (pm.isNull()) return;
 
@@ -610,7 +615,10 @@ DirIconWidget::DirIconWidget(QWidget *parent)
 
 void DirIconWidget::setPixmap(const QString &icon)
 {
-    IconWidget::setPixmap(":/images/dir_add_icon.png");
+    QString path = Config::get("WallpaperDir");
+    path += "\\iconWidgetBg\\dir_add_icon.png";
+
+    IconWidget::setPixmap(path);
     updateThumbs();
 }
 
@@ -749,7 +757,7 @@ DirContainer *DirIconWidget::dir()
 TrashDirWidget::TrashDirWidget(QWidget *parent)
     :DirIconWidget(parent)
 {
-    setContextMenuPolicy(Qt::PreventContextMenu);
+//    setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
 void TrashDirWidget::restoreIcon()
@@ -770,10 +778,9 @@ void TrashDirWidget::setPixmap(const QString &icon)
 
 void TrashDirWidget::setupMenu()
 {
-//    _menu = new MenuWidget(MenuWidget::dustbinMenu, this);
-//    _menu->setVisible(false);
-
-    //has no menu
+    _menu = new MenuWidget(MenuWidget::trashDirMenu, 0);
+    connect(_menu, SIGNAL(restore()), this, SLOT(clearDir()));
+    connect(_menu, SIGNAL(del()), this, SLOT(deleteDir()));
 }
 
 void TrashDirWidget::setApp(LocalApp *app)
@@ -799,4 +806,9 @@ DirContainer *TrashDirWidget::dir()
     }
 
     return _dir;
+}
+
+void TrashDirWidget::deleteDir()
+{
+    dir()->deleteDir();
 }

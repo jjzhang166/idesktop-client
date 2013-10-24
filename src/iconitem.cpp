@@ -12,6 +12,7 @@
 #include <QLabel>
 #include "iconitem.h"
 #include "dustbin.h"
+#include "config.h"
 #define APPICON 0
 #define FONTSIZE 10
 
@@ -1194,13 +1195,15 @@ void IconItem::init()
 
 void IconItem::setIconClass(int iconClass)
 {
+    QString path = Config::get("WallpaperDir");
+
     if (iconClass == vapp)
     {
-        _iconClassPixmap.load(":/images/app_normal.png");
+        _iconClassPixmap.load(path + QString("\\iconWidgetBg\\vapp_normal.png"));
     }
     else if (iconClass == paas)
     {
-        _iconClassPixmap.load(":/images/paas_normal.png");
+        _iconClassPixmap.load(path + QString("\\iconWidgetBg\\paas_normal.png"));
     }
     else
     {

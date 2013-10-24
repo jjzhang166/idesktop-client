@@ -80,11 +80,7 @@ LocalAppList::LocalAppList(QObject *parent)
 {
     addDustbinOnNeed();
     updateQList();
-    updateAppList();
-//    qDebug() << uploadJson();
-
 }
-
 
 LocalAppList::~LocalAppList()
 {
@@ -117,18 +113,21 @@ void LocalAppList::updateQList()
 
 void LocalAppList::updateAppList()
 {
-    //判断本地应用（0_*）是否存在，否 删除。
-    QSqlQuery query = QSqlDatabase::database("local").exec("select uniquename,execname,idx from localapps");
+    _settings = IDesktopSettings::instance();
+    QList<APP_LIST>& myVappList = _settings->vappList();
+    QList<PAAS_LIST>& myPaasList = _settings->paasList();
+
+    QSqlQuery query = QSqlDatabase::database("local").exec("select uniquename,execname,idx,page from localapps;");
     while (query.next()) {
-        if (query.value(0).toString().startsWith("0_"))
+        if (query.value(0).toString().startsWith("0_"))         //local
         {
             QFileInfo fio(query.value(1).toString());
-            qDebug() << "query.value(1).toString()--->execname" << query.value(1).toString();
+
             if (!fio.exists())
             {
-                //update idx and delte
-                QString updateIdx = QString("update localapps set idx=idx-1 where idx > %1;")\
-                                            .arg(query.value(2).toInt());
+                //update idx and delete
+                QString updateIdx = QString("update localapps set idx=idx-1 where idx>%1 and page=%2;")\
+                                            .arg(query.value(2).toInt()).arg(query.value(3).toInt());
                 QSqlDatabase::database("local").exec(updateIdx);
 
                 QString delteByName = QString("delete from localapps where uniquename=\"%1\";")
@@ -136,9 +135,59 @@ void LocalAppList::updateAppList()
                 QSqlDatabase::database("local").exec(delteByName);
             }
         }
+        else if (query.value(0).toString().startsWith("1_"))     //vac
+        {
+            bool isExist = false;
+            QString vapp = query.value(0).toString().right(query.value(0).toString().length() - 2);
+            for (int i = 0; i < myVappList.count(); i++)
+            {
+                if (vapp == myVappList[i].id)
+                {
+                    isExist = true;
+                    break;
+                }
+            }
+            if(!isExist)
+            {
+                //update idx and delete
+                QString updateIdx = QString("update localapps set idx=idx-1 where idx>%1 and page=%2;")\
+                                            .arg(query.value(2).toInt()).arg(query.value(3).toInt());
+                QSqlDatabase::database("local").exec(updateIdx);
+
+                QString deleteByName = QString("delete from localapps where uniquename=\"%1\";")
+                                              .arg(query.value(0).toString());
+                QSqlDatabase::database("local").exec(deleteByName);
+            }
+
+        }
+        else if (query.value(0).toString().startsWith("2_"))        //paas
+        {
+            bool isExist = false;
+            QString paas = query.value(0).toString().right(query.value(0).toString().length() - 2);
+            for (int i = 0; i < myPaasList.count(); i++)
+            {
+                if (paas == myPaasList[i].name)
+                {
+                    isExist = true;
+                    break;
+                }
+            }
+            if(!isExist)
+            {
+                qDebug() << "name : " << query.value(3).toString();
+                //update idx and delete
+                QString updateIdx = QString("update localapps set idx=idx-1 where idx>%1 and page=%2;")\
+                                            .arg(query.value(2).toInt()).arg(query.value(3).toInt());
+                QSqlDatabase::database("local").exec(updateIdx);
+
+                QString deleteByName = QString("delete from localapps where uniquename=\"%1\";")
+                                              .arg(query.value(0).toString());
+                QSqlDatabase::database("local").exec(deleteByName);
+            }
+        }
     }
-    //以page升序排列，将page以0，1，2...开始
-    QSqlQuery queryAscPage = QSqlDatabase::database("local").exec("select distinct page from localapps order by page asc");
+    //update page
+    QSqlQuery queryAscPage = QSqlDatabase::database("local").exec("select distinct page from (select * from localapps where dirId=-1) order by page asc;");
 
     int i = 0;
     while (queryAscPage.next())
@@ -190,9 +239,6 @@ bool LocalAppList::addRemoteApp(LocalApp *app)
 
 bool LocalAppList::addApp(LocalApp *app)
 { 
-
-//    qDebug() << "addApp----->app.name" << app->name();
-//    qDebug() << "addApp----->app->execname()" << app->execname();
     // write to sqlite and emit datachange
 
     QString qstr = QString("insert into localapps ("\
@@ -219,20 +265,6 @@ bool LocalAppList::addApp(LocalApp *app)
     emit appAdded(app);
     return true;
 }
-
-//void LocalAppList::delApp(QString name)
-//{
-//    for (int i = 0; i < _list.count(); i++) {
-//        if (_list.at(i)->name() == name) {
-//            QString qstr = QString("delete from localapps "
-//                                   "where name=\"%1\";").arg(name);
-//            QSqlQuery query = QSqlDatabase::database("local").exec(qstr);
-//            _list.remove(i);
-//            emit appRemoved(name);
-//            return;
-//        }
-//    }
-//}
 
 /**
  * @brief LocalAppList::getPages
@@ -431,14 +463,17 @@ void LocalAppList::addLocalApp(QString appPath)
     pix.save(newApp, "PNG", -1);//
 #endif
 
+    QString path = Config::get("WallpaperDir");
+    path += "\\iconWidgetBg\\icon_middle_shadow.png";
+
     QImage image = QImage(newApp).scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     QImage normal = QImage(":images/icon_shadow.png");
-    QImage middle = QImage(":images/icon_middle_shadow.png");
+    QImage middle = QImage(path);   //"images/icon_middle_shadow.png"
 
     QPainter pt1(&normal);
     pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
     pt1.drawImage(QRect(35, 36, 72, 72), middle.scaled(72, 72, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    pt1.drawImage(QRect(35 + 7, 36 + 3, 59, 59), image);
+    pt1.drawImage(QRect(35 + 7, 36 + 6, 59, 59), image);    //35 + 7, 36 + 3, 59, 59
     pt1.end();
 
     QPixmap pix = QPixmap::fromImage(normal);

@@ -17,7 +17,7 @@ public:
 
     enum menu_type
     {
-        showIcon = 0, create, iconMenu, normal, dustbinMenu, dirMenu
+        showIcon = 0, create, iconMenu, normal, dustbinMenu, dirMenu, trashDirMenu
     };
 
     explicit MenuWidget(const MenuWidget::menu_type &type = MenuWidget::normal,

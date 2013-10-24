@@ -194,6 +194,9 @@ protected:
     virtual void leaveEvent(QEvent *event);
 
     QPixmap buildMultiDragPreview(const QList<AppIconWidget*> &items);
+
+    QString _vappPath;
+    QString _paasPath;
 };
 
 Q_DECLARE_METATYPE(AppIconWidget*)
@@ -251,6 +254,7 @@ public:
 
 public slots:
     void restoreIcon();
+    void deleteDir();
 
 protected:
     virtual void paintEvent(QPaintEvent* event);

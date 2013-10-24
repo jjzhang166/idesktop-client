@@ -190,6 +190,7 @@ public:
     void moveIconToPageAt(AppIconWidget* icon, GridPage *newPage, int newIndex);
     void insertPageAfter(int pageIndex, GridPage *newPage);
 
+    void deleteEmptyPages();
 signals:
     void pageChanged(int newId);
     void toOrigin();

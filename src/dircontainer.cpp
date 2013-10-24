@@ -602,7 +602,7 @@ DirContainer::DirContainer(DirectionIndicator::Direction direction, DirIconWidge
         vl->addWidget(_directionIndicator);
 
     QHBoxLayout *hl = new QHBoxLayout();
-    hl->setContentsMargins(0, 0, 0, 0);
+    hl->setContentsMargins(30, 0, 0, 0);
     hl->setSpacing(0);
 
     _dirName = new QLabel(this);
@@ -612,15 +612,15 @@ DirContainer::DirContainer(DirectionIndicator::Direction direction, DirIconWidge
     _dirName->setFont(font);
     QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect(_dirName);
     effect->setBlurRadius(8);
-    effect->setColor(QColor(0, 200, 0));
+    effect->setColor(QColor(0, 0, 0));    // 0, 200, 0
     effect->setOffset(-1,1);
     _dirName->setGraphicsEffect(effect);
     hl->addWidget(_dirName);
 
     hl->addSpacerItem(new QSpacerItem(40, 40, QSizePolicy::Expanding));
-    _pbClear = new QPushButton(tr("Çå¿Õ"), this);
-    connect(_pbClear, SIGNAL(clicked()), this, SLOT(clearDir()));
-    hl->addWidget(_pbClear);
+//    _pbClear = new QPushButton(tr("Çå¿Õ"), this);
+//    connect(_pbClear, SIGNAL(clicked()), this, SLOT(clearDir()));
+//    hl->addWidget(_pbClear);
 
     vl->addLayout(hl);
 

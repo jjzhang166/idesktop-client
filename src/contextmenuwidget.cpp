@@ -414,6 +414,26 @@ MenuWidget::MenuWidget(const MenuWidget::menu_type &type, QWidget *parent)
         connect(_clearBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
         connect(_delBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
         break;
+    case MenuWidget::trashDirMenu :
+        _restoreBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                                     tr("全部还原"), this, false);
+        _delBtn = new MenuButton("", ":images/menu_btn_hover.png",
+                                  tr("全部删除"), this, false);
+
+        _restoreBtn->setGeometry(2, 8, ICON_W, BTN_H);
+        _delBtn->setGeometry(2, 27 + 2, ICON_W, BTN_H);
+
+        _restoreBtn->setValue(0);
+        _delBtn->setValue(1);
+
+        setFixedSize(ICON_W, 46 + 2 + 8);
+
+        connect(_restoreBtn, SIGNAL(clicked()), this, SIGNAL(restore()));
+        connect(_delBtn, SIGNAL(clicked()), this, SIGNAL(del()));
+        connect(_restoreBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
+        connect(_delBtn, SIGNAL(clicked()), this, SLOT(closeUp()), Qt::QueuedConnection);
+
+        break;
     default:
         break;
     }
@@ -478,6 +498,8 @@ void MenuWidget::paintEvent(QPaintEvent *event)
     } else if (_type == MenuWidget::create) {
         painter.drawPixmap(0, 8 + 19 * 2, pm_menulinescaled);
     } else if (_type == MenuWidget::iconMenu) {
+        painter.drawPixmap(0, 8 + 19, pm_menulinescaled);
+    } else if (_type == MenuWidget::trashDirMenu) {
         painter.drawPixmap(0, 8 + 19, pm_menulinescaled);
     }
 
