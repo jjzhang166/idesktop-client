@@ -859,7 +859,7 @@ int DirContainer::dirId() const
 
 void DirContainer::loadDir(LocalApp *dir)
 {
-    _dirName->setText(dir->name());
+//    _dirName->setText(dir->name());
     _drawer->loadDir(dir);
 }
 
@@ -917,4 +917,9 @@ void DirContainer::updateMateThumbs()
 {
     qDebug() << __PRETTY_FUNCTION__;
     _mate->init();
+}
+
+void DirContainer::setText(LocalApp *dir)
+{
+    _dirName->setText(dir->name());
 }

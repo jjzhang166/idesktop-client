@@ -123,6 +123,8 @@ public:
     int dirId() const;
     void insertNewIcon(LocalApp *app);
 
+    void setText(LocalApp *dir);
+
 signals:
     void iconItemNameChanged(const QString &, const QString &);
 

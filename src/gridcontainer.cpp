@@ -446,6 +446,7 @@ void GridPage::handleMultiDrop(QDropEvent *ev, DragAction action)
             app->setDirId(-1);
             _container->addIcon(app);
         }
+        QTimer::singleShot(0, this, SLOT(afterDrop()));
         return;
     }
 
