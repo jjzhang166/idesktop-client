@@ -51,15 +51,15 @@ void GridPage::setPageIndex(int idx, bool animated)
         _id = idx;
         //TODO: emit pageMoved
         QPoint newPos(_container->pageOffset(index()), 0);
-        if (animated) {
-            QPropertyAnimation *pa = new QPropertyAnimation(this, "pos");
-            pa->setEasingCurve(QEasingCurve::OutQuint);
-            pa->setStartValue(pos());
-            pa->setEndValue(newPos);
-            pa->start(QAbstractAnimation::DeleteWhenStopped);
-        } else {
+//        if (animated) {
+//            QPropertyAnimation *pa = new QPropertyAnimation(this, "pos");
+//            pa->setEasingCurve(QEasingCurve::OutQuint);
+//            pa->setStartValue(pos());
+//            pa->setEndValue(newPos);
+//            pa->start(QAbstractAnimation::DeleteWhenStopped);
+//        } else {
             move(newPos);
-        }
+//        }
 
         if (!init) {
             for (int i = 0; i < _items.size(); ++i) {

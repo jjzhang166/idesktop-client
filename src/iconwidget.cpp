@@ -807,6 +807,8 @@ DirContainer *TrashDirWidget::dir()
         _dir->loadDir(app());
     }
 
+    _dir->setText(app());
+
     return _dir;
 }
 
