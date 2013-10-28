@@ -77,6 +77,9 @@ void Docker::batchResetIcons(const QList<AppIconWidget*> &icons)
 void Docker::slotOnMovingIconsFinished()
 {
     update();
+
+    if (_redundantApps.size() > 0)
+        redundantApps(_redundantApps);
 }
 
 void Docker::slotMoveIcons(const QSet<IndexedList::Change>& changes, IndexedList::ChangeReason reason)
@@ -480,21 +483,45 @@ void Docker::handleMultiDrop(QDropEvent *ev)
         }
         QDataStream dataStream(&data, QIODevice::ReadOnly);
 
+        if (_redundantApps.size() > 0)
+            _redundantApps.clear();
+
         while (!dataStream.atEnd()) {
+
             QString uniqueName;
             dataStream >> uniqueName;
 
             LocalApp *app = LocalAppList::getList()->getAppByUniqueName(uniqueName);
+
+            if (cols() <= icons().size()) {
+                _redundantApps.append(app);
+            }
+
             qDebug() << __PRETTY_FUNCTION__ << app->name() << "insert at" << icons().size();
             app->setIndex(newIndex++);
             app->setPage(0);
             app->setDirId(-2);
             addIcon(app, true);
+
         }
         reflow(true);
     }
 
     ev->accept();
+}
+
+void Docker::redundantApps(const QList<LocalApp*> &apps)
+{
+    for (int i = 0; i < apps.size(); i++)
+    {
+        int idx = apps.at(i)->index();
+        IconWidget *icon = icons().at(idx);
+        removeIcon(icon);
+    }
+
+    emit restoreAppsToDesktop(apps);
+
+    _redundantApps.clear();
 }
 
 void Docker::handleIconErasion(IconWidget *icon)

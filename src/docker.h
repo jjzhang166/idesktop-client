@@ -86,11 +86,16 @@ private:
 
     TrashDirWidget *_trashIcon;
 
+    QList<LocalApp*> _redundantApps;
+
     bool containsIconFor(LocalApp *app);
     void handleMultiDrop(QDropEvent *ev);
     void reflow(bool animated = false);
     int suggestIndex(const QPoint &pos);
     void batchResetIcons(const QList<AppIconWidget*> &icons);
+
+    void redundantApps(const QList<LocalApp*> &apps);
+
 };
 
 #endif // DOCKER_H
