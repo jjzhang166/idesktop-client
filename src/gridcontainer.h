@@ -134,6 +134,8 @@ private slots:
 signals:
     void requestAutoPageTransition(GridPage::Direction dir);
 
+    void mousePress();
+
 private:
     GridContainer *_container;
     IndexedList _items;
@@ -216,6 +218,8 @@ signals:
     void vdesktopNormalMenu(QPoint mousePos);
     void desktopClicked();
 
+    void mousePress();
+
 public slots:
     void slotIconResized();
     void initIcons();
@@ -241,6 +245,8 @@ public slots:
     void vacWidgetDelIcon(const QString &uniqueName);
     void addDesktopApp(const QString &text, const QString &pix,
                        const QString &url, int type, const QString &uniqueName);
+
+    void clearToggles();
 
 protected:
     void mousePressEvent(QMouseEvent *);

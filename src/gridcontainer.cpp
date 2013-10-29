@@ -501,6 +501,8 @@ void GridPage::clearToggles()
 
 void GridPage::mousePressEvent(QMouseEvent *ev)
 {
+    emit mousePress();
+
     QWidget::mousePressEvent(ev);
     if ((ev->modifiers() & Qt::ControlModifier) && ev->button() == Qt::LeftButton) {
         _multiSelectionActivated = true;
@@ -716,6 +718,7 @@ void GridContainer::insertPageAfter(int pageIndex, GridPage *newPage)
 
 void GridContainer::removeEmptyPage(int index)
 {
+
     if (pageCount() == 1) {
         qDebug() << __PRETTY_FUNCTION__ << "only one page left, cancel action";
         return;
@@ -736,7 +739,8 @@ void GridContainer::removeEmptyPage(int index)
             _pages[idx]->setPageIndex(idx, true);
         }
         moveToPage(currentId());
-        if (currentId() < index)
+
+        if (currentId() == 0 || currentId() < index)
             moveToPage(currentId());
         else
             moveToPage(currentId()-1);
@@ -865,6 +869,8 @@ void GridContainer::addPage(GridPage *page)
     page->show();
     //TODO: emit or change size
     resize(_pageSize.width()*pageCount(), _pageSize.height());
+
+    connect(page, SIGNAL(mousePress()), this, SIGNAL(mousePress()));
 }
 
 void GridContainer::autoPageTransition(GridPage::Direction dir)
@@ -1196,5 +1202,14 @@ void GridContainer::deleteEmptyPages()
         {
             removeEmptyPage(_pages[i - 1]->index());
         }
+    }
+}
+
+void GridContainer::clearToggles()
+{
+    for (int i = 0; i < _pages.size(); i++)
+    {
+        if (_pages[i]->multiSelectionActivated())
+            _pages[i]->clearToggles();
     }
 }

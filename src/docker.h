@@ -59,6 +59,8 @@ signals:
 
     void requestEraseApp(LocalApp*);
 
+    void mousePress();
+
 protected:
     void paintEvent(QPaintEvent *);
     void dragEnterEvent(QDragEnterEvent *ev);

@@ -157,6 +157,9 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_docker, SIGNAL(moveAppToTrash(LocalApp*)), this,
             SLOT(moveAppToTrash(LocalApp*)));
 
+    connect(_docker, SIGNAL(mousePress()), vdesktop,
+            SLOT(clearToggles()));
+
     _pageNodes = new PageNodes(this);
 
     _pageNodes->update(vdesktop->pageCount(), vdesktop->currentId());
@@ -254,6 +257,9 @@ Dashboard::Dashboard(QWidget *parent)
             SLOT(handleOpenDir(DirContainer*)));
     connect(vdesktop, SIGNAL(requestEraseApp(LocalApp*)), this,
             SLOT(handleEraseApp(LocalApp*)));
+
+    connect(vdesktop, SIGNAL(mousePress()), _docker,
+            SLOT(clearToggles()));
 
     connect(_pageNodes, SIGNAL(choosePage(int)), vdesktop, SLOT(moveToPage(int)));
 

@@ -310,6 +310,8 @@ void Docker::reflow(bool animated)
 
 void Docker::mousePressEvent(QMouseEvent *ev)
 {
+    emit mousePress();
+	
     if ((ev->modifiers() & Qt::ControlModifier) && ev->button() == Qt::LeftButton) {
         _multiSelectionActivated = true;
     }
