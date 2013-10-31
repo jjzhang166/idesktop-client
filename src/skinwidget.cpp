@@ -417,16 +417,26 @@ void PixWidget::initIconItem()
         else
         {
             qDebug() << "Create tempImages Failed!";
+            return;
         }
     }
+
     for (int i = 0; i < _iconNum; i++) {
+        QString iconPath = tempPath + QString("\\tempImages\\wp_%1.png").arg(i);
 
-        QPixmap tempicon = QPixmap(QString(path + "\\wallpager\\wp_%1.jpg").arg(i))
-                           .scaled(gridWidth - SPACING - 4, gridHeight - SPACING - 4
-                           , Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        tempicon.save(tempPath + QString("\\tempImages\\wp_%1.png").arg(i), "PNG", -1);
+        QFile chkFile(iconPath);
 
-        addIcon(tempPath + QString("\\tempImages\\wp_%1.png").arg(i),
-                -1, -1);
+        if (chkFile.exists()) {
+            chkFile.close();
+        } else {
+            chkFile.close();
+
+            QPixmap tempicon = QPixmap(QString(path + "\\wallpager\\wp_%1.jpg").arg(i))
+                               .scaled(gridWidth - SPACING - 4, gridHeight - SPACING - 4
+                               , Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            tempicon.save(iconPath, "PNG", -1);
+        }
+
+        addIcon(iconPath, -1, -1);
     }
 }

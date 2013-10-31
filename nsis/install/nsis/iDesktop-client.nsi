@@ -23,8 +23,8 @@ Var Bool_Finishpage_Run
 !define PRODUCT_NAME "iDesktop-client"
 !define EXE_NAME "idesktop-client"
 ;!define INSTALLDIR "$PROGRAMFILES\${PRODUCT_NAME}"
-!define PRODUCT_LONGVERSION "0.0.0.2"
-!define PRODUCT_VERSION "0.2"
+!define PRODUCT_LONGVERSION "0.0.1.0"
+!define PRODUCT_VERSION "1.0"
 !define PRODUCT_PUBLISHER "i-SOFT"
 !define PRODUCT_WEB_SITE "www.i-soft.com.cn"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}"
@@ -168,6 +168,9 @@ Section "MainSection" SEC01
 		File "..\release\codecs\*.*"
 	SetOutPath "$INSTDIR\images\wallpager"
   	File "..\release\images\wallpager\*.*"
+  SetOutPath "$INSTDIR\images\iconWidgetBg"
+  	File "..\release\images\iconWidgetBg\*.*"
+
   
 SectionEnd
 
@@ -204,11 +207,11 @@ SectionEnd
 
 Section Uninstall
   SetShellVarContext current
-	RMDir /r "$APPDATA\App Center\Licons\*.*"
-	RMDir /r "$APPDATA\App Center\Picons\*.*"
-	RMDir /r "$APPDATA\App Center\Vicons\*.*"
-	RMDir /r "$APPDATA\App Center\tempImages\*.*"
-	RMDir /r "$APPDATA\App Center\data"
+  Delete "$APPDATA\App Center\data"
+	RMDir /r "$APPDATA\App Center\Licons"
+	RMDir /r "$APPDATA\App Center\Picons"
+	RMDir /r "$APPDATA\App Center\Vicons"
+	RMDir /r "$APPDATA\App Center\tempImages"
 	RMDir /r "$APPDATA\App Center"
 	SetShellVarContext all
   Delete "$INSTDIR\${SETUP_NAME}.url"
@@ -238,16 +241,13 @@ Section Uninstall
   Delete "$INSTDIR\changebg.dll"
   Delete "$INSTDIR\GetApp.dll"
 
-  RMDir /r "$INSTDIR\wallpager\*.*"
-  RMDir /r "$INSTDIR\wallpager"
+  RMDir /r "$INSTDIR\images\wallpager"
+  RMDir /r "$INSTDIR\images\iconWidgetBg"
+  RMDir /r "$INSTDIR\images"
 	
   RMDir /r "$INSTDIR\codecs"
   RMDir /r "$INSTDIR\imageformats"
   RMDir /r "$INSTDIR\sqldrivers"
-  #RMDir /r "$INSTDIR\system_manage\js"
-  #RMDir /r "$INSTDIR\system_manage\css"
-  #RMDir /r "$INSTDIR\system_manage\images"
-  #RMDir /r "$INSTDIR\system_manage"
 
   Delete "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk"
   Delete "$SMPROGRAMS\${PRODUCT_NAME}\关于我们.lnk"
