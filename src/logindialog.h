@@ -41,18 +41,8 @@ public:
     LoginDialog(QWidget *parent);
     ~LoginDialog();
 
-//    void paintEvent(QPaintEvent *event);
-//    void mousePressEvent(QMouseEvent *event);
-//    void mouseReleaseEvent(QMouseEvent *event);
-//    void mouseMoveEvent(QMouseEvent *event);
-
     void debugPrintVariant (QVariant const& v);
-
     void updateVacServer();
-
-    QAction *_dHideAction;
-    QAction *_dShowAction;
-
     void createDb();
     void connenting(bool connecting);
 
@@ -61,17 +51,18 @@ public:
         _tray->hide();
     }
 
+    void logout();
+    void setHideActionEnabled(bool enable);
+    void setShowActionEnabled(bool enable);
+
 signals:
     void dQuit();
     void dShow();
     void dHide();
-    void pShow();
-    void pHide();
 
-//    connect(showAction, SIGNAL(triggered()), panel, SLOT(show()));
-//    connect(hideAction, SIGNAL(triggered()), panel, SLOT(hide()));
     void dVacServer();
     void dActivated(QSystemTrayIcon::ActivationReason);
+
 public slots:
     void auth();
     void onLoginFinished(QNetworkReply *reply);
@@ -92,6 +83,8 @@ public slots:
 	void slotError(QNetworkReply::NetworkError);
 
     void quit();
+
+    void lActivated(QSystemTrayIcon::ActivationReason reason);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -126,9 +119,8 @@ private:
     QAction *_lQuitAction;
 
     QAction *_dQuitAction;
-//    QAction *_dHideAction;
-//    QAction *_dShowAction;
-//    QAction *_dVacServer;
+    QAction *_dHideAction;
+    QAction *_dShowAction;
 
     QMenu *_loginMenu;
     QMenu *_dashboardMenu;
@@ -142,8 +134,6 @@ private:
     qreal _finalyrot;
     // app ini
 //    QString iniPath;
-
-
 //    void setIcon(const QString &dirPath, const QString &iconPath);
 
     QString getLocalIcon(QString localPath);

@@ -162,9 +162,9 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(_dQuitAction, SIGNAL(triggered()), this, SIGNAL(dQuit()));
     connect(_dShowAction, SIGNAL(triggered()), this, SIGNAL(dShow()));
     connect(_dHideAction, SIGNAL(triggered()), this, SIGNAL(dHide()));
-    connect(_dShowAction, SIGNAL(triggered()), this, SIGNAL(pShow()));
-    connect(_dHideAction, SIGNAL(triggered()), this, SIGNAL(pHide()));
 
+    connect(_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            this, SLOT(lActivated(QSystemTrayIcon::ActivationReason)));
     connect(_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SIGNAL(dActivated(QSystemTrayIcon::ActivationReason)));
 
@@ -389,6 +389,15 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
 //    _authSuccess = true;
     if (result == "1")   //  APPSTORE SUCCESS
     {
+        if (vappUrl.isEmpty() || VacPort.isEmpty())
+        {
+            logout();
+
+            connenting(false);
+            connError(tr("连接虚拟应用服务器失败，请联系管理员。"));
+            return;
+        }
+
         if (userType == "comm_user")
         {
             closeButton->setEnabled(false);
@@ -403,12 +412,10 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
         }
         else
         {
-            QString outUrl ="http://" + verifyLEdit->text() + ":8080/idesktop/logout.action?username=" + userEdit->text();
-            _namOut->get(QNetworkRequest(QUrl(outUrl)));
+            logout();
 
             connenting(false);
             userError(tr("请用普通用户登录"));
-
         }
     }
     else if (result == "-1")//USER NOT EXISTS
@@ -425,7 +432,6 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
     {
 		connenting(false);
         connError(tr("连接服务器失败..."));
-
     }
 }
 
@@ -620,7 +626,7 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
                                     .arg(0).arg(0)\
                                     .arg(int(false)).arg(1000)\
                                     .arg("4").arg(int(false))\
-                                     .arg("").arg(-2).arg("4_dustbin");
+                                    .arg("").arg(-2).arg("4_dustbin");
 
 
         if(!query.exec(qstrLapp))
@@ -629,10 +635,7 @@ void LoginDialog::jsonDownloadFinished(QNetworkReply *reply)
         }
     }
 
-
-
     QDialog::accept();
-
 }
 
 void LoginDialog::auth()
@@ -1176,4 +1179,45 @@ void LoginDialog::quit()
 {
     hideTrayIcon();
     reject();
+}
+
+void LoginDialog::lActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    if (this->isHidden())
+        return;
+
+    if (reason == QSystemTrayIcon::DoubleClick)
+    {
+        if (windowOpacity() == qreal(0))
+        {
+            normal();
+        }
+    }
+    else if (reason == QSystemTrayIcon::Context)
+    {
+        if (windowOpacity() == qreal(0))
+        {
+            _lShowAction->setEnabled(true);
+        }
+        else
+        {
+            _lShowAction->setEnabled(false);
+        }
+    }
+}
+
+void LoginDialog::logout()
+{
+    QString outUrl ="http://" + verifyLEdit->text() + ":8080/idesktop/logout.action?username=" + userEdit->text();
+    _namOut->get(QNetworkRequest(QUrl(outUrl)));
+}
+
+void LoginDialog::setHideActionEnabled(bool enable)
+{
+    _dHideAction->setEnabled(enable);
+}
+
+void LoginDialog::setShowActionEnabled(bool enable)
+{
+    _dShowAction->setEnabled(enable);
 }

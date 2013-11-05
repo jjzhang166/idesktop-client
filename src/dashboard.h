@@ -68,7 +68,7 @@ public slots:
     void switchBetween();
     void outOfScreen();
     void inOfScreen();
-    void iconActivated(QSystemTrayIcon::ActivationReason);
+    void iconActivated(QSystemTrayIcon::ActivationReason reason);
     void onShowVacDesktop();
     void onShowSkinDesktop();
 

@@ -334,11 +334,11 @@ void Docker::mouseReleaseEvent(QMouseEvent *ev)
 
 void Docker::dragEnterEvent(QDragEnterEvent *ev)
 {
-    if (cols() <= icons().size()) {
-        qDebug() << __PRETTY_FUNCTION__ << "docker's full, disable drag in";
-        ev->ignore();
-        return;
-    }
+//    if (cols() <= icons().size()) {
+//        qDebug() << __PRETTY_FUNCTION__ << "docker's full, disable drag in";
+//        ev->ignore();
+//        return;
+//    }
     qDebug() << __PRETTY_FUNCTION__ << ev->mimeData()->formats();
     QSet<QString> accept_formats;
     accept_formats << "image/x-iconitem" << "application/x-iconitems"
@@ -458,9 +458,19 @@ void Docker::dropEvent(QDropEvent *ev)
         newIndex = qMin(newIndex, icons().size());
         // drag from outside, GridPage or toolbar
         LocalApp *app = icon_widget->app();
+
+        if (_redundantApps.size() > 0)
+            _redundantApps.clear();
+
+        if (cols() <= icons().size()) {
+            _redundantApps.append(app);
+        }
+
         app->setIndex(newIndex);
         app->setDirId(-2);
         addIcon(app, true);
+
+        reflow(true);
     }
 
     ev->accept();

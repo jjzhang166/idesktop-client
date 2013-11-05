@@ -238,8 +238,12 @@ Dashboard::Dashboard(QWidget *parent)
     connect(_ldialog, SIGNAL(dQuit()), this, SLOT(quit()));
     connect(_ldialog, SIGNAL(dShow()), this, SLOT(show()));
     connect(_ldialog, SIGNAL(dHide()), this, SLOT(hide()));
-    connect(_ldialog, SIGNAL(pShow()), panel, SLOT(show()));
-    connect(_ldialog, SIGNAL(pHide()), panel, SLOT(hide()));
+    connect(_ldialog, SIGNAL(dShow()), panel, SLOT(show()));
+    connect(_ldialog, SIGNAL(dHide()), panel, SLOT(hide()));
+    connect(_ldialog, SIGNAL(dShow()), _switcherLeft, SLOT(show()));
+    connect(_ldialog, SIGNAL(dHide()), _switcherLeft, SLOT(hide()));
+    connect(_ldialog, SIGNAL(dShow()), _switcherRight, SLOT(show()));
+    connect(_ldialog, SIGNAL(dHide()), _switcherRight, SLOT(hide()));
 
     connect(_ldialog, SIGNAL(dActivated(QSystemTrayIcon::ActivationReason)),
         this, SLOT(iconActivated(QSystemTrayIcon::ActivationReason)));
@@ -319,8 +323,8 @@ void Dashboard::initIconItem()
     _pageNodes->setVisible(true);
     _switcherLeft->setVisible(true);
     _switcherRight->setVisible(true);
-    _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
-    _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
+//    _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
+//    _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
 }
 
 //page nodes
@@ -411,7 +415,6 @@ void Dashboard::switchBetween()
     _vacShowWidget->setVisible(false);
     _skinShowWidget->setVisible(false);
 
-    qDebug() <<"********************_outOfScreen"<< _outOfScreen;
     if (_outOfScreen)
         getIn();
     else
@@ -434,14 +437,34 @@ void Dashboard::outOfScreen()
         getOut();
 }
 
-void Dashboard::iconActivated(QSystemTrayIcon::ActivationReason)
+void Dashboard::iconActivated(QSystemTrayIcon::ActivationReason reason)
 { 
-    _ldialog->_dShowAction->setEnabled(true);
-    _ldialog->_dHideAction->setEnabled(true);
-    if (this->isVisible() && !isMinimized())
-        _ldialog->_dShowAction->setEnabled(false);
-    else
-        _ldialog->_dHideAction->setEnabled(false);
+    if (reason == QSystemTrayIcon::DoubleClick) {
+        if (!isVisible() && !panel->isVisible() &&
+                !_switcherLeft->isVisible() && !_switcherRight->isVisible()) {
+            this->show();
+            panel->show();
+            _switcherLeft->show();
+            _switcherRight->show();
+        }
+        else
+        {
+            this->raise();
+            panel->raise();
+            _switcherLeft->raise();
+            _switcherRight->raise();
+        }
+    }
+    else if (reason == QSystemTrayIcon::Context) {
+        if (!isVisible() && !panel->isVisible() &&
+                !_switcherLeft->isVisible() && !_switcherRight->isVisible()) {
+            _ldialog->setShowActionEnabled(true);
+            _ldialog->setHideActionEnabled(false);
+        } else {
+            _ldialog->setShowActionEnabled(false);
+            _ldialog->setHideActionEnabled(true);
+        }
+    }
 }
 
 void Dashboard::quit()
@@ -659,8 +682,8 @@ void Dashboard::refreshMenu()
     panel->setVisible(true);
     _switcherLeft->setVisible(true);
     _switcherRight->setVisible(true);
-    _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
-    _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
+//    _switcherLeft->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
+//    _switcherRight->setWindowFlags(_switcherLeft->windowFlags() | Qt::Tool);
 
 //    _vacShowWidget->movetoFirst();
 }
