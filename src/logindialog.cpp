@@ -389,7 +389,7 @@ void LoginDialog::onLoginFinished(QNetworkReply *reply)
 //    _authSuccess = true;
     if (result == "1")   //  APPSTORE SUCCESS
     {
-        if (vappUrl.isEmpty() || VacPort.isEmpty())
+        if (vappUrl.isEmpty() || vappPort.isEmpty())
         {
             logout();
 
