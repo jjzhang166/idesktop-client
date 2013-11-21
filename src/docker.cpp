@@ -406,6 +406,9 @@ void Docker::delIcon(LocalApp *app)
 
 void Docker::removeIcon(IconWidget *icon)
 {
+    if(_items.indexOf(icon) == -1)
+        return;
+
     _items.remove(icon);
     qobject_cast<AppIconWidget*>(icon)->setApp(0);
     icon->deleteLater();
