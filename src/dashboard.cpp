@@ -665,6 +665,7 @@ void Dashboard::refreshVapp()
 
 void Dashboard::refreshMenu()
 {
+    _normalMenu->hide();
     _switcherLeft->setVisible(false);
     _switcherRight->setVisible(false);
     panel->setVisible(false);
