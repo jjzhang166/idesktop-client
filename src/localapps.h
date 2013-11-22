@@ -91,7 +91,7 @@ public:
     void save();
     void addDustbinOnNeed();
 
-    void addLocalApp(QString appPath);
+    void addLocalApp(const QString &appPath, const QString &appName);
     QString getAppImage(QString appPath);
     QString getUninstExec(QString display);
 

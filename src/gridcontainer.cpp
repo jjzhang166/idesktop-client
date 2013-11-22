@@ -1043,7 +1043,8 @@ void GridContainer::appAdd()
     }
 
     path.replace('/','\\');
-    LocalAppList::getList()->addLocalApp(path);
+
+    LocalAppList::getList()->addLocalApp(path, getIconName(path));
 }
 
 void GridContainer::handleRestoreAppsToDesktop(QList<LocalApp*> apps)
@@ -1212,4 +1213,20 @@ void GridContainer::clearToggles()
         if (_pages[i]->multiSelectionActivated())
             _pages[i]->clearToggles();
     }
+}
+
+QString GridContainer::getIconName(const QString &iconPath)
+{
+    QString iconName = "";
+    QList<LOCAL_LIST>& remoteLocalList = _settings->remoteLocalList();
+    for(int i = 0; i < remoteLocalList.count(); i++)
+    {
+        if (remoteLocalList.at(i).execname.contains(iconPath, Qt::CaseInsensitive))
+        {
+            iconName = remoteLocalList.at(i).name;
+            break;
+        }
+    }
+
+    return iconName;
 }

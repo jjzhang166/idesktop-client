@@ -434,7 +434,7 @@ QString LocalAppList::getAppImage(QString appPath)
     return "";
 }
 
-void LocalAppList::addLocalApp(QString appPath)
+void LocalAppList::addLocalApp(const QString &appPath, const QString &appName)
 {
     QString newApp = getAppImage(appPath);
 
@@ -481,7 +481,11 @@ void LocalAppList::addLocalApp(QString appPath)
 
     QFileInfo info = QFileInfo(appPath);
     LocalApp *app = new LocalApp();
-    app->setName(info.baseName());        // "/" + info.baseName()
+    if (!appName.isEmpty()) {
+        app->setName(appName);
+    } else {
+        app->setName(info.baseName());
+    }
     app->setIcon(newApp);
     app->setExecname(appPath);
 

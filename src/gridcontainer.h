@@ -193,6 +193,8 @@ public:
     void insertPageAfter(int pageIndex, GridPage *newPage);
 
     void deleteEmptyPages();
+
+    QString getIconName(const QString &iconPath);
 signals:
     void pageChanged(int newId);
     void toOrigin();

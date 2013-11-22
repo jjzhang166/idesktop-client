@@ -1751,7 +1751,7 @@ void VirtualDesktop::appAdd()
 
     path.replace('/','\\');
     //AppDataReadExe::Instance()->addLocalApp(path);
-    LocalAppList::getList()->addLocalApp(path);
+//    LocalAppList::getList()->addLocalApp(path);
     _addAppState = false;
 }
 
