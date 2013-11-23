@@ -55,7 +55,7 @@ public slots:
     void mediumIcon();
     void smallIcon();
 
-    void desktopDelIcon(const QString &uniqueName);
+    void checkedIcon(const QString &uniqueName, bool check);
 
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
@@ -100,7 +100,7 @@ public:
 
     void delIcon(const QString &uniqueName);
 
-    void desktopDelIcon(const QString &uniqueName);
+    void checkedIcon(const QString &uniqueName, bool check);
 
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
@@ -195,7 +195,8 @@ public:
     void deleteAllIconItem();
     void reloadApplist(QSize size);
 
-    void unChecked(const QString &uniqueName);
+    void checkedIcon(const QString &uniqueName, bool check);
+
     void iconItemNameChanged(const QString &uniqueName, const QString &name);
 
     void initIconItem();

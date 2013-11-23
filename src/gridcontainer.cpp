@@ -587,6 +587,7 @@ GridContainer::GridContainer(QSize size, QWidget *parent) :
     _mySwipeGestureId = QGestureRecognizer::registerRecognizer(sg_recognizer);
     grabGesture(Qt::SwipeGesture);
 
+    connect(localapps, SIGNAL(addLocalAppSuccess(LocalApp*)), this, SIGNAL(desktopAddApp(LocalApp*)));
     connect(localapps, SIGNAL(appAdded(LocalApp*)), this, SLOT(insertNewIcon(LocalApp*)));
     connect(localapps, SIGNAL(appRemoved(LocalApp*)), this, SLOT(delIcon(LocalApp*)));
 }

@@ -30,26 +30,6 @@ extern QString WIN_LOCAL_IconPath;
 extern QString WIN_VAPP_IconPath;
 extern QString WIN_PAAS_IconPath;
 
-
-//#define ICONWIDTH 72
-//#define ICONHEIGHT 72
-//#define SELECTWIDTH 37
-//#define SELECTHEIGHT 37
-
-//#define SPACING 30
-//#define FONTSIZE 10
-
-//#define ICONITEMWIDTH (ICONWIDTH + SELECTWIDTH/2 + 8)
-//#define ICONITEMHEIGHT (ICONHEIGHT + 15 + FONTSIZE * 2)
-
-//#define CLOSEWIDTH 30
-//#define CLOSEHEIGHT 30
-
-//#define APPICON   0
-//#define ADDICON 1
-//#define HSPACING (40 - (SELECTWIDTH / 2 + 8) / 2)
-//#define VSPACING 25
-
 #define ICONNUM 17
 
 #define ICONWIDTH 143
@@ -128,7 +108,6 @@ void VacShowWidget::delIcon(const QString &uniqueName)
     _vacScrollBarWidget->delIcon(uniqueName);
 }
 
-
 void VacShowWidget::largeIcon()
 {
     _vacScrollBarWidget->largeIcon();
@@ -144,9 +123,9 @@ void VacShowWidget::smallIcon()
     _vacScrollBarWidget->smallIcon();
 }
 
-void VacShowWidget::desktopDelIcon(const QString &uniqueName)
+void VacShowWidget::checkedIcon(const QString &uniqueName, bool check)
 {
-    _vacScrollBarWidget->desktopDelIcon(uniqueName);
+    _vacScrollBarWidget->checkedIcon(uniqueName, check);
 }
 
 void VacShowWidget::paintEvent(QPaintEvent *event)
@@ -236,9 +215,6 @@ VacScrollBarWidget::VacScrollBarWidget(QSize pageSize, QWidget *parent)
     connect(_vacWidget, SIGNAL(pageIncreased()), this, SLOT(vacWidgetCountChanged()));
     connect(_vacWidget, SIGNAL(pageDecreased()), this, SLOT(vacWidgetCountChanged()));
     connect(_vacWidget, SIGNAL(delItem(const QString &)), this, SIGNAL(delItem(const QString &)));
-
-
-
 }
 
 VacScrollBarWidget::~VacScrollBarWidget()
@@ -336,9 +312,9 @@ void VacScrollBarWidget::smallIcon()
     _vacWidget->smallIcon();
 }
 
-void VacScrollBarWidget::desktopDelIcon(const QString &uniqueName)
+void VacScrollBarWidget::checkedIcon(const QString &uniqueName, bool check)
 {
-    _vacWidget->unChecked(uniqueName);
+    _vacWidget->checkedIcon(uniqueName, check);
 }
 
 void VacScrollBarWidget::iconItemNameChanged(const QString &uniqueName, const QString &name)
@@ -539,13 +515,6 @@ int VacWidget::addIcon(QString text,
     connect(icon, SIGNAL(addApp(const QString&, const QString&, const QString&, int, const QString&)),
             this, SIGNAL(addApp(const QString&,const QString&, const QString&, int, const QString&)));
 
-//    if (text == "XX的虚拟机" || text == "IE " || text == "WPP" || text == " Word")
-//    {
-//        icon->setEqualIcon(true);
-//        emit addVacApp(text, iconPath, _url);
-//    }
-
-//    connect(icon, SIGNAL(runItem(const QString&)), this, SLOT(runApp(const QString&)));
     connect(icon, SIGNAL(delItem(const QString&)), this, SIGNAL(delItem(const QString&)));
 
 
@@ -615,10 +584,6 @@ void VacWidget::delIcon(const QString &uniqueName)
 
 }
 
-//void VacWidget::moveBackIcons(int page, int index)
-//{
-//}
-
 void VacWidget::showApp(bool localApp)
 {
         Q_UNUSED(localApp);
@@ -648,61 +613,6 @@ QString VacWidget::getAppImage(QString appPath)
     }
     return "";
 }
-
-//void VacWidget::addVacApp(QString appPath)
-//{
-//    QString newApp = getAppImage(appPath);
-
-//    if (newApp.isEmpty())
-//        return;
-
-
-//    QImage image = QImage(newApp).scaled(72, 72);
-//    QImage normal = QImage(":images/icon_shadow.png");
-    //setImgOpacity(normal, 0);
-
-//    for (int i = 0; i < normal.width(); i++) {
-//        for (int j = 0; j < normal.height(); j++) {
-//            QRgb pixel = normal.pixel(i,j);
-//            int a = qAlpha(pixel);
-//            QRgb lightPixel = qRgba(qRed(pixel), qGreen(pixel),
-//                                    qBlue(pixel), a * 117 / 255);
-//            normal.setPixel(i, j, lightPixel);
-//        }
-//    }
-
-//    QPainter pt1(&normal);
-//    pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//    pt1.drawImage(35, 36, image);
-//    pt1.end();
-//    QPixmap pix = QPixmap::fromImage(normal);
-//    pix.save(newApp, "PNG", -1);//
-
-//    QFileInfo info = QFileInfo(appPath);
-//    LocalApp *app = new LocalApp();
-//    app->setName("/" + info.baseName());
-//    app->setIcon(newApp);
-//    app->setExecname(appPath);
-//    if (LocalAppList::getList()->getAppByName(app->name())) {
-//        QApplication::processEvents();
-//        AppMessageBox box(false, NULL);
-//        box.setText("    已添加该图标");
-//        box.exec();
-//    } else {
-//        addApp(app);
-//    }
-//    QImage image = QImage(newApp).scaled(59, 59);
-//    QImage normal = QImage(":images/icon_shadow.png").scaled(143, 143);
-//    QImage middle = QImage(":images/icon_middle_shadow.png").scaled(72, 72);
-
-//    QPainter pt1(&normal);
-//    pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//    pt1.drawImage(QRect(35, 36, 72, 72), middle);
-//    pt1.drawImage(QRect(35 + 7, 36 + 3, 59, 59), image);
-//    pt1.end();
-//    QPixmap pix = QPixmap::fromImage(normal);
-//    pix.save(newApp, "ICO", -1);
-//}
 
 void VacWidget::expand()
 {
@@ -857,7 +767,6 @@ void VacWidget::movetoFirst()
 {
     _current = 0;
     move(x(), _pages[_current]);
-//    qDebug() << "------------------>movetoFirst";
 //    emit pageChanged(_current);
 
 }
@@ -959,12 +868,12 @@ void VacWidget::changeSpacing()
     }
 }
 
-void VacWidget::unChecked(const QString &uniqueName)
+void VacWidget::checkedIcon(const QString &uniqueName, bool check)
 {
     if (!_iconDict.value(uniqueName))
         return;
 
-    _iconDict.value(uniqueName)->setEqualIcon(false);
+    _iconDict.value(uniqueName)->setEqualIcon(check);
 }
 
 void VacWidget::iconItemNameChanged(const QString &uniqueName, const QString &name)

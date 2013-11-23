@@ -261,6 +261,8 @@ Dashboard::Dashboard(QWidget *parent)
             SLOT(handleOpenDir(DirContainer*)));
     connect(vdesktop, SIGNAL(requestEraseApp(LocalApp*)), this,
             SLOT(handleEraseApp(LocalApp*)));
+    connect(vdesktop, SIGNAL(desktopAddApp(LocalApp*)), this,
+            SLOT(handleAddApp(LocalApp*)));
 
     connect(vdesktop, SIGNAL(mousePress()), _docker,
             SLOT(clearToggles()));
@@ -1451,7 +1453,12 @@ void Dashboard::handleEraseApp(LocalApp *app)
 {
     QString uniq_name = app->uniqueName();
     LocalAppList::getList()->delApp(uniq_name);
-    _vacShowWidget->desktopDelIcon(uniq_name);
+    _vacShowWidget->checkedIcon(uniq_name, false);
+}
+
+void Dashboard::handleAddApp(LocalApp *app)
+{
+    _vacShowWidget->checkedIcon(app->uniqueName(), true);
 }
 
 void Dashboard::getDbIcon()

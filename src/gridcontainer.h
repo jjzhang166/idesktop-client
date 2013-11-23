@@ -221,6 +221,7 @@ signals:
     void desktopClicked();
 
     void mousePress();
+    void desktopAddApp(LocalApp* app);
 
 public slots:
     void slotIconResized();

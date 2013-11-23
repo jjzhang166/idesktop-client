@@ -468,12 +468,12 @@ void LocalAppList::addLocalApp(const QString &appPath, const QString &appName)
 
     QImage image = QImage(newApp).scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     QImage normal = QImage(":images/icon_shadow.png");
-    QImage middle = QImage(path);   //"images/icon_middle_shadow.png"
+    QImage middle = QImage(path);
 
     QPainter pt1(&normal);
     pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
     pt1.drawImage(QRect(35, 36, 72, 72), middle.scaled(72, 72, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-    pt1.drawImage(QRect(35 + 7, 36 + 6, 59, 59), image);    //35 + 7, 36 + 3, 59, 59
+    pt1.drawImage(QRect(35 + 7, 36 + 6, 59, 59), image);
     pt1.end();
 
     QPixmap pix = QPixmap::fromImage(normal);
@@ -507,10 +507,11 @@ void LocalAppList::addLocalApp(const QString &appPath, const QString &appName)
     if (LocalAppList::getList()->getAppByUniqueName(app->uniqueName())) {
         QApplication::processEvents();
         AppMessageBox box(false, NULL);
-        box.setText("已添加该图标"); //    已添加该图标
+        box.setText("已添加该图标");
         box.exec();
     } else {
         addApp(app);
+        emit addLocalAppSuccess(app);
     }
 }
 

@@ -104,6 +104,7 @@ signals:
     //needed by GridContainer
     void appAdded(LocalApp *);
     void appRemoved(LocalApp *);
+    void addLocalAppSuccess(LocalApp *);
 
 private:
     LocalAppList(QObject *parent = NULL);

@@ -102,6 +102,7 @@ public slots:
     void moveAppToTrash(LocalApp *app);
     void handleOpenDir(DirContainer *dirContainer);
     void handleEraseApp(LocalApp*);
+    void handleAddApp(LocalApp*);
 
 protected:
     void closeEvent(QCloseEvent *event);
