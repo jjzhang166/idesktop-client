@@ -20,7 +20,7 @@ Var Bool_Finishpage_Run
 !include old\WindowsVersion.nsh
 !include old\String.nsh
 
-!define PRODUCT_NAME "iDesktop-client"
+!define PRODUCT_NAME "业务协同平台客户端"
 !define EXE_NAME "idesktop-client"
 ;!define INSTALLDIR "$PROGRAMFILES\${PRODUCT_NAME}"
 !define PRODUCT_LONGVERSION "0.0.1.0"
@@ -30,7 +30,7 @@ Var Bool_Finishpage_Run
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
-!define SETUP_NAME "普华统一桌面平台"
+!define SETUP_NAME "业务协同平台客户端"
 
 SetCompressor lzma
 
@@ -97,7 +97,7 @@ VIAddVersionKey /LANG=2052 FileDescription "${SETUP_NAME}"
 ; *********************** Start **********************
 Name "${SETUP_NAME}"
 OutFile "${SETUP_NAME}.exe"
-InstallDir "$PROGRAMFILES\${PRODUCT_NAME}"
+InstallDir "$PROGRAMFILES\iSOFT\${PRODUCT_NAME}"
 InstallDirRegKey HKLM "${PRODUCT_UNINST_KEY}" "UninstallString"
 ShowInstDetails show
 ShowUnInstDetails show
@@ -176,7 +176,7 @@ SectionEnd
 
 Section -AdditionalIcons
   SetShellVarContext all
-  WriteIniStr "$INSTDIR\${SETUP_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
+  WriteIniStr "$INSTDIR\关于我们.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME}\Uninstall.lnk" "$INSTDIR\uninst.exe"
   WriteIniStr "$SMPROGRAMS\${PRODUCT_NAME}\关于我们.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
 SectionEnd
@@ -214,7 +214,7 @@ Section Uninstall
 	RMDir /r "$APPDATA\App Center\tempImages"
 	RMDir /r "$APPDATA\App Center"
 	SetShellVarContext all
-  Delete "$INSTDIR\${SETUP_NAME}.url"
+  Delete "$INSTDIR\关于我们.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\QJson.dll"
   Delete "$INSTDIR\IconGet.dll"
