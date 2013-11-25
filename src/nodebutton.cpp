@@ -25,6 +25,7 @@ NodeButton::NodeButton(const QString &image, const QString &hoverImage,
     , _current(false)
     , _enable(true)
     , _hovered(false)
+    , _dim(false)
 {
     if (!image.isEmpty())
         _pixmap.load(image);
@@ -63,22 +64,10 @@ void NodeButton::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     QColor textColor;
 
-//    if (!_enable) {
-//        textColor = QColor("#9ca3a5");
-//        painter.drawPixmap(0, 0, 42, 42, _disablePixmap.scaled(42, 42));
-//    }
-//    else if(_current && _currentImage != "") {
-//        textColor = _textColor_selected;
-//        painter.drawPixmap(0, 0, 42, 42, _currentPixmap.scaled(42, 42));
-//    }
-//    else if ( _hovered) {
-//        textColor = _textColor_hover;
-//        painter.drawPixmap(0, 0, 42, 42, _hoverPixmap.scaled(42, 42));
-//    }
-//    else {
-//        textColor = _textColor;
-//        painter.drawPixmap(0, 0, 42, 42,  _pixmap.scaled(42, 42));
-//    }
+    if (_dim) {
+        painter.setCompositionMode(QPainter::CompositionMode_SoftLight);
+        painter.setBrush(QBrush(QColor(255, 255, 255, 40)));
+    }
 
     if (!_enable) {
         textColor = QColor("#9ca3a5");
@@ -122,7 +111,11 @@ void NodeButton::paintEvent(QPaintEvent *event)
         textR = QRect(center + 1, (_height - _metrics->height()) / 2, _width, _metrics->height()); //_height - _metrics->height()
     }
 
+    if (_dim) {
+        painter.setPen(QColor(255, 255, 255, 40));
+    }
     painter.drawText(textR, _text);
+
 }
 
 void NodeButton::enterEvent (QEvent *event)
@@ -245,6 +238,14 @@ void NodeButton::setTextColorSelected(const QColor &tColor)
     _textColor_selected = tColor;
 }
 
+void NodeButton::dim(bool dim)
+{
+    if (_dim != dim) {
+        _dim = dim;
+        update();
+    }
+}
+
 //PageNodes
 PageNodes::PageNodes(QWidget *parent)
     : QWidget(parent)
@@ -337,4 +338,12 @@ void PageNodes::setCurrent(const int &cur)
             count++;
         }
     }*/
+}
+
+void PageNodes::dimNodeBtn(bool dim)
+{
+    for (int i = 0; i < _nodes.count(); i++)
+    {
+        _nodes.at(i)->dim(dim);
+    }
 }

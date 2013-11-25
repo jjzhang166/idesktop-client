@@ -136,6 +136,8 @@ signals:
 
     void mousePress();
 
+    void dimNodeBtn(bool dim);
+
 private:
     GridContainer *_container;
     IndexedList _items;
@@ -222,6 +224,8 @@ signals:
 
     void mousePress();
     void desktopAddApp(LocalApp* app);
+
+    void dimNodeBtn(bool dim);
 
 public slots:
     void slotIconResized();

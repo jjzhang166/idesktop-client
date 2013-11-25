@@ -53,6 +53,8 @@ public:
 
     void setTextPos(const text_pos &pos);
 
+    void dim(bool dim);
+
 signals:
 
     void clicked();
@@ -94,6 +96,8 @@ private:
 
     QFont _font;
     text_pos _textPos;
+
+    bool _dim;
 
 //    void* _data;
 
@@ -138,6 +142,7 @@ public slots:
     void clickNode(NodeButton* node);
     void setCurrent(const int &cur);
 
+    void dimNodeBtn(bool dim);
 protected:
 
     void paintEvent(QPaintEvent *event);

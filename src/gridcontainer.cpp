@@ -158,6 +158,7 @@ void GridPage::dimPage(bool dim)
     for (int i = 0; i < icons().size(); ++i) {
         icons().at(i)->dim(dim);
     }
+    emit dimNodeBtn(dim);
 }
 
 QPoint GridPage::posForIndex(int index) const
@@ -872,6 +873,8 @@ void GridContainer::addPage(GridPage *page)
     resize(_pageSize.width()*pageCount(), _pageSize.height());
 
     connect(page, SIGNAL(mousePress()), this, SIGNAL(mousePress()));
+    connect(page, SIGNAL(dimNodeBtn(bool)), this, SIGNAL(dimNodeBtn(bool)));
+
 }
 
 void GridContainer::autoPageTransition(GridPage::Direction dir)

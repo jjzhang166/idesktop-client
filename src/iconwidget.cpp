@@ -375,7 +375,7 @@ void AppIconWidget::slotNameChanged()
     _text = _nameEdit->text();
     if (_app) {
         _app->setName(text());
-        emit iconItemNameChanged(_app->uniqueName(), text());
+//        emit iconItemNameChanged(_app->uniqueName(), text());
     }
     _nameEdit->clearFocus();
 }

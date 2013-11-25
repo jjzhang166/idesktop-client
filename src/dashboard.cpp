@@ -266,6 +266,8 @@ Dashboard::Dashboard(QWidget *parent)
 
     connect(vdesktop, SIGNAL(mousePress()), _docker,
             SLOT(clearToggles()));
+    connect(vdesktop, SIGNAL(dimNodeBtn(bool)), _pageNodes,
+            SLOT(dimNodeBtn(bool)));
 
     connect(_pageNodes, SIGNAL(choosePage(int)), vdesktop, SLOT(moveToPage(int)));
 
