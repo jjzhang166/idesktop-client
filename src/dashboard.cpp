@@ -1279,8 +1279,25 @@ void Dashboard::setIcon(const QString &dirPath, const QString &iconPath)
     path += "\\iconWidgetBg\\icon_middle_shadow.png";
 
     QImage image = QImage(newApp).scaled(59, 59, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    QImage normal = QImage(":images/icon_shadow.png");
     QImage middle = QImage(path);
+    QImage normal;
+    if(QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+    {
+        normal = QImage(":images/icon_shadow.png");
+    }
+    else
+    {
+        normal = QImage(143, 143, QImage::Format_ARGB32_Premultiplied);
+        for (int i = 0; i < 143; i++) {
+            for (int j = 0; j < 143; j++) {
+                QRgb pixel = normal.pixel(i,j);
+                int a = qAlpha(pixel);
+                QRgb transparentPixel = qRgba(qRed(pixel), qGreen(pixel),
+                                       qBlue(pixel), 0 * a);
+                normal.setPixel(i, j, transparentPixel);
+            }
+        }
+    }
 
     QPainter pt1(&normal);
     pt1.setCompositionMode(QPainter::CompositionMode_SourceOver);
